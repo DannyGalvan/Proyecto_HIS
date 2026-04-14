@@ -1,12 +1,12 @@
+using Hospital.Server.Attributes;
 using Hospital.Server.Entities.Models;
 using Hospital.Server.Entities.Request;
 using Hospital.Server.Entities.Response;
+using Hospital.Server.Security.Authorization;
 using Hospital.Server.Services.Interfaces;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Server.Attributes;
-using Project.Server.Security.Authorization;
 
 namespace Hospital.Server.Controllers
 {

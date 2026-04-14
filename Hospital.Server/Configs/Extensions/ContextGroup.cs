@@ -2,8 +2,6 @@
 {
     using Hospital.Server.Infrastructure.Extensions;
     using Microsoft.EntityFrameworkCore;
-    using Project.Server.Context;
-    using Project.Server.Infrastructure.Database;
 
     /// <summary>
     /// Defines the <see cref="ContextGroup" />

@@ -1,4 +1,4 @@
-using Project.Server.Infrastructure.Database.Configurators;
+using Hospital.Server.Infrastructure.Database.Configurators;
 
 namespace Hospital.Server.Infrastructure.Database
 {

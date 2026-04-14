@@ -2,11 +2,10 @@ using Hospital.Server.Configs.Models;
 using Hospital.Server.Context;
 using Hospital.Server.Entities.Dtos.Security;
 using Hospital.Server.Services.Interfaces;
-using Lombok.NET;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Project.Server.Entities.Models;
 using System.Text.RegularExpressions;
+using Hospital.Server.Entities.Models;
 using BC = BCrypt.Net;
 
 namespace Hospital.Server.Services.Core

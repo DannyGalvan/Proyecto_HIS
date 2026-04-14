@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Project.Server.Security.Authorization;
 
 namespace Hospital.Server.Security.Authorization
 {

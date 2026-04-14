@@ -1,12 +1,12 @@
 using FluentValidation.Results;
 using Hospital.Server.Entities.Interfaces;
 using Hospital.Server.Entities.Request;
+using Hospital.Server.Entities.Response;
 using Hospital.Server.Services.Interfaces;
 using Hospital.Server.Utils;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Server.Entities.Response;
 
 namespace Hospital.Server.Controllers
 {

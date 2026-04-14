@@ -1,4 +1,5 @@
 ﻿using FluentValidation.Results;
+using Hospital.Server.Attributes;
 using Hospital.Server.Controllers;
 using Hospital.Server.Entities.Models;
 using Hospital.Server.Entities.Request;
@@ -8,7 +9,6 @@ using Lombok.NET;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Server.Attributes;
 
 namespace Project.Server.Controllers
 {

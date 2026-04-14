@@ -1,11 +1,11 @@
 using Hospital.Server.Attributes;
 using Hospital.Server.Context;
+using Hospital.Server.Entities.Models;
 using Hospital.Server.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Project.Server.Entities.Models;
 
 namespace Hospital.Server.Services.Core
 {

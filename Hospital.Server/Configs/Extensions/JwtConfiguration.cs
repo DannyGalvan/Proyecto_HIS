@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Project.Server.Entities.Response;
+﻿using Hospital.Server.Entities.Response;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Hospital.Server.Configs.Extensions
 {

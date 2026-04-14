@@ -1,4 +1,5 @@
-﻿using Project.Server.Entities.Response;
+﻿
+using Hospital.Server.Entities.Response;
 
 namespace Hospital.Server.Configs.Extensions
 {
