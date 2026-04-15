@@ -49,6 +49,7 @@ if (!existsSync(certFilePath) || !existsSync(keyFilePath)) {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [viteReact(), compress(), tsconfigPaths(), tailwindcss()],
+  base: "/",
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

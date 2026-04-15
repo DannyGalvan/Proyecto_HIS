@@ -1,0 +1,29 @@
+#/etc/systemd/system/hospital.service
+#informacion del archivo
+[Unit]
+Description=Hospital ASP.NET Core App 10
+After=network.target
+
+[Service]
+WorkingDirectory=/home/administrator/Sites/Hospital
+ExecStart=/home/administrator/Sites/Hospital/Hospital.Server
+Restart=always
+# User=administrator  # (o tu usuario Linux)
+# Environment=ASPNETCORE_ENVIRONMENT=Production
+
+[Install]
+WantedBy=multi-user.target
+
+#ejecutar el servicio por primera vez luego de crearlo 
+#sudo systemctl daemon-reexec
+#sudo systemctl enable hospital
+#sudo systemctl start hospital
+
+#reiniciar el servicio
+#sudo systemctl restart hospital
+
+#parar el servicio
+#sudo systemctl stop hospital
+
+#ejecutar el servicio
+#sudo systemctl start hospital
