@@ -6,10 +6,9 @@ using Hospital.Server.Services.Background;
 using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
 using Hospital.Server.Utils;
-using Project.Server.Security;
-using Project.Server.Services.Core;
-using AuthService = Project.Server.Services.Core.AuthService;
-using SendEmail = Project.Server.Services.Core.SendEmail;
+using AuthService = Hospital.Server.Services.Core.AuthService;
+using EntitySupportService = Hospital.Server.Services.Core.EntitySupportService;
+using SendEmail = Hospital.Server.Services.Core.SendEmail;
 
 
 namespace Hospital.Server.Configs.Extensions
@@ -31,41 +30,41 @@ namespace Hospital.Server.Configs.Extensions
             services.AddScoped<IAuthService, AuthService>();
 
             // CRUD services
-            services.AddScoped<IEntityService<User, UserRequest, long>, EntityService<User, UserRequest, long>>();
-            services.AddScoped<IEntityService<Rol, RolRequest, long>, EntityService<Rol, RolRequest, long>>();
-            services.AddScoped<IEntityService<Operation, OperationRequest, long>, EntityService<Operation, OperationRequest, long>>();
-            services.AddScoped<IEntityService<RolOperation, RolOperationRequest, long>, EntityService<RolOperation, RolOperationRequest, long>>();
+            services.AddScoped<IEntityService<User, UserRequest, long>, Services.Core.EntityService<User, UserRequest, long>>();
+            services.AddScoped<IEntityService<Rol, RolRequest, long>, Services.Core.EntityService<Rol, RolRequest, long>>();
+            services.AddScoped<IEntityService<Operation, OperationRequest, long>, Services.Core.EntityService<Operation, OperationRequest, long>>();
+            services.AddScoped<IEntityService<RolOperation, RolOperationRequest, long>, Services.Core.EntityService<RolOperation, RolOperationRequest, long>>();
 
             // Catalogs CRUD services
-            services.AddScoped<IEntityService<Specialty, SpecialtyRequest, long>, EntityService<Specialty, SpecialtyRequest, long>>();
-            services.AddScoped<IEntityService<Laboratory, LaboratoryRequest, long>, EntityService<Laboratory, LaboratoryRequest, long>>();
-            services.AddScoped<IEntityService<Branch, BranchRequest, long>, EntityService<Branch, BranchRequest, long>>();
-            services.AddScoped<IEntityService<AppointmentStatus, AppointmentStatusRequest, long>, EntityService<AppointmentStatus, AppointmentStatusRequest, long>>();
+            services.AddScoped<IEntityService<Specialty, SpecialtyRequest, long>, Services.Core.EntityService<Specialty, SpecialtyRequest, long>>();
+            services.AddScoped<IEntityService<Laboratory, LaboratoryRequest, long>, Services.Core.EntityService<Laboratory, LaboratoryRequest, long>>();
+            services.AddScoped<IEntityService<Branch, BranchRequest, long>, Services.Core.EntityService<Branch, BranchRequest, long>>();
+            services.AddScoped<IEntityService<AppointmentStatus, AppointmentStatusRequest, long>, Services.Core.EntityService<AppointmentStatus, AppointmentStatusRequest, long>>();
 
             // Core CRUD services
-            services.AddScoped<IEntityService<Appointment, AppointmentRequest, long>, EntityService<Appointment, AppointmentRequest, long>>();
-            services.AddScoped<IEntityService<Payment, PaymentRequest, long>, EntityService<Payment, PaymentRequest, long>>();
-            services.AddScoped<IEntityService<AppointmentDocument, AppointmentDocumentRequest, long>, EntityService<AppointmentDocument, AppointmentDocumentRequest, long>>();
+            services.AddScoped<IEntityService<Appointment, AppointmentRequest, long>, Services.Core.EntityService<Appointment, AppointmentRequest, long>>();
+            services.AddScoped<IEntityService<Payment, PaymentRequest, long>, Services.Core.EntityService<Payment, PaymentRequest, long>>();
+            services.AddScoped<IEntityService<AppointmentDocument, AppointmentDocumentRequest, long>, Services.Core.EntityService<AppointmentDocument, AppointmentDocumentRequest, long>>();
 
             // Clinical CRUD services
-            services.AddScoped<IEntityService<VitalSign, VitalSignRequest, long>, EntityService<VitalSign, VitalSignRequest, long>>();
-            services.AddScoped<IEntityService<MedicalConsultation, MedicalConsultationRequest, long>, EntityService<MedicalConsultation, MedicalConsultationRequest, long>>();
-            services.AddScoped<IEntityService<Prescription, PrescriptionRequest, long>, EntityService<Prescription, PrescriptionRequest, long>>();
-            services.AddScoped<IEntityService<PrescriptionItem, PrescriptionItemRequest, long>, EntityService<PrescriptionItem, PrescriptionItemRequest, long>>();
+            services.AddScoped<IEntityService<VitalSign, VitalSignRequest, long>, Services.Core.EntityService<VitalSign, VitalSignRequest, long>>();
+            services.AddScoped<IEntityService<MedicalConsultation, MedicalConsultationRequest, long>, Services.Core.EntityService<MedicalConsultation, MedicalConsultationRequest, long>>();
+            services.AddScoped<IEntityService<Prescription, PrescriptionRequest, long>, Services.Core.EntityService<Prescription, PrescriptionRequest, long>>();
+            services.AddScoped<IEntityService<PrescriptionItem, PrescriptionItemRequest, long>, Services.Core.EntityService<PrescriptionItem, PrescriptionItemRequest, long>>();
 
             // Laboratory CRUD services
-            services.AddScoped<IEntityService<LabExam, LabExamRequest, long>, EntityService<LabExam, LabExamRequest, long>>();
-            services.AddScoped<IEntityService<LabOrder, LabOrderRequest, long>, EntityService<LabOrder, LabOrderRequest, long>>();
-            services.AddScoped<IEntityService<LabOrderItem, LabOrderItemRequest, long>, EntityService<LabOrderItem, LabOrderItemRequest, long>>();
+            services.AddScoped<IEntityService<LabExam, LabExamRequest, long>, Services.Core.EntityService<LabExam, LabExamRequest, long>>();
+            services.AddScoped<IEntityService<LabOrder, LabOrderRequest, long>, Services.Core.EntityService<LabOrder, LabOrderRequest, long>>();
+            services.AddScoped<IEntityService<LabOrderItem, LabOrderItemRequest, long>, Services.Core.EntityService<LabOrderItem, LabOrderItemRequest, long>>();
 
             // Pharmacy CRUD services (CU-10)
-            services.AddScoped<IEntityService<Medicine, MedicineRequest, long>, EntityService<Medicine, MedicineRequest, long>>();
-            services.AddScoped<IEntityService<MedicineInventory, MedicineInventoryRequest, long>, EntityService<MedicineInventory, MedicineInventoryRequest, long>>();
-            services.AddScoped<IEntityService<Dispense, DispenseRequest, long>, EntityService<Dispense, DispenseRequest, long>>();
-            services.AddScoped<IEntityService<DispenseItem, DispenseItemRequest, long>, EntityService<DispenseItem, DispenseItemRequest, long>>();
+            services.AddScoped<IEntityService<Medicine, MedicineRequest, long>, Services.Core.EntityService<Medicine, MedicineRequest, long>>();
+            services.AddScoped<IEntityService<MedicineInventory, MedicineInventoryRequest, long>, Services.Core.EntityService<MedicineInventory, MedicineInventoryRequest, long>>();
+            services.AddScoped<IEntityService<Dispense, DispenseRequest, long>, Services.Core.EntityService<Dispense, DispenseRequest, long>>();
+            services.AddScoped<IEntityService<DispenseItem, DispenseItemRequest, long>, Services.Core.EntityService<DispenseItem, DispenseItemRequest, long>>();
 
             // Notification CRUD services (CU-11)
-            services.AddScoped<IEntityService<NotificationLog, NotificationLogRequest, long>, EntityService<NotificationLog, NotificationLogRequest, long>>();
+            services.AddScoped<IEntityService<NotificationLog, NotificationLogRequest, long>, Services.Core.EntityService<NotificationLog, NotificationLogRequest, long>>();
 
             // User interceptors
             services.AddScoped<IEntityBeforeCreateInterceptor<User, UserRequest>, UserBeforeCreateInterceptor>();

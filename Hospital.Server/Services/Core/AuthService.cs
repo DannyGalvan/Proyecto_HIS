@@ -17,7 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using BC = BCrypt.Net;
 using ValidationFailure = FluentValidation.Results.ValidationFailure;
 
-namespace Project.Server.Services.Core
+namespace Hospital.Server.Services.Core
 {
     /// <summary>
     /// Defines the <see cref="AuthService" />

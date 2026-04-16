@@ -1,13 +1,12 @@
-namespace Project.Server.Services.Core
-{
-    using Lombok.NET;
-    using FluentValidation;
-    using Microsoft.Extensions.DependencyInjection;
-    using System.Reflection;
-    using Hospital.Server.Interceptors.Interfaces;
-    using Hospital.Server.Services.Interfaces;
-    using Hospital.Server.Utils;
+using System.Reflection;
+using FluentValidation;
+using Hospital.Server.Interceptors.Interfaces;
+using Hospital.Server.Services.Interfaces;
+using Hospital.Server.Utils;
+using Lombok.NET;
 
+namespace Hospital.Server.Services.Core
+{
     [AllArgsConstructor]
     public partial class EntitySupportService : IEntitySupportService
     {

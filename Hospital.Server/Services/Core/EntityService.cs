@@ -1,15 +1,15 @@
-﻿using FluentValidation.Results;
+﻿using System.Linq.Expressions;
+using FluentValidation.Results;
+using Hospital.Server.Context;
+using Hospital.Server.Entities.Interfaces;
+using Hospital.Server.Entities.Response;
+using Hospital.Server.Services.Interfaces;
+using Hospital.Server.Utils;
 using Lombok.NET;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-using Hospital.Server.Context;
-using Hospital.Server.Entities.Response;
-using Hospital.Server.Utils;
-using Hospital.Server.Services.Interfaces;
-using Hospital.Server.Entities.Interfaces;
 
-namespace Project.Server.Services.Core
+namespace Hospital.Server.Services.Core
 {
     /// <summary>
     /// Defines the <see cref="EntityService{TEntity, TRequest, TId}" />

@@ -44,7 +44,7 @@ namespace Project.Server.Security
             }
             catch (Exception ex)
             {
-                return AuthValidationResult.Fail("Error al validar credenciales");
+                return AuthValidationResult.Fail("Error al validar credenciales" + " " + ex.Message);
             }
         }
 

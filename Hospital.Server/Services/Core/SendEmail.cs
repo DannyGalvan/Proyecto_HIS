@@ -5,7 +5,7 @@ using Hospital.Server.Services.Interfaces;
 using Lombok.NET;
 using Microsoft.Extensions.Options;
 
-namespace Project.Server.Services.Core
+namespace Hospital.Server.Services.Core
 {
     /// <summary>
     /// Defines the <see cref="SendEmail" />

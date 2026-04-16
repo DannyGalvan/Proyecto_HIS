@@ -24,7 +24,7 @@ namespace Hospital.Server.Context.Config
 
                 var logConfig = builder.Configuration.GetSection("SerilogLogger");
                 var minLevelString = logConfig.GetValue("MinimumLevel", isDevelopment ? "Debug" : "Information");
-                var minLevel = ParseLogLevel(minLevelString);
+                var minLevel = ParseLogLevel(minLevelString!);
 
                 var logToConsole = logConfig.GetValue("LogToConsole", true);
                 var logToFile = logConfig.GetValue("LogToFile", isDevelopment);
