@@ -40,6 +40,12 @@ namespace Hospital.Server.Context.Config
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
 
+            entity.HasOne(e => e.Specialty)
+                .WithMany()
+                .HasForeignKey(e => e.SpecialtyId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
             //password: Guatemala1.
             entity.HasData(
                 new User

@@ -76,5 +76,10 @@ namespace Hospital.Server.Entities.Request
         /// Gets or sets the UpdatedBy
         /// </summary>
         public long? UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the SpecialtyId (nullable — solo para médicos)
+        /// </summary>
+        public long? SpecialtyId { get; set; }
     }
 }

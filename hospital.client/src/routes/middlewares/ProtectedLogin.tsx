@@ -11,7 +11,8 @@ function ProtectedLogin({ children }: ProtectedLoginProps) {
   const { isLoggedIn } = useAuth();
 
   if (isLoggedIn) {
-    return <Navigate to={nameRoutes.root} />;
+    // Redirect to admin dashboard instead of root to avoid the portal redirect
+    return <Navigate to={nameRoutes.doctorDashboard} replace />;
   }
 
   return children;

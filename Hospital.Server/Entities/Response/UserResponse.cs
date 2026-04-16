@@ -81,5 +81,15 @@
         /// Gets or sets the Rol
         /// </summary>
         public virtual RolResponse? Rol { get; set; }
+
+        /// <summary>
+        /// Gets or sets the SpecialtyId
+        /// </summary>
+        public long? SpecialtyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Specialty
+        /// </summary>
+        public virtual SpecialtyResponse? Specialty { get; set; }
     }
 }

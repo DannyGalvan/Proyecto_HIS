@@ -16,6 +16,7 @@ import type { UserResponse } from "../../types/UserResponse";
 import type { ValidationFailure } from "../../types/ValidationFailure";
 import { Response } from "../messages/Response";
 import { CatalogueSelect } from "../select/CatalogueSelect";
+import { DynamicCalendar } from "../portal/DynamicCalendar";
 
 // ─── Edit-mode imports (kept for the simple single-step edit flow) ───────────
 import { FieldError, Form, Input, Label, TextField } from "@heroui/react";
@@ -179,9 +180,6 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<boolean | null>(null);
   const [submitMessage, setSubmitMessage] = useState<string>("");
-
-  // Minimum datetime string for the date input (now)
-  const minDateTime = new Date().toISOString().slice(0, 16);
 
   // ── Selectors ──────────────────────────────────────────────────────────────
 
@@ -367,28 +365,49 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
                   ...prev,
                   doctorId: o?.value ?? null,
                   doctorLabel: o?.label ?? "",
+                  // Reset date when doctor changes
+                  appointmentDate: "",
                 }));
               }}
             />
-            <div className="flex flex-col gap-1">
-              <label className="text-default-500 text-xs ms-1 font-medium" htmlFor="appointmentDate">
-                Fecha y Hora de la Cita <span className="text-danger font-bold ml-1">*</span>
-              </label>
-              <input
-                className="w-full px-3 py-2 border rounded-md bg-default-100 hover:bg-default-200 transition-colors"
-                id="appointmentDate"
-                min={minDateTime}
-                name="appointmentDate"
-                type="datetime-local"
-                value={formState.appointmentDate}
-                onChange={(e) => {
-                  setFormState((prev) => ({
-                    ...prev,
-                    appointmentDate: e.target.value,
-                  }));
-                }}
-              />
-            </div>
+
+            {formState.doctorId ? (
+              <div className="flex flex-col gap-2">
+                <label className="text-default-500 text-xs ms-1 font-medium">
+                  Fecha y Hora de la Cita <span className="text-danger font-bold ml-1">*</span>
+                </label>
+                <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                  <DynamicCalendar
+                    doctorId={Number(formState.doctorId)}
+                    onSlotSelected={(dateTime) => {
+                      setFormState((prev) => ({
+                        ...prev,
+                        appointmentDate: dateTime.toISOString(),
+                      }));
+                    }}
+                  />
+                </div>
+                {formState.appointmentDate && (
+                  <p className="text-sm text-green-600 font-medium ms-1">
+                    <i className="bi bi-check-circle mr-1" />
+                    Horario seleccionado:{" "}
+                    {new Date(formState.appointmentDate).toLocaleString("es-GT", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-400 dark:border-gray-600 dark:bg-gray-800/50">
+                <i className="bi bi-calendar-event text-2xl block mb-2" />
+                Seleccione un médico para ver la disponibilidad de horarios
+              </div>
+            )}
           </div>
         )}
 

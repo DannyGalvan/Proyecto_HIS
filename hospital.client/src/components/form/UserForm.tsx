@@ -12,9 +12,11 @@ import { AsyncButton } from "../button/AsyncButton";
 import { useForm } from "../../hooks/useForm";
 import { getBranches } from "../../services/branchService";
 import { getRoles } from "../../services/rolService";
+import { getSpecialties } from "../../services/specialtyService";
 import type { ApiResponse } from "../../types/ApiResponse";
 import type { BranchResponse } from "../../types/BranchResponse";
 import type { RolResponse } from "../../types/RolResponse";
+import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
 import type { UserRequest } from "../../types/UserRequest";
 import type { ValidationFailure } from "../../types/ValidationFailure";
 import { validateUser } from "../../validations/userValidation";
@@ -76,6 +78,14 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
 
   const selectorBranch = useCallback(
     (item: BranchResponse) => ({
+      label: item.name,
+      value: String(item.id),
+    }),
+    [],
+  );
+
+  const selectorSpecialty = useCallback(
+    (item: SpecialtyResponse) => ({
       label: item.name,
       value: String(item.id),
     }),
@@ -289,6 +299,27 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
             queryFn={getBranches}
             selectorFn={selectorBranch}
             onChange={handleSelectChange("branchId")}
+          />
+
+          <CatalogueSelect
+            defaultValue={
+              type === "edit" && form.specialtyId
+                ? {
+                    label: form.specialty?.name ?? String(form.specialtyId),
+                    value: String(form.specialtyId),
+                  }
+                : null
+            }
+            deps="State:eq:1"
+            errorMessage={errors?.specialtyId as string}
+            fieldSearch="Name"
+            isInvalid={!!errors?.specialtyId}
+            label="Especialidad (Médicos)"
+            name="specialtyId"
+            placeholder="Seleccione una especialidad (opcional)"
+            queryFn={getSpecialties}
+            selectorFn={selectorSpecialty}
+            onChange={handleSelectChange("specialtyId")}
           />
 
           <OptionsSelect

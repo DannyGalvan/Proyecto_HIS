@@ -192,7 +192,7 @@ function Step2Doctor({
             </div>
             <div>
               <p className="font-semibold text-gray-800 dark:text-gray-100">{d.name}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{specialtyName}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{d.specialtyName ?? specialtyName}</p>
             </div>
             <i className="bi bi-chevron-right ml-auto text-gray-400" />
           </button>

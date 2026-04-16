@@ -227,21 +227,14 @@ namespace Hospital.Server.Controllers
         [HttpGet("doctors")]
         public async Task<IActionResult> GetDoctors([FromQuery] long specialtyId)
         {
-            // Query active users with role "Medico"
-            // Filter by specialty via existing appointments if specialtyId > 0
             IQueryable<User> query = _bd.Users
                 .Include(u => u.Rol)
+                .Include(u => u.Specialty)
                 .Where(u => u.State == 1 && u.Rol != null && u.Rol.Name == "Medico");
 
             if (specialtyId > 0)
             {
-                // Filter doctors who have appointments in the requested specialty
-                var doctorIdsWithSpecialty = _bd.Appointments
-                    .Where(a => a.SpecialtyId == specialtyId && a.State == 1 && a.DoctorId != null)
-                    .Select(a => a.DoctorId!.Value)
-                    .Distinct();
-
-                query = query.Where(u => doctorIdsWithSpecialty.Contains(u.Id));
+                query = query.Where(u => u.SpecialtyId == specialtyId);
             }
 
             List<User> doctors = await query.ToListAsync();
@@ -250,7 +243,8 @@ namespace Hospital.Server.Controllers
             {
                 Id = d.Id,
                 Name = d.Name,
-                SpecialtyId = specialtyId > 0 ? specialtyId : null
+                SpecialtyId = d.SpecialtyId,
+                SpecialtyName = d.Specialty?.Name
             }).ToList();
 
             return Ok(new Response<List<DoctorResponse>>
@@ -286,18 +280,27 @@ namespace Hospital.Server.Controllers
             DateTime dayStart = parsedDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
             DateTime dayEnd = dayStart.AddDays(1);
 
-            // 2. Query active appointments for the doctor on that date
-            List<Appointment> appointments = await _bd.Appointments
-                .Where(a =>
-                    a.DoctorId == doctorId &&
-                    a.State == 1 &&
-                    a.AppointmentDate >= dayStart &&
-                    a.AppointmentDate < dayEnd)
-                .ToListAsync();
+            // Only "Pagada" appointments block slots — pending reservations do not
+            AppointmentStatus? pagadaStatus = await _bd.AppointmentStatuses
+                .FirstOrDefaultAsync(s => s.Name == "Pagada");
 
-            // 3. Return occupied slots as ISO 8601 strings
+            List<Appointment> appointments = new();
+            if (pagadaStatus != null)
+            {
+                appointments = await _bd.Appointments
+                    .Where(a =>
+                        a.DoctorId == doctorId &&
+                        a.State == 1 &&
+                        a.AppointmentStatusId == pagadaStatus.Id &&
+                        a.AppointmentDate >= dayStart &&
+                        a.AppointmentDate < dayEnd)
+                    .ToListAsync();
+            }
+
+            // Return occupied slots as UTC ISO 8601 strings with Z suffix so the
+            // frontend parses them unambiguously as UTC and converts to local time.
             List<string> occupiedSlots = appointments
-                .Select(a => a.AppointmentDate.ToString("yyyy-MM-ddTHH:mm:ss"))
+                .Select(a => a.AppointmentDate.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ"))
                 .ToList();
 
             return Ok(new Response<AvailabilityResponse>
@@ -347,16 +350,26 @@ namespace Hospital.Server.Controllers
                 });
             }
 
-            // 3. Check slot conflict: 30-minute window overlap for the same doctor
+            // 3. Check slot conflict: only "Pagada" appointments block slots
+            // (Pendiente reservations that haven't been paid yet are excluded)
             DateTime requestedStart = request.AppointmentDate;
             DateTime requestedEnd = requestedStart.AddMinutes(30);
 
-            bool slotConflict = await _bd.Appointments
-                .AnyAsync(a =>
-                    a.DoctorId == request.DoctorId &&
-                    a.State == 1 &&
-                    a.AppointmentDate < requestedEnd &&
-                    a.AppointmentDate.AddMinutes(30) > requestedStart);
+            // Get the Id of "Pagada" status to filter only paid appointments
+            AppointmentStatus? pagadaStatus = await _bd.AppointmentStatuses
+                .FirstOrDefaultAsync(s => s.Name == "Pagada");
+
+            bool slotConflict = false;
+            if (pagadaStatus != null)
+            {
+                slotConflict = await _bd.Appointments
+                    .AnyAsync(a =>
+                        a.DoctorId == request.DoctorId &&
+                        a.State == 1 &&
+                        a.AppointmentStatusId == pagadaStatus.Id &&
+                        a.AppointmentDate < requestedEnd &&
+                        a.AppointmentDate.AddMinutes(30) > requestedStart);
+            }
 
             if (slotConflict)
             {
@@ -382,9 +395,12 @@ namespace Hospital.Server.Controllers
 
             // 5. Create appointment directly via DbContext
             long userId = GetUserId();
+
+            // Always use the authenticated user's ID as PatientId — never trust
+            // the value sent from the client, which could be stale or spoofed.
             Appointment newAppointment = new()
             {
-                PatientId = request.PatientId,
+                PatientId = userId,
                 DoctorId = request.DoctorId,
                 SpecialtyId = request.SpecialtyId,
                 BranchId = request.BranchId,
@@ -407,16 +423,16 @@ namespace Hospital.Server.Controllers
                 Message = "Cita creada correctamente",
                 Data = new
                 {
-                    newAppointment.Id,
+                    AppointmentId = newAppointment.Id,
                     newAppointment.PatientId,
                     newAppointment.DoctorId,
                     newAppointment.SpecialtyId,
                     newAppointment.BranchId,
-                    newAppointment.AppointmentDate,
+                    AppointmentDate = newAppointment.AppointmentDate.ToString("o"),
                     newAppointment.Reason,
                     newAppointment.Amount,
                     newAppointment.AppointmentStatusId,
-                    newAppointment.CreatedAt
+                    CreatedAt = newAppointment.CreatedAt.ToString("o")
                 },
                 TotalResults = 1
             });
@@ -469,9 +485,11 @@ namespace Hospital.Server.Controllers
                 });
             }
 
-            // 4. Verify reservation has not expired (5-minute window)
-            double minutesElapsed = (DateTime.UtcNow - appointment.CreatedAt).TotalMinutes;
-            if (minutesElapsed > 5)
+            // 4. Verify reservation has not expired (5-minute window from creation)
+            // Use UTC consistently — CreatedAt is stored as UTC
+            DateTime createdAtUtc = DateTime.SpecifyKind(appointment.CreatedAt, DateTimeKind.Utc);
+            double minutesElapsed = (DateTime.UtcNow - createdAtUtc).TotalMinutes;
+            if (minutesElapsed > 6) // 5 min window + 1 min grace for network latency
             {
                 return StatusCode(410, new Response<string>
                 {

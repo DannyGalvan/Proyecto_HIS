@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { setAuthorization } from '../configs/axios/interceptors';
 import type { PatientAuthState } from '../types/PatientPortalTypes';
 
 interface PatientAuthStore extends PatientAuthState {
@@ -22,17 +23,27 @@ export const usePatientAuthStore = create<PatientAuthStore>()(
   persist(
     (set) => ({
       ...initialState,
-      signInPatient: (state: PatientAuthState) => set({ ...state }),
-      logoutPatient: () => set({ ...initialState }),
+      signInPatient: (state: PatientAuthState) => {
+        set({ ...state });
+        setAuthorization(state.token);
+      },
+      logoutPatient: () => {
+        set({ ...initialState });
+        setAuthorization('');
+      },
       syncPatientAuth: () => {
-        // Re-sync from localStorage if needed.
-        // The persist middleware already rehydrates state on app init,
-        // so this is a no-op hook for manual re-sync if required.
+        // The persist middleware rehydrates state on app init.
+        // This method re-applies the token to the axios instance
+        // in case the interceptor default header needs refreshing.
         const stored = window.localStorage.getItem('@patient-auth');
         if (stored) {
           try {
-            const parsed: PatientAuthState = JSON.parse(stored);
-            set({ ...parsed });
+            const parsed = JSON.parse(stored) as { state?: PatientAuthState };
+            const patientState = parsed?.state;
+            if (patientState?.token) {
+              set({ ...patientState });
+              setAuthorization(patientState.token);
+            }
           } catch {
             // Ignore malformed storage
           }
@@ -41,6 +52,14 @@ export const usePatientAuthStore = create<PatientAuthStore>()(
     }),
     {
       name: '@patient-auth',
+      onRehydrateStorage: () => (state) => {
+        // Called automatically by zustand/persist after rehydration from localStorage.
+        // Re-apply the token to the axios default headers so requests made
+        // immediately after a page reload carry the Authorization header.
+        if (state?.token) {
+          setAuthorization(state.token);
+        }
+      },
     }
   )
 );

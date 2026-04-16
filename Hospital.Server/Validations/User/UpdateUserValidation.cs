@@ -64,6 +64,12 @@ namespace Hospital.Server.Validations.User
                     .GreaterThan(0).WithMessage("Debe seleccionar una sucursal válida para el usuario");
             });
 
+            When(x => x.SpecialtyId != null, () =>
+            {
+                RuleFor(x => x.SpecialtyId)
+                    .GreaterThan(0).WithMessage("Debe seleccionar una especialidad válida");
+            });
+
             When(x => !string.IsNullOrEmpty(x.InsuranceNumber), () =>
             {
                 RuleFor(x => x.InsuranceNumber)

@@ -134,6 +134,16 @@ namespace Hospital.Server.Entities.Models
         public virtual Branch? Branch { get; set; }
 
         /// <summary>
+        /// Gets or sets the SpecialtyId (nullable — solo aplica a médicos)
+        /// </summary>
+        public long? SpecialtyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Specialty navigation property
+        /// </summary>
+        public virtual Specialty? Specialty { get; set; }
+
+        /// <summary>
         /// Gets or sets the LoginAudits
         /// </summary>
         [JsonIgnore]

@@ -20,5 +20,10 @@ namespace Hospital.Server.Entities.Response
         /// Specialty ID associated with the doctor (if available).
         /// </summary>
         public long? SpecialtyId { get; set; }
+
+        /// <summary>
+        /// Name of the specialty assigned to the doctor (if any).
+        /// </summary>
+        public string? SpecialtyName { get; set; }
     }
 }

@@ -55,12 +55,29 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization === null ||
     config.headers.Authorization === "Bearer "
   ) {
-    const storedState = window.localStorage.getItem("@auth");
+    // Try admin auth first
+    const storedAdmin = window.localStorage.getItem("@auth");
+    if (storedAdmin) {
+      const { token }: InitialAuth = JSON.parse(storedAdmin);
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+        return config;
+      }
+    }
 
-    if (storedState) {
-      const { token }: InitialAuth = JSON.parse(storedState);
-
-      config.headers.Authorization = `Bearer ${token}`;
+    // Fall back to patient auth
+    const storedPatient = window.localStorage.getItem("@patient-auth");
+    if (storedPatient) {
+      try {
+        const parsed = JSON.parse(storedPatient) as { state?: { token?: string }; token?: string };
+        // zustand/persist wraps state under a "state" key
+        const token = parsed?.state?.token ?? parsed?.token;
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      } catch {
+        // Ignore malformed storage
+      }
     }
   }
 

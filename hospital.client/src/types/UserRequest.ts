@@ -1,4 +1,5 @@
 import type { RolResponse } from "./RolResponse";
+import type { SpecialtyResponse } from "./SpecialtyResponse";
 
 export interface UserRequest {
   id?: number | null;
@@ -17,4 +18,6 @@ export interface UserRequest {
   updatedBy?: number | null;
 
   rol?: RolResponse | null;
+  specialtyId?: number | null;
+  specialty?: SpecialtyResponse | null;
 }

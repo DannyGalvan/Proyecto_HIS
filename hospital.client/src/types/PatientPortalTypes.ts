@@ -8,6 +8,7 @@ export interface DoctorResponse {
   id: number;
   name: string;
   specialtyId?: number;
+  specialtyName?: string;
 }
 
 export interface AvailabilityResponse {

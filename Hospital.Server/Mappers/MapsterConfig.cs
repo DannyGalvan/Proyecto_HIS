@@ -37,6 +37,7 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.State, src => src.State)
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
                 .Ignore(dest => dest.CreatedAt)
                 .Ignore(dest => dest.UpdatedAt!);
 
@@ -54,6 +55,8 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.InsuranceNumber, src => src.InsuranceNumber)
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
+                .Map(dest => dest.Specialty, src => src.Specialty)
                 .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
                 .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy " +
                 "HH:mm:ss") : null);
