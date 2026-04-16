@@ -1,7 +1,8 @@
-import { Button, Label, TextField } from "@heroui/react";
+import { Label, TextField } from "@heroui/react";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
 import { Col } from "../../components/grid/Col";
+import { AsyncButton } from "../../components/button/AsyncButton";
 import { Response } from "../../components/messages/Response";
 import { useAuth } from "../../hooks/useAuth";
 import { useForm } from "../../hooks/useForm";
@@ -33,7 +34,7 @@ export function Component() {
     return response;
   };
 
-  const { form, handleChange, handleSubmit, success, message } = useForm(
+  const { form, handleChange, handleSubmit, success, message, loading } = useForm(
     initialForm,
     validateChangePassword,
     sendForm,
@@ -91,14 +92,16 @@ export function Component() {
             />
           </Col>
           <Col className="mt-5" md={12}>
-            <Button
+            <AsyncButton
               className="py-4 mt-4 font-bold w-full"
+              isLoading={loading}
+              loadingText="Cambiando contraseña..."
               size="lg"
               type="submit"
               variant="primary"
             >
               Cambiar contraseña
-            </Button>
+            </AsyncButton>
           </Col>
         </form>
       </div>

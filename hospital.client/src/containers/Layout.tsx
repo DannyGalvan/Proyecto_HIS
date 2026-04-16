@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 dark:bg-background transition-colors duration-300">
+    <div className="flex h-screen w-full bg-[var(--color-surface-50)] transition-colors duration-300">
       <Sidebar closeSidebar={closeSidebar} isOpen={sidebarOpen} />
 
       <div className="flex flex-1 flex-col overflow-hidden max-h-screen relative">
@@ -56,7 +56,7 @@ export function Layout({ children }: LayoutProps) {
         </div>
 
         {/* Footer movido fuera del contenedor scrollable para que sea Fixed (siempre visible abajo) */}
-        <div className="shrink-0 w-full z-40 bg-white dark:bg-[#18181b]">
+        <div className="shrink-0 w-full z-40">
           <Footer />
         </div>
       </div>

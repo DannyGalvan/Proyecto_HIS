@@ -1,5 +1,4 @@
 import {
-  Button,
   FieldError,
   Form,
   Input,
@@ -8,6 +7,7 @@ import {
 } from "@heroui/react";
 import { useCallback, type ChangeEvent } from "react";
 import { useNavigate } from "react-router";
+import { AsyncButton } from "../button/AsyncButton";
 import { useForm } from "../../hooks/useForm";
 import type { ApiResponse } from "../../types/ApiResponse";
 import type { RolRequest } from "../../types/RolRequest";
@@ -38,7 +38,7 @@ export function RolForm({ type, initialForm, onSubmit }: RolFormProps) {
   const isEditing = type === "edit";
   const navigate = useNavigate();
 
-  const { form, errors, handleChange, handleSubmit, success, message } =
+  const { form, errors, handleChange, handleSubmit, success, message, loading } =
     useForm<RolRequest, unknown>(initialForm, validateRol, onSubmit, true);
 
   const handleTextChange = useCallback(
@@ -147,23 +147,26 @@ export function RolForm({ type, initialForm, onSubmit }: RolFormProps) {
         </div>
 
         <div className="flex gap-4 justify-end mt-4">
-          <Button
+          <AsyncButton
             className="font-bold"
+            isLoading={false}
             size="lg"
             type="button"
             variant="secondary"
             onClick={handleCancel}
           >
             Cancelar
-          </Button>
-          <Button
+          </AsyncButton>
+          <AsyncButton
             className="font-bold"
+            isLoading={loading}
+            loadingText={isEditing ? "Actualizando..." : "Creando..."}
             size="lg"
             type="submit"
             variant="primary"
           >
             {isEditing ? "Actualizar" : "Crear"}
-          </Button>
+          </AsyncButton>
         </div>
       </Form>
     </div>

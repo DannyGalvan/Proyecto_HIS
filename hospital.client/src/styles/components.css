@@ -116,7 +116,12 @@
 }
 
 .active {
-  @apply bg-black text-blue-600;
+  background-color: rgba(10, 79, 166, 0.10);
+  color: #0A4FA6;
+}
+.dark .active {
+  background-color: rgba(10, 79, 166, 0.20);
+  color: #93C5FD;
 }
 
 .input-form {
@@ -124,7 +129,17 @@
 }
 
 .input-form-internal {
-  @apply mt-2 rounded-md bg-sky-100 px-4 focus:border-sky-500 focus:bg-white focus:outline-none;
+  border: 1px solid var(--color-surface-200);
+  background-color: var(--color-surface-50);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+}
+.input-form-internal:focus {
+  border-color: #0A4FA6;
+  box-shadow: 0 0 0 3px rgba(10, 79, 166, 0.15);
+  outline: none;
+  background-color: #FFFFFF;
 }
 
 .input-form-login {
@@ -136,17 +151,165 @@
 }
 
 .btn-primary {
-  @apply border-indigo-900 bg-indigo-800 text-white hover:border-indigo-600 hover:bg-indigo-600 disabled:opacity-50;
+  background-color: #0A4FA6;
+  border-color: #0A4FA6;
+  color: #FFFFFF;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: #0D3A7A;
+  border-color: #0D3A7A;
+}
+.btn-primary:disabled {
+  opacity: 0.5;
 }
 
 .btn-success {
-  @apply border-green-500 bg-green-500 text-white hover:border-green-600 hover:bg-green-600 disabled:opacity-50;
+  background-color: #0D9E6E;
+  border-color: #0D9E6E;
+  color: #FFFFFF;
+}
+.btn-success:hover:not(:disabled) {
+  background-color: #0A7A56;
+  border-color: #0A7A56;
+}
+.btn-success:disabled {
+  opacity: 0.5;
 }
 
 .btn-danger {
-  @apply border-red-500 bg-red-500 text-white hover:border-red-600 hover:bg-red-600 disabled:opacity-50;
+  background-color: #DC2626;
+  border-color: #DC2626;
+  color: #FFFFFF;
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: #B91C1C;
+  border-color: #B91C1C;
+}
+.btn-danger:disabled {
+  opacity: 0.5;
 }
 
 .page-view {
   @apply min-h-[83vh];
+}
+
+/* ── Sidebar ── */
+.sidebar-link-active {
+  position: relative;
+  background-color: rgba(10, 79, 166, 0.10);
+  color: #0A4FA6;
+}
+.dark .sidebar-link-active {
+  background-color: rgba(10, 79, 166, 0.20);
+  color: #93C5FD;
+}
+.sidebar-link-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: #0A4FA6;
+  border-radius: 0 2px 2px 0;
+}
+.dark .sidebar-link-active::before {
+  background-color: #3B82F6;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: linear-gradient(to right, #0A4FA6, transparent);
+  margin: 0.5rem 1rem;
+}
+
+/* ── Version badge ── */
+.version-badge {
+  border: 1px solid rgba(10, 79, 166, 0.20);
+  background-color: rgba(10, 79, 166, 0.05);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+}
+.dark .version-badge {
+  border-color: #3F3F46;
+  background-color: #27272A;
+}
+
+/* ── Medical badge ── */
+.badge-medical {
+  background-color: rgba(10, 79, 166, 0.10);
+  color: #0A4FA6;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+.dark .badge-medical {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #93C5FD;
+}
+
+/* ── Submenu floating ── */
+.submenu-floating {
+  border: 1px solid rgba(10, 79, 166, 0.20);
+  box-shadow: 0 8px 24px rgba(10, 79, 166, 0.12);
+  background-color: var(--color-surface-50);
+}
+
+.submenu-floating-header {
+  color: #0A4FA6;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+.dark .submenu-floating-header {
+  color: #93C5FD;
+}
+
+.submenu-floating-item:hover {
+  background-color: rgba(10, 79, 166, 0.08);
+  color: #0A4FA6;
+}
+.dark .submenu-floating-item:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #93C5FD;
+}
+
+/* ── Header accent line ── */
+.header-accent-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: rgba(10, 79, 166, 0.30);
+}
+
+/* ── Login ── */
+.login-card {
+  box-shadow: 0 20px 40px rgba(10, 79, 166, 0.15);
+}
+.dark .login-card {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.login-bg {
+  background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%);
+}
+.dark .login-bg {
+  background: linear-gradient(135deg, #0F172A 0%, #0C1A2E 100%);
+}
+
+/* ── Theme toggle button ── */
+.theme-toggle-btn:hover i {
+  transform: rotate(15deg);
+  transition: transform var(--transition-fast);
+}
+
+/* ── Focus visible global ── */
+:focus-visible {
+  outline: 2px solid #0A4FA6;
+  outline-offset: 2px;
 }

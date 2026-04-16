@@ -6,7 +6,9 @@ import { PAGINATION_OPTIONS, SELECTED_MESSAGE } from "../../configs/constants";
 import { useToggle } from "../../hooks/useToggle";
 import { useErrorsStore } from "../../stores/useErrorsStore";
 
-import { customStyles } from "../../theme/tableTheme";
+import { useTheme } from "next-themes";
+
+import { customStyles, customStylesDark } from "../../theme/tableTheme";
 import type { ApiResponse } from "../../types/ApiResponse";
 
 import { useRangeOfDatesStore } from "../../stores/useRangeOfDatesStore";
@@ -63,6 +65,11 @@ export function TableServer<T extends object>({
   styles,
   isExternalLoading = false,
 }: TableServerProps<T>) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  const activeTheme = isDark ? "heroui-theme-dark" : "heroui-theme";
+  const activeCustomStyles = isDark ? customStylesDark : customStyles;
+
   const { open, toggle } = useToggle();
   const { setError } = useErrorsStore();
   const { end, start, getDateFilters } = useRangeOfDatesStore();
@@ -183,7 +190,7 @@ export function TableServer<T extends object>({
           clearSelectedRows={selectedRows}
           columns={memoizedColumns}
           contextMessage={SELECTED_MESSAGE}
-          customStyles={styles ?? customStyles}
+          customStyles={styles ?? activeCustomStyles}
           data={data?.success ? data?.data : []}
           expandableRows={width}
           fixedHeaderScrollHeight="325px"
@@ -197,7 +204,7 @@ export function TableServer<T extends object>({
           progressPending={isPending || isExternalLoading}
           selectableRows={selectedRows}
           subHeaderComponent={<SubHeaderTableButton onClick={toggle} />}
-          theme="heroui-theme"
+          theme={activeTheme}
           title={title}
           onChangePage={onChangePage}
           onChangeRowsPerPage={onChangeRowsPerPage}
