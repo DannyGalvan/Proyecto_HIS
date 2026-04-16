@@ -66,6 +66,37 @@ namespace Hospital.Server.Context
         /// </summary>
         public DbSet<PasswordHistory> PasswordHistories { get; set; }
 
+        // Catalogs
+        public DbSet<Specialty> Specialties { get; set; }
+        public DbSet<Laboratory> Laboratories { get; set; }
+        public DbSet<Branch> Branches { get; set; }
+        public DbSet<AppointmentStatus> AppointmentStatuses { get; set; }
+
+        // Core entities
+        public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<AppointmentDocument> AppointmentDocuments { get; set; }
+
+        // Clinical entities
+        public DbSet<VitalSign> VitalSigns { get; set; }
+        public DbSet<MedicalConsultation> MedicalConsultations { get; set; }
+        public DbSet<Prescription> Prescriptions { get; set; }
+        public DbSet<PrescriptionItem> PrescriptionItems { get; set; }
+
+        // Laboratory entities
+        public DbSet<LabExam> LabExams { get; set; }
+        public DbSet<LabOrder> LabOrders { get; set; }
+        public DbSet<LabOrderItem> LabOrderItems { get; set; }
+
+        // Pharmacy entities (CU-10)
+        public DbSet<Medicine> Medicines { get; set; }
+        public DbSet<MedicineInventory> MedicineInventories { get; set; }
+        public DbSet<Dispense> Dispenses { get; set; }
+        public DbSet<DispenseItem> DispenseItems { get; set; }
+
+        // Notification tracking (CU-11)
+        public DbSet<NotificationLog> NotificationLogs { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

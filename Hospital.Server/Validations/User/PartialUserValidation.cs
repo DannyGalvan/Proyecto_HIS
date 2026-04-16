@@ -49,6 +49,27 @@ namespace Hospital.Server.Validations.User
                     .MaximumLength(100).WithMessage("La contraseña no debe exceder los 100 caracteres");
             });
 
+            When(x => !string.IsNullOrEmpty(x.Nit), () =>
+            {
+                RuleFor(x => x.Nit)
+                    .MinimumLength(8).WithMessage("El NIT debe contener entre 8 y 9 caracteres")
+                    .MaximumLength(9).WithMessage("El NIT debe contener entre 8 y 9 caracteres")
+                    .Matches(@"^[a-zA-Z0-9]+$").WithMessage("El NIT debe contener únicamente caracteres alfanuméricos");
+            });
+
+            When(x => x.BranchId != null, () =>
+            {
+                RuleFor(x => x.BranchId)
+                    .GreaterThan(0).WithMessage("Debe seleccionar una sucursal válida para el usuario");
+            });
+
+            When(x => !string.IsNullOrEmpty(x.InsuranceNumber), () =>
+            {
+                RuleFor(x => x.InsuranceNumber)
+                    .MinimumLength(5).WithMessage("El seguro médico debe contener entre 5 y 50 caracteres")
+                    .MaximumLength(50).WithMessage("El seguro médico debe contener entre 5 y 50 caracteres");
+            });
+
             When(x => x.State != null, () =>
             {
                 RuleFor(x => x.State)

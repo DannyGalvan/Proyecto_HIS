@@ -31,6 +31,9 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.Password, src => src.Password)
                 .Map(dest => dest.IdentificationDocument, src => src.IdentificationDocument)
                 .Map(dest => dest.Number, src => src.Number)
+                .Map(dest => dest.Nit, src => src.Nit)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.InsuranceNumber, src => src.InsuranceNumber)
                 .Map(dest => dest.State, src => src.State)
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
@@ -46,6 +49,9 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(dest => dest.RolId, src => src.RolId)
                 .Map(dest => dest.Rol, src => src.Rol)
+                .Map(dest => dest.Nit, src => src.Nit)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.InsuranceNumber, src => src.InsuranceNumber)
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
                 .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
@@ -165,6 +171,613 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.Module, src => src.Module);
 
             TypeAdapterConfig<Operation, Operation>.NewConfig();    
+
+            //Mapper Specialty
+            TypeAdapterConfig<SpecialtyRequest, Specialty>.NewConfig()
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Specialty, SpecialtyResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<Specialty, Specialty>.NewConfig();
+
+            //Mapper Laboratory
+            TypeAdapterConfig<LaboratoryRequest, Laboratory>.NewConfig()
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Laboratory, LaboratoryResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<Laboratory, Laboratory>.NewConfig();
+
+            //Mapper Branch
+            TypeAdapterConfig<BranchRequest, Branch>.NewConfig()
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Phone, src => src.Phone)
+                .Map(dest => dest.Address, src => src.Address)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Branch, BranchResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Phone, src => src.Phone)
+                .Map(dest => dest.Address, src => src.Address)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<Branch, Branch>.NewConfig();
+
+            //Mapper AppointmentStatus
+            TypeAdapterConfig<AppointmentStatusRequest, AppointmentStatus>.NewConfig()
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<AppointmentStatus, AppointmentStatusResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<AppointmentStatus, AppointmentStatus>.NewConfig();
+
+            //Mapper Appointment
+            TypeAdapterConfig<AppointmentRequest, Appointment>.NewConfig()
+                .Map(dest => dest.PatientId, src => src.PatientId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.AppointmentStatusId, src => src.AppointmentStatusId)
+                .Map(dest => dest.AppointmentDate, src => src.AppointmentDate)
+                .Map(dest => dest.Reason, src => src.Reason)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.Priority, src => src.Priority)
+                .Map(dest => dest.ArrivalTime, src => src.ArrivalTime)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.FollowUpType, src => src.FollowUpType)
+                .Map(dest => dest.ParentConsultationId, src => src.ParentConsultationId)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Appointment, AppointmentResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.PatientId, src => src.PatientId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.AppointmentStatusId, src => src.AppointmentStatusId)
+                .Map(dest => dest.AppointmentDate, src => src.AppointmentDate.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.Reason, src => src.Reason)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.Priority, src => src.Priority)
+                .Map(dest => dest.ArrivalTime, src => src.ArrivalTime.HasValue ? src.ArrivalTime.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.FollowUpType, src => src.FollowUpType)
+                .Map(dest => dest.ParentConsultationId, src => src.ParentConsultationId)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
+                .Map(dest => dest.Specialty, src => src.Specialty)
+                .Map(dest => dest.Branch, src => src.Branch)
+                .Map(dest => dest.AppointmentStatus, src => src.AppointmentStatus);
+
+            TypeAdapterConfig<Appointment, Appointment>.NewConfig();
+
+            //Mapper Payment
+            TypeAdapterConfig<PaymentRequest, Payment>.NewConfig()
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.LabOrderId, src => src.LabOrderId)
+                .Map(dest => dest.DispenseId, src => src.DispenseId)
+                .Map(dest => dest.TransactionNumber, src => src.TransactionNumber)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.PaymentMethod, src => src.PaymentMethod)
+                .Map(dest => dest.PaymentType, src => src.PaymentType)
+                .Map(dest => dest.PaymentStatus, src => src.PaymentStatus)
+                .Map(dest => dest.PaymentDate, src => src.PaymentDate)
+                .Map(dest => dest.CardLastFourDigits, src => src.CardLastFourDigits)
+                .Map(dest => dest.IdempotencyKey, src => src.IdempotencyKey)
+                .Map(dest => dest.AmountReceived, src => src.AmountReceived)
+                .Map(dest => dest.ChangeAmount, src => src.ChangeAmount)
+                .Map(dest => dest.GatewayResponseCode, src => src.GatewayResponseCode)
+                .Map(dest => dest.GatewayMessage, src => src.GatewayMessage)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Payment, PaymentResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.LabOrderId, src => src.LabOrderId)
+                .Map(dest => dest.DispenseId, src => src.DispenseId)
+                .Map(dest => dest.TransactionNumber, src => src.TransactionNumber)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.PaymentMethod, src => src.PaymentMethod)
+                .Map(dest => dest.PaymentType, src => src.PaymentType)
+                .Map(dest => dest.PaymentStatus, src => src.PaymentStatus)
+                .Map(dest => dest.PaymentDate, src => src.PaymentDate.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.CardLastFourDigits, src => src.CardLastFourDigits)
+                .Map(dest => dest.IdempotencyKey, src => src.IdempotencyKey)
+                .Map(dest => dest.AmountReceived, src => src.AmountReceived)
+                .Map(dest => dest.ChangeAmount, src => src.ChangeAmount)
+                .Map(dest => dest.GatewayResponseCode, src => src.GatewayResponseCode)
+                .Map(dest => dest.GatewayMessage, src => src.GatewayMessage)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<Payment, Payment>.NewConfig();
+
+            //Mapper AppointmentDocument
+            TypeAdapterConfig<AppointmentDocumentRequest, AppointmentDocument>.NewConfig()
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.FileName, src => src.FileName)
+                .Map(dest => dest.FilePath, src => src.FilePath)
+                .Map(dest => dest.ContentType, src => src.ContentType)
+                .Map(dest => dest.FileSize, src => src.FileSize)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<AppointmentDocument, AppointmentDocumentResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.FileName, src => src.FileName)
+                .Map(dest => dest.FilePath, src => src.FilePath)
+                .Map(dest => dest.ContentType, src => src.ContentType)
+                .Map(dest => dest.FileSize, src => src.FileSize)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<AppointmentDocument, AppointmentDocument>.NewConfig();
+
+            //Mapper VitalSign
+            TypeAdapterConfig<VitalSignRequest, VitalSign>.NewConfig()
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.NurseId, src => src.NurseId)
+                .Map(dest => dest.BloodPressureSystolic, src => src.BloodPressureSystolic)
+                .Map(dest => dest.BloodPressureDiastolic, src => src.BloodPressureDiastolic)
+                .Map(dest => dest.Temperature, src => src.Temperature)
+                .Map(dest => dest.Weight, src => src.Weight)
+                .Map(dest => dest.Height, src => src.Height)
+                .Map(dest => dest.HeartRate, src => src.HeartRate)
+                .Map(dest => dest.IsEmergency, src => src.IsEmergency)
+                .Map(dest => dest.ClinicalAlerts, src => src.ClinicalAlerts)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<VitalSign, VitalSignResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.NurseId, src => src.NurseId)
+                .Map(dest => dest.BloodPressureSystolic, src => src.BloodPressureSystolic)
+                .Map(dest => dest.BloodPressureDiastolic, src => src.BloodPressureDiastolic)
+                .Map(dest => dest.Temperature, src => src.Temperature)
+                .Map(dest => dest.Weight, src => src.Weight)
+                .Map(dest => dest.Height, src => src.Height)
+                .Map(dest => dest.HeartRate, src => src.HeartRate)
+                .Map(dest => dest.IsEmergency, src => src.IsEmergency)
+                .Map(dest => dest.ClinicalAlerts, src => src.ClinicalAlerts)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<VitalSign, VitalSign>.NewConfig();
+
+            //Mapper MedicalConsultation
+            TypeAdapterConfig<MedicalConsultationRequest, MedicalConsultation>.NewConfig()
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.ReasonForVisit, src => src.ReasonForVisit)
+                .Map(dest => dest.ClinicalFindings, src => src.ClinicalFindings)
+                .Map(dest => dest.Diagnosis, src => src.Diagnosis)
+                .Map(dest => dest.DiagnosisCie10Code, src => src.DiagnosisCie10Code)
+                .Map(dest => dest.TreatmentPlan, src => src.TreatmentPlan)
+                .Map(dest => dest.ConsultationStatus, src => src.ConsultationStatus)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<MedicalConsultation, MedicalConsultationResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.ReasonForVisit, src => src.ReasonForVisit)
+                .Map(dest => dest.ClinicalFindings, src => src.ClinicalFindings)
+                .Map(dest => dest.Diagnosis, src => src.Diagnosis)
+                .Map(dest => dest.DiagnosisCie10Code, src => src.DiagnosisCie10Code)
+                .Map(dest => dest.TreatmentPlan, src => src.TreatmentPlan)
+                .Map(dest => dest.ConsultationStatus, src => src.ConsultationStatus)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<MedicalConsultation, MedicalConsultation>.NewConfig();
+
+            //Mapper Prescription
+            TypeAdapterConfig<PrescriptionRequest, Prescription>.NewConfig()
+                .Map(dest => dest.ConsultationId, src => src.ConsultationId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.PrescriptionDate, src => src.PrescriptionDate)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Prescription, PrescriptionResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.ConsultationId, src => src.ConsultationId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.PrescriptionDate, src => src.PrescriptionDate.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<Prescription, Prescription>.NewConfig();
+
+            //Mapper PrescriptionItem
+            TypeAdapterConfig<PrescriptionItemRequest, PrescriptionItem>.NewConfig()
+                .Map(dest => dest.PrescriptionId, src => src.PrescriptionId)
+                .Map(dest => dest.MedicineName, src => src.MedicineName)
+                .Map(dest => dest.Dosage, src => src.Dosage)
+                .Map(dest => dest.Frequency, src => src.Frequency)
+                .Map(dest => dest.Duration, src => src.Duration)
+                .Map(dest => dest.SpecialInstructions, src => src.SpecialInstructions)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<PrescriptionItem, PrescriptionItemResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.PrescriptionId, src => src.PrescriptionId)
+                .Map(dest => dest.MedicineName, src => src.MedicineName)
+                .Map(dest => dest.Dosage, src => src.Dosage)
+                .Map(dest => dest.Frequency, src => src.Frequency)
+                .Map(dest => dest.Duration, src => src.Duration)
+                .Map(dest => dest.SpecialInstructions, src => src.SpecialInstructions)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<PrescriptionItem, PrescriptionItem>.NewConfig();
+
+            //Mapper LabExam
+            TypeAdapterConfig<LabExamRequest, LabExam>.NewConfig()
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.DefaultAmount, src => src.DefaultAmount)
+                .Map(dest => dest.ReferenceRange, src => src.ReferenceRange)
+                .Map(dest => dest.Unit, src => src.Unit)
+                .Map(dest => dest.LaboratoryId, src => src.LaboratoryId)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<LabExam, LabExamResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.DefaultAmount, src => src.DefaultAmount)
+                .Map(dest => dest.ReferenceRange, src => src.ReferenceRange)
+                .Map(dest => dest.Unit, src => src.Unit)
+                .Map(dest => dest.LaboratoryId, src => src.LaboratoryId)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<LabExam, LabExam>.NewConfig();
+
+            //Mapper LabOrder
+            TypeAdapterConfig<LabOrderRequest, LabOrder>.NewConfig()
+                .Map(dest => dest.ConsultationId, src => src.ConsultationId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.PatientId, src => src.PatientId)
+                .Map(dest => dest.OrderNumber, src => src.OrderNumber)
+                .Map(dest => dest.OrderStatus, src => src.OrderStatus)
+                .Map(dest => dest.TotalAmount, src => src.TotalAmount)
+                .Map(dest => dest.IsExternal, src => src.IsExternal)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<LabOrder, LabOrderResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.ConsultationId, src => src.ConsultationId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.PatientId, src => src.PatientId)
+                .Map(dest => dest.OrderNumber, src => src.OrderNumber)
+                .Map(dest => dest.OrderStatus, src => src.OrderStatus)
+                .Map(dest => dest.TotalAmount, src => src.TotalAmount)
+                .Map(dest => dest.IsExternal, src => src.IsExternal)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<LabOrder, LabOrder>.NewConfig();
+
+            //Mapper LabOrderItem
+            TypeAdapterConfig<LabOrderItemRequest, LabOrderItem>.NewConfig()
+                .Map(dest => dest.LabOrderId, src => src.LabOrderId)
+                .Map(dest => dest.LabExamId, src => src.LabExamId)
+                .Map(dest => dest.ExamName, src => src.ExamName)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.ResultValue, src => src.ResultValue)
+                .Map(dest => dest.ResultUnit, src => src.ResultUnit)
+                .Map(dest => dest.ReferenceRange, src => src.ReferenceRange)
+                .Map(dest => dest.IsOutOfRange, src => src.IsOutOfRange)
+                .Map(dest => dest.ResultNotes, src => src.ResultNotes)
+                .Map(dest => dest.ResultDate, src => src.ResultDate)
+                .Map(dest => dest.IsPublished, src => src.IsPublished)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<LabOrderItem, LabOrderItemResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.LabOrderId, src => src.LabOrderId)
+                .Map(dest => dest.LabExamId, src => src.LabExamId)
+                .Map(dest => dest.ExamName, src => src.ExamName)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.ResultValue, src => src.ResultValue)
+                .Map(dest => dest.ResultUnit, src => src.ResultUnit)
+                .Map(dest => dest.ReferenceRange, src => src.ReferenceRange)
+                .Map(dest => dest.IsOutOfRange, src => src.IsOutOfRange)
+                .Map(dest => dest.ResultNotes, src => src.ResultNotes)
+                .Map(dest => dest.ResultDate, src => src.ResultDate.HasValue ? src.ResultDate.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
+                .Map(dest => dest.IsPublished, src => src.IsPublished)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<LabOrderItem, LabOrderItem>.NewConfig();
+
+            //Mapper Medicine
+            TypeAdapterConfig<MedicineRequest, Medicine>.NewConfig()
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.DefaultPrice, src => src.DefaultPrice)
+                .Map(dest => dest.Unit, src => src.Unit)
+                .Map(dest => dest.IsControlled, src => src.IsControlled)
+                .Map(dest => dest.MinimumStock, src => src.MinimumStock)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Medicine, MedicineResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.DefaultPrice, src => src.DefaultPrice)
+                .Map(dest => dest.Unit, src => src.Unit)
+                .Map(dest => dest.IsControlled, src => src.IsControlled)
+                .Map(dest => dest.MinimumStock, src => src.MinimumStock)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<Medicine, Medicine>.NewConfig();
+
+            //Mapper MedicineInventory
+            TypeAdapterConfig<MedicineInventoryRequest, MedicineInventory>.NewConfig()
+                .Map(dest => dest.MedicineId, src => src.MedicineId)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.CurrentStock, src => src.CurrentStock)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!)
+                .Ignore(dest => dest.RowVersion);
+
+            TypeAdapterConfig<MedicineInventory, MedicineInventoryResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.MedicineId, src => src.MedicineId)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.CurrentStock, src => src.CurrentStock)
+                .Map(dest => dest.RowVersion, src => src.RowVersion)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<MedicineInventory, MedicineInventory>.NewConfig();
+
+            //Mapper Dispense
+            TypeAdapterConfig<DispenseRequest, Dispense>.NewConfig()
+                .Map(dest => dest.PrescriptionId, src => src.PrescriptionId)
+                .Map(dest => dest.PatientId, src => src.PatientId)
+                .Map(dest => dest.PharmacistId, src => src.PharmacistId)
+                .Map(dest => dest.DispenseStatus, src => src.DispenseStatus)
+                .Map(dest => dest.TotalAmount, src => src.TotalAmount)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Dispense, DispenseResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.PrescriptionId, src => src.PrescriptionId)
+                .Map(dest => dest.PatientId, src => src.PatientId)
+                .Map(dest => dest.PharmacistId, src => src.PharmacistId)
+                .Map(dest => dest.DispenseStatus, src => src.DispenseStatus)
+                .Map(dest => dest.TotalAmount, src => src.TotalAmount)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<Dispense, Dispense>.NewConfig();
+
+            //Mapper DispenseItem
+            TypeAdapterConfig<DispenseItemRequest, DispenseItem>.NewConfig()
+                .Map(dest => dest.DispenseId, src => src.DispenseId)
+                .Map(dest => dest.MedicineId, src => src.MedicineId)
+                .Map(dest => dest.PrescriptionItemId, src => src.PrescriptionItemId)
+                .Map(dest => dest.OriginalMedicineName, src => src.OriginalMedicineName)
+                .Map(dest => dest.DispensedMedicineName, src => src.DispensedMedicineName)
+                .Map(dest => dest.Quantity, src => src.Quantity)
+                .Map(dest => dest.UnitPrice, src => src.UnitPrice)
+                .Map(dest => dest.WasSubstituted, src => src.WasSubstituted)
+                .Map(dest => dest.SubstitutionReason, src => src.SubstitutionReason)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<DispenseItem, DispenseItemResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.DispenseId, src => src.DispenseId)
+                .Map(dest => dest.MedicineId, src => src.MedicineId)
+                .Map(dest => dest.PrescriptionItemId, src => src.PrescriptionItemId)
+                .Map(dest => dest.OriginalMedicineName, src => src.OriginalMedicineName)
+                .Map(dest => dest.DispensedMedicineName, src => src.DispensedMedicineName)
+                .Map(dest => dest.Quantity, src => src.Quantity)
+                .Map(dest => dest.UnitPrice, src => src.UnitPrice)
+                .Map(dest => dest.WasSubstituted, src => src.WasSubstituted)
+                .Map(dest => dest.SubstitutionReason, src => src.SubstitutionReason)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<DispenseItem, DispenseItem>.NewConfig();
+
+            //Mapper NotificationLog
+            TypeAdapterConfig<NotificationLogRequest, NotificationLog>.NewConfig()
+                .Map(dest => dest.RecipientEmail, src => src.RecipientEmail)
+                .Map(dest => dest.Subject, src => src.Subject)
+                .Map(dest => dest.NotificationType, src => src.NotificationType)
+                .Map(dest => dest.RelatedEntityType, src => src.RelatedEntityType)
+                .Map(dest => dest.RelatedEntityId, src => src.RelatedEntityId)
+                .Map(dest => dest.SentAt, src => src.SentAt)
+                .Map(dest => dest.Status, src => src.Status)
+                .Map(dest => dest.RetryCount, src => src.RetryCount)
+                .Map(dest => dest.ErrorMessage, src => src.ErrorMessage)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<NotificationLog, NotificationLogResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.RecipientEmail, src => src.RecipientEmail)
+                .Map(dest => dest.Subject, src => src.Subject)
+                .Map(dest => dest.NotificationType, src => src.NotificationType)
+                .Map(dest => dest.RelatedEntityType, src => src.RelatedEntityType)
+                .Map(dest => dest.RelatedEntityId, src => src.RelatedEntityId)
+                .Map(dest => dest.SentAt, src => src.SentAt.HasValue ? src.SentAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
+                .Map(dest => dest.Status, src => src.Status)
+                .Map(dest => dest.RetryCount, src => src.RetryCount)
+                .Map(dest => dest.ErrorMessage, src => src.ErrorMessage)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<NotificationLog, NotificationLog>.NewConfig();
 
             //Mapper Module
             TypeAdapterConfig<Module, ModuleResponse>.NewConfig()

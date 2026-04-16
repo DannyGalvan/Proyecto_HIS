@@ -25,10 +25,20 @@ namespace Hospital.Server.Context.Config
                 .HasMaxLength(255);
             entity.Property(e => e.RecoveryToken)
                 .HasMaxLength(255);
+            entity.Property(e => e.Nit)
+                .HasMaxLength(9);
+            entity.Property(e => e.InsuranceNumber)
+                .HasMaxLength(50);
 
             entity.HasOne(e => e.Rol)
                     .WithMany(e => e.Users)
                 .HasForeignKey(e => e.RolId);
+
+            entity.HasOne(e => e.Branch)
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
 
             //password: Guatemala1.
             entity.HasData(

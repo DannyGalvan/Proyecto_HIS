@@ -36,6 +36,37 @@ namespace Hospital.Server.Configs.Extensions
             services.AddScoped<IEntityService<Operation, OperationRequest, long>, EntityService<Operation, OperationRequest, long>>();
             services.AddScoped<IEntityService<RolOperation, RolOperationRequest, long>, EntityService<RolOperation, RolOperationRequest, long>>();
 
+            // Catalogs CRUD services
+            services.AddScoped<IEntityService<Specialty, SpecialtyRequest, long>, EntityService<Specialty, SpecialtyRequest, long>>();
+            services.AddScoped<IEntityService<Laboratory, LaboratoryRequest, long>, EntityService<Laboratory, LaboratoryRequest, long>>();
+            services.AddScoped<IEntityService<Branch, BranchRequest, long>, EntityService<Branch, BranchRequest, long>>();
+            services.AddScoped<IEntityService<AppointmentStatus, AppointmentStatusRequest, long>, EntityService<AppointmentStatus, AppointmentStatusRequest, long>>();
+
+            // Core CRUD services
+            services.AddScoped<IEntityService<Appointment, AppointmentRequest, long>, EntityService<Appointment, AppointmentRequest, long>>();
+            services.AddScoped<IEntityService<Payment, PaymentRequest, long>, EntityService<Payment, PaymentRequest, long>>();
+            services.AddScoped<IEntityService<AppointmentDocument, AppointmentDocumentRequest, long>, EntityService<AppointmentDocument, AppointmentDocumentRequest, long>>();
+
+            // Clinical CRUD services
+            services.AddScoped<IEntityService<VitalSign, VitalSignRequest, long>, EntityService<VitalSign, VitalSignRequest, long>>();
+            services.AddScoped<IEntityService<MedicalConsultation, MedicalConsultationRequest, long>, EntityService<MedicalConsultation, MedicalConsultationRequest, long>>();
+            services.AddScoped<IEntityService<Prescription, PrescriptionRequest, long>, EntityService<Prescription, PrescriptionRequest, long>>();
+            services.AddScoped<IEntityService<PrescriptionItem, PrescriptionItemRequest, long>, EntityService<PrescriptionItem, PrescriptionItemRequest, long>>();
+
+            // Laboratory CRUD services
+            services.AddScoped<IEntityService<LabExam, LabExamRequest, long>, EntityService<LabExam, LabExamRequest, long>>();
+            services.AddScoped<IEntityService<LabOrder, LabOrderRequest, long>, EntityService<LabOrder, LabOrderRequest, long>>();
+            services.AddScoped<IEntityService<LabOrderItem, LabOrderItemRequest, long>, EntityService<LabOrderItem, LabOrderItemRequest, long>>();
+
+            // Pharmacy CRUD services (CU-10)
+            services.AddScoped<IEntityService<Medicine, MedicineRequest, long>, EntityService<Medicine, MedicineRequest, long>>();
+            services.AddScoped<IEntityService<MedicineInventory, MedicineInventoryRequest, long>, EntityService<MedicineInventory, MedicineInventoryRequest, long>>();
+            services.AddScoped<IEntityService<Dispense, DispenseRequest, long>, EntityService<Dispense, DispenseRequest, long>>();
+            services.AddScoped<IEntityService<DispenseItem, DispenseItemRequest, long>, EntityService<DispenseItem, DispenseItemRequest, long>>();
+
+            // Notification CRUD services (CU-11)
+            services.AddScoped<IEntityService<NotificationLog, NotificationLogRequest, long>, EntityService<NotificationLog, NotificationLogRequest, long>>();
+
             // User interceptors
             services.AddScoped<IEntityBeforeCreateInterceptor<User, UserRequest>, UserBeforeCreateInterceptor>();
             services.AddScoped<IEntityBeforeUpdateInterceptor<User, UserRequest>, UserBeforeUpdateInterceptor>();
@@ -51,6 +82,9 @@ namespace Hospital.Server.Configs.Extensions
 
             // hosted service para sincronización al inicio
             services.AddHostedService<OperationSyncHostedService>();
+
+            // payment gateway (swap MockPaymentGateway for real implementation in production)
+            services.AddScoped<IPaymentGateway, MockPaymentGateway>();
 
             // other services
             services.AddScoped<ISendMail, SendEmail>();

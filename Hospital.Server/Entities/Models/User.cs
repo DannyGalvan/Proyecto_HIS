@@ -59,9 +59,24 @@ namespace Hospital.Server.Entities.Models
         public bool? Reset { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets the Number
+        /// Gets or sets the Number (Phone)
         /// </summary>
         public string Number { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the Nit
+        /// </summary>
+        public string? Nit { get; set; }
+
+        /// <summary>
+        /// Gets or sets the BranchId
+        /// </summary>
+        public long? BranchId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the InsuranceNumber (Seguro Médico)
+        /// </summary>
+        public string? InsuranceNumber { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether MustChangePassword
@@ -112,6 +127,11 @@ namespace Hospital.Server.Entities.Models
         /// Gets or sets the Rol
         /// </summary>
         public virtual Rol? Rol { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Branch
+        /// </summary>
+        public virtual Branch? Branch { get; set; }
 
         /// <summary>
         /// Gets or sets the LoginAudits
