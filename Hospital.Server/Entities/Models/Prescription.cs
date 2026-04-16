@@ -36,5 +36,6 @@ namespace Hospital.Server.Entities.Models
         public virtual MedicalConsultation? Consultation { get; set; }
         public virtual User? Doctor { get; set; }
         public virtual ICollection<PrescriptionItem> Items { get; set; } = new List<PrescriptionItem>();
+        public virtual ICollection<Dispense> Dispenses { get; set; } = new List<Dispense>();
     }
 }

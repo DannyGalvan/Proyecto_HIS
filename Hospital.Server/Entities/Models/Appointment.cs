@@ -61,6 +61,16 @@ namespace Hospital.Server.Entities.Models
         /// </summary>
         public string? Notes { get; set; }
 
+        /// <summary>
+        /// Follow-up type: null = normal appointment, 0 = ConditionMonitoring, 1 = ResultsReview (CU-11 RN-CU11-01)
+        /// </summary>
+        public int? FollowUpType { get; set; }
+
+        /// <summary>
+        /// FK to MedicalConsultation that originated this follow-up (CU-11)
+        /// </summary>
+        public long? ParentConsultationId { get; set; }
+
         public int State { get; set; } = 1;
         public DateTime CreatedAt { get; set; }
         public long CreatedBy { get; set; }
@@ -73,6 +83,7 @@ namespace Hospital.Server.Entities.Models
         public virtual Specialty? Specialty { get; set; }
         public virtual Branch? Branch { get; set; }
         public virtual AppointmentStatus? AppointmentStatus { get; set; }
+        public virtual MedicalConsultation? ParentConsultation { get; set; }
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public virtual ICollection<AppointmentDocument> Documents { get; set; } = new List<AppointmentDocument>();
     }

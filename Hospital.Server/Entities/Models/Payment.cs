@@ -17,6 +17,11 @@ namespace Hospital.Server.Entities.Models
         public long? LabOrderId { get; set; }
 
         /// <summary>
+        /// FK to Dispense (for pharmacy payments - CU-10)
+        /// </summary>
+        public long? DispenseId { get; set; }
+
+        /// <summary>
         /// Unique transaction number (auto-generated)
         /// </summary>
         public string TransactionNumber { get; set; } = string.Empty;
@@ -85,5 +90,6 @@ namespace Hospital.Server.Entities.Models
         // Navigation properties
         public virtual Appointment? Appointment { get; set; }
         public virtual LabOrder? LabOrder { get; set; }
+        public virtual Dispense? Dispense { get; set; }
     }
 }

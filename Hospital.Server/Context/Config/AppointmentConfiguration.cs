@@ -15,6 +15,9 @@ namespace Hospital.Server.Context.Config
             entity.Property(e => e.Amount).HasPrecision(10, 2);
             entity.Property(e => e.Notes).HasMaxLength(2000);
 
+            // CU-11: Follow-up appointment fields
+            entity.Property(e => e.FollowUpType).IsRequired(false);
+
             // FK: Patient (User)
             entity.HasOne(e => e.Patient)
                 .WithMany()
@@ -45,6 +48,13 @@ namespace Hospital.Server.Context.Config
                 .WithMany()
                 .HasForeignKey(e => e.AppointmentStatusId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // FK: ParentConsultation (nullable - for follow-up appointments CU-11)
+            entity.HasOne(e => e.ParentConsultation)
+                .WithMany()
+                .HasForeignKey(e => e.ParentConsultationId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
 
             // Index for fast lookups by patient and date
             entity.HasIndex(e => e.PatientId);

@@ -14,6 +14,8 @@ namespace Hospital.Server.Entities.Response
         public int Priority { get; set; }
         public string? ArrivalTime { get; set; }
         public string? Notes { get; set; }
+        public int? FollowUpType { get; set; }
+        public long? ParentConsultationId { get; set; }
         public int State { get; set; }
         public string CreatedAt { get; set; } = string.Empty;
         public long CreatedBy { get; set; }

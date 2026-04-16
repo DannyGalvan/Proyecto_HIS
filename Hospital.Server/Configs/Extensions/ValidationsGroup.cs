@@ -21,6 +21,11 @@
     using Hospital.Server.Validations.LabExam;
     using Hospital.Server.Validations.LabOrder;
     using Hospital.Server.Validations.LabOrderItem;
+    using Hospital.Server.Validations.Medicine;
+    using Hospital.Server.Validations.MedicineInventory;
+    using Hospital.Server.Validations.Dispense;
+    using Hospital.Server.Validations.DispenseItem;
+    using Hospital.Server.Validations.NotificationLog;
 
     /// <summary>
     /// Defines the <see cref="ValidationsGroup" />
@@ -130,6 +135,31 @@
             services.AddKeyedScoped<IValidator<LabOrderItemRequest>, CreateLabOrderItemValidation>("Create");
             services.AddKeyedScoped<IValidator<LabOrderItemRequest>, UpdateLabOrderItemValidation>("Update");
             services.AddKeyedScoped<IValidator<LabOrderItemRequest>, PartialLabOrderItemValidation>("Partial");
+
+            //medicine validations
+            services.AddKeyedScoped<IValidator<MedicineRequest>, CreateMedicineValidation>("Create");
+            services.AddKeyedScoped<IValidator<MedicineRequest>, UpdateMedicineValidation>("Update");
+            services.AddKeyedScoped<IValidator<MedicineRequest>, PartialMedicineValidation>("Partial");
+
+            //medicineInventory validations
+            services.AddKeyedScoped<IValidator<MedicineInventoryRequest>, CreateMedicineInventoryValidation>("Create");
+            services.AddKeyedScoped<IValidator<MedicineInventoryRequest>, UpdateMedicineInventoryValidation>("Update");
+            services.AddKeyedScoped<IValidator<MedicineInventoryRequest>, PartialMedicineInventoryValidation>("Partial");
+
+            //dispense validations
+            services.AddKeyedScoped<IValidator<DispenseRequest>, CreateDispenseValidation>("Create");
+            services.AddKeyedScoped<IValidator<DispenseRequest>, UpdateDispenseValidation>("Update");
+            services.AddKeyedScoped<IValidator<DispenseRequest>, PartialDispenseValidation>("Partial");
+
+            //dispenseItem validations
+            services.AddKeyedScoped<IValidator<DispenseItemRequest>, CreateDispenseItemValidation>("Create");
+            services.AddKeyedScoped<IValidator<DispenseItemRequest>, UpdateDispenseItemValidation>("Update");
+            services.AddKeyedScoped<IValidator<DispenseItemRequest>, PartialDispenseItemValidation>("Partial");
+
+            //notificationLog validations
+            services.AddKeyedScoped<IValidator<NotificationLogRequest>, CreateNotificationLogValidation>("Create");
+            services.AddKeyedScoped<IValidator<NotificationLogRequest>, UpdateNotificationLogValidation>("Update");
+            services.AddKeyedScoped<IValidator<NotificationLogRequest>, PartialNotificationLogValidation>("Partial");
 
             return services;
         }

@@ -40,9 +40,17 @@ namespace Hospital.Server.Context.Config
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
 
+            // FK: Dispense (nullable - for pharmacy payments CU-10)
+            entity.HasOne(e => e.Dispense)
+                .WithMany(d => d.Payments)
+                .HasForeignKey(e => e.DispenseId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
             // Indexes
             entity.HasIndex(e => e.AppointmentId);
             entity.HasIndex(e => e.LabOrderId);
+            entity.HasIndex(e => e.DispenseId);
             entity.HasIndex(e => e.PaymentDate);
         }
     }
