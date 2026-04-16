@@ -47,6 +47,17 @@ namespace Hospital.Server.Configs.Extensions
             services.AddScoped<IEntityService<Payment, PaymentRequest, long>, EntityService<Payment, PaymentRequest, long>>();
             services.AddScoped<IEntityService<AppointmentDocument, AppointmentDocumentRequest, long>, EntityService<AppointmentDocument, AppointmentDocumentRequest, long>>();
 
+            // Clinical CRUD services
+            services.AddScoped<IEntityService<VitalSign, VitalSignRequest, long>, EntityService<VitalSign, VitalSignRequest, long>>();
+            services.AddScoped<IEntityService<MedicalConsultation, MedicalConsultationRequest, long>, EntityService<MedicalConsultation, MedicalConsultationRequest, long>>();
+            services.AddScoped<IEntityService<Prescription, PrescriptionRequest, long>, EntityService<Prescription, PrescriptionRequest, long>>();
+            services.AddScoped<IEntityService<PrescriptionItem, PrescriptionItemRequest, long>, EntityService<PrescriptionItem, PrescriptionItemRequest, long>>();
+
+            // Laboratory CRUD services
+            services.AddScoped<IEntityService<LabExam, LabExamRequest, long>, EntityService<LabExam, LabExamRequest, long>>();
+            services.AddScoped<IEntityService<LabOrder, LabOrderRequest, long>, EntityService<LabOrder, LabOrderRequest, long>>();
+            services.AddScoped<IEntityService<LabOrderItem, LabOrderItemRequest, long>, EntityService<LabOrderItem, LabOrderItemRequest, long>>();
+
             // User interceptors
             services.AddScoped<IEntityBeforeCreateInterceptor<User, UserRequest>, UserBeforeCreateInterceptor>();
             services.AddScoped<IEntityBeforeUpdateInterceptor<User, UserRequest>, UserBeforeUpdateInterceptor>();

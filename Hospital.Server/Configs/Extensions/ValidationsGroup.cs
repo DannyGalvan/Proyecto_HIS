@@ -14,6 +14,13 @@
     using Hospital.Server.Validations.Appointment;
     using Hospital.Server.Validations.Payment;
     using Hospital.Server.Validations.AppointmentDocument;
+    using Hospital.Server.Validations.VitalSign;
+    using Hospital.Server.Validations.MedicalConsultation;
+    using Hospital.Server.Validations.Prescription;
+    using Hospital.Server.Validations.PrescriptionItem;
+    using Hospital.Server.Validations.LabExam;
+    using Hospital.Server.Validations.LabOrder;
+    using Hospital.Server.Validations.LabOrderItem;
 
     /// <summary>
     /// Defines the <see cref="ValidationsGroup" />
@@ -88,6 +95,41 @@
             services.AddKeyedScoped<IValidator<AppointmentDocumentRequest>, CreateAppointmentDocumentValidation>("Create");
             services.AddKeyedScoped<IValidator<AppointmentDocumentRequest>, UpdateAppointmentDocumentValidation>("Update");
             services.AddKeyedScoped<IValidator<AppointmentDocumentRequest>, PartialAppointmentDocumentValidation>("Partial");
+
+            //vitalSign validations
+            services.AddKeyedScoped<IValidator<VitalSignRequest>, CreateVitalSignValidation>("Create");
+            services.AddKeyedScoped<IValidator<VitalSignRequest>, UpdateVitalSignValidation>("Update");
+            services.AddKeyedScoped<IValidator<VitalSignRequest>, PartialVitalSignValidation>("Partial");
+
+            //medicalConsultation validations
+            services.AddKeyedScoped<IValidator<MedicalConsultationRequest>, CreateMedicalConsultationValidation>("Create");
+            services.AddKeyedScoped<IValidator<MedicalConsultationRequest>, UpdateMedicalConsultationValidation>("Update");
+            services.AddKeyedScoped<IValidator<MedicalConsultationRequest>, PartialMedicalConsultationValidation>("Partial");
+
+            //prescription validations
+            services.AddKeyedScoped<IValidator<PrescriptionRequest>, CreatePrescriptionValidation>("Create");
+            services.AddKeyedScoped<IValidator<PrescriptionRequest>, UpdatePrescriptionValidation>("Update");
+            services.AddKeyedScoped<IValidator<PrescriptionRequest>, PartialPrescriptionValidation>("Partial");
+
+            //prescriptionItem validations
+            services.AddKeyedScoped<IValidator<PrescriptionItemRequest>, CreatePrescriptionItemValidation>("Create");
+            services.AddKeyedScoped<IValidator<PrescriptionItemRequest>, UpdatePrescriptionItemValidation>("Update");
+            services.AddKeyedScoped<IValidator<PrescriptionItemRequest>, PartialPrescriptionItemValidation>("Partial");
+
+            //labExam validations
+            services.AddKeyedScoped<IValidator<LabExamRequest>, CreateLabExamValidation>("Create");
+            services.AddKeyedScoped<IValidator<LabExamRequest>, UpdateLabExamValidation>("Update");
+            services.AddKeyedScoped<IValidator<LabExamRequest>, PartialLabExamValidation>("Partial");
+
+            //labOrder validations
+            services.AddKeyedScoped<IValidator<LabOrderRequest>, CreateLabOrderValidation>("Create");
+            services.AddKeyedScoped<IValidator<LabOrderRequest>, UpdateLabOrderValidation>("Update");
+            services.AddKeyedScoped<IValidator<LabOrderRequest>, PartialLabOrderValidation>("Partial");
+
+            //labOrderItem validations
+            services.AddKeyedScoped<IValidator<LabOrderItemRequest>, CreateLabOrderItemValidation>("Create");
+            services.AddKeyedScoped<IValidator<LabOrderItemRequest>, UpdateLabOrderItemValidation>("Update");
+            services.AddKeyedScoped<IValidator<LabOrderItemRequest>, PartialLabOrderItemValidation>("Partial");
 
             return services;
         }

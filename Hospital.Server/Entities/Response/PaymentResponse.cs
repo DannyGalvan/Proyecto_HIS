@@ -3,7 +3,8 @@ namespace Hospital.Server.Entities.Response
     public class PaymentResponse
     {
         public long Id { get; set; }
-        public long AppointmentId { get; set; }
+        public long? AppointmentId { get; set; }
+        public long? LabOrderId { get; set; }
         public string TransactionNumber { get; set; } = string.Empty;
         public decimal Amount { get; set; }
         public int PaymentMethod { get; set; }

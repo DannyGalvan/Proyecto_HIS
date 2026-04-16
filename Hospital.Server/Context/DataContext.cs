@@ -77,6 +77,17 @@ namespace Hospital.Server.Context
         public DbSet<Payment> Payments { get; set; }
         public DbSet<AppointmentDocument> AppointmentDocuments { get; set; }
 
+        // Clinical entities
+        public DbSet<VitalSign> VitalSigns { get; set; }
+        public DbSet<MedicalConsultation> MedicalConsultations { get; set; }
+        public DbSet<Prescription> Prescriptions { get; set; }
+        public DbSet<PrescriptionItem> PrescriptionItems { get; set; }
+
+        // Laboratory entities
+        public DbSet<LabExam> LabExams { get; set; }
+        public DbSet<LabOrder> LabOrders { get; set; }
+        public DbSet<LabOrderItem> LabOrderItems { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

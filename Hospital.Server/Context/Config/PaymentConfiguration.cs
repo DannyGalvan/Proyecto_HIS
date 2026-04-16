@@ -26,14 +26,23 @@ namespace Hospital.Server.Context.Config
             // Unique constraint on IdempotencyKey (RNF-016)
             entity.HasIndex(e => e.IdempotencyKey).IsUnique().HasFilter("\"IdempotencyKey\" IS NOT NULL");
 
-            // FK: Appointment
+            // FK: Appointment (nullable - for consultation payments)
             entity.HasOne(e => e.Appointment)
                 .WithMany(a => a.Payments)
                 .HasForeignKey(e => e.AppointmentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
+            // FK: LabOrder (nullable - for laboratory payments)
+            entity.HasOne(e => e.LabOrder)
+                .WithMany(o => o.Payments)
+                .HasForeignKey(e => e.LabOrderId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
 
             // Indexes
             entity.HasIndex(e => e.AppointmentId);
+            entity.HasIndex(e => e.LabOrderId);
             entity.HasIndex(e => e.PaymentDate);
         }
     }

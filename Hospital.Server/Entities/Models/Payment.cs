@@ -7,9 +7,14 @@ namespace Hospital.Server.Entities.Models
         public long Id { get; set; }
 
         /// <summary>
-        /// FK to Appointment
+        /// FK to Appointment (for consultation payments)
         /// </summary>
-        public long AppointmentId { get; set; }
+        public long? AppointmentId { get; set; }
+
+        /// <summary>
+        /// FK to LabOrder (for laboratory payments - CU-09)
+        /// </summary>
+        public long? LabOrderId { get; set; }
 
         /// <summary>
         /// Unique transaction number (auto-generated)
@@ -79,5 +84,6 @@ namespace Hospital.Server.Entities.Models
 
         // Navigation properties
         public virtual Appointment? Appointment { get; set; }
+        public virtual LabOrder? LabOrder { get; set; }
     }
 }
