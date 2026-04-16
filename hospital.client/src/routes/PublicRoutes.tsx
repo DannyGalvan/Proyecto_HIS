@@ -2,7 +2,6 @@ import type { RouteObject } from "react-router";
 
 import { nameRoutes } from "../configs/constants";
 import LoadingPage from "../pages/public/LoadingPage";
-import { TestPage } from "../pages/public/TestPage";
 import ProtectedPublic from "./middlewares/ProtectedPublic";
 
 // Auth pages
@@ -85,9 +84,6 @@ import { DoctorDashboardPage } from "../pages/dashboard/DoctorDashboardPage";
 import { ReceptionPage } from "../pages/reception/ReceptionPage";
 import { CashierPage } from "../pages/cashier/CashierPage";
 
-// Portal público
-import { PortalPage } from "../pages/portal/PortalPage";
-
 // Online Payment
 import { OnlinePaymentPage } from "../pages/payment/OnlinePaymentPage";
 
@@ -99,7 +95,7 @@ import { DispensePage } from "../pages/dispense/DispensePage";
 import { CreateDispensePage } from "../pages/dispense/CreateDispensePage";
 
 // Middlewares
-import PublicOnly from "./middlewares/PublicOnly";
+// PublicOnly is available for future use
 
 export const PublicRoutes: RouteObject[] = [
   {
@@ -117,14 +113,7 @@ export const PublicRoutes: RouteObject[] = [
     lazy: () => import("../pages/public/RegisterPage"),
     hydrateFallbackElement: <LoadingPage />,
   },
-  {
-    path: nameRoutes.portal,
-    element: (
-      <PublicOnly>
-        <PortalPage />
-      </PublicOnly>
-    ),
-  },
+  // Portal público — manejado por PortalLayout + PortalRoutes en useAuthorizationRoutes
   {
     index: true,
     element: (

@@ -2,8 +2,10 @@ import { createBrowserRouter } from "react-router";
 
 import { nameRoutes } from "../configs/constants";
 import { Root } from "../containers/Root";
+import { PortalLayout } from "../containers/PortalLayout";
 import { ErrorRoutes } from "../routes/ErrorRoutes";
 import { PublicRoutes } from "../routes/PublicRoutes";
+import { PortalRoutes } from "../routes/PortalRoutes";
 import { useAuth } from "./useAuth";
 
 export const useAuthorizationRoutes = () => {
@@ -19,6 +21,11 @@ export const useAuthorizationRoutes = () => {
       path: nameRoutes.root,
       element: <Root />,
       children: [...PublicRoutes, ...ErrorRoutes],
+    },
+    {
+      path: nameRoutes.portalHome,
+      element: <PortalLayout />,
+      children: PortalRoutes,
     },
   ]);
 

@@ -1,10 +1,11 @@
-import { Button, toast } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { useState, useCallback, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getUsers } from "../../services/userService";
 import { getSpecialties } from "../../services/specialtyService";
 import { getBranches } from "../../services/branchService";
+import { verifyDpi } from "../../services/patientPortalService";
+import { nameRoutes } from "../../configs/constants";
 import { Images } from "../../assets/images/images";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
@@ -121,48 +122,15 @@ function DpiVerificationModal({
 }) {
   const [dpi, setDpi] = useState("");
   const [dpiError, setDpiError] = useState("");
-  const [searchDpi, setSearchDpi] = useState("");
+  const [internalUserMsg, setInternalUserMsg] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
   const navigate = useNavigate();
 
-  const { data, isFetching } = useQuery({
-    queryKey: ["portal-dpi-check", searchDpi],
-    queryFn: () =>
-      getUsers({
-        pageNumber: 1,
-        pageSize: 1,
-        filters: `IdentificationDocument:eq:${searchDpi} AND State:eq:1`,
-        include: null,
-        includeTotal: false,
-      }),
-    enabled: !!searchDpi,
-  });
-
-  // Reaccionar al resultado de la búsqueda
-  const handleResult = useCallback(() => {
-    if (!data) return;
-    if (data.success && data.data.length > 0) {
-      const patient = data.data[0];
-      toast.success(`Bienvenido(a), ${patient.name}. Será redirigido al formulario de agendamiento.`);
-      onClose();
-      navigate("/appointment/create");
-    } else {
-      toast.danger("No se encontró un registro asociado a este DPI. Será redirigido al formulario de registro.");
-      onClose();
-      navigate("/register");
-    }
-  }, [data, navigate, onClose]);
-
-  // Ejecutar cuando llega el resultado
-  useState(() => {
-    if (searchDpi && !isFetching && data) {
-      handleResult();
-    }
-  });
-
   const handleSubmit = useCallback(
-    (e: FormEvent) => {
+    async (e: FormEvent) => {
       e.preventDefault();
       setDpiError("");
+      setInternalUserMsg("");
 
       if (!dpi.trim()) {
         setDpiError("El campo DPI es obligatorio. Por favor, ingrese su número de DPI.");
@@ -173,9 +141,33 @@ function DpiVerificationModal({
         return;
       }
 
-      setSearchDpi(dpi.trim());
+      setIsVerifying(true);
+      try {
+        const response = await verifyDpi(dpi.trim());
+        if (response.success) {
+          const { exists, hasPatientRole } = response.data;
+          if (exists && hasPatientRole) {
+            onClose();
+            navigate(nameRoutes.portalLogin);
+          } else if (!exists) {
+            onClose();
+            navigate(nameRoutes.portalRegister);
+          } else {
+            // exists=true but hasPatientRole=false → internal user
+            setInternalUserMsg(
+              "Este DPI pertenece a un usuario del sistema interno. Por favor, contacte a recepción.",
+            );
+          }
+        } else {
+          setDpiError(response.message ?? "Error al verificar el DPI. Intente de nuevo.");
+        }
+      } catch {
+        setDpiError("No se pudo conectar con el servidor. Intente de nuevo más tarde.");
+      } finally {
+        setIsVerifying(false);
+      }
     },
-    [dpi],
+    [dpi, navigate, onClose],
   );
 
   if (!isOpen) return null;
@@ -201,6 +193,13 @@ function DpiVerificationModal({
           Ingrese su número de DPI para verificar si está registrado en el sistema.
         </p>
 
+        {internalUserMsg && (
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-300 rounded-xl text-amber-800 text-sm flex items-start gap-2">
+            <i className="bi bi-exclamation-triangle-fill mt-0.5 shrink-0" />
+            <span>{internalUserMsg}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
@@ -208,7 +207,9 @@ function DpiVerificationModal({
             </label>
             <input
               className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg tracking-widest ${
-                dpiError ? "border-red-400 bg-red-50" : "border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                dpiError
+                  ? "border-red-400 bg-red-50 dark:bg-red-900/20"
+                  : "border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               }`}
               maxLength={13}
               placeholder="0000000000000"
@@ -217,6 +218,7 @@ function DpiVerificationModal({
               onChange={(e) => {
                 setDpi(e.target.value.replace(/\D/g, ""));
                 setDpiError("");
+                setInternalUserMsg("");
               }}
             />
             {dpiError && (
@@ -232,10 +234,10 @@ function DpiVerificationModal({
 
           <button
             className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
-            disabled={isFetching}
+            disabled={isVerifying}
             type="submit"
           >
-            {isFetching ? (
+            {isVerifying ? (
               <>
                 <i className="bi bi-hourglass-split animate-spin" />
                 Verificando...
@@ -303,36 +305,6 @@ export function PortalPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Navbar del portal */}
-      <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img alt="Logo" src={Images.logo} className="h-8 w-auto" />
-            <span className="font-bold text-gray-800 dark:text-gray-100 text-lg hidden sm:block">
-              Hospital HIS
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors font-medium"
-              type="button"
-              onClick={() => navigate("/auth")}
-            >
-              <i className="bi bi-box-arrow-in-right mr-1" />
-              Iniciar Sesión
-            </button>
-            <Button
-              size="sm"
-              variant="primary"
-              onPress={handleScheduleClick}
-            >
-              <i className="bi bi-calendar-plus mr-1" />
-              Agendar Cita
-            </Button>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero */}
       <HeroSection onSchedule={handleScheduleClick} />
 
@@ -427,7 +399,7 @@ export function PortalPage() {
             className="px-8 py-3 text-lg font-bold border-2 border-white text-white hover:bg-white/10"
             size="lg"
             variant="secondary"
-            onPress={() => navigate("/register")}
+            onPress={() => navigate(nameRoutes.portalRegister)}
           >
             <i className="bi bi-person-plus mr-2" />
             Registrarse

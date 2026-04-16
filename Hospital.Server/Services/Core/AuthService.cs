@@ -557,6 +557,7 @@ namespace Hospital.Server.Services.Core
                                  new (ClaimTypes.Name, user.Name),
                                  new (ClaimTypes.Hash, Guid.NewGuid().ToString()),
                                  new ("Operator", user.RolId.ToString()),
+                                 new ("RoleName", user.Rol!.Name),
                              };
 
                 if (user.Rol!.RolOperations.Count != 0)

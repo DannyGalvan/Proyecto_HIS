@@ -26,6 +26,7 @@
     using Hospital.Server.Validations.Dispense;
     using Hospital.Server.Validations.DispenseItem;
     using Hospital.Server.Validations.NotificationLog;
+    using Hospital.Server.Validations.PatientPortal;
 
     /// <summary>
     /// Defines the <see cref="ValidationsGroup" />
@@ -160,6 +161,9 @@
             services.AddKeyedScoped<IValidator<NotificationLogRequest>, CreateNotificationLogValidation>("Create");
             services.AddKeyedScoped<IValidator<NotificationLogRequest>, UpdateNotificationLogValidation>("Update");
             services.AddKeyedScoped<IValidator<NotificationLogRequest>, PartialNotificationLogValidation>("Partial");
+
+            //patientPortal validations
+            services.AddScoped<IValidator<PatientRegisterRequest>, CreatePatientValidator>();
 
             return services;
         }

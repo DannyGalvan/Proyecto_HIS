@@ -25,6 +25,17 @@ namespace Hospital.Server.Context.Config
                     CreatedBy = 1,
                     UpdatedAt = null,
                     UpdatedBy = null
+                },
+                new Rol
+                {
+                    Id = 2,
+                    Name = "Paciente",
+                    Description = "Paciente externo del portal público",
+                    State = 1,
+                    CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                    CreatedBy = 1,
+                    UpdatedAt = null,
+                    UpdatedBy = null
                 }
             );
         }

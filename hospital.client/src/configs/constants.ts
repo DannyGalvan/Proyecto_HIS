@@ -90,8 +90,15 @@ export const nameRoutes = {
   dispenseCreate: "/dispense/create",
   // Registro externo
   register: "/register",
-  // Portal público
-  portal: "/portal",
+  // Portal del paciente
+  portalHome: "/portal",
+  portalLogin: "/portal/login",
+  portalRegister: "/portal/register",
+  portalDashboard: "/portal/dashboard",
+  portalBook: "/portal/book",
+  portalPay: "/portal/book/pay",
+  portalConfirm: "/portal/book/confirm",
+  portalAppointments: "/portal/appointments",
 };
 
 export const authInitialState: InitialAuth = {
