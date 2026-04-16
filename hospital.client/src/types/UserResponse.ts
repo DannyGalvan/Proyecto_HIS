@@ -8,6 +8,9 @@ export interface UserResponse {
   userName: string;
   identificationDocument: string;
   number: string;
+  nit?: string | null;
+  branchId?: number | null;
+  insuranceNumber?: string | null;
   state: number;
   createdAt: string;
   updatedAt?: string | null;

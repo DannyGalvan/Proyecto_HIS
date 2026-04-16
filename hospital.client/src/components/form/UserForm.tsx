@@ -10,8 +10,10 @@ import { useNavigate } from "react-router";
 import type { SingleValue } from "react-select";
 import { AsyncButton } from "../button/AsyncButton";
 import { useForm } from "../../hooks/useForm";
+import { getBranches } from "../../services/branchService";
 import { getRoles } from "../../services/rolService";
 import type { ApiResponse } from "../../types/ApiResponse";
+import type { BranchResponse } from "../../types/BranchResponse";
 import type { RolResponse } from "../../types/RolResponse";
 import type { UserRequest } from "../../types/UserRequest";
 import type { ValidationFailure } from "../../types/ValidationFailure";
@@ -67,6 +69,14 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
   const selectorRol = useCallback(
     (item: RolResponse) => ({
       label: item.description,
+      value: String(item.id),
+    }),
+    [],
+  );
+
+  const selectorBranch = useCallback(
+    (item: BranchResponse) => ({
+      label: item.name,
       value: String(item.id),
     }),
     [],
@@ -224,6 +234,61 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
             queryFn={getRoles}
             selectorFn={selectorRol}
             onChange={handleSelectChange("rolId")}
+          />
+
+          <TextField
+            className="w-full flex flex-col gap-1"
+            isInvalid={!!errors?.nit}
+            name="nit"
+            onChange={handleTextChange("nit")}
+          >
+            <Label className="font-bold">NIT</Label>
+            <Input
+              className="w-full px-3 py-2 border rounded-md"
+              type="text"
+              value={form.nit || ""}
+            />
+            {errors?.nit ? (
+              <FieldError>{errors.nit as string}</FieldError>
+            ) : null}
+          </TextField>
+
+          <TextField
+            className="w-full flex flex-col gap-1"
+            isInvalid={!!errors?.insuranceNumber}
+            name="insuranceNumber"
+            onChange={handleTextChange("insuranceNumber")}
+          >
+            <Label className="font-bold">Número de Seguro</Label>
+            <Input
+              className="w-full px-3 py-2 border rounded-md"
+              type="text"
+              value={form.insuranceNumber || ""}
+            />
+            {errors?.insuranceNumber ? (
+              <FieldError>{errors.insuranceNumber as string}</FieldError>
+            ) : null}
+          </TextField>
+
+          <CatalogueSelect
+            defaultValue={
+              type === "edit" && form.branchId
+                ? {
+                    label: String(form.branchId),
+                    value: String(form.branchId),
+                  }
+                : null
+            }
+            deps="State:eq:1"
+            errorMessage={errors?.branchId as string}
+            fieldSearch="Name"
+            isInvalid={!!errors?.branchId}
+            label="Sucursal"
+            name="branchId"
+            placeholder="Seleccione una sucursal (opcional)"
+            queryFn={getBranches}
+            selectorFn={selectorBranch}
+            onChange={handleSelectChange("branchId")}
           />
 
           <OptionsSelect

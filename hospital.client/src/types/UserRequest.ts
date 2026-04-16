@@ -9,6 +9,9 @@ export interface UserRequest {
   password?: string | null;
   identificationDocument?: string | null;
   number?: string | null;
+  nit?: string | null;
+  branchId?: number | null;
+  insuranceNumber?: string | null;
   state?: number | null;
   createdBy?: number | null;
   updatedBy?: number | null;

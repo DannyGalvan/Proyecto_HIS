@@ -107,6 +107,12 @@ export function LoginForm({ initialForm, onSubmit }: LoginFormProps) {
         >
           No tienes cuenta? Registrate
         </Link>
+        <Link
+          className="font-bold underline text-cyan-500"
+          to={nameRoutes.portal}
+        >
+          Ver Portal de Servicios
+        </Link>
       </div>
     </>
   );

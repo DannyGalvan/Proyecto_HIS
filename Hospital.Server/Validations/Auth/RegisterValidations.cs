@@ -10,15 +10,13 @@ namespace Hospital.Server.Validations.Auth
         {
             RuleFor(x => x.State)
                 .NotEmpty().WithMessage("El estado no puede ser vacio");
-            RuleFor(x => x.CountryCode)
-                .NotEmpty().WithMessage("El Codigo de pais no puede ser vacio");
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("El Correo electronico no puede ser vacio");
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("El nombre no puede ser vacio");
             RuleFor(x => x.Number)
                 .NotEmpty().WithMessage("El numero no puede ser vacio")
-                .MinimumLength(11).WithMessage("El numero debe tener minimo 11 caracteres");
+                .MinimumLength(8).WithMessage("El numero debe tener minimo 8 caracteres");
             RuleFor(l => l.Password)
                 .NotEmpty().WithMessage("la contrase;a no puede ser vacia")
                 .MinimumLength(8).WithMessage("La contraseña debe contener al menos 8 caracteres")

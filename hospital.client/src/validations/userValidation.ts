@@ -20,26 +20,42 @@ export const userSchema = z.object({
     .max(100, "El Email no puede exceder 100 caracteres"),
   name: z
     .string()
-    .min(1, "El Nombre es requerido")
-    .max(150, "El Nombre no puede exceder 150 caracteres"),
+    .min(10, "El Nombre debe tener al menos 10 caracteres")
+    .max(100, "El Nombre no puede exceder 100 caracteres"),
   userName: z
     .string()
-    .min(4, "El Nombre de Usuario debe tener al menos 4 caracteres")
-    .max(50, "El Nombre de Usuario no puede exceder 50 caracteres"),
+    .min(8, "El Nombre de Usuario debe tener entre 8 y 9 caracteres")
+    .max(9, "El Nombre de Usuario debe tener entre 8 y 9 caracteres"),
   password: z
     .string()
-    .min(6, "La Contraseña debe tener al menos 6 caracteres")
+    .min(12, "La Contraseña debe tener al menos 12 caracteres")
     .max(100, "La Contraseña no puede exceder 100 caracteres")
     .optional()
     .or(z.literal("")),
   identificationDocument: z
     .string()
-    .max(50, "El Documento de Identificación no puede exceder 50 caracteres")
+    .regex(/^\d{13}$/, "El DPI debe tener exactamente 13 dígitos numéricos")
     .optional()
     .or(z.literal("")),
   number: z
     .string()
-    .max(20, "El Número no puede exceder 20 caracteres")
+    .regex(/^\d{8}$/, "El teléfono debe tener exactamente 8 dígitos")
+    .optional()
+    .or(z.literal("")),
+  nit: z
+    .string()
+    .min(8, "El NIT debe tener entre 8 y 9 caracteres")
+    .max(9, "El NIT debe tener entre 8 y 9 caracteres")
+    .optional()
+    .or(z.literal("")),
+  branchId: z.union([
+    z.string({ error: invalid_type_error }),
+    z.number(),
+  ]).optional().nullable(),
+  insuranceNumber: z
+    .string()
+    .min(5, "El número de seguro debe tener entre 5 y 50 caracteres")
+    .max(50, "El número de seguro no puede exceder 50 caracteres")
     .optional()
     .or(z.literal("")),
   state: z.union([

@@ -1,0 +1,78 @@
+import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
+import type { LabExamResponse } from "../../types/LabExamResponse";
+import { LabExamButton } from "../button/LabExamButton";
+
+export const LabExamResponseColumns: TableColumnWithFilters<LabExamResponse>[] = [
+  {
+    id: "id",
+    name: "ID",
+    selector: (data) => data.id ?? "",
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: true,
+    filterField: (value) => (value ? `Id:eq:${value}` : ""),
+  },
+  {
+    id: "name",
+    name: "Nombre",
+    selector: (data) => data.name ?? "",
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: true,
+    filterField: (value) => (value ? `Name:like:${value}` : ""),
+  },
+  {
+    id: "laboratory",
+    name: "Laboratorio",
+    selector: (data) => data.laboratory?.name ?? String(data.laboratoryId),
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: false,
+  },
+  {
+    id: "defaultAmount",
+    name: "Precio Base",
+    selector: (data) => `Q${data.defaultAmount?.toFixed(2) ?? "0.00"}`,
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: false,
+  },
+  {
+    id: "unit",
+    name: "Unidad",
+    selector: (data) => data.unit ?? "—",
+    sortable: true,
+    wrap: true,
+    omit: true,
+    hasFilter: false,
+  },
+  {
+    id: "state",
+    name: "Estado",
+    selector: (data) => (data.state === 1 ? "Activo" : "Inactivo"),
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: false,
+  },
+  {
+    id: "actions",
+    name: "Acciones",
+    maxWidth: "100px",
+    center: true,
+    button: true,
+    cell: (data) => <LabExamButton data={data} />,
+  },
+  {
+    id: "createdAt",
+    name: "Creado",
+    selector: (data) => data.createdAt ?? "",
+    sortable: true,
+    maxWidth: "160px",
+    omit: true,
+  },
+];
