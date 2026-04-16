@@ -42,6 +42,11 @@ namespace Hospital.Server.Configs.Extensions
             services.AddScoped<IEntityService<Branch, BranchRequest, long>, EntityService<Branch, BranchRequest, long>>();
             services.AddScoped<IEntityService<AppointmentStatus, AppointmentStatusRequest, long>, EntityService<AppointmentStatus, AppointmentStatusRequest, long>>();
 
+            // Core CRUD services
+            services.AddScoped<IEntityService<Appointment, AppointmentRequest, long>, EntityService<Appointment, AppointmentRequest, long>>();
+            services.AddScoped<IEntityService<Payment, PaymentRequest, long>, EntityService<Payment, PaymentRequest, long>>();
+            services.AddScoped<IEntityService<AppointmentDocument, AppointmentDocumentRequest, long>, EntityService<AppointmentDocument, AppointmentDocumentRequest, long>>();
+
             // User interceptors
             services.AddScoped<IEntityBeforeCreateInterceptor<User, UserRequest>, UserBeforeCreateInterceptor>();
             services.AddScoped<IEntityBeforeUpdateInterceptor<User, UserRequest>, UserBeforeUpdateInterceptor>();
@@ -57,6 +62,9 @@ namespace Hospital.Server.Configs.Extensions
 
             // hosted service para sincronización al inicio
             services.AddHostedService<OperationSyncHostedService>();
+
+            // payment gateway (swap MockPaymentGateway for real implementation in production)
+            services.AddScoped<IPaymentGateway, MockPaymentGateway>();
 
             // other services
             services.AddScoped<ISendMail, SendEmail>();

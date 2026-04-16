@@ -31,6 +31,9 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.Password, src => src.Password)
                 .Map(dest => dest.IdentificationDocument, src => src.IdentificationDocument)
                 .Map(dest => dest.Number, src => src.Number)
+                .Map(dest => dest.Nit, src => src.Nit)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.InsuranceNumber, src => src.InsuranceNumber)
                 .Map(dest => dest.State, src => src.State)
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
@@ -46,6 +49,9 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(dest => dest.RolId, src => src.RolId)
                 .Map(dest => dest.Rol, src => src.Rol)
+                .Map(dest => dest.Nit, src => src.Nit)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.InsuranceNumber, src => src.InsuranceNumber)
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
                 .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
@@ -257,6 +263,121 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
 
             TypeAdapterConfig<AppointmentStatus, AppointmentStatus>.NewConfig();
+
+            //Mapper Appointment
+            TypeAdapterConfig<AppointmentRequest, Appointment>.NewConfig()
+                .Map(dest => dest.PatientId, src => src.PatientId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.AppointmentStatusId, src => src.AppointmentStatusId)
+                .Map(dest => dest.AppointmentDate, src => src.AppointmentDate)
+                .Map(dest => dest.Reason, src => src.Reason)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.Priority, src => src.Priority)
+                .Map(dest => dest.ArrivalTime, src => src.ArrivalTime)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Appointment, AppointmentResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.PatientId, src => src.PatientId)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.AppointmentStatusId, src => src.AppointmentStatusId)
+                .Map(dest => dest.AppointmentDate, src => src.AppointmentDate.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.Reason, src => src.Reason)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.Priority, src => src.Priority)
+                .Map(dest => dest.ArrivalTime, src => src.ArrivalTime.HasValue ? src.ArrivalTime.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
+                .Map(dest => dest.Specialty, src => src.Specialty)
+                .Map(dest => dest.Branch, src => src.Branch)
+                .Map(dest => dest.AppointmentStatus, src => src.AppointmentStatus);
+
+            TypeAdapterConfig<Appointment, Appointment>.NewConfig();
+
+            //Mapper Payment
+            TypeAdapterConfig<PaymentRequest, Payment>.NewConfig()
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.TransactionNumber, src => src.TransactionNumber)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.PaymentMethod, src => src.PaymentMethod)
+                .Map(dest => dest.PaymentType, src => src.PaymentType)
+                .Map(dest => dest.PaymentStatus, src => src.PaymentStatus)
+                .Map(dest => dest.PaymentDate, src => src.PaymentDate)
+                .Map(dest => dest.CardLastFourDigits, src => src.CardLastFourDigits)
+                .Map(dest => dest.IdempotencyKey, src => src.IdempotencyKey)
+                .Map(dest => dest.AmountReceived, src => src.AmountReceived)
+                .Map(dest => dest.ChangeAmount, src => src.ChangeAmount)
+                .Map(dest => dest.GatewayResponseCode, src => src.GatewayResponseCode)
+                .Map(dest => dest.GatewayMessage, src => src.GatewayMessage)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Payment, PaymentResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.TransactionNumber, src => src.TransactionNumber)
+                .Map(dest => dest.Amount, src => src.Amount)
+                .Map(dest => dest.PaymentMethod, src => src.PaymentMethod)
+                .Map(dest => dest.PaymentType, src => src.PaymentType)
+                .Map(dest => dest.PaymentStatus, src => src.PaymentStatus)
+                .Map(dest => dest.PaymentDate, src => src.PaymentDate.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.CardLastFourDigits, src => src.CardLastFourDigits)
+                .Map(dest => dest.IdempotencyKey, src => src.IdempotencyKey)
+                .Map(dest => dest.AmountReceived, src => src.AmountReceived)
+                .Map(dest => dest.ChangeAmount, src => src.ChangeAmount)
+                .Map(dest => dest.GatewayResponseCode, src => src.GatewayResponseCode)
+                .Map(dest => dest.GatewayMessage, src => src.GatewayMessage)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<Payment, Payment>.NewConfig();
+
+            //Mapper AppointmentDocument
+            TypeAdapterConfig<AppointmentDocumentRequest, AppointmentDocument>.NewConfig()
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.FileName, src => src.FileName)
+                .Map(dest => dest.FilePath, src => src.FilePath)
+                .Map(dest => dest.ContentType, src => src.ContentType)
+                .Map(dest => dest.FileSize, src => src.FileSize)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<AppointmentDocument, AppointmentDocumentResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.AppointmentId, src => src.AppointmentId)
+                .Map(dest => dest.FileName, src => src.FileName)
+                .Map(dest => dest.FilePath, src => src.FilePath)
+                .Map(dest => dest.ContentType, src => src.ContentType)
+                .Map(dest => dest.FileSize, src => src.FileSize)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<AppointmentDocument, AppointmentDocument>.NewConfig();
 
             //Mapper Module
             TypeAdapterConfig<Module, ModuleResponse>.NewConfig()

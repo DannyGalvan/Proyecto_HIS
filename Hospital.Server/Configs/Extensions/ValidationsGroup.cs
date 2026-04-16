@@ -11,6 +11,9 @@
     using Hospital.Server.Validations.Laboratory;
     using Hospital.Server.Validations.Branch;
     using Hospital.Server.Validations.AppointmentStatus;
+    using Hospital.Server.Validations.Appointment;
+    using Hospital.Server.Validations.Payment;
+    using Hospital.Server.Validations.AppointmentDocument;
 
     /// <summary>
     /// Defines the <see cref="ValidationsGroup" />
@@ -70,6 +73,21 @@
             services.AddKeyedScoped<IValidator<AppointmentStatusRequest>, CreateAppointmentStatusValidation>("Create");
             services.AddKeyedScoped<IValidator<AppointmentStatusRequest>, UpdateAppointmentStatusValidation>("Update");
             services.AddKeyedScoped<IValidator<AppointmentStatusRequest>, PartialAppointmentStatusValidation>("Partial");
+
+            //appointment validations
+            services.AddKeyedScoped<IValidator<AppointmentRequest>, CreateAppointmentValidation>("Create");
+            services.AddKeyedScoped<IValidator<AppointmentRequest>, UpdateAppointmentValidation>("Update");
+            services.AddKeyedScoped<IValidator<AppointmentRequest>, PartialAppointmentValidation>("Partial");
+
+            //payment validations
+            services.AddKeyedScoped<IValidator<PaymentRequest>, CreatePaymentValidation>("Create");
+            services.AddKeyedScoped<IValidator<PaymentRequest>, UpdatePaymentValidation>("Update");
+            services.AddKeyedScoped<IValidator<PaymentRequest>, PartialPaymentValidation>("Partial");
+
+            //appointmentDocument validations
+            services.AddKeyedScoped<IValidator<AppointmentDocumentRequest>, CreateAppointmentDocumentValidation>("Create");
+            services.AddKeyedScoped<IValidator<AppointmentDocumentRequest>, UpdateAppointmentDocumentValidation>("Update");
+            services.AddKeyedScoped<IValidator<AppointmentDocumentRequest>, PartialAppointmentDocumentValidation>("Partial");
 
             return services;
         }

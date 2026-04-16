@@ -72,6 +72,11 @@ namespace Hospital.Server.Context
         public DbSet<Branch> Branches { get; set; }
         public DbSet<AppointmentStatus> AppointmentStatuses { get; set; }
 
+        // Core entities
+        public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<AppointmentDocument> AppointmentDocuments { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

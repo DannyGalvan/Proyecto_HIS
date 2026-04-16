@@ -43,9 +43,24 @@ namespace Hospital.Server.Entities.Request
         public string? UserName { get; set; }
 
         /// <summary>
-        /// Gets or sets the Number
+        /// Gets or sets the Number (Phone)
         /// </summary>
         public string? Number { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Nit
+        /// </summary>
+        public string? Nit { get; set; }
+
+        /// <summary>
+        /// Gets or sets the BranchId
+        /// </summary>
+        public long? BranchId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the InsuranceNumber
+        /// </summary>
+        public string? InsuranceNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the State
