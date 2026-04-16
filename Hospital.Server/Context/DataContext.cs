@@ -66,6 +66,12 @@ namespace Hospital.Server.Context
         /// </summary>
         public DbSet<PasswordHistory> PasswordHistories { get; set; }
 
+        // Catalogs
+        public DbSet<Specialty> Specialties { get; set; }
+        public DbSet<Laboratory> Laboratories { get; set; }
+        public DbSet<Branch> Branches { get; set; }
+        public DbSet<AppointmentStatus> AppointmentStatuses { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

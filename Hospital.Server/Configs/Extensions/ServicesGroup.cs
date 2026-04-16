@@ -36,6 +36,12 @@ namespace Hospital.Server.Configs.Extensions
             services.AddScoped<IEntityService<Operation, OperationRequest, long>, EntityService<Operation, OperationRequest, long>>();
             services.AddScoped<IEntityService<RolOperation, RolOperationRequest, long>, EntityService<RolOperation, RolOperationRequest, long>>();
 
+            // Catalogs CRUD services
+            services.AddScoped<IEntityService<Specialty, SpecialtyRequest, long>, EntityService<Specialty, SpecialtyRequest, long>>();
+            services.AddScoped<IEntityService<Laboratory, LaboratoryRequest, long>, EntityService<Laboratory, LaboratoryRequest, long>>();
+            services.AddScoped<IEntityService<Branch, BranchRequest, long>, EntityService<Branch, BranchRequest, long>>();
+            services.AddScoped<IEntityService<AppointmentStatus, AppointmentStatusRequest, long>, EntityService<AppointmentStatus, AppointmentStatusRequest, long>>();
+
             // User interceptors
             services.AddScoped<IEntityBeforeCreateInterceptor<User, UserRequest>, UserBeforeCreateInterceptor>();
             services.AddScoped<IEntityBeforeUpdateInterceptor<User, UserRequest>, UserBeforeUpdateInterceptor>();

@@ -7,6 +7,10 @@
     using Hospital.Server.Validations.Rol;
     using Hospital.Server.Validations.RolOperation;
     using Hospital.Server.Validations.User;
+    using Hospital.Server.Validations.Specialty;
+    using Hospital.Server.Validations.Laboratory;
+    using Hospital.Server.Validations.Branch;
+    using Hospital.Server.Validations.AppointmentStatus;
 
     /// <summary>
     /// Defines the <see cref="ValidationsGroup" />
@@ -46,6 +50,26 @@
             services.AddKeyedScoped<IValidator<OperationRequest>, CreateOperationValidation>("Create");
             services.AddKeyedScoped<IValidator<OperationRequest>, UpdateOperationValidation>("Update");
             services.AddKeyedScoped<IValidator<OperationRequest>, PartialOperationValidation>("Partial");
+
+            //specialty validations
+            services.AddKeyedScoped<IValidator<SpecialtyRequest>, CreateSpecialtyValidation>("Create");
+            services.AddKeyedScoped<IValidator<SpecialtyRequest>, UpdateSpecialtyValidation>("Update");
+            services.AddKeyedScoped<IValidator<SpecialtyRequest>, PartialSpecialtyValidation>("Partial");
+
+            //laboratory validations
+            services.AddKeyedScoped<IValidator<LaboratoryRequest>, CreateLaboratoryValidation>("Create");
+            services.AddKeyedScoped<IValidator<LaboratoryRequest>, UpdateLaboratoryValidation>("Update");
+            services.AddKeyedScoped<IValidator<LaboratoryRequest>, PartialLaboratoryValidation>("Partial");
+
+            //branch validations
+            services.AddKeyedScoped<IValidator<BranchRequest>, CreateBranchValidation>("Create");
+            services.AddKeyedScoped<IValidator<BranchRequest>, UpdateBranchValidation>("Update");
+            services.AddKeyedScoped<IValidator<BranchRequest>, PartialBranchValidation>("Partial");
+
+            //appointmentStatus validations
+            services.AddKeyedScoped<IValidator<AppointmentStatusRequest>, CreateAppointmentStatusValidation>("Create");
+            services.AddKeyedScoped<IValidator<AppointmentStatusRequest>, UpdateAppointmentStatusValidation>("Update");
+            services.AddKeyedScoped<IValidator<AppointmentStatusRequest>, PartialAppointmentStatusValidation>("Partial");
 
             return services;
         }

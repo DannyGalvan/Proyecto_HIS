@@ -22,7 +22,276 @@ namespace Project.Server.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Project.Server.Entities.Models.LoginAudit", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.AppointmentStatus", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AppointmentStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Cita recién agendada, esperando confirmación de pago",
+                            Name = "Pendiente de Pago",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Pago recibido, cita confirmada y lista para atención",
+                            Name = "Confirmada",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Enfermero realizando toma de signos vitales al paciente",
+                            Name = "Signos Vitales",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Paciente esperando turno para consulta médica",
+                            Name = "En Espera",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Paciente en atención con el médico",
+                            Name = "Consulta Médica",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Médico completó diagnóstico y plan de tratamiento",
+                            Name = "Evaluado",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Paciente en proceso de exámenes de laboratorio",
+                            Name = "Laboratorio",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Paciente en despacho de medicamentos",
+                            Name = "Farmacia",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Ciclo de atención completo, paciente dado de alta",
+                            Name = "Atención Finalizada",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "El paciente no se presentó a la cita programada",
+                            Name = "No Asistió",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Cita cancelada por el paciente o el sistema",
+                            Name = "Cancelada",
+                            State = 1
+                        });
+                });
+
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Branch", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Branches");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Address = "Ciudad de Guatemala, Zona 10",
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Sede principal del hospital",
+                            Name = "Sede Central",
+                            Phone = "22345678",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            Address = "Ciudad de Guatemala, Zona 1",
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Sucursal centro histórico",
+                            Name = "Sede Zona 1",
+                            Phone = "22345679",
+                            State = 1
+                        });
+                });
+
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Laboratory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Laboratories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Laboratorio interno principal del hospital",
+                            Name = "Laboratorio Central",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Laboratorio para análisis de emergencias",
+                            Name = "Laboratorio de Urgencias",
+                            State = 1
+                        });
+                });
+
+            modelBuilder.Entity("Hospital.Server.Entities.Models.LoginAudit", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -78,7 +347,7 @@ namespace Project.Server.Migrations
                     b.ToTable("LoginAudits");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.Module", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Module", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -132,7 +401,7 @@ namespace Project.Server.Migrations
                     b.ToTable("Modules");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.Operation", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Operation", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -223,7 +492,7 @@ namespace Project.Server.Migrations
                     b.ToTable("Operations");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.PasswordHistory", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.PasswordHistory", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -270,7 +539,7 @@ namespace Project.Server.Migrations
                     b.ToTable("PasswordHistories");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.Rol", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Rol", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -319,7 +588,7 @@ namespace Project.Server.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.RolOperation", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.RolOperation", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -357,7 +626,119 @@ namespace Project.Server.Migrations
                     b.ToTable("RolOperations");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.User", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Specialty", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Specialties");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Atención médica primaria y diagnóstico general",
+                            Name = "Medicina General",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Atención médica para niños y adolescentes",
+                            Name = "Pediatría",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Salud reproductiva y atención de la mujer",
+                            Name = "Ginecología",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Diagnóstico y tratamiento de enfermedades del corazón",
+                            Name = "Cardiología",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Diagnóstico y tratamiento de enfermedades de la piel",
+                            Name = "Dermatología",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Lesiones del sistema musculoesquelético",
+                            Name = "Traumatología",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Diagnóstico y tratamiento de enfermedades de los ojos",
+                            Name = "Oftalmología",
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = 1L,
+                            Description = "Diagnóstico y tratamiento de enfermedades del sistema nervioso",
+                            Name = "Neurología",
+                            State = 1
+                        });
+                });
+
+            modelBuilder.Entity("Hospital.Server.Entities.Models.User", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -463,9 +844,9 @@ namespace Project.Server.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.LoginAudit", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.LoginAudit", b =>
                 {
-                    b.HasOne("Project.Server.Entities.Models.User", "User")
+                    b.HasOne("Hospital.Server.Entities.Models.User", "User")
                         .WithMany("LoginAudits")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -474,9 +855,9 @@ namespace Project.Server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.Operation", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Operation", b =>
                 {
-                    b.HasOne("Project.Server.Entities.Models.Module", "Module")
+                    b.HasOne("Hospital.Server.Entities.Models.Module", "Module")
                         .WithMany("Operations")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -485,9 +866,9 @@ namespace Project.Server.Migrations
                     b.Navigation("Module");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.PasswordHistory", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.PasswordHistory", b =>
                 {
-                    b.HasOne("Project.Server.Entities.Models.User", "User")
+                    b.HasOne("Hospital.Server.Entities.Models.User", "User")
                         .WithMany("PasswordHistories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -496,15 +877,15 @@ namespace Project.Server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.RolOperation", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.RolOperation", b =>
                 {
-                    b.HasOne("Project.Server.Entities.Models.Operation", "Operation")
+                    b.HasOne("Hospital.Server.Entities.Models.Operation", "Operation")
                         .WithMany("RolOperations")
                         .HasForeignKey("OperationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Project.Server.Entities.Models.Rol", "Rol")
+                    b.HasOne("Hospital.Server.Entities.Models.Rol", "Rol")
                         .WithMany("RolOperations")
                         .HasForeignKey("RolId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -515,9 +896,9 @@ namespace Project.Server.Migrations
                     b.Navigation("Rol");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.User", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.User", b =>
                 {
-                    b.HasOne("Project.Server.Entities.Models.Rol", "Rol")
+                    b.HasOne("Hospital.Server.Entities.Models.Rol", "Rol")
                         .WithMany("Users")
                         .HasForeignKey("RolId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -526,24 +907,24 @@ namespace Project.Server.Migrations
                     b.Navigation("Rol");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.Module", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Module", b =>
                 {
                     b.Navigation("Operations");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.Operation", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Operation", b =>
                 {
                     b.Navigation("RolOperations");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.Rol", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.Rol", b =>
                 {
                     b.Navigation("RolOperations");
 
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("Project.Server.Entities.Models.User", b =>
+            modelBuilder.Entity("Hospital.Server.Entities.Models.User", b =>
                 {
                     b.Navigation("LoginAudits");
 
