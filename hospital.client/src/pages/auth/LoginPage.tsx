@@ -43,16 +43,24 @@ export function Component() {
 
   return (
     <ProtectedLogin>
-      <section className="flex flex-col md:flex-row justify-center items-center w-screen h-screen">
+      <section className="flex flex-col md:flex-row justify-center items-center w-screen h-screen login-bg relative overflow-hidden">
+        {/* Decorative medical cross pattern */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect x='15' y='5' width='10' height='30' rx='2' fill='%230A4FA6'/%3E%3Crect x='5' y='15' width='30' height='10' rx='2' fill='%230A4FA6'/%3E%3C/svg%3E")`,
+            backgroundSize: "40px 40px",
+          }}
+        />
         <div className="flex items-center px-6 md:mx-auto w-full md:max-w-md lg:max-w-lg xl:max-w-xl">
-          <Card className="w-full shadow-[0px_20px_20px_10px_#A0AEC0]">
+          <Card className="w-full shadow-[0px_20px_20px_10px_#A0AEC0] login-card">
             <div className="p-10 flex flex-col w-full">
               <div className="flex justify-center">
                 <img
                   alt="Esi Logo"
-                  className=""
                   src={Images.logo}
-                  width={240}
+                  style={{ maxWidth: "200px", marginBottom: "1.5rem" }}
                 />
               </div>
               <LoginForm initialForm={initialForm} onSubmit={petition} />

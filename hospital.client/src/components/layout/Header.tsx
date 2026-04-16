@@ -19,10 +19,10 @@ export function Header({ toggleSidebar }: HeaderProps) {
   }, [setTheme, resolvedTheme]);
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white/80 px-4 backdrop-blur-md dark:border-zinc-800 dark:bg-[#18181b]/80 transition-colors duration-300">
+    <header className="relative sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[var(--color-border)] bg-[rgba(255,255,255,0.85)] dark:bg-[rgba(24,24,27,0.85)] px-4 backdrop-blur-md transition-colors duration-300">
       <Button
         aria-label="Toggle Sidebar"
-        className="flex min-w-0 bg-transparent items-center justify-center rounded-md p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800 transition-colors"
+        className="flex min-w-0 bg-transparent items-center justify-center rounded-md p-2 text-gray-600 hover:bg-[var(--color-surface-100)] dark:text-gray-300 transition-colors"
         onClick={toggleSidebar}
       >
         <i className="bi bi-list text-2xl" />
@@ -32,7 +32,7 @@ export function Header({ toggleSidebar }: HeaderProps) {
         {mounted ? (
           <Button
             aria-label="Alternar tema"
-            className="flex h-10 w-10 min-w-0 items-center justify-center rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:hover:bg-zinc-700 transition-colors"
+            className="theme-toggle-btn flex h-10 w-10 min-w-0 items-center justify-center rounded-full bg-[var(--color-surface-100)] text-[var(--color-primary)] transition-colors"
             onClick={handleThemeChange}
           >
             {resolvedTheme === "dark" ? (
@@ -43,6 +43,7 @@ export function Header({ toggleSidebar }: HeaderProps) {
           </Button>
         ) : null}
       </div>
+      <div className="header-accent-line" />
     </header>
   );
 }

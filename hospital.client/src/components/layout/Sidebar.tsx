@@ -39,13 +39,13 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
       />
 
       <aside
-        className={`fixed left-0 top-0 z-48 flex h-screen flex-col border-r border-gray-200 bg-white transition-all duration-300 ease-in-out dark:border-zinc-800 dark:bg-[#18181b] md:sticky whitespace-nowrap ${
+        className={`fixed left-0 top-0 z-48 flex h-screen flex-col border-r border-[var(--color-border)] bg-[var(--color-surface-50)] transition-all duration-300 ease-in-out md:sticky whitespace-nowrap ${
           isOpen
-            ? "w-[16rem] translate-x-0 shadow-xl md:shadow-none"
+            ? "w-[16rem] translate-x-0 shadow-[4px_0_12px_rgba(10,79,166,0.08)] md:shadow-none"
             : "w-18 -translate-x-full md:translate-x-0"
         }`}
       >
-        <div className="flex h-16 shrink-0 items-center justify-center border-b border-gray-200 dark:border-zinc-800 relative w-full overflow-hidden">
+        <div className="flex h-16 shrink-0 items-center justify-center border-b border-[var(--color-border)] relative w-full overflow-hidden">
           <Link
             className="flex items-center justify-center h-full transition-all duration-300 w-full"
             to={nameRoutes.root}
@@ -76,8 +76,8 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
                   className={`relative flex items-center rounded-lg py-2.5 text-[0.9rem] font-bold transition-all w-full
                         ${
                           pathname === nameRoutes.root
-                            ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                            : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800/50"
+                            ? "sidebar-link-active"
+                            : "text-gray-700 hover:bg-[var(--color-surface-100)] dark:text-gray-300"
                         } 
                         ${isOpen ? "justify-start px-3" : "justify-center px-0"}
                       `}
@@ -91,6 +91,12 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
                   >
                     <span>Inicio</span>
                   </div>
+                  {!isOpen && pathname === nameRoutes.root && (
+                    <span
+                      className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                      style={{ backgroundColor: "var(--color-primary)" }}
+                    />
+                  )}
                 </Link>
 
                 <Tooltip.Content
@@ -103,7 +109,7 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
               </Tooltip>
             </div>
 
-            <div className="w-[80%] h-px bg-gray-200 dark:bg-zinc-800 my-2 mx-auto" />
+            <div className="sidebar-divider" />
 
             <div className="w-full space-y-1 px-3">
               {operations
@@ -120,7 +126,7 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-zinc-800 p-4 shrink-0 w-full flex justify-center">
+        <div className="border-t border-[var(--color-border)] p-4 shrink-0 w-full flex justify-center">
           <div className="w-full">
             <Tooltip closeDelay={0} delay={0} isDisabled={isOpen}>
               <Button

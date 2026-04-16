@@ -1,5 +1,4 @@
 import {
-  Button,
   FieldError,
   Form,
   Input,
@@ -12,6 +11,7 @@ import { nameRoutes } from "../../configs/constants";
 import { useForm } from "../../hooks/useForm";
 import type { ApiResponse } from "../../types/ApiResponse";
 import { validateLogin } from "../../validations/loginValidation";
+import { AsyncButton } from "../button/AsyncButton";
 import { Response } from "../messages/Response";
 
 export interface LoginFormData {
@@ -25,7 +25,7 @@ export interface LoginFormProps {
 }
 
 export function LoginForm({ initialForm, onSubmit }: LoginFormProps) {
-  const { form, errors, handleChange, handleSubmit, success, message } =
+  const { form, errors, handleChange, handleSubmit, success, message, loading } =
     useForm<LoginFormData, unknown>(initialForm, validateLogin, onSubmit);
 
   const handleTextChange = useCallback(
@@ -83,14 +83,16 @@ export function LoginForm({ initialForm, onSubmit }: LoginFormProps) {
           ) : null}
         </TextField>
 
-        <Button
+        <AsyncButton
           className="py-4 mt-4 font-bold w-full"
+          isLoading={loading}
+          loadingText="Iniciando sesión..."
           size="lg"
           type="submit"
           variant="primary"
         >
           Iniciar Sesión
-        </Button>
+        </AsyncButton>
       </Form>
       <div className="flex flex-col items-center mt-4 gap-2">
         <Link

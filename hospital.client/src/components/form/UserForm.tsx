@@ -1,5 +1,4 @@
 import {
-  Button,
   FieldError,
   Form,
   Input,
@@ -9,6 +8,7 @@ import {
 import { useCallback, type ChangeEvent } from "react";
 import { useNavigate } from "react-router";
 import type { SingleValue } from "react-select";
+import { AsyncButton } from "../button/AsyncButton";
 import { useForm } from "../../hooks/useForm";
 import { getRoles } from "../../services/rolService";
 import type { ApiResponse } from "../../types/ApiResponse";
@@ -42,7 +42,7 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
   const isEditing = type === "edit";
   const navigate = useNavigate();
 
-  const { form, errors, handleChange, handleSubmit, success, message } =
+  const { form, errors, handleChange, handleSubmit, success, message, loading } =
     useForm<UserRequest, unknown>(initialForm, validateUser, onSubmit, true);
 
   const handleTextChange = useCallback(
@@ -250,23 +250,26 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
         </div>
 
         <div className="flex gap-4 justify-end mt-4">
-          <Button
+          <AsyncButton
             className="font-bold"
+            isLoading={false}
             size="lg"
             type="button"
             variant="secondary"
             onClick={handleCancel}
           >
             Cancelar
-          </Button>
-          <Button
+          </AsyncButton>
+          <AsyncButton
             className="font-bold"
+            isLoading={loading}
+            loadingText={isEditing ? "Actualizando..." : "Creando..."}
             size="lg"
             type="submit"
             variant="primary"
           >
             {isEditing ? "Actualizar" : "Crear"}
-          </Button>
+          </AsyncButton>
         </div>
       </Form>
     </div>

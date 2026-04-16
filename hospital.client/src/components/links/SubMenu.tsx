@@ -58,8 +58,8 @@ export function SubMenu({
         className={`relative flex w-full items-center rounded-lg py-2.5 text-[0.9rem] font-bold transition-all
             ${
               isActive || subMenuOpen
-                ? "bg-blue-50/50 text-blue-700 dark:bg-zinc-800/80 dark:text-blue-400"
-                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800/50"
+                ? "sidebar-link-active"
+                : "text-gray-700 hover:bg-[var(--color-surface-100)] dark:text-gray-300"
             }
             ${isCollapsed ? "justify-center px-0" : "justify-between px-3"}
           `}
@@ -104,14 +104,14 @@ export function SubMenu({
             >
               <motion.div
                 animate={{ opacity: 1, x: 0, scale: 1 }}
-                className="relative border border-gray-200 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900 rounded-lg min-w-50"
+                className="relative submenu-floating p-2 rounded-lg min-w-50"
                 initial={{ opacity: 0, x: -5, scale: 0.98 }}
                 transition={{ duration: 0.15 }}
               >
                 {/* Flecha apuntando al icono */}
-                <div className="absolute top-[1.1rem] -left-[5.5px] w-2.5 h-2.5 rotate-45 border-b border-l border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900" />
+                <div className="absolute top-[1.1rem] -left-[5.5px] w-2.5 h-2.5 rotate-45 border-b border-l border-[var(--color-border)] bg-[var(--color-surface-50)]" />
 
-                <div className="mb-2 border-b border-gray-100 pb-2 px-2 text-[0.7rem] font-black uppercase text-gray-500 dark:border-zinc-800 dark:text-gray-400">
+                <div className="submenu-floating-header mb-2 border-b border-[var(--color-border)] pb-2 px-2">
                   {data.module.name}
                 </div>
                 <ul className="flex flex-col gap-0.5 w-full">
@@ -120,10 +120,10 @@ export function SubMenu({
                     .map((menu) => (
                       <li key={menu.path} className="w-full">
                         <Link
-                          className={`block w-full rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                          className={`submenu-floating-item block w-full rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                             pathname === menu.path
-                              ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                              : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800/80"
+                              ? "sidebar-link-active"
+                              : "text-gray-600 dark:text-gray-300"
                           }`}
                           to={menu.path}
                           onClick={handleLinkClick}
@@ -156,8 +156,8 @@ export function SubMenu({
                   <Link
                     className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                       pathname === menu.path
-                        ? "bg-blue-100/50 text-blue-700 dark:bg-zinc-800 dark:text-blue-400"
-                        : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-white"
+                        ? "sidebar-link-active"
+                        : "text-gray-500 hover:bg-[var(--color-surface-100)] dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     }`}
                     to={menu.path}
                   >

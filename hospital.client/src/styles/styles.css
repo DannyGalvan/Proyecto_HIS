@@ -81,6 +81,27 @@
   --bs-light: white;
   --bs-dark: #212529;
   --bs-secondary: #6c757d;
+
+  /* Medical palette */
+  --color-primary: #0A4FA6;
+  --color-secondary: #0891B2;
+  --color-accent: #0D9E6E;
+  --color-surface-50: #F8FAFC;
+  --color-surface-100: #F1F5F9;
+  --color-surface-200: #E2E8F0;
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --transition-fast: 200ms ease;
+  --transition-normal: 300ms ease;
 }
 
 .dark {
@@ -91,6 +112,31 @@
   --bs-light: #e4e4e7;
   --bs-dark: #f8f9fa;
   --bs-secondary: #a1a1aa;
+
+  /* Medical palette — dark overrides */
+  --color-primary: #3B82F6;
+  --color-secondary: #22D3EE;
+  --color-accent: #34D399;
+  --color-surface-50: #18181B;
+  --color-surface-100: #27272A;
+  --color-surface-200: #3F3F46;
+  --color-text-primary: #E4E4E7;
+  --color-text-secondary: #A1A1AA;
+  --color-border: #27272A;
+}
+
+/* Global theme transition */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
 }
 
 @config "../../tailwind.config.js";
