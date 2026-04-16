@@ -1,8 +1,6 @@
 using Hospital.Server.Context;
 using Hospital.Server.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Hospital.Server.Infrastructure.Extensions
 {
@@ -22,7 +20,7 @@ namespace Hospital.Server.Infrastructure.Extensions
             IConfiguration configuration)
         {
             // Obtener configuración de base de datos
-            var databaseSettings = configuration.GetSection("Database").Get<DatabaseSettings>()
+            var databaseSettings = configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>()
                 ?? new DatabaseSettings
                 {
                     Provider = DatabaseProvider.SqlServer,
@@ -33,7 +31,7 @@ namespace Hospital.Server.Infrastructure.Extensions
                 };
 
             // Registrar configuración en DI
-            services.Configure<DatabaseSettings>(configuration.GetSection("Database"));
+            services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
 
             // Registrar DbContext con el proveedor configurado
             services.AddDbContext<DataContext>((serviceProvider, options) =>
@@ -63,25 +61,21 @@ namespace Hospital.Server.Infrastructure.Extensions
             this IApplicationBuilder app,
             IConfiguration configuration)
         {
-            var databaseSettings = configuration.GetSection("Database").Get<DatabaseSettings>();
+            var databaseSettings = configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>();
 
-            if (databaseSettings?.EnableAutoMigration == true)
+            if (databaseSettings?.EnableAutoMigration != true) return app;
+            using var scope = app.ApplicationServices.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+            try
             {
-                using (var scope = app.ApplicationServices.CreateScope())
-                {
-                    var context = scope.ServiceProvider.GetRequiredService<DataContext>();
-
-                    try
-                    {
-                        context.Database.Migrate();
-                    }
-                    catch (Exception ex)
-                    {
-                        var logger = scope.ServiceProvider.GetRequiredService<ILogger<DataContext>>();
-                        logger.LogError(ex, "Error al aplicar migraciones automáticas");
-                        throw;
-                    }
-                }
+                context.Database.Migrate();
+            }
+            catch (Exception ex)
+            {
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<DataContext>>();
+                logger.LogError(ex, "Error al aplicar migraciones automáticas");
+                throw;
             }
 
             return app;

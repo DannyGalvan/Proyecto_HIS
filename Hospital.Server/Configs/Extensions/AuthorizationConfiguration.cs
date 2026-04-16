@@ -26,10 +26,9 @@ namespace Hospital.Server.Configs.Extensions
                     .RequireAuthenticatedUser()
                     .Build();
 
-                // Fallback policy: deny by default if no policy is specified
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
+                // NO FallbackPolicy - allow unauthenticated access to SPA routes
+                // Controllers will use [Authorize] or [AllowAnonymous] explicitly
+                // This allows MapFallbackToFile to serve index.html for SPA routes
             });
 
             return services;

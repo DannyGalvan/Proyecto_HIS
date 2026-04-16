@@ -15,7 +15,7 @@ const baseFolder =
     ? `${env.APPDATA}/ASP.NET/https`
     : `${env.HOME}/.aspnet/https`;
 
-const certificateName = "project.client";
+const certificateName = "hospital.client";
 const certFilePath = join(baseFolder, `${certificateName}.pem`);
 const keyFilePath = join(baseFolder, `${certificateName}.key`);
 
@@ -49,12 +49,14 @@ if (!existsSync(certFilePath) || !existsSync(keyFilePath)) {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [viteReact(), compress(), tsconfigPaths(), tailwindcss()],
-  base: "/",
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  base: "/",
+  envDir: "./",
+  envPrefix: "VITE_",
   server: {
     proxy: {
       "/api": {
