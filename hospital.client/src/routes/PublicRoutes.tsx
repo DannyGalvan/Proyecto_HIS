@@ -50,6 +50,8 @@ import { UpdateLabExamPage } from "../pages/lab-exam/UpdateLabExamPage";
 
 // Lab Order pages
 import { LabOrderPage } from "../pages/lab-order/LabOrderPage";
+import { CreateLabOrderPage } from "../pages/lab-order/CreateLabOrderPage";
+import { LabOrderDetailPage } from "../pages/lab-order/LabOrderDetailPage";
 
 // Medicine pages
 import { MedicinePage } from "../pages/medicine/MedicinePage";
@@ -86,6 +88,16 @@ import { CashierPage } from "../pages/cashier/CashierPage";
 // Portal público
 import { PortalPage } from "../pages/portal/PortalPage";
 
+// Online Payment
+import { OnlinePaymentPage } from "../pages/payment/OnlinePaymentPage";
+
+// Rol Operation pages
+import { RolOperationPage } from "../pages/rol/RolOperationPage";
+
+// Dispense pages
+import { DispensePage } from "../pages/dispense/DispensePage";
+import { CreateDispensePage } from "../pages/dispense/CreateDispensePage";
+
 // Middlewares
 import PublicOnly from "./middlewares/PublicOnly";
 
@@ -117,7 +129,7 @@ export const PublicRoutes: RouteObject[] = [
     index: true,
     element: (
       <ProtectedPublic>
-        <TestPage />
+        <DoctorDashboardPage />
       </ProtectedPublic>
     ),
   },
@@ -146,6 +158,10 @@ export const PublicRoutes: RouteObject[] = [
   {
     path: `${nameRoutes.rolUpdate}/:id`,
     element: <ProtectedPublic><UpdateRolPage /></ProtectedPublic>,
+  },
+  {
+    path: `${nameRoutes.rolOperations}/:id/operations`,
+    element: <ProtectedPublic><RolOperationPage /></ProtectedPublic>,
   },
   // Specialties
   {
@@ -243,6 +259,14 @@ export const PublicRoutes: RouteObject[] = [
     path: nameRoutes.labOrder,
     element: <ProtectedPublic><LabOrderPage /></ProtectedPublic>,
   },
+  {
+    path: nameRoutes.labOrderCreate,
+    element: <ProtectedPublic><CreateLabOrderPage /></ProtectedPublic>,
+  },
+  {
+    path: `${nameRoutes.labOrderDetail}/:id`,
+    element: <ProtectedPublic><LabOrderDetailPage /></ProtectedPublic>,
+  },
   // Medicines
   {
     path: nameRoutes.medicine,
@@ -319,5 +343,23 @@ export const PublicRoutes: RouteObject[] = [
   {
     path: nameRoutes.cashier,
     element: <ProtectedPublic><CashierPage /></ProtectedPublic>,
+  },
+  // Pago en línea
+  {
+    path: nameRoutes.onlinePayment,
+    element: <ProtectedPublic><OnlinePaymentPage /></ProtectedPublic>,
+  },
+  // Dispense
+  {
+    path: nameRoutes.dispense,
+    element: <ProtectedPublic><DispensePage /></ProtectedPublic>,
+  },
+  {
+    path: nameRoutes.dispenseCreate,
+    element: <ProtectedPublic><CreateDispensePage /></ProtectedPublic>,
+  },
+  {
+    path: `${nameRoutes.dispenseCreate}/:prescriptionId`,
+    element: <ProtectedPublic><CreateDispensePage /></ProtectedPublic>,
   },
 ];

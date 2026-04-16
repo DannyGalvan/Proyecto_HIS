@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { MedicineResponse } from "../../types/MedicineResponse";
 import { MedicineButton } from "../button/MedicineButton";
+import { MedicineControlledBadge } from "../badge/MedicineControlledBadge";
 
 export const MedicineResponseColumns: TableColumnWithFilters<MedicineResponse>[] = [
   {
@@ -44,7 +45,7 @@ export const MedicineResponseColumns: TableColumnWithFilters<MedicineResponse>[]
   {
     id: "isControlled",
     name: "Controlado",
-    selector: (data) => (data.isControlled ? "⚠️ Sí" : "No"),
+    cell: (data) => <MedicineControlledBadge isControlled={data.isControlled ?? false} />,
     sortable: true,
     wrap: true,
     omit: false,

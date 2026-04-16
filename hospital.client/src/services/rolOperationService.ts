@@ -47,3 +47,9 @@ export const updateRolOperation = async (rolOperation: RolOperationRequest) => {
     RolOperationRequest
   >(`RolOperation`, rolOperation);
 };
+
+export const deleteRolOperation = async (id: number) => {
+  return api.delete<unknown, ApiResponse<RolOperationResponse>>(
+    `RolOperation/${id}`,
+  );
+};

@@ -1,0 +1,70 @@
+import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
+import type { PrescriptionResponse } from "../../types/PrescriptionResponse";
+import { PrescriptionButton } from "../button/PrescriptionButton";
+
+export const PrescriptionResponseColumns: TableColumnWithFilters<PrescriptionResponse>[] = [
+  {
+    id: "id",
+    name: "ID",
+    selector: (data) => data.id ?? "",
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: true,
+    filterField: (value) => (value ? `Id:eq:${value}` : ""),
+  },
+  {
+    id: "consultationId",
+    name: "Consulta",
+    selector: (data) => data.consultationId ?? "",
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: true,
+    filterField: (value) => (value ? `ConsultationId:eq:${value}` : ""),
+  },
+  {
+    id: "doctorId",
+    name: "Médico ID",
+    selector: (data) => data.doctorId ?? "",
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: false,
+  },
+  {
+    id: "prescriptionDate",
+    name: "Fecha",
+    selector: (data) => data.prescriptionDate ?? "",
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: false,
+  },
+  {
+    id: "notes",
+    name: "Notas",
+    selector: (data) => data.notes ?? "—",
+    sortable: false,
+    wrap: true,
+    omit: false,
+    hasFilter: false,
+  },
+  {
+    id: "state",
+    name: "Estado",
+    selector: (data) => (data.state === 1 ? "Activo" : "Inactivo"),
+    sortable: true,
+    wrap: true,
+    omit: false,
+    hasFilter: false,
+  },
+  {
+    id: "actions",
+    name: "Acciones",
+    maxWidth: "100px",
+    center: true,
+    button: true,
+    cell: (data) => <PrescriptionButton data={data} />,
+  },
+];

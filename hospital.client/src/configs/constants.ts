@@ -25,6 +25,7 @@ export const nameRoutes = {
   rol: "/rol",
   rolCreate: "/rol/create",
   rolUpdate: "/rol/update",
+  rolOperations: "/rol/update",
   // Specialties
   specialty: "/specialty",
   specialtyCreate: "/specialty/create",
@@ -55,6 +56,8 @@ export const nameRoutes = {
   labExamUpdate: "/lab-exam/update",
   // Lab Orders
   labOrder: "/lab-order",
+  labOrderCreate: "/lab-order/create",
+  labOrderDetail: "/lab-order",
   // Medicines
   medicine: "/medicine",
   medicineCreate: "/medicine/create",
@@ -80,6 +83,11 @@ export const nameRoutes = {
   reception: "/reception",
   // Caja
   cashier: "/cashier",
+  // Pago en línea
+  onlinePayment: "/payment/online",
+  // Dispense
+  dispense: "/dispense",
+  dispenseCreate: "/dispense/create",
   // Registro externo
   register: "/register",
   // Portal público

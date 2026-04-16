@@ -1,6 +1,7 @@
 import { FieldError, Form, Input, Label, TextField } from "@heroui/react";
-import { useCallback, type ChangeEvent } from "react";
+import { useCallback, useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router";
+import { useCie10Autocomplete } from "../../hooks/useCie10Autocomplete";
 import { AsyncButton } from "../button/AsyncButton";
 import { useForm } from "../../hooks/useForm";
 import type { ApiResponse } from "../../types/ApiResponse";
@@ -19,6 +20,10 @@ interface MedicalConsultationFormProps {
 export function MedicalConsultationForm({ type, initialForm, onSubmit }: MedicalConsultationFormProps) {
   const isEditing = type === "edit";
   const navigate = useNavigate();
+
+  const [cie10Query, setCie10Query] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const { suggestions, isLoading: cie10Loading } = useCie10Autocomplete(cie10Query);
 
   const { form, errors, handleChange, handleSubmit, success, message, loading } =
     useForm<MedicalConsultationRequest, unknown>(initialForm, validateMedicalConsultation, onSubmit, true);
@@ -67,11 +72,46 @@ export function MedicalConsultationForm({ type, initialForm, onSubmit }: Medical
             <Input className="w-full px-3 py-2 border rounded-md" type="text" value={form.clinicalFindings || ""} />
             {errors?.clinicalFindings ? <FieldError>{errors.clinicalFindings as string}</FieldError> : null}
           </TextField>
-          <TextField className="w-full flex flex-col gap-1" isInvalid={!!errors?.diagnosisCie10Code} name="diagnosisCie10Code" onChange={handleTextChange("diagnosisCie10Code")}>
-            <Label className="font-bold">Código CIE-10</Label>
-            <Input className="w-full px-3 py-2 border rounded-md" type="text" placeholder="Ej: J06.9" value={form.diagnosisCie10Code || ""} />
-            {errors?.diagnosisCie10Code ? <FieldError>{errors.diagnosisCie10Code as string}</FieldError> : null}
-          </TextField>
+          <div className="w-full flex flex-col gap-1 relative">
+            <label className="font-bold text-sm">Código CIE-10</label>
+            <input
+              className="w-full px-3 py-2 border rounded-md"
+              type="text"
+              placeholder="Buscar diagnóstico CIE-10..."
+              value={cie10Query || form.diagnosisCie10Code || ""}
+              onChange={(e) => {
+                setCie10Query(e.target.value);
+                setShowSuggestions(true);
+                // Also update the form field directly
+                handleChange({ target: { name: "diagnosisCie10Code", value: e.target.value } } as React.ChangeEvent<HTMLInputElement>);
+              }}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            />
+            {cie10Loading && <p className="text-xs text-gray-400">Buscando...</p>}
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                {suggestions.map((item) => (
+                  <li
+                    key={item.code}
+                    className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                    onMouseDown={() => {
+                      const value = `${item.code} - ${item.description}`;
+                      setCie10Query(value);
+                      handleChange({ target: { name: "diagnosisCie10Code", value } } as React.ChangeEvent<HTMLInputElement>);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    <span className="font-mono font-semibold text-blue-700">{item.code}</span>
+                    {" — "}
+                    <span className="text-gray-700">{item.description}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {errors?.diagnosisCie10Code && (
+              <p className="text-danger text-sm">{errors.diagnosisCie10Code as string}</p>
+            )}
+          </div>
           <OptionsSelect
             isRequired
             defaultValue={form.consultationStatus !== null && form.consultationStatus !== undefined
@@ -117,6 +157,32 @@ export function MedicalConsultationForm({ type, initialForm, onSubmit }: Medical
           />
         </div>
         <div className="flex gap-4 justify-end mt-4">
+          {isEditing && initialForm.id && (
+            <div className="flex flex-wrap gap-3 mt-2 pt-4 border-t border-gray-200">
+              <p className="w-full text-sm font-semibold text-gray-600 mb-1">Acciones de la consulta:</p>
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors"
+                onClick={() => navigate(`/prescription/create?consultationId=${initialForm.id}`)}
+              >
+                📋 Crear Receta
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors"
+                onClick={() => navigate(`/lab-order/create?consultationId=${initialForm.id}`)}
+              >
+                🔬 Crear Orden de Lab
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-green-100 text-green-800 hover:bg-green-200 transition-colors"
+                onClick={() => navigate(`/appointment/create?followUp=true&parentConsultationId=${initialForm.id}`)}
+              >
+                📅 Agendar Seguimiento
+              </button>
+            </div>
+          )}
           <AsyncButton className="font-bold" isLoading={false} size="lg" type="button" variant="secondary" onClick={() => navigate("/medical-consultation")}>
             Cancelar
           </AsyncButton>

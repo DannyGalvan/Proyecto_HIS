@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { env } from "node:process";
 import { fileURLToPath, URL } from "node:url";
 
@@ -57,6 +58,10 @@ export default defineConfig({
   base: "/",
   envDir: "./",
   envPrefix: "VITE_",
+  test: {
+    globals: true,
+    environment: 'jsdom',
+  },
   server: {
     proxy: {
       "/api": {

@@ -9,27 +9,8 @@ import type { ValidationFailure } from "../../types/ValidationFailure";
 import { validateVitalSign } from "../../validations/vitalSignValidation";
 import { Response } from "../messages/Response";
 import { OptionsSelect, type OptionValue } from "../select/OptionsSelect";
-
-// Rangos normales para alertas visuales
-const getBloodPressureAlert = (systolic: number, diastolic: number): string | null => {
-  if (systolic < 90) return "⚠️ Hipotensión sistólica";
-  if (systolic > 140) return "⚠️ Hipertensión sistólica";
-  if (diastolic < 60) return "⚠️ Presión diastólica baja";
-  if (diastolic > 90) return "⚠️ Presión diastólica alta";
-  return null;
-};
-
-const getTemperatureAlert = (temp: number): string | null => {
-  if (temp < 36) return "⚠️ Hipotermia";
-  if (temp > 37.5) return "⚠️ Fiebre";
-  return null;
-};
-
-const getHeartRateAlert = (hr: number): string | null => {
-  if (hr < 60) return "⚠️ Bradicardia";
-  if (hr > 100) return "⚠️ Taquicardia";
-  return null;
-};
+import { useVitalSignAlerts } from "../../hooks/useVitalSignAlerts";
+import { VitalSignAlertsDisplay } from "../shared/VitalSignAlertsDisplay";
 
 interface VitalSignFormProps {
   readonly type: "create" | "edit";
@@ -43,6 +24,13 @@ export function VitalSignForm({ type, initialForm, onSubmit }: VitalSignFormProp
 
   const { form, errors, handleChange, handleSubmit, success, message, loading } =
     useForm<VitalSignRequest, unknown>(initialForm, validateVitalSign, onSubmit, true);
+
+  const alerts = useVitalSignAlerts({
+    bloodPressureSystolic: form.bloodPressureSystolic ? Number(form.bloodPressureSystolic) : null,
+    bloodPressureDiastolic: form.bloodPressureDiastolic ? Number(form.bloodPressureDiastolic) : null,
+    temperature: form.temperature ? Number(form.temperature) : null,
+    heartRate: form.heartRate ? Number(form.heartRate) : null,
+  });
 
   const handleTextChange = useCallback(
     (name: string) => (val: string) => {
@@ -59,12 +47,6 @@ export function VitalSignForm({ type, initialForm, onSubmit }: VitalSignFormProp
     },
     [handleChange],
   );
-
-  const bpAlert = form.bloodPressureSystolic && form.bloodPressureDiastolic
-    ? getBloodPressureAlert(Number(form.bloodPressureSystolic), Number(form.bloodPressureDiastolic))
-    : null;
-  const tempAlert = form.temperature ? getTemperatureAlert(Number(form.temperature)) : null;
-  const hrAlert = form.heartRate ? getHeartRateAlert(Number(form.heartRate)) : null;
 
   return (
     <div className="max-w-3xl mx-auto p-6">
@@ -99,21 +81,18 @@ export function VitalSignForm({ type, initialForm, onSubmit }: VitalSignFormProp
                 {errors?.bloodPressureDiastolic ? <FieldError>{errors.bloodPressureDiastolic as string}</FieldError> : null}
               </TextField>
             </div>
-            {bpAlert && <p className="text-orange-600 text-sm mt-1">{bpAlert}</p>}
           </div>
 
           <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.temperature} name="temperature" onChange={handleTextChange("temperature")}>
             <Label className="font-bold">Temperatura (°C)</Label>
             <Input className="w-full px-3 py-2 border rounded-md" type="number" step="0.1" min="34" max="42" value={form.temperature?.toString() || ""} />
             {errors?.temperature ? <FieldError>{errors.temperature as string}</FieldError> : null}
-            {tempAlert && <p className="text-orange-600 text-sm mt-1">{tempAlert}</p>}
           </TextField>
 
           <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.heartRate} name="heartRate" onChange={handleTextChange("heartRate")}>
             <Label className="font-bold">Frecuencia Cardíaca (bpm)</Label>
             <Input className="w-full px-3 py-2 border rounded-md" type="number" min="30" max="220" value={form.heartRate?.toString() || ""} />
             {errors?.heartRate ? <FieldError>{errors.heartRate as string}</FieldError> : null}
-            {hrAlert && <p className="text-orange-600 text-sm mt-1">{hrAlert}</p>}
           </TextField>
 
           <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.weight} name="weight" onChange={handleTextChange("weight")}>
@@ -154,6 +133,7 @@ export function VitalSignForm({ type, initialForm, onSubmit }: VitalSignFormProp
             onChange={handleStateChange}
           />
         </div>
+        <VitalSignAlertsDisplay alerts={alerts} />
         <div className="flex gap-4 justify-end mt-4">
           <AsyncButton className="font-bold" isLoading={false} size="lg" type="button" variant="secondary" onClick={() => navigate("/vital-sign")}>
             Cancelar

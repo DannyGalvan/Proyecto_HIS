@@ -22,6 +22,10 @@ export function RolButton({ data }: RolButtonProps) {
         navigate(`/rol/update/${data.id}`);
     }, [navigate, data.id]);
 
+    const handlePermissions = useCallback(() => {
+        navigate(`/rol/update/${data.id}/operations`);
+    }, [navigate, data.id]);
+
     const handleDeleteClick = useCallback(() => {
         setIsDeleteDialogOpen(true);
     }, []);
@@ -72,6 +76,13 @@ export function RolButton({ data }: RolButtonProps) {
                             onClick={handleEdit}
                         >
                             Editar
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                            key="permissions"
+                            className="text-primary hover:text-white"
+                            onClick={handlePermissions}
+                        >
+                            Gestionar Permisos
                         </Dropdown.Item>
                         <Dropdown.Item
                             key="delete"

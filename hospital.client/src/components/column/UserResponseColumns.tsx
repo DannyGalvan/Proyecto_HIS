@@ -1,5 +1,6 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { UserResponse } from "../../types/UserResponse";
+import { maskCardNumber } from "../../utils/maskCardNumber";
 import { UserButton } from "../button/UserButton";
 
 export const UserResponseColumns: TableColumnWithFilters<UserResponse>[] = [
@@ -56,7 +57,7 @@ export const UserResponseColumns: TableColumnWithFilters<UserResponse>[] = [
   {
     id: "identificationDocument",
     name: "DPI",
-    selector: (data) => data.identificationDocument ?? "",
+    selector: (data) => maskCardNumber(data.identificationDocument ?? ""),
     sortable: true,
     wrap: true,
     omit: true,
@@ -75,7 +76,7 @@ export const UserResponseColumns: TableColumnWithFilters<UserResponse>[] = [
   {
     id: "nit",
     name: "NIT",
-    selector: (data) => data.nit ?? "",
+    selector: (data) => maskCardNumber(data.nit ?? ""),
     sortable: true,
     wrap: true,
     omit: true,

@@ -1,7 +1,8 @@
-import { Button, FieldError, Form, Input, Label, TextField, toast } from "@heroui/react";
+import { Button, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
+import { ReceptionSearch } from "../../components/reception/ReceptionSearch";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { getAppointments, partialUpdateAppointment } from "../../services/appointmentService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
@@ -17,9 +18,8 @@ const statusColors: Record<string, string> = {
 };
 
 export function ReceptionPage() {
-  const [searchValue, setSearchValue] = useState("");
-  const [searchType, setSearchType] = useState<"dpi" | "id">("dpi");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchType, setSearchType] = useState<"dpi" | "id">("dpi");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -55,12 +55,6 @@ export function ReceptionPage() {
     onError: () => toast.danger("Error al registrar la llegada"),
   });
 
-  const handleSearch = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchValue.trim()) { toast.danger("Ingrese un número de cita o DPI para buscar"); return; }
-    setSearchQuery(searchValue.trim());
-  }, [searchValue]);
-
   const appointments = data?.success ? data.data : [];
 
   return (
@@ -69,36 +63,12 @@ export function ReceptionPage() {
       <p className="text-gray-500 text-sm mb-6">Busque al paciente por DPI o número de cita para verificar y registrar su llegada.</p>
 
       {/* Buscador */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border p-6 mb-6">
-        <form className="flex flex-col md:flex-row gap-3" onSubmit={handleSearch}>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-colors ${searchType === "dpi" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-300"}`}
-              onClick={() => setSearchType("dpi")}
-            >
-              Por DPI
-            </button>
-            <button
-              type="button"
-              className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-colors ${searchType === "id" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-300"}`}
-              onClick={() => setSearchType("id")}
-            >
-              Por No. Cita
-            </button>
-          </div>
-          <input
-            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder={searchType === "dpi" ? "Ingrese DPI del paciente (13 dígitos)" : "Ingrese número de cita"}
-            type="text"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
-          <Button type="submit" variant="primary" className="px-6">
-            <i className="bi bi-search mr-2" /> Buscar
-          </Button>
-        </form>
-      </div>
+      <ReceptionSearch
+        onSearch={(query, type) => {
+          setSearchType(type);
+          setSearchQuery(query);
+        }}
+      />
 
       {/* Resultados */}
       {isLoading && <LoadingComponent />}

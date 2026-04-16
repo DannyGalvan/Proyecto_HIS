@@ -1,14 +1,15 @@
-import { Button, FieldError, Form, Input, Label, TextField, toast } from "@heroui/react";
+import { Button, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState, type ChangeEvent } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useCallback, useState } from "react";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { getAppointments } from "../../services/appointmentService";
 import { createPayment } from "../../services/paymentService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
-import type { PaymentRequest } from "../../types/PaymentResponse";
-import { OptionsSelect, type OptionValue } from "../../components/select/OptionsSelect";
-import { Response } from "../../components/messages/Response";
+import type { PaymentRequest, PaymentResponse } from "../../types/PaymentResponse";
+import { OptionsSelect } from "../../components/select/OptionsSelect";
+import { PaymentReceipt } from "../../components/shared/PaymentReceipt";
+import { generateIdempotencyKey } from "../../utils/generateIdempotencyKey";
+import { calculateChange } from "../../utils/calculateChange";
 
 const PAYMENT_METHODS = [
   { label: "Efectivo (Q)", value: "0" },
@@ -25,7 +26,7 @@ export function CashierPage() {
   const [paymentMethod, setPaymentMethod] = useState<number>(0);
   const [amountReceived, setAmountReceived] = useState<string>("");
   const [cardLastFour, setCardLastFour] = useState<string>("");
-  const [paymentSuccess, setPaymentSuccess] = useState<{ transactionNumber: string; change: number } | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState<{ payment: PaymentResponse; change: number } | null>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -50,11 +51,11 @@ export function CashierPage() {
     mutationFn: (paymentData: PaymentRequest) => createPayment(paymentData),
     onSuccess: (response) => {
       if (response.success && response.data) {
-        const txn = (response.data as { transactionNumber: string }).transactionNumber;
+        const payment = response.data as PaymentResponse;
         const change = paymentMethod === 0
-          ? Math.max(0, Number(amountReceived) - (selectedAppointment?.amount ?? 0))
+          ? Math.max(0, calculateChange(Number(amountReceived), selectedAppointment?.amount ?? 0))
           : 0;
-        setPaymentSuccess({ transactionNumber: txn, change });
+        setPaymentSuccess({ payment, change });
         toast.success("¡Pago registrado exitosamente!");
         queryClient.invalidateQueries({ queryKey: ["cashier-search"] });
       } else {
@@ -101,9 +102,9 @@ export function CashierPage() {
       paymentType: 0, // Consulta
       paymentStatus: 1, // Completado
       paymentDate: new Date().toISOString(),
-      idempotencyKey: uuidv4(),
+      idempotencyKey: generateIdempotencyKey(),
       amountReceived: paymentMethod === 0 ? Number(amountReceived) : null,
-      changeAmount: paymentMethod === 0 ? Math.max(0, Number(amountReceived) - selectedAppointment.amount) : null,
+      changeAmount: paymentMethod === 0 ? Math.max(0, calculateChange(Number(amountReceived), selectedAppointment.amount)) : null,
       cardLastFourDigits: paymentMethod !== 0 ? cardLastFour : null,
       state: 1,
     };
@@ -113,7 +114,7 @@ export function CashierPage() {
 
   const appointments = data?.success ? data.data : [];
   const change = paymentMethod === 0 && selectedAppointment
-    ? Math.max(0, Number(amountReceived) - selectedAppointment.amount)
+    ? Math.max(0, calculateChange(Number(amountReceived), selectedAppointment.amount))
     : 0;
 
   return (
@@ -283,26 +284,14 @@ export function CashierPage() {
           <h2 className="text-2xl font-bold text-green-800 mb-2">¡Pago Registrado Exitosamente!</h2>
           <p className="text-green-700 mb-6">La cita ha sido actualizada a estado "Pagada".</p>
 
-          <div className="bg-white rounded-lg p-6 text-left max-w-md mx-auto border border-green-200">
-            <h3 className="font-bold text-center mb-4 text-gray-700">COMPROBANTE DE PAGO</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="font-semibold">No. Transacción:</span><span>{paymentSuccess.transactionNumber}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Paciente:</span><span>{selectedAppointment.patient?.name}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Servicio:</span><span>{selectedAppointment.specialty?.name}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Sucursal:</span><span>{selectedAppointment.branch?.name}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Método:</span><span>{PAYMENT_METHODS[paymentMethod]?.label}</span></div>
-              <div className="flex justify-between border-t pt-2 mt-2"><span className="font-bold">Monto Pagado:</span><span className="font-bold text-green-700">Q{selectedAppointment.amount?.toFixed(2)}</span></div>
-              {paymentMethod === 0 && paymentSuccess.change > 0 && (
-                <div className="flex justify-between"><span className="font-semibold">Cambio:</span><span>Q{paymentSuccess.change.toFixed(2)}</span></div>
-              )}
-              <div className="flex justify-between"><span className="font-semibold">Fecha:</span><span>{new Date().toLocaleString("es-GT")}</span></div>
-            </div>
-          </div>
+          <PaymentReceipt
+            payment={paymentSuccess.payment}
+            patientName={selectedAppointment.patient?.name ?? `Paciente #${selectedAppointment.patientId}`}
+            serviceDetail={`${selectedAppointment.specialty?.name ?? "Consulta"} — Cita #${selectedAppointment.id}`}
+            branchName={selectedAppointment.branch?.name ?? "—"}
+          />
 
           <div className="flex gap-3 justify-center mt-6">
-            <Button variant="primary" onPress={() => window.print()}>
-              <i className="bi bi-printer mr-2" /> Imprimir Comprobante
-            </Button>
             <Button variant="secondary" onPress={() => {
               setSelectedAppointment(null);
               setPaymentSuccess(null);
