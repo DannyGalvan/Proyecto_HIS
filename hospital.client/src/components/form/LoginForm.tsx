@@ -89,9 +89,9 @@ export function LoginForm({ initialForm, onSubmit }: LoginFormProps) {
       <div className="flex flex-col items-center mt-4 gap-2">
         <Link
           className="font-bold underline text-cyan-500"
-          to={nameRoutes.changePassword}
+          to={nameRoutes.forgotPassword}
         >
-          Olvido su contraseña?
+          ¿Olvidó su contraseña?
         </Link>
       </div>
     </>

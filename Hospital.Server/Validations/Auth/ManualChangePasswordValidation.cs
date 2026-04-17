@@ -15,13 +15,17 @@ namespace Hospital.Server.Validations.Auth
         {
             RuleFor(c => c.CurrentPassword)
                 .NotEmpty()
-                .WithMessage("La contraseña actual es obligatoria");
+                .WithMessage("La contraseña actual es obligatoria")
+                .MinimumLength(8).WithMessage("La contraseña debe contener al menos 8 caracteres")
+                .Matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,25}$")
+                .WithMessage("La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial, y tener entre 8 y 25 caracteres");
 
             RuleFor(c => c.NewPassword)
                 .NotEmpty()
                 .WithMessage("La nueva contraseña es obligatoria")
-                .MinimumLength(12)
-                .WithMessage("La nueva contraseña debe tener al menos 12 caracteres")
+                .MinimumLength(8).WithMessage("La contraseña debe contener al menos 8 caracteres")
+                .Matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,25}$")
+                .WithMessage("La nueva contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial, y tener entre 8 y 25 caracteres")
                 .NotEqual(c => c.CurrentPassword)
                 .WithMessage("La nueva contraseña debe ser diferente a la contraseña actual");
 

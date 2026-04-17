@@ -23,7 +23,10 @@ namespace Hospital.Server.Validations.Auth
                 .WithMessage("Las contraseñas no coinciden");
             RuleFor(c => c.Password)
                 .NotEmpty()
-                .WithMessage("la contraseña es obligatoria");
+                .WithMessage("la contraseña es obligatoria")
+                .MinimumLength(8).WithMessage("La contraseña debe contener al menos 8 caracteres")
+                .Matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,25}$")
+                .WithMessage("La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial, y tener entre 8 y 25 caracteres");
         }
     }
 }

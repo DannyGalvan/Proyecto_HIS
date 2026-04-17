@@ -10,6 +10,8 @@ export const required_error = "El campo es requerido";
 export const nameRoutes = {
   login: "/auth",
   changePassword: "/change-password",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
   settings: "/change-password",
   root: "/",
   notFound: "*",
@@ -114,6 +116,9 @@ export const nameRoutes = {
   portalConfirm: "/portal/book/confirm",
   portalAppointments: "/portal/appointments",
   portalProfile: "/portal/profile",
+  portalChangePassword: "/portal/change-password",
+  portalForgotPassword: "/portal/forgot-password",
+  portalResetPassword: "/portal/reset-password",
 };
 
 export const authInitialState: InitialAuth = {

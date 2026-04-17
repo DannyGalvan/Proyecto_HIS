@@ -32,3 +32,34 @@ export const manualChangePassword = async (
     ManualChangePasswordRequest
   >("/Auth/ManualChangePassword", data);
 };
+
+/** Send recovery email — POST /api/v1/Auth/RecoveryPassword */
+export const recoveryPassword = async (
+  email: string,
+): Promise<ApiResponse<string>> => {
+  return api.post<unknown, ApiResponse<string>, { email: string }>(
+    "/Auth/RecoveryPassword",
+    { email },
+  );
+};
+
+/** Validate recovery token — GET /api/v1/Auth/{token} */
+export const validateRecoveryToken = async (
+  token: string,
+): Promise<ApiResponse<string>> => {
+  return api.get<unknown, ApiResponse<string>>(
+    `/Auth/${encodeURIComponent(token)}`,
+  );
+};
+
+/** Reset password with token — PUT /api/v1/Auth/ChangePassword */
+export const resetPasswordWithToken = async (data: {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}): Promise<ApiResponse<string>> => {
+  return api.put<unknown, ApiResponse<string>, typeof data>(
+    "/Auth/ChangePassword",
+    data,
+  );
+};

@@ -69,6 +69,8 @@ export const useAuthorizationRoutes = () => {
     nameRoutes.notFound,
     nameRoutes.login,
     nameRoutes.changePassword,
+    nameRoutes.forgotPassword,
+    nameRoutes.resetPassword,
     nameRoutes.register,
     nameRoutes.doctorDashboard,
     nameRoutes.nurseDashboard,

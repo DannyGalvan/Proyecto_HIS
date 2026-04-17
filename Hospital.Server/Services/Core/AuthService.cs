@@ -520,10 +520,12 @@ namespace Hospital.Server.Services.Core
                 _bd.Users.Update(oUser);
                 _bd.SaveChanges();
 
+                var recoveryUrl = $"{_appSettings.Value.FrontendUrl}/reset-password?token={Uri.EscapeDataString(token)}";
+
                 var data = new Dictionary<string, string>
                 {
                     { "NombreUsuario", oUser.Name },
-                    { "EnlaceRecuperacion", token }
+                    { "EnlaceRecuperacion", recoveryUrl }
                 };
 
                 if (!_sendMail.SendWithTemplate(oUser.Email, "Recuperar Contraseña", EmailTemplateType.PasswordRecovery, data))

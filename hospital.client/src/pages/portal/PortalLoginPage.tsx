@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
 import { LogoHIS } from "../../components/brand/LogoHIS";
+import { PasswordVisibilityToggle } from "../../components/input/PasswordVisibilityToggle";
 import { nameRoutes } from "../../configs/constants";
 import { loginPatient } from "../../services/patientPortalService";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
@@ -166,34 +167,16 @@ export function PortalLoginPage() {
             </div>
 
             {/* Password */}
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="portal-password"
-                className="text-sm font-bold text-gray-700 dark:text-gray-300"
-              >
-                Contraseña *
-              </label>
-              <input
-                id="portal-password"
-                autoComplete="current-password"
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
-                  fieldErrors.password
-                    ? "border-red-400 bg-red-50 dark:bg-red-900/20"
-                    : "border-gray-300 dark:border-gray-600"
-                }`}
-                disabled={isLocked}
-                placeholder="Ingrese su contraseña"
-                type="password"
-                value={form.password}
-                onChange={handleChange("password")}
-              />
-              {fieldErrors.password && (
-                <p className="text-red-500 text-xs mt-0.5">
-                  <i className="bi bi-exclamation-circle mr-1" />
-                  {fieldErrors.password}
-                </p>
-              )}
-            </div>
+            <PasswordVisibilityToggle
+              isRequired
+              errorMessage={fieldErrors.password}
+              isInvalid={!!fieldErrors.password}
+              label="Contraseña"
+              name="password"
+              placeholder="Ingrese su contraseña"
+              value={form.password}
+              onChange={(val) => { setForm((prev) => ({ ...prev, password: val })); setFieldErrors((prev) => ({ ...prev, password: undefined })); setApiError(""); }}
+            />
 
             {/* Submit */}
             <button
@@ -217,14 +200,21 @@ export function PortalLoginPage() {
 
           {/* Links */}
           <div className="flex flex-col items-center mt-6 gap-2 text-sm">
-            <span className="text-gray-500 dark:text-gray-400">¿No tiene cuenta?</span>
             <Link
-              className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 underline"
-              to={nameRoutes.portalRegister}
+              className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 underline"
+              to={nameRoutes.portalForgotPassword}
             >
-              <i className="bi bi-person-plus mr-1" />
-              Registrarse como paciente
+              ¿Olvidó su contraseña?
             </Link>
+            <div className="flex items-center gap-1 mt-2">
+              <span className="text-gray-500 dark:text-gray-400">¿No tiene cuenta?</span>
+              <Link
+                className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 underline"
+                to={nameRoutes.portalRegister}
+              >
+                Registrarse
+              </Link>
+            </div>
             <Link
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xs mt-1"
               to={nameRoutes.portalHome}

@@ -11,6 +11,9 @@ import { PortalPaymentPage } from "../pages/portal/PortalPaymentPage";
 import { ConfirmationPage } from "../pages/portal/ConfirmationPage";
 import { MyAppointmentsPage } from "../pages/portal/MyAppointmentsPage";
 import { ProfilePage } from "../pages/portal/ProfilePage";
+import { PortalChangePasswordPage } from "../pages/portal/PortalChangePasswordPage";
+import { PortalForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
+import { PortalResetPasswordPage } from "../pages/auth/ResetPasswordPage";
 import { usePatientAuthStore } from "../stores/usePatientAuthStore";
 import { nameRoutes } from "../configs/constants";
 
@@ -42,6 +45,14 @@ export const PortalRoutes: RouteObject[] = [
       </GuestOnlyRoute>
     ),
   },
+  {
+    path: "forgot-password",
+    element: <PortalForgotPasswordPage />,
+  },
+  {
+    path: "reset-password",
+    element: <PortalResetPasswordPage />,
+  },
   // Rutas protegidas del portal (requieren autenticación de paciente)
   {
     element: <ProtectedPatient />,
@@ -69,6 +80,10 @@ export const PortalRoutes: RouteObject[] = [
       {
         path: "profile",
         element: <ProfilePage />,
+      },
+      {
+        path: "change-password",
+        element: <PortalChangePasswordPage />,
       },
     ],
   },

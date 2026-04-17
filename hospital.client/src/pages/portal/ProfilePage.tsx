@@ -101,7 +101,7 @@ function Field({
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export function ProfilePage() {
-  const { userId, isLoggedIn, loading, signInPatient, ...patientState } = usePatientAuthStore();
+  const { userId, isLoggedIn, signInPatient, ...patientState } = usePatientAuthStore();
 
   const [form, setForm] = useState<ProfileForm>(initialForm);
   const [originalData, setOriginalData] = useState<ProfileForm>(initialForm);
@@ -112,14 +112,44 @@ export function ProfilePage() {
   const [isFetching, setIsFetching] = useState(true);
 
   // ── Load user data ────────────────────────────────────────────────────────
-  const loadUserData = useCallback(async () => {
-    if (loading) return;
-    if (!isLoggedIn) {
-      setIsFetching(false);
-      return;
-    }
+  useEffect(() => {
+    let cancelled = false;
 
-    setIsFetching(true);
+    const fetchProfile = async () => {
+      setIsFetching(true);
+      try {
+        const response = await getMyProfile();
+        if (cancelled) return;
+        if (response.success && response.data) {
+          const user = response.data;
+          const userData: ProfileForm = {
+            name: user.name ?? "",
+            email: user.email ?? "",
+            number: user.number ?? "",
+            identificationDocument: user.identificationDocument ?? "",
+            nit: user.nit ?? "",
+            insuranceNumber: user.insuranceNumber ?? "",
+          };
+          setForm(userData);
+          setOriginalData(userData);
+        } else {
+          setApiError("No se pudieron cargar los datos del perfil.");
+        }
+      } catch {
+        if (!cancelled) {
+          setApiError("No se pudieron cargar los datos del perfil.");
+        }
+      } finally {
+        if (!cancelled) setIsFetching(false);
+      }
+    };
+
+    fetchProfile();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Reusable fetch for after updates
+  const loadProfile = useCallback(async () => {
     try {
       const response = await getMyProfile();
       if (response.success && response.data) {
@@ -134,19 +164,11 @@ export function ProfilePage() {
         };
         setForm(userData);
         setOriginalData(userData);
-      } else {
-        setApiError("No se pudieron cargar los datos del perfil.");
       }
     } catch {
-      setApiError("No se pudieron cargar los datos del perfil.");
-    } finally {
-      setIsFetching(false);
+      // Silent — the initial load already showed the error if needed
     }
-  }, [loading, isLoggedIn]);
-
-  useEffect(() => {
-    loadUserData();
-  }, [loadUserData]);
+  }, []);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleChange = useCallback(
@@ -215,7 +237,7 @@ export function ProfilePage() {
               email: patchData.email ?? patientState.email,
             });
           }
-          await loadUserData();
+          await loadProfile();
         } else {
           const msg = response.message ?? "Error al actualizar el perfil.";
           if (msg.toLowerCase().includes("correo") || msg.toLowerCase().includes("email")) {
@@ -230,32 +252,16 @@ export function ProfilePage() {
         setIsLoading(false);
       }
     },
-    [form, originalData, userId, isLoggedIn, patientState, signInPatient, loadUserData],
+    [form, originalData, userId, isLoggedIn, patientState, signInPatient, loadProfile],
   );
 
   // ── Render ────────────────────────────────────────────────────────────────
-  // Wait for store hydration and data fetch
-  if (loading || isFetching) {
+  if (isFetching) {
     return (
       <section className="min-h-[calc(100vh-140px)] flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="flex flex-col items-center gap-3">
           <i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" />
           <p className="text-gray-500 dark:text-gray-400">Cargando perfil...</p>
-        </div>
-      </section>
-    );
-  }
-
-  // Guard: after hydration + fetch, if still no session, show error
-  if (!isLoggedIn) {
-    return (
-      <section className="min-h-[calc(100vh-140px)] flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <i className="bi bi-exclamation-triangle text-3xl text-red-500" />
-          <p className="text-gray-600 dark:text-gray-400">No se encontró una sesión activa.</p>
-          <Link to={nameRoutes.portalDashboard} className="text-blue-600 hover:underline text-sm">
-            Volver al inicio
-          </Link>
         </div>
       </section>
     );
@@ -386,6 +392,15 @@ export function ProfilePage() {
                 </>
               )}
             </button>
+
+            {/* Change password link */}
+            <Link
+              to={nameRoutes.portalChangePassword}
+              className="w-full py-3 mt-2 border-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            >
+              <i className="bi bi-shield-lock" />
+              Cambiar Contraseña
+            </Link>
           </form>
         </div>
       </div>

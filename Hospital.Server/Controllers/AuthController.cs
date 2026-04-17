@@ -224,6 +224,9 @@ namespace Project.Server.Controllers
         [HttpPost("RecoveryPassword")]
         public ActionResult PostRecoveryPassword([FromBody] RecoveryPasswordRequest model)
         {
+            // Build the frontend base URL from the current request
+            model.BaseUrl = $"{Request.Scheme}://{Request.Host}";
+
             Response<string, List<ValidationFailure>> response = _authService.RecoveryPassword(model);
 
             if (response.Success)

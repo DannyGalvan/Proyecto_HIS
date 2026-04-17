@@ -3,6 +3,8 @@ import type { RouteObject } from "react-router";
 import { nameRoutes } from "../configs/constants";
 import LoadingPage from "../pages/public/LoadingPage";
 import ProtectedPublic from "./middlewares/ProtectedPublic";
+import { AdminForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
+import { AdminResetPasswordPage } from "../pages/auth/ResetPasswordPage";
 
 // Auth pages
 import { CreateRolPage } from "../pages/rol/CreateRolPage";
@@ -124,6 +126,14 @@ export const PublicRoutes: RouteObject[] = [
     path: nameRoutes.changePassword,
     lazy: () => import("../pages/auth/ChangePasswordPage"),
     hydrateFallbackElement: <LoadingPage />,
+  },
+  {
+    path: nameRoutes.forgotPassword,
+    element: <AdminForgotPasswordPage />,
+  },
+  {
+    path: nameRoutes.resetPassword,
+    element: <AdminResetPasswordPage />,
   },
   {
     path: nameRoutes.register,

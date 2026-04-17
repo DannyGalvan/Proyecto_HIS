@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Iniciar Consulta", Description = "Inicia una nueva consulta médica", Icon = "bi-plus-circle", Path = "medical-consultation/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Iniciar Consulta", Description = "Inicia una nueva consulta médica", Icon = "bi-plus-circle", Path = "medical-consultation/create", IsVisible = false)]
         public override IActionResult Create([FromBody] MedicalConsultationRequest request) => base.Create(request);
 
         [HttpPut]

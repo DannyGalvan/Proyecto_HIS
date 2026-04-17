@@ -39,5 +39,10 @@
         /// Gets or sets the NotBefore
         /// </summary>
         public double NotBefore { get; set; }
+
+        /// <summary>
+        /// Gets or sets the FrontendUrl
+        /// </summary>
+        public string FrontendUrl { get; set; }
     }
 }
