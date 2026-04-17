@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Registrar Signos Vitales", Description = "Registra los signos vitales de un paciente", Icon = "bi-plus-circle", Path = "vital-sign/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Registrar Signos Vitales", Description = "Registra los signos vitales de un paciente", Icon = "bi-plus-circle", Path = "vital-sign/create", IsVisible = false)]
         public override IActionResult Create([FromBody] VitalSignRequest request) => base.Create(request);
 
         [HttpPut]

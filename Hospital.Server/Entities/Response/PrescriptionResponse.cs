@@ -12,5 +12,8 @@ namespace Hospital.Server.Entities.Response
         public long CreatedBy { get; set; }
         public long? UpdatedBy { get; set; }
         public string? UpdatedAt { get; set; }
+
+        /// <summary>Items included when fetched with include=Items</summary>
+        public virtual ICollection<PrescriptionItemResponse>? Items { get; set; }
     }
 }

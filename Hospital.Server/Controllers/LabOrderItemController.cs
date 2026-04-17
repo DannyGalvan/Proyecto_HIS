@@ -31,7 +31,7 @@ namespace Hospital.Server.Controllers
 
         [HttpGet]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Listar Resultados", Description = "Obtiene los resultados de una orden de laboratorio", Icon = "bi-list", Path = "lab-order-item", IsVisible = true)]
+        [OperationInfo(DisplayName = "Listar Resultados", Description = "Obtiene los resultados de una orden de laboratorio", Icon = "bi-list", Path = "lab-order-item", IsVisible = false)]
         public override IActionResult GetAll([FromQuery] QueryParamsRequest query) => base.GetAll(query);
 
         [HttpGet("{id}")]
@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Registrar Resultado", Description = "Registra el resultado de un examen de laboratorio", Icon = "bi-plus-circle", Path = "lab-order-item/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Registrar Resultado", Description = "Registra el resultado de un examen de laboratorio", Icon = "bi-plus-circle", Path = "lab-order-item/create", IsVisible = false)]
         public override IActionResult Create([FromBody] LabOrderItemRequest request) => base.Create(request);
 
         [HttpPut]

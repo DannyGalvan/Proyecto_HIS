@@ -12,5 +12,11 @@ namespace Hospital.Server.Entities.Request
         public int? State { get; set; }
         public long? CreatedBy { get; set; }
         public long? UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Items to create together with the prescription (used in CreateWithItems endpoint).
+        /// Ignored by the generic EntityService — handled by the custom controller action.
+        /// </summary>
+        public List<PrescriptionItemRequest>? Items { get; set; }
     }
 }

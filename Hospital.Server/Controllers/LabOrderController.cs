@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Crear Orden", Description = "Genera una nueva orden de laboratorio", Icon = "bi-plus-circle", Path = "lab-order/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Crear Orden", Description = "Genera una nueva orden de laboratorio", Icon = "bi-plus-circle", Path = "lab-order/create", IsVisible = false)]
         public override IActionResult Create([FromBody] LabOrderRequest request) => base.Create(request);
 
         [HttpPut]

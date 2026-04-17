@@ -19,7 +19,7 @@ namespace Hospital.Server.Controllers
         Icon = "bi-calendar-check",
         Path = "appointment-status",
         Order = 8,
-        IsVisible = true
+        IsVisible = false
     )]
     public class AppointmentStatusController : CrudController<AppointmentStatus, AppointmentStatusRequest, AppointmentStatusResponse, long>
     {
@@ -31,7 +31,7 @@ namespace Hospital.Server.Controllers
 
         [HttpGet]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Listar Estados de Cita", Description = "Obtiene la lista de estados de cita con paginación y filtros", Icon = "bi-list", Path = "appointment-status", IsVisible = true)]
+        [OperationInfo(DisplayName = "Listar Estados de Cita", Description = "Obtiene la lista de estados de cita con paginación y filtros", Icon = "bi-list", Path = "appointment-status", IsVisible = false)]
         public override IActionResult GetAll([FromQuery] QueryParamsRequest query) => base.GetAll(query);
 
         [HttpGet("{id}")]
@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Crear Estado de Cita", Description = "Crea un nuevo estado de cita", Icon = "bi-plus-circle", Path = "appointment-status/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Crear Estado de Cita", Description = "Crea un nuevo estado de cita", Icon = "bi-plus-circle", Path = "appointment-status/create", IsVisible = false)]
         public override IActionResult Create([FromBody] AppointmentStatusRequest request) => base.Create(request);
 
         [HttpPut]

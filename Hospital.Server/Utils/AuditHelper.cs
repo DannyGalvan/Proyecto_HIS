@@ -7,10 +7,23 @@ namespace Hospital.Server.Utils
     {
         public static void SetCreatedByRecursive(object obj, long userId)
         {
-            if (obj == null) return;
+            // Usamos un HashSet para rastrear objetos ya procesados y evitar bucles infinitos
+            SetCreatedByRecursiveInternal(obj, userId, new HashSet<object>());
+        }
+
+        private static void SetCreatedByRecursiveInternal(object obj, long userId, HashSet<object> visited)
+        {
+            if (obj == null || visited.Contains(obj)) return;
 
             var type = obj.GetType();
 
+            // No entramos en tipos simples (strings, números, fechas, etc.)
+            if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime))
+                return;
+
+            visited.Add(obj);
+
+            // 1. Asignar el valor si implementa la interfaz
             if (ImplementsIRequest(type))
             {
                 var createdByProp = type.GetProperty("CreatedBy");
@@ -20,26 +33,30 @@ namespace Hospital.Server.Utils
                 }
             }
 
+            // 2. Recorrer propiedades
             foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                // 🚫 Saltar propiedades indexadas
-                if (prop.GetIndexParameters().Length > 0)
+                if (prop.GetIndexParameters().Length > 0) continue;
+
+                // Evitar procesar tipos que sabemos que no tienen sentido auditar (System namespace)
+                if (prop.PropertyType.Namespace?.StartsWith("System") == true &&
+                    !typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.PropertyType))
                     continue;
 
                 var value = prop.GetValue(obj);
                 if (value == null) continue;
 
-                if (value is IEnumerable<object> collection)
+                if (value is System.Collections.IEnumerable collection && !(value is string))
                 {
                     foreach (var item in collection)
                     {
                         if (item != null)
-                            SetCreatedByRecursive(item, userId);
+                            SetCreatedByRecursiveInternal(item, userId, visited);
                     }
                 }
                 else
                 {
-                    SetCreatedByRecursive(value, userId);
+                    SetCreatedByRecursiveInternal(value, userId, visited);
                 }
             }
         }

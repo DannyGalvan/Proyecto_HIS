@@ -31,7 +31,7 @@ namespace Hospital.Server.Controllers
 
         [HttpGet]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Listar Medicamentos", Description = "Obtiene los medicamentos de una receta", Icon = "bi-list", Path = "prescription-item", IsVisible = true)]
+        [OperationInfo(DisplayName = "Listar Medicamentos", Description = "Obtiene los medicamentos de una receta", Icon = "bi-list", Path = "prescription-item", IsVisible = false)]
         public override IActionResult GetAll([FromQuery] QueryParamsRequest query) => base.GetAll(query);
 
         [HttpGet("{id}")]
@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Agregar Medicamento", Description = "Agrega un medicamento a la receta", Icon = "bi-plus-circle", Path = "prescription-item/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Agregar Medicamento", Description = "Agrega un medicamento a la receta", Icon = "bi-plus-circle", Path = "prescription-item/create", IsVisible = false)]
         public override IActionResult Create([FromBody] PrescriptionItemRequest request) => base.Create(request);
 
         [HttpPut]

@@ -19,7 +19,7 @@ namespace Hospital.Server.Controllers
         Icon = "bi-list-check",
         Path = "dispense-item",
         Order = 22,
-        IsVisible = true
+        IsVisible = false
     )]
     public class DispenseItemController : CrudController<DispenseItem, DispenseItemRequest, DispenseItemResponse, long>
     {
@@ -31,7 +31,7 @@ namespace Hospital.Server.Controllers
 
         [HttpGet]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Listar Detalle Despacho", Description = "Obtiene la lista de líneas de despacho", Icon = "bi-list", Path = "dispense-item", IsVisible = true)]
+        [OperationInfo(DisplayName = "Listar Detalle Despacho", Description = "Obtiene la lista de líneas de despacho", Icon = "bi-list", Path = "dispense-item", IsVisible = false)]
         public override IActionResult GetAll([FromQuery] QueryParamsRequest query) => base.GetAll(query);
 
         [HttpGet("{id}")]
@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Crear Detalle Despacho", Description = "Crea una nueva línea de despacho", Icon = "bi-plus-circle", Path = "dispense-item/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Crear Detalle Despacho", Description = "Crea una nueva línea de despacho", Icon = "bi-plus-circle", Path = "dispense-item/create", IsVisible = false)]
         public override IActionResult Create([FromBody] DispenseItemRequest request) => base.Create(request);
 
         [HttpPut]

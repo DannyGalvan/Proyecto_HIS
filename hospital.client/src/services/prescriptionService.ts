@@ -21,8 +21,16 @@ export const getPrescriptions = async ({
 export const getPrescriptionById = async (id: number): Promise<ApiResponse<PrescriptionResponse>> =>
   api.get<unknown, ApiResponse<PrescriptionResponse>>(`Prescription/${id}?Include=Consultation,Doctor,Items`);
 
+/** Get the prescription for a specific consultation (includes items). Returns null data if none exists. */
+export const getPrescriptionByConsultation = async (consultationId: number): Promise<ApiResponse<PrescriptionResponse>> =>
+  api.get<unknown, ApiResponse<PrescriptionResponse>>(`Prescription/by-consultation/${consultationId}`);
+
 export const createPrescription = async (data: PrescriptionRequest): Promise<ApiResponse<PrescriptionResponse>> =>
   api.post<unknown, ApiResponse<PrescriptionResponse>, PrescriptionRequest>("Prescription", data);
+
+/** Create prescription + all items in a single transaction. */
+export const createPrescriptionWithItems = async (data: PrescriptionRequest): Promise<ApiResponse<PrescriptionResponse>> =>
+  api.post<unknown, ApiResponse<PrescriptionResponse>, PrescriptionRequest>("Prescription/with-items", data);
 
 export const updatePrescription = async (data: PrescriptionRequest): Promise<ApiResponse<PrescriptionResponse>> =>
   api.put<unknown, ApiResponse<PrescriptionResponse>, PrescriptionRequest>("Prescription", data);

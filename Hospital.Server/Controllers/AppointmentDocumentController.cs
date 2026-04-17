@@ -31,7 +31,7 @@ namespace Hospital.Server.Controllers
 
         [HttpGet]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Listar Documentos", Description = "Obtiene la lista de documentos adjuntos a citas", Icon = "bi-list", Path = "appointment-document", IsVisible = true)]
+        [OperationInfo(DisplayName = "Listar Documentos", Description = "Obtiene la lista de documentos adjuntos a citas", Icon = "bi-list", Path = "appointment-document", IsVisible = false)]
         public override IActionResult GetAll([FromQuery] QueryParamsRequest query) => base.GetAll(query);
 
         [HttpGet("{id}")]
@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Adjuntar Documento", Description = "Adjunta un documento a una cita médica", Icon = "bi-upload", Path = "appointment-document/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Adjuntar Documento", Description = "Adjunta un documento a una cita médica", Icon = "bi-upload", Path = "appointment-document/create", IsVisible = false)]
         public override IActionResult Create([FromBody] AppointmentDocumentRequest request) => base.Create(request);
 
         [HttpPut]

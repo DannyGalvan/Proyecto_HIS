@@ -1,3 +1,5 @@
+import type { PrescriptionItemResponse } from "./PrescriptionItemResponse";
+
 export interface PrescriptionResponse {
   id: number;
   consultationId: number;
@@ -9,6 +11,7 @@ export interface PrescriptionResponse {
   createdBy: number;
   updatedBy?: number | null;
   updatedAt?: string | null;
+  items?: PrescriptionItemResponse[] | null;
 }
 
 export interface PrescriptionRequest {
@@ -20,4 +23,14 @@ export interface PrescriptionRequest {
   state?: number | null;
   createdBy?: number | null;
   updatedBy?: number | null;
+  /** Items to create together with the prescription (used in createPrescriptionWithItems) */
+  items?: PrescriptionItemInlineRequest[] | null;
+}
+
+export interface PrescriptionItemInlineRequest {
+  medicineName: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  specialInstructions?: string | null;
 }
