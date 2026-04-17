@@ -1,6 +1,5 @@
 import { toast } from "@heroui/react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { MedicalConsultationForm } from "../../components/form/MedicalConsultationForm";
 import { createMedicalConsultation, getMedicalConsultations } from "../../services/medicalConsultationService";
@@ -18,7 +17,6 @@ export function CreateMedicalConsultationPage() {
   const appointmentIdParam = searchParams.get("appointmentId");
   const doctorIdParam = searchParams.get("doctorId");
   const patientNameParam = searchParams.get("patientName");
-  const fromDoctorDashboard = !!appointmentIdParam;
 
   // ── Guard: no appointmentId → blocked ──────────────────────────────────────
   if (!appointmentIdParam) {

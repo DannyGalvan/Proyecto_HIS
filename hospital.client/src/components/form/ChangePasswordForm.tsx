@@ -1,5 +1,5 @@
 import { Form } from "@heroui/react";
-import { useCallback, useState, type ChangeEvent } from "react";
+import { useCallback, useState } from "react";
 
 import { manualChangePassword } from "../../services/authService";
 import type { ManualChangePasswordRequest } from "../../types/ManualChangePasswordRequest";
@@ -112,7 +112,7 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps) {
           // Map backend validation failures to field errors if present
           if (Array.isArray(response.data)) {
             const backendErrors: FieldErrors = {};
-            for (const failure of response.data) {
+            for (const failure of (response.data as Array<{ propertyName: string; errorMessage: string }>)) {
               const key = toCamelCase(
                 (failure as { propertyName: string }).propertyName,
               ) as keyof FieldErrors;

@@ -279,7 +279,7 @@ export function CardPaymentForm({ amount, appointmentId, onSuccess }: CardPaymen
         isLoading={mutation.isPending}
         isDisabled={isExpired}
         className="w-full"
-        color="primary"
+        variant="primary"
         size="lg"
       >
         Pagar {formattedAmount}

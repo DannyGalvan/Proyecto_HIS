@@ -2,7 +2,7 @@ import { FieldError, Form, Input, Label, TextField } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-import type { SingleValue } from "react-select";
+import type { MultiValue, SingleValue } from "react-select";
 
 import { AsyncButton } from "../button/AsyncButton";
 import { CatalogueSelect } from "../select/CatalogueSelect";
@@ -99,6 +99,8 @@ export function InventoryMovementForm() {
       filters: `MedicineId:eq:${medicineId},BranchId:eq:${branchId}`,
       include: "Medicine",
       pageSize: 1,
+      pageNumber: 1,
+      includeTotal: false,
     })
       .then((res) => {
         if (cancelled) return;
@@ -152,8 +154,8 @@ export function InventoryMovementForm() {
 
   // ── Handlers ───────────────────────────────────────────────────────────
   const handleMedicineChange = useCallback(
-    (opt: SingleValue<{ label: string; value: string }> | null) => {
-      if (opt) {
+    (opt: SingleValue<{ label: string; value: string }> | MultiValue<{ label: string; value: string }> | null) => {
+      if (opt && !Array.isArray(opt) && "value" in opt) {
         const id = Number(opt.value);
         setMedicineId(id);
         setSelectedMedicine(medicineCacheRef.get(id) ?? null);
@@ -167,8 +169,12 @@ export function InventoryMovementForm() {
   );
 
   const handleBranchChange = useCallback(
-    (opt: SingleValue<{ label: string; value: string }> | null) => {
-      setBranchId(opt ? Number(opt.value) : null);
+    (opt: SingleValue<{ label: string; value: string }> | MultiValue<{ label: string; value: string }> | null) => {
+      if (opt && !Array.isArray(opt) && "value" in opt) {
+        setBranchId(Number(opt.value));
+      } else {
+        setBranchId(null);
+      }
     },
     [],
   );

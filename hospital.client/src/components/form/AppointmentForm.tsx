@@ -93,7 +93,7 @@ interface ConfirmationStepProps {
 }
 
 function ConfirmationStep({ state, onExpiry, onSubmit, loading, submitError }: ConfirmationStepProps) {
-  const { remaining, isExpired, reset } = useReservationTimer(5, onExpiry);
+  const { remaining, isExpired } = useReservationTimer(5, onExpiry);
 
   if (isExpired) {
     return (

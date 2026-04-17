@@ -1,7 +1,6 @@
 import { z } from "zod";
 import type { ErrorObject } from "../hooks/useForm";
 import { handleOneLevelZodError } from "../utils/converted";
-import { da } from "zod/v4/locales";
 
 export const registerSchema = z.object({
   name: z

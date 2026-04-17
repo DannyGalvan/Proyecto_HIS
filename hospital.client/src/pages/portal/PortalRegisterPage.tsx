@@ -2,7 +2,6 @@ import { useState, useCallback, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
-import { Images } from "../../assets/images/images";
 import { LogoHIS } from "../../components/brand/LogoHIS";
 import { nameRoutes } from "../../configs/constants";
 import { registerPatient } from "../../services/patientPortalService";

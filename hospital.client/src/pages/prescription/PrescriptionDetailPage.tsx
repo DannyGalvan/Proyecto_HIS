@@ -112,7 +112,6 @@ export function PrescriptionDetailPage() {
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { userId } = useAuth();
 
   const appointmentId = searchParams.get("appointmentId");

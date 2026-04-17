@@ -43,6 +43,6 @@
         /// <summary>
         /// Gets or sets the FrontendUrl
         /// </summary>
-        public string FrontendUrl { get; set; }
+        public string FrontendUrl { get; set; } = string.Empty;
     }
 }

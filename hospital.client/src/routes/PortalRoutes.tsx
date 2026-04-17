@@ -1,4 +1,4 @@
-import type { RouteObject } from "react-router-dom";
+import type { RouteObject } from "react-router";
 import { Navigate } from "react-router";
 
 import ProtectedPatient from "./middlewares/ProtectedPatient";

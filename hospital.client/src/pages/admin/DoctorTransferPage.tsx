@@ -39,6 +39,7 @@ export function DoctorTransferPage() {
         pageSize: 1,
         filters: `Id:eq:${selectedDoctorOption!.value} AND State:eq:1`,
         include: "Rol,Branch,Specialty",
+        includeTotal: false,
       }),
     enabled: !!selectedDoctorOption?.value,
   });
@@ -52,6 +53,7 @@ export function DoctorTransferPage() {
         pageSize: 50,
         filters: `BranchId:eq:${newBranchId} AND State:eq:1`,
         include: "Specialty",
+        includeTotal: false,
       }),
     enabled: !!newBranchId,
   });

@@ -8,7 +8,7 @@ import { getLabExams } from "../../services/labExamService";
 import { createLabOrder, createLabOrderItem } from "../../services/labOrderService";
 import type { LabExamResponse } from "../../types/LabExamResponse";
 import type { LabOrderRequest } from "../../types/LabOrderResponse";
-import type { SingleValue } from "react-select";
+import type { MultiValue, SingleValue } from "react-select";
 
 interface LabOrderFormProps {
   readonly initialConsultationId?: number | null;
@@ -88,8 +88,8 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
   }, []);
 
   const updateItemExam = useCallback(
-    (id: string) => (opt: SingleValue<{ label: string; value: string }> | null) => {
-      if (opt) {
+    (id: string) => (opt: SingleValue<{ label: string; value: string }> | MultiValue<{ label: string; value: string }> | null) => {
+      if (opt && !Array.isArray(opt) && "value" in opt) {
         const examId = Number(opt.value);
         const cachedExam = examCacheRef.current.get(examId);
         const defaultAmount = cachedExam?.defaultAmount ?? null;

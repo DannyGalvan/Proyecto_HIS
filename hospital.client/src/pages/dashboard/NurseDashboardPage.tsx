@@ -5,7 +5,6 @@ import { useNavigate } from "react-router";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { getAppointments, startVitals } from "../../services/appointmentService";
 import { callPatient } from "../../utils/tts";
-import { nameRoutes } from "../../configs/constants";
 import { useAuth } from "../../hooks/useAuth";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 

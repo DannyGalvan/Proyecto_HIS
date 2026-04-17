@@ -9,7 +9,7 @@ function DispenseButton({ data }: { readonly data: DispenseResponse }) {
     <Button
       isIconOnly
       size="sm"
-      title="Ver detalle"
+      aria-label="Ver detalle"
       variant="primary"
       onClick={() => navigate(`/dispense/${data.id}`)}
     >

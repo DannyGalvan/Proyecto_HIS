@@ -45,10 +45,10 @@ export function LabOrderDetailPage() {
   }
 
   // Items may be nested in the response under different keys depending on the API include
-  const items = (order as unknown as { items?: typeof order[] })?.items ?? [];
+  const items = (order as unknown as { items?: unknown[] })?.items ?? [];
 
   // Calculate total amount as sum of item amounts
-  const totalAmount = (items as Array<{ amount?: number | null }>).reduce(
+  const totalAmount = (items as unknown as Array<{ amount?: number | null }>).reduce(
     (sum, item) => sum + (item.amount ?? 0),
     0,
   );

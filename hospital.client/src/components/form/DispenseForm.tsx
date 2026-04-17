@@ -41,6 +41,9 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
       getPrescriptionItems({
         filters: `PrescriptionId:eq:${prescriptionId}`,
         pageSize: 100,
+        pageNumber: 1,
+        include: "",
+        includeTotal: false,
       }),
     enabled: !!prescriptionId,
   });
@@ -58,6 +61,8 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
           filters: `Medicine.Name:like:${item.medicineName},BranchId:eq:${DEFAULT_BRANCH_ID}`,
           include: "Medicine",
           pageSize: 1,
+          pageNumber: 1,
+          includeTotal: false,
         });
         if (res.data && res.data.length > 0) {
           results.push(res.data[0]);

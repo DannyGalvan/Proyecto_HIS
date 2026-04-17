@@ -327,7 +327,7 @@ export function PaymentPage() {
           </div>
           <Button
             className="px-6 py-2"
-            color="primary"
+            variant="primary"
             isDisabled={isSearching}
             onPress={handleSearch}
           >
@@ -339,7 +339,7 @@ export function PaymentPage() {
         {/* Results */}
         {isSearching && (
           <div className="flex justify-center py-8">
-            <Spinner color="primary" size="lg" />
+            <Spinner color="accent" size="lg" />
           </div>
         )}
 
@@ -366,7 +366,7 @@ export function PaymentPage() {
               </div>
               {selectedOrderIds.size > 1 && (
                 <Button
-                  color="success"
+                  variant="primary"
                   size="sm"
                   onPress={handlePaySelected}
                 >
@@ -460,8 +460,7 @@ export function PaymentPage() {
                         <td className="px-3 py-3 text-center">
                           <Button
                             size="sm"
-                            color="primary"
-                            variant="flat"
+                            variant="ghost"
                             onPress={() => handlePaySingle(order)}
                           >
                             <Icon name="bi bi-cash" size={14} color="#0A4FA6" />
@@ -658,7 +657,7 @@ export function PaymentPage() {
                   </Button>
                   <AsyncButton
                     isLoading={isProcessingPayment}
-                    color="primary"
+                    variant="primary"
                     onPress={handleProcessPayment}
                   >
                     Confirmar Pago ({formatCurrency(paymentTotal)})

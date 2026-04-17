@@ -4,7 +4,6 @@ import { useNavigate } from "react-router";
 import { AsyncButton } from "../../components/button/AsyncButton";
 import { Response } from "../../components/messages/Response";
 import { useForm } from "../../hooks/useForm";
-import { Images } from "../../assets/images/images";
 import { LogoHIS } from "../../components/brand/LogoHIS";
 import { api } from "../../configs/axios/interceptors";
 import type { ApiResponse } from "../../types/ApiResponse";

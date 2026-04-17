@@ -58,10 +58,6 @@ export default defineConfig({
   base: "/",
   envDir: "./",
   envPrefix: "VITE_",
-  test: {
-    globals: true,
-    environment: 'jsdom',
-  },
   server: {
     proxy: {
       "/api": {

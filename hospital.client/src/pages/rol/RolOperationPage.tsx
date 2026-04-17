@@ -30,7 +30,7 @@ export function RolOperationPage() {
   >({
     queryKey: ["operations"],
     queryFn: () =>
-      getOperations({ pageSize: 1000, filters: "", include: "" }),
+      getOperations({ pageSize: 1000, filters: "", include: "", pageNumber: 1, includeTotal: false }),
   });
 
   const { data: rolOperationsData, isLoading: loadingRolOperations } = useQuery<
@@ -43,6 +43,8 @@ export function RolOperationPage() {
         pageSize: 1000,
         filters: `RolId:eq:${rolId}`,
         include: "Operation",
+        pageNumber: 1,
+        includeTotal: false,
       }),
   });
 
