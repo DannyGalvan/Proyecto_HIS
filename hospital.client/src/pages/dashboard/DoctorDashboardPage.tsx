@@ -69,13 +69,7 @@ function AppointmentCard({
         {isInConsultation && (
           <>
             <Button size="sm" variant="primary" isDisabled={isLoading} onPress={() => onAction(appointment, "consultation")}>
-              <i className="bi bi-clipboard2 mr-1" /> Ver Consulta
-            </Button>
-            <Button size="sm" variant="secondary" isDisabled={isLoading} onPress={() => onAction(appointment, "prescription")}>
-              <i className="bi bi-prescription2 mr-1" /> Receta
-            </Button>
-            <Button size="sm" variant="secondary" isDisabled={isLoading} onPress={() => onAction(appointment, "lab-order")}>
-              <i className="bi bi-flask mr-1" /> Orden Lab
+              <i className="bi bi-clipboard2 mr-1" /> Ver / Completar Consulta
             </Button>
           </>
         )}
@@ -85,7 +79,7 @@ function AppointmentCard({
               <i className="bi bi-flask mr-1" /> Pedir Laboratorio
             </Button>
             <Button size="sm" variant="secondary" isDisabled={isLoading} onPress={() => onAction(appointment, "prescription")}>
-              <i className="bi bi-prescription2 mr-1" /> Receta/Farmacia
+              <i className="bi bi-prescription2 mr-1" /> Receta / Farmacia
             </Button>
             <Button size="sm" variant="primary" isDisabled={isLoading} onPress={() => onAction(appointment, "finish")}>
               <i className="bi bi-check-circle mr-1" /> Finalizar Atencion

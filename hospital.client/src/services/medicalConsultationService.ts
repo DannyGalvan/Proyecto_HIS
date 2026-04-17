@@ -18,7 +18,7 @@ export const getMedicalConsultations = async ({
 };
 
 export const getMedicalConsultationById = async (id: number): Promise<ApiResponse<MedicalConsultationResponse>> =>
-  api.get<unknown, ApiResponse<MedicalConsultationResponse>>(`MedicalConsultation/${id}`);
+  api.get<unknown, ApiResponse<MedicalConsultationResponse>>(`MedicalConsultation/${id}?include=Doctor`);
 
 export const createMedicalConsultation = async (data: MedicalConsultationRequest): Promise<ApiResponse<MedicalConsultationResponse>> =>
   api.post<unknown, ApiResponse<MedicalConsultationResponse>, MedicalConsultationRequest>("MedicalConsultation", data);

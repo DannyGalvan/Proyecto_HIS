@@ -23,6 +23,7 @@ export function UpdateMedicalConsultationPage() {
       if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
       await client.invalidateQueries({ queryKey: ["medical-consultations"] });
       await client.invalidateQueries({ queryKey: ["consultationToUpdate", id] });
+      await client.invalidateQueries({ queryKey: ["doctor-appointments"] });
       toast.success("Consulta médica actualizada correctamente");
       return response;
     },
@@ -34,7 +35,14 @@ export function UpdateMedicalConsultationPage() {
   return (
     <div>
       {data?.success ? (
-        <MedicalConsultationForm initialForm={data.data} type="edit" onSubmit={onSubmit} />
+        <MedicalConsultationForm
+          fromDoctorDashboard
+          initialForm={data.data}
+          patientName={undefined}
+          doctorName={data.data.doctor?.name}
+          type="edit"
+          onSubmit={onSubmit}
+        />
       ) : (
         <div>Error: {error instanceof Error ? error.message : "Error desconocido"}</div>
       )}

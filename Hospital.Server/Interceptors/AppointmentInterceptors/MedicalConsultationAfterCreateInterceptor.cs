@@ -9,8 +9,10 @@ using Hospital.Server.Services.Interfaces;
 namespace Hospital.Server.Interceptors.AppointmentInterceptors
 {
     /// <summary>
-    /// After a MedicalConsultation is created, transitions the linked appointment
-    /// from "En Espera" (4) to "Consulta Médica" (5).
+    /// After a MedicalConsultation is created:
+    /// - If ConsultationStatus = 0 (In Progress): transitions appointment to "Consulta Médica" (5)
+    /// - If ConsultationStatus = 1 (Completed): transitions appointment directly to "Evaluado" (6)
+    ///   This handles the case where the doctor creates and completes the consultation in one step.
     /// </summary>
     public class MedicalConsultationAfterCreateInterceptor
         : IEntityAfterCreateInterceptor<MedicalConsultation, MedicalConsultationRequest>
@@ -29,9 +31,14 @@ namespace Hospital.Server.Interceptors.AppointmentInterceptors
             if (response.Data?.AppointmentId == null || !response.Success)
                 return response;
 
+            // If created as completed, go straight to Evaluado; otherwise Consulta Médica
+            long targetStatus = response.Data.ConsultationStatus == 1
+                ? AppointmentStateMachine.STATUS_EVALUADO
+                : AppointmentStateMachine.STATUS_CONSULTA_MEDICA;
+
             var task = _stateMachine.TransitionAsync(
                 response.Data.AppointmentId,
-                AppointmentStateMachine.STATUS_CONSULTA_MEDICA,
+                targetStatus,
                 response.Data.CreatedBy);
 
             task.GetAwaiter().GetResult();

@@ -17,9 +17,10 @@ interface MedicalConsultationFormProps {
   readonly onSubmit: (form: MedicalConsultationRequest) => Promise<ApiResponse<unknown | ValidationFailure[]>>;
   readonly fromDoctorDashboard?: boolean;
   readonly patientName?: string;
+  readonly doctorName?: string;
 }
 
-export function MedicalConsultationForm({ type, initialForm, onSubmit, fromDoctorDashboard = false, patientName }: MedicalConsultationFormProps) {
+export function MedicalConsultationForm({ type, initialForm, onSubmit, fromDoctorDashboard = false, patientName, doctorName }: MedicalConsultationFormProps) {
   const isEditing = type === "edit";
   const navigate = useNavigate();
 
@@ -51,13 +52,19 @@ export function MedicalConsultationForm({ type, initialForm, onSubmit, fromDocto
       <h1 className="text-2xl font-bold text-center mb-2">
         {isEditing ? "Editar Consulta Médica" : "Nueva Consulta Médica"}
       </h1>
-      {fromDoctorDashboard && patientName && (
-        <div className="mb-4 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-center dark:bg-blue-900/20 dark:border-blue-700">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            <i className="bi bi-person-check mr-2" />
-            Consulta para: <strong>{patientName}</strong>
-          </p>
-          <p className="text-xs text-blue-500 mt-0.5">Cita #{initialForm.appointmentId}</p>
+      {fromDoctorDashboard && (patientName || doctorName || initialForm.appointmentId) && (
+        <div className="mb-4 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 dark:bg-blue-900/20 dark:border-blue-700">
+          <div className="flex flex-wrap gap-4 text-sm text-blue-700 dark:text-blue-300 justify-center">
+            {initialForm.appointmentId && (
+              <span><i className="bi bi-hash mr-1" />Cita: <strong>#{initialForm.appointmentId}</strong></span>
+            )}
+            {patientName && (
+              <span><i className="bi bi-person-check mr-1" />Paciente: <strong>{patientName}</strong></span>
+            )}
+            {doctorName && (
+              <span><i className="bi bi-person-badge mr-1" />Médico: <strong>{doctorName}</strong></span>
+            )}
+          </div>
         </div>
       )}
       {success != null && <Response message={message} type={success} />}

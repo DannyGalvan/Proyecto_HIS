@@ -17,5 +17,8 @@ namespace Hospital.Server.Entities.Response
         public long CreatedBy { get; set; }
         public long? UpdatedBy { get; set; }
         public string? UpdatedAt { get; set; }
+
+        // Navigation
+        public virtual UserResponse? Doctor { get; set; }
     }
 }

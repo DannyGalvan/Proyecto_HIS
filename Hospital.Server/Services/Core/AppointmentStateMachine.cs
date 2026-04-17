@@ -45,8 +45,9 @@ namespace Hospital.Server.Services.Core
             // Signos Vitales → En Espera (nurse completes vitals)
             [STATUS_SIGNOS_VITALES] = new() { STATUS_EN_ESPERA },
 
-            // En Espera → Consulta Médica (doctor picks patient)
-            [STATUS_EN_ESPERA] = new() { STATUS_CONSULTA_MEDICA, STATUS_NO_ASISTIO },
+            // En Espera → Consulta Médica (doctor picks patient) or directly to Evaluado
+            // (when doctor creates and completes the consultation in one step)
+            [STATUS_EN_ESPERA] = new() { STATUS_CONSULTA_MEDICA, STATUS_EVALUADO, STATUS_NO_ASISTIO },
 
             // Consulta Médica → Evaluado (doctor completes consultation)
             [STATUS_CONSULTA_MEDICA] = new() { STATUS_EVALUADO },

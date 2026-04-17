@@ -14,6 +14,7 @@ export interface MedicalConsultationResponse {
   createdBy: number;
   updatedBy?: number | null;
   updatedAt?: string | null;
+  doctor?: import("./UserResponse").UserResponse | null;
 }
 
 export interface MedicalConsultationRequest {
