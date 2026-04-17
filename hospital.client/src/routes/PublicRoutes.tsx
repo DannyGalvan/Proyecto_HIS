@@ -99,6 +99,10 @@ import { RolOperationPage } from "../pages/rol/RolOperationPage";
 import { DispensePage } from "../pages/dispense/DispensePage";
 import { CreateDispensePage } from "../pages/dispense/CreateDispensePage";
 
+// InventoryMovement pages
+import { InventoryMovementPage } from "../pages/inventory-movement/InventoryMovementPage";
+import { CreateInventoryMovementPage } from "../pages/inventory-movement/CreateInventoryMovementPage";
+
 // Admin pages
 import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
 import { DoctorManagementPage } from "../pages/admin/DoctorManagementPage";
@@ -377,6 +381,15 @@ export const PublicRoutes: RouteObject[] = [
   {
     path: `${nameRoutes.dispenseCreate}/:prescriptionId`,
     element: <ProtectedPublic><CreateDispensePage /></ProtectedPublic>,
+  },
+  // InventoryMovement
+  {
+    path: nameRoutes.inventoryMovement,
+    element: <ProtectedPublic><InventoryMovementPage /></ProtectedPublic>,
+  },
+  {
+    path: nameRoutes.inventoryMovementCreate,
+    element: <ProtectedPublic><CreateInventoryMovementPage /></ProtectedPublic>,
   },
   // Admin
   {

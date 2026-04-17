@@ -810,6 +810,50 @@ namespace Hospital.Server.Mappers
 
             TypeAdapterConfig<NotificationLog, NotificationLog>.NewConfig();
 
+            //Mapper InventoryMovement
+            TypeAdapterConfig<InventoryMovementRequest, InventoryMovement>.NewConfig()
+                .Map(dest => dest.MedicineInventoryId, src => src.MedicineInventoryId)
+                .Map(dest => dest.MedicineId, src => src.MedicineId)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.MovementType, src => src.MovementType)
+                .Map(dest => dest.Quantity, src => src.Quantity)
+                .Map(dest => dest.PreviousStock, src => src.PreviousStock)
+                .Map(dest => dest.NewStock, src => src.NewStock)
+                .Map(dest => dest.UnitCost, src => src.UnitCost)
+                .Map(dest => dest.TotalCost, src => src.TotalCost)
+                .Map(dest => dest.ReferenceNumber, src => src.ReferenceNumber)
+                .Map(dest => dest.ReferenceType, src => src.ReferenceType)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.UserId, src => src.UserId)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<InventoryMovement, InventoryMovementResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.MedicineInventoryId, src => src.MedicineInventoryId)
+                .Map(dest => dest.MedicineId, src => src.MedicineId)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.MovementType, src => src.MovementType)
+                .Map(dest => dest.Quantity, src => src.Quantity)
+                .Map(dest => dest.PreviousStock, src => src.PreviousStock)
+                .Map(dest => dest.NewStock, src => src.NewStock)
+                .Map(dest => dest.UnitCost, src => src.UnitCost)
+                .Map(dest => dest.TotalCost, src => src.TotalCost)
+                .Map(dest => dest.ReferenceNumber, src => src.ReferenceNumber)
+                .Map(dest => dest.ReferenceType, src => src.ReferenceType)
+                .Map(dest => dest.Notes, src => src.Notes)
+                .Map(dest => dest.UserId, src => src.UserId)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<InventoryMovement, InventoryMovement>.NewConfig();
+
             //Mapper Module
             TypeAdapterConfig<Module, ModuleResponse>.NewConfig()
                 .Map(dest => dest.Id, src => src.Id)

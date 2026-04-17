@@ -46,6 +46,7 @@ export interface TableServerProps<T> {
     selectedCount: number;
     selectedRows: T[];
   }) => void;
+  readonly expandableRowsComponent?: React.ComponentType<{ data: T }>;
 }
 
 export function TableServer<T extends object>({
@@ -64,6 +65,7 @@ export function TableServer<T extends object>({
   onSelectedRowsChange,
   styles,
   isExternalLoading = false,
+  expandableRowsComponent,
 }: TableServerProps<T>) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -192,7 +194,8 @@ export function TableServer<T extends object>({
           contextMessage={SELECTED_MESSAGE}
           customStyles={styles ?? activeCustomStyles}
           data={data?.success ? data?.data : []}
-          expandableRows={width}
+          expandableRows={width || !!expandableRowsComponent}
+          expandableRowsComponent={expandableRowsComponent}
           fixedHeaderScrollHeight="325px"
           noDataComponent={
             <MesajeNoData mesaje={`No se encontraros datos ${text}`} />

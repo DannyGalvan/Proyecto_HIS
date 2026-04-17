@@ -10,6 +10,7 @@ import { BookAppointmentPage } from "../pages/portal/BookAppointmentPage";
 import { PortalPaymentPage } from "../pages/portal/PortalPaymentPage";
 import { ConfirmationPage } from "../pages/portal/ConfirmationPage";
 import { MyAppointmentsPage } from "../pages/portal/MyAppointmentsPage";
+import { ProfilePage } from "../pages/portal/ProfilePage";
 import { usePatientAuthStore } from "../stores/usePatientAuthStore";
 import { nameRoutes } from "../configs/constants";
 
@@ -64,6 +65,10 @@ export const PortalRoutes: RouteObject[] = [
       {
         path: "appointments",
         element: <MyAppointmentsPage />,
+      },
+      {
+        path: "profile",
+        element: <ProfilePage />,
       },
     ],
   },

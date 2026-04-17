@@ -162,3 +162,45 @@ export const cancelAppointment = (
   api.post<unknown, ApiResponse<string>>(
     `PatientPortal/appointments/${id}/cancel`,
   );
+
+/**
+ * Get the authenticated patient's profile data.
+ * GET /api/v1/PatientPortal/my-profile
+ */
+export const getMyProfile = (): Promise<ApiResponse<{
+  id: number;
+  name: string;
+  email: string;
+  number: string;
+  identificationDocument: string;
+  nit: string | null;
+  insuranceNumber: string | null;
+  userName: string;
+}>> =>
+  api.get('PatientPortal/my-profile', {
+    headers: getPatientAuthHeader(),
+  });
+
+/**
+ * Update the authenticated patient's profile data (partial update).
+ * PATCH /api/v1/PatientPortal/my-profile
+ */
+export const updateMyProfile = (data: {
+  name?: string | null;
+  email?: string | null;
+  number?: string | null;
+  nit?: string | null;
+  insuranceNumber?: string | null;
+}): Promise<ApiResponse<{
+  id: number;
+  name: string;
+  email: string;
+  number: string;
+  identificationDocument: string;
+  nit: string | null;
+  insuranceNumber: string | null;
+  userName: string;
+}>> =>
+  api.patch('PatientPortal/my-profile', data, {
+    headers: getPatientAuthHeader(),
+  });

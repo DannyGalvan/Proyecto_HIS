@@ -2,7 +2,6 @@ import { useState, useCallback, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
-import { Images } from "../../assets/images/images";
 import { LogoHIS } from "../../components/brand/LogoHIS";
 import { nameRoutes } from "../../configs/constants";
 import { loginPatient } from "../../services/patientPortalService";
@@ -15,17 +14,6 @@ const loginSchema = z.object({
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
-
-// ── JWT decoder ───────────────────────────────────────────────────────────────
-const decodeJwt = (token: string): Record<string, unknown> | null => {
-  try {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(atob(base64)) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
-};
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
@@ -78,32 +66,14 @@ export function PortalLoginPage() {
         const response = await loginPatient({ userName: form.userName, password: form.password });
 
         if (response.success) {
-          const { token } = response.data;
-          const payload = decodeJwt(token);
-
-          const userId =
-            (payload?.[
-              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-            ] as string | undefined) ??
-            (payload?.sub as string | undefined) ??
-            "0";
-
-          const name =
-            (payload?.[
-              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
-            ] as string | undefined) ?? "";
-
-          const email =
-            (payload?.[
-              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-            ] as string | undefined) ?? "";
+          const { token, userId: responseUserId, name: responseName, email: responseEmail } = response.data;
 
           signInPatient({
             isLoggedIn: true,
             token,
-            userId: Number(userId),
-            name,
-            email,
+            userId: responseUserId,
+            name: responseName,
+            email: responseEmail,
             userName: form.userName,
           });
 

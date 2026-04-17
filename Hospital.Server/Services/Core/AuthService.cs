@@ -76,6 +76,11 @@ namespace Hospital.Server.Services.Core
         private readonly ILogger<AuthService> _logger;
 
         /// <summary>
+        /// Defines the _manualChangePasswordValidator
+        /// </summary>
+        private readonly IValidator<ManualChangePasswordRequest> _manualChangePasswordValidator;
+
+        /// <summary>
         /// The Auth
         /// </summary>
         /// <param name="model">The model<see cref="LoginRequest"/></param>
@@ -313,6 +318,14 @@ namespace Hospital.Server.Services.Core
                 _bd.Users.Update(oUser);
                 _bd.SaveChanges();
 
+                // Send password change confirmation email
+                var confirmationData = new Dictionary<string, string>
+                {
+                    { "NombreUsuario", oUser.Name },
+                    { "FechaHora", DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm") + " UTC" }
+                };
+                _sendMail.SendWithTemplate(oUser.Email, "Confirmación de Cambio de Contraseña", EmailTemplateType.PasswordChangeConfirmation, confirmationData);
+
                 response.Success = true;
                 response.Message = "Cambio de Contraseña Exitoso";
                 response.Data = $"tu nueva contraseña es: {model.Password}";
@@ -489,10 +502,9 @@ namespace Hospital.Server.Services.Core
 
                 if (oUser == null)
                 {
-                    response.Success = false;
-                    response.Message = "Usuario no encontrado";
+                    response.Success = true;
+                    response.Message = "Si el correo está registrado, recibirá un enlace de recuperación.";
                     response.Data = "";
-                    response.Errors = results.Errors;
 
                     return response;
                 }
@@ -508,9 +520,13 @@ namespace Hospital.Server.Services.Core
                 _bd.Users.Update(oUser);
                 _bd.SaveChanges();
 
-                string bodyMail = $"Hola {oUser.Name} <br> Este es su token para reestablecer contraseña <br> {token}";
+                var data = new Dictionary<string, string>
+                {
+                    { "NombreUsuario", oUser.Name },
+                    { "EnlaceRecuperacion", token }
+                };
 
-                if (!_sendMail.Send(oUser.Email, "Recuperar Contraseña", bodyMail))
+                if (!_sendMail.SendWithTemplate(oUser.Email, "Recuperar Contraseña", EmailTemplateType.PasswordRecovery, data))
                 {
                     response.Success = false;
                     response.Message = "Error al enviar el correo porfavor verifique";
@@ -533,6 +549,89 @@ namespace Hospital.Server.Services.Core
                 response.Errors = [new("Exception", ex.Message)];
 
                 _logger.LogError(ex, "Error al recuperar contraseña path: /api/Auth/RecoveryPassword");
+
+                return response;
+            }
+        }
+
+        /// <summary>
+        /// Manual change password for authenticated users
+        /// </summary>
+        /// <param name="model">The model<see cref="ManualChangePasswordRequest"/></param>
+        /// <returns>The <see>
+        ///         <cref>Response{string, List{ValidationFailure}}</cref>
+        ///     </see>
+        /// </returns>
+        public Response<string, List<ValidationFailure>> ManualChangePassword(ManualChangePasswordRequest model)
+        {
+            Response<string, List<ValidationFailure>> response = new();
+
+            try
+            {
+                ValidationResult results = _manualChangePasswordValidator.Validate(model);
+
+                if (!results.IsValid)
+                {
+                    response.Success = false;
+                    response.Message = "Error al hacer la solicitud";
+                    response.Data = "";
+                    response.Errors = results.Errors;
+
+                    return response;
+                }
+
+                User? oUser = _bd.Users.FirstOrDefault(u => u.Id == model.UserId);
+
+                if (oUser == null)
+                {
+                    response.Success = false;
+                    response.Message = "Usuario no encontrado";
+                    response.Data = "";
+
+                    return response;
+                }
+
+                if (!BC.BCrypt.Verify(model.CurrentPassword, oUser.Password))
+                {
+                    response.Success = false;
+                    response.Message = "La contraseña actual es incorrecta.";
+                    response.Data = "";
+
+                    return response;
+                }
+
+                string encrypt = BC.BCrypt.HashPassword(model.NewPassword);
+
+                oUser.Password = encrypt;
+                oUser.LastPasswordChange = DateTime.UtcNow;
+                oUser.UpdatedAt = DateTime.UtcNow;
+                oUser.UpdatedBy = oUser.Id;
+
+                _bd.Users.Update(oUser);
+                _bd.SaveChanges();
+
+                // Send password change confirmation email
+                var confirmationData = new Dictionary<string, string>
+                {
+                    { "NombreUsuario", oUser.Name },
+                    { "FechaHora", DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm") + " UTC" }
+                };
+                _sendMail.SendWithTemplate(oUser.Email, "Confirmación de Cambio de Contraseña", EmailTemplateType.PasswordChangeConfirmation, confirmationData);
+
+                response.Success = true;
+                response.Message = "Contraseña actualizada correctamente";
+                response.Data = "Contraseña actualizada correctamente";
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Error al hacer la solicitud {ex.Message}";
+                response.Data = "";
+                response.Errors = [new("Exception", ex.Message)];
+
+                _logger.LogError(ex, "Error al cambiar la contraseña manualmente path: /api/Auth/ManualChangePassword");
 
                 return response;
             }

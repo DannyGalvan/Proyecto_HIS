@@ -28,6 +28,7 @@
     using Hospital.Server.Validations.DispenseItem;
     using Hospital.Server.Validations.NotificationLog;
     using Hospital.Server.Validations.PatientPortal;
+    using Hospital.Server.Validations.InventoryMovement;
 
     /// <summary>
     /// Defines the <see cref="ValidationsGroup" />
@@ -47,6 +48,7 @@
             services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordValidations>();
             services.AddScoped<IValidator<RecoveryPasswordRequest>, RecoveryPasswordValidations>();
             services.AddScoped<IValidator<RegisterRequest>, RegisterValidations>();
+            services.AddScoped<IValidator<ManualChangePasswordRequest>, ManualChangePasswordValidation>();
 
             //user validations
             services.AddKeyedScoped<IValidator<UserRequest>, CreateUserValidation>("Create");
@@ -167,6 +169,11 @@
             services.AddKeyedScoped<IValidator<NotificationLogRequest>, CreateNotificationLogValidation>("Create");
             services.AddKeyedScoped<IValidator<NotificationLogRequest>, UpdateNotificationLogValidation>("Update");
             services.AddKeyedScoped<IValidator<NotificationLogRequest>, PartialNotificationLogValidation>("Partial");
+
+            //inventoryMovement validations
+            services.AddKeyedScoped<IValidator<InventoryMovementRequest>, CreateInventoryMovementValidation>("Create");
+            services.AddKeyedScoped<IValidator<InventoryMovementRequest>, UpdateInventoryMovementValidation>("Update");
+            services.AddKeyedScoped<IValidator<InventoryMovementRequest>, PartialInventoryMovementValidation>("Partial");
 
             //patientPortal validations
             services.AddScoped<IValidator<PatientRegisterRequest>, CreatePatientValidator>();

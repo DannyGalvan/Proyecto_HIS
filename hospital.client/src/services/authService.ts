@@ -2,6 +2,7 @@ import { api } from "../configs/axios/interceptors";
 import type { ChangePasswordForm } from "../pages/auth/ChangePasswordPage";
 import type { ApiResponse } from "../types/ApiResponse";
 import type { LoginRequest, LoginResponse } from "../types/LoginRequest";
+import type { ManualChangePasswordRequest } from "../types/ManualChangePasswordRequest";
 import type { ValidationFailure } from "../types/ValidationFailure";
 
 export const authenticateUser = async (login: LoginRequest) => {
@@ -20,4 +21,14 @@ export const changePassword = async (credentials: ChangePasswordForm) => {
     ApiResponse<string | ValidationFailure[]>,
     ChangePasswordForm
   >("/Auth/ResetPassword", credentials);
+};
+
+export const manualChangePassword = async (
+  data: ManualChangePasswordRequest,
+): Promise<ApiResponse<string | ValidationFailure[]>> => {
+  return api.post<
+    unknown,
+    ApiResponse<string | ValidationFailure[]>,
+    ManualChangePasswordRequest
+  >("/Auth/ManualChangePassword", data);
 };

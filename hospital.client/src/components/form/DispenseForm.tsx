@@ -1,6 +1,6 @@
 import { Form } from "@heroui/react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AsyncButton } from "../button/AsyncButton";
 import { Response } from "../messages/Response";
 import { LowStockAlert } from "../shared/LowStockAlert";
@@ -26,6 +26,8 @@ interface DispenseItemRow {
 }
 
 const DEFAULT_BRANCH_ID = 1;
+
+const formatCurrency = (amount: number): string => `Q ${amount.toFixed(2)}`;
 
 export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
   const [rows, setRows] = useState<DispenseItemRow[]>([]);
@@ -99,7 +101,10 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
   );
 
   // ── Computed total ───────────────────────────────────────────────────────
-  const total = rows.reduce((sum, row) => sum + row.quantity * row.unitPrice, 0);
+  const total = useMemo(
+    () => rows.reduce((sum, row) => sum + row.quantity * row.unitPrice, 0),
+    [rows],
+  );
 
   // ── Mutations ────────────────────────────────────────────────────────────
   const { mutateAsync: doCreateDispense, isPending } = useMutation({
@@ -264,24 +269,21 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
                   </td>
 
                   {/* Unit price */}
-                  <td className="px-4 py-3">
-                    <input
-                      className="w-full px-2 py-1 border rounded-md text-center"
-                      min={0}
-                      step={0.01}
-                      type="number"
-                      value={row.unitPrice}
-                      onChange={(e) =>
-                        updateRow(idx, {
-                          unitPrice: Math.max(0, Number(e.target.value) || 0),
-                        })
-                      }
-                    />
+                  <td className="px-4 py-3 text-center">
+                    {!row.unitPrice ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-yellow-100 text-yellow-800">
+                        <i className="bi bi-exclamation-triangle" /> Precio no configurado
+                      </span>
+                    ) : (
+                      <span className="text-sm font-semibold text-green-700 dark:text-green-400">
+                        {formatCurrency(row.unitPrice)}
+                      </span>
+                    )}
                   </td>
 
                   {/* Subtotal */}
                   <td className="px-4 py-3 text-center font-semibold">
-                    Q{(row.quantity * row.unitPrice).toFixed(2)}
+                    {formatCurrency(row.quantity * row.unitPrice)}
                   </td>
 
                   {/* Was substituted checkbox */}
@@ -324,10 +326,10 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
         </div>
 
         {/* Total */}
-        <div className="flex justify-end items-center gap-4 mt-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+        <div className="flex justify-end items-center gap-4 mt-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
           <span className="text-lg font-bold">Total del Despacho:</span>
-          <span className="text-2xl font-bold text-green-700">
-            Q{total.toFixed(2)}
+          <span className="text-2xl font-bold text-blue-800 dark:text-blue-300">
+            {formatCurrency(total)}
           </span>
         </div>
 

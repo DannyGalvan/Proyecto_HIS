@@ -51,5 +51,12 @@ namespace Hospital.Server.Services.Interfaces
         /// <param name="model">The model<see cref="RegisterRequest"/></param>
         /// <returns>The <see cref="Response{User, List{ValidationFailure}}"/></returns>
         public Response<User, List<ValidationFailure>> Register(RegisterRequest model);
+
+        /// <summary>
+        /// Manual change password for authenticated users
+        /// </summary>
+        /// <param name="model">The model<see cref="ManualChangePasswordRequest"/></param>
+        /// <returns>The <see cref="Response{string, List{ValidationFailure}}"/></returns>
+        public Response<string, List<ValidationFailure>> ManualChangePassword(ManualChangePasswordRequest model);
     }
 }

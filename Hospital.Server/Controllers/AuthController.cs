@@ -248,5 +248,39 @@ namespace Project.Server.Controllers
 
             return BadRequest(errorResponse);
         }
+
+        /// <summary>
+        /// Manual change password for authenticated users
+        /// </summary>
+        /// <param name="model">The model<see cref="ManualChangePasswordRequest"/></param>
+        /// <returns>The <see cref="ActionResult"/></returns>
+        [Authorize]
+        [HttpPost("ManualChangePassword")]
+        public ActionResult ManualChangePassword([FromBody] ManualChangePasswordRequest model)
+        {
+            model.UserId = GetUserId();
+            Response<string, List<ValidationFailure>> response = _authService.ManualChangePassword(model);
+
+            if (response.Success)
+            {
+                Response<string> changePasswordResponse = new()
+                {
+                    Data = response.Data,
+                    Success = response.Success,
+                    Message = response.Message
+                };
+
+                return Ok(changePasswordResponse);
+            }
+
+            Response<List<ValidationFailure>> errorResponse = new()
+            {
+                Data = response.Errors,
+                Success = response.Success,
+                Message = response.Message
+            };
+
+            return BadRequest(errorResponse);
+        }
     }
 }

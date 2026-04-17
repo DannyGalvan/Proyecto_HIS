@@ -60,7 +60,7 @@ export const DispenseResponseColumns: TableColumnWithFilters<DispenseResponse>[]
   {
     id: "totalAmount",
     name: "Total",
-    selector: (data) => `Q${data.totalAmount?.toFixed(2) ?? "0.00"}`,
+    selector: (data) => `Q ${data.totalAmount?.toFixed(2) ?? "0.00"}`,
     sortable: true,
     wrap: true,
     omit: false,

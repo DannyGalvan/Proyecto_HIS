@@ -11,8 +11,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Hospital.Server.Interceptors.AppointmentInterceptors
 {
     /// <summary>
-    /// After a Dispense record is created (pharmacy), transitions the linked appointment
-    /// from "Evaluado" (6) or "Laboratorio" (7) to "Farmacia" (8).
+    /// After a Dispense record is created (pharmacy):
+    /// 1. Recalculates TotalAmount = SUM(Items.UnitPrice × Items.Quantity) where State=1,
+    ///    ignoring any TotalAmount sent by the frontend.
+    /// 2. Transitions the linked appointment
+    ///    from "Evaluado" (6) or "Laboratorio" (7) to "Farmacia" (8).
     /// </summary>
     public class DispenseAfterCreateInterceptor
         : IEntityAfterCreateInterceptor<Dispense, DispenseRequest>
@@ -32,6 +35,11 @@ namespace Hospital.Server.Interceptors.AppointmentInterceptors
         {
             if (!response.Success || response.Data == null)
                 return response;
+
+            // --- Recalculate TotalAmount from active items (Req 9.2, 9.5) ---
+            RecalculateTotalAmount(response.Data);
+
+            // --- Appointment state transition (existing logic) ---
 
             if (response.Data.PrescriptionId <= 0)
                 return response;
@@ -59,6 +67,23 @@ namespace Hospital.Server.Interceptors.AppointmentInterceptors
             task.GetAwaiter().GetResult();
 
             return response;
+        }
+
+        /// <summary>
+        /// Recalculates TotalAmount as the sum of (UnitPrice × Quantity) for all active DispenseItems (State=1).
+        /// Ignores any TotalAmount sent by the frontend.
+        /// Persists the recalculated value to the database.
+        /// </summary>
+        private void RecalculateTotalAmount(Dispense dispense)
+        {
+            var totalAmount = _db.Set<DispenseItem>()
+                .Where(i => i.DispenseId == dispense.Id && i.State == 1)
+                .Sum(i => i.UnitPrice * i.Quantity);
+
+            dispense.TotalAmount = totalAmount;
+
+            _db.Entry(dispense).Property(d => d.TotalAmount).IsModified = true;
+            _db.SaveChanges();
         }
     }
 }

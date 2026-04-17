@@ -53,30 +53,56 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization === undefined ||
     config.headers.Authorization === "" ||
     config.headers.Authorization === null ||
-    config.headers.Authorization === "Bearer "
+    config.headers.Authorization === "Bearer " ||
+    config.headers.Authorization === "Bearer undefined"
   ) {
-    // Try admin auth first
-    const storedAdmin = window.localStorage.getItem("@auth");
-    if (storedAdmin) {
-      const { token }: InitialAuth = JSON.parse(storedAdmin);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-        return config;
+    // Determine context: if the current URL is in the portal, prefer patient auth
+    const isPortalContext = window.location.pathname.startsWith("/portal");
+
+    if (isPortalContext) {
+      // In portal context, try patient auth first
+      const storedPatient = window.localStorage.getItem("@patient-auth");
+      if (storedPatient) {
+        try {
+          const parsed = JSON.parse(storedPatient) as { state?: { token?: string }; token?: string };
+          const token = parsed?.state?.token ?? parsed?.token;
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+            return config;
+          }
+        } catch {
+          // Ignore malformed storage
+        }
       }
     }
 
-    // Fall back to patient auth
-    const storedPatient = window.localStorage.getItem("@patient-auth");
-    if (storedPatient) {
+    // Default: try admin auth
+    const storedAdmin = window.localStorage.getItem("@auth");
+    if (storedAdmin) {
       try {
-        const parsed = JSON.parse(storedPatient) as { state?: { token?: string }; token?: string };
-        // zustand/persist wraps state under a "state" key
-        const token = parsed?.state?.token ?? parsed?.token;
+        const { token }: InitialAuth = JSON.parse(storedAdmin);
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          return config;
         }
       } catch {
         // Ignore malformed storage
+      }
+    }
+
+    // Fallback: try patient auth (for non-portal pages that still need patient token)
+    if (!isPortalContext) {
+      const storedPatient = window.localStorage.getItem("@patient-auth");
+      if (storedPatient) {
+        try {
+          const parsed = JSON.parse(storedPatient) as { state?: { token?: string }; token?: string };
+          const token = parsed?.state?.token ?? parsed?.token;
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } catch {
+          // Ignore malformed storage
+        }
       }
     }
   }
@@ -85,11 +111,11 @@ api.interceptors.request.use((config) => {
 });
 
 export const setAuthorization = (token: string) => {
-  if (token !== undefined || token !== null) {
+  if (token !== undefined && token !== null && token !== "") {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     api.defaults.headers.Authorization = `Bearer ${token}`;
   } else {
-    api.defaults.headers.common["Authorization"] = token;
-    api.defaults.headers.Authorization = token;
+    api.defaults.headers.common["Authorization"] = "";
+    api.defaults.headers.Authorization = "";
   }
 };

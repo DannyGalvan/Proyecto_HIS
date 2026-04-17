@@ -12,6 +12,7 @@ import { useForm } from "../../hooks/useForm";
 import type { ApiResponse } from "../../types/ApiResponse";
 import { validateLogin } from "../../validations/loginValidation";
 import { AsyncButton } from "../button/AsyncButton";
+import { PasswordVisibilityToggle } from "../input/PasswordVisibilityToggle";
 import { Response } from "../messages/Response";
 
 export interface LoginFormData {
@@ -64,24 +65,15 @@ export function LoginForm({ initialForm, onSubmit }: LoginFormProps) {
           ) : null}
         </TextField>
 
-        <TextField
-          isRequired
-          className="w-full flex flex-col gap-1"
+        <PasswordVisibilityToggle
           isInvalid={!!errors?.password}
+          isRequired
+          errorMessage={errors?.password as string}
+          label="Contraseña"
           name="password"
+          value={form.password || ""}
           onChange={handleTextChange("password")}
-        >
-          <Label className="font-bold">Contraseña</Label>
-          <Input
-            className="w-full px-3 py-2 border rounded-md"
-            type="password"
-            value={form.password || ""}
-            variant="primary"
-          />
-          {errors?.password ? (
-            <FieldError>{errors.password as string}</FieldError>
-          ) : null}
-        </TextField>
+        />
 
         <AsyncButton
           className="py-4 mt-4 font-bold w-full"
@@ -100,18 +92,6 @@ export function LoginForm({ initialForm, onSubmit }: LoginFormProps) {
           to={nameRoutes.changePassword}
         >
           Olvido su contraseña?
-        </Link>
-        <Link
-          className="font-bold underline text-cyan-500"
-          to={nameRoutes.register}
-        >
-          No tienes cuenta? Registrate
-        </Link>
-        <Link
-          className="font-bold underline text-cyan-500"
-          to={nameRoutes.portal}
-        >
-          Ver Portal de Servicios
         </Link>
       </div>
     </>

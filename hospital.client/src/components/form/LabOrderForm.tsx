@@ -1,6 +1,6 @@
 import { Form, Input, Label, TextField } from "@heroui/react";
 import { useMutation } from "@tanstack/react-query";
-import { useCallback, useState, type ChangeEvent } from "react";
+import { useCallback, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { AsyncButton } from "../button/AsyncButton";
 import { CatalogueSelect } from "../select/CatalogueSelect";
 import { Response } from "../messages/Response";
@@ -22,7 +22,8 @@ interface LabOrderFormProps {
 interface LabOrderItemRow {
   id: string; // local key for React list rendering
   labExamId: number | null;
-  amount: number;
+  examName: string;
+  defaultAmount: number | null;
 }
 
 interface LabOrderFormState {
@@ -33,10 +34,13 @@ interface LabOrderFormState {
   notes: string;
 }
 
+const formatCurrency = (amount: number): string => `Q ${amount.toFixed(2)}`;
+
 const newItemRow = (): LabOrderItemRow => ({
   id: crypto.randomUUID(),
   labExamId: null,
-  amount: 1,
+  examName: "",
+  defaultAmount: null,
 });
 
 export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPatientId, fromDoctorDashboard = false, patientName, onSuccess }: LabOrderFormProps) {
@@ -51,6 +55,15 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
   const [items, setItems] = useState<LabOrderItemRow[]>([newItemRow()]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+
+  // Cache of fetched LabExam data keyed by exam ID
+  const examCacheRef = useRef<Map<number, LabExamResponse>>(new Map());
+
+  // ── Computed total ──────────────────────────────────────────────────────────
+  const totalAmount = useMemo(
+    () => items.reduce((sum, item) => sum + (item.defaultAmount ?? 0), 0),
+    [items],
+  );
 
   // ── Field handlers ──────────────────────────────────────────────────────────
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -76,27 +89,37 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
 
   const updateItemExam = useCallback(
     (id: string) => (opt: SingleValue<{ label: string; value: string }> | null) => {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === id ? { ...item, labExamId: opt ? Number(opt.value) : null } : item,
-        ),
-      );
-    },
-    [],
-  );
-
-  const updateItemAmount = useCallback(
-    (id: string) => (e: ChangeEvent<HTMLInputElement>) => {
-      const amount = e.target.value === "" ? 1 : Number(e.target.value);
-      setItems((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, amount } : item)),
-      );
+      if (opt) {
+        const examId = Number(opt.value);
+        const cachedExam = examCacheRef.current.get(examId);
+        const defaultAmount = cachedExam?.defaultAmount ?? null;
+        const examName = cachedExam?.name ?? opt.label;
+        setItems((prev) =>
+          prev.map((item) =>
+            item.id === id
+              ? { ...item, labExamId: examId, examName, defaultAmount }
+              : item,
+          ),
+        );
+      } else {
+        setItems((prev) =>
+          prev.map((item) =>
+            item.id === id
+              ? { ...item, labExamId: null, examName: "", defaultAmount: null }
+              : item,
+          ),
+        );
+      }
     },
     [],
   );
 
   const selectorLabExam = useCallback(
-    (item: LabExamResponse) => ({ label: item.name, value: String(item.id) }),
+    (item: LabExamResponse) => {
+      // Cache the full exam data for price lookup
+      examCacheRef.current.set(item.id, item);
+      return { label: item.name, value: String(item.id) };
+    },
     [],
   );
 
@@ -152,7 +175,7 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
         const itemResponse = await createLabOrderItem({
           labOrderId,
           labExamId: item.labExamId!,
-          amount: item.amount,
+          amount: item.defaultAmount ?? 0,
           state: 1,
         });
         if (!itemResponse.success) {
@@ -268,7 +291,7 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
             {items.map((item, index) => (
               <div
                 key={item.id}
-                className="grid grid-cols-1 md:grid-cols-[1fr_120px_auto] gap-3 items-end p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border"
+                className="grid grid-cols-1 md:grid-cols-[1fr_140px_auto] gap-3 items-end p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border"
               >
                 <div>
                   <label className="font-bold text-sm block mb-1">
@@ -285,14 +308,18 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="font-bold text-sm">Cantidad *</label>
-                  <input
-                    className="px-3 py-2 border rounded-md"
-                    min={1}
-                    type="number"
-                    value={item.amount}
-                    onChange={updateItemAmount(item.id)}
-                  />
+                  <label className="font-bold text-sm">Precio</label>
+                  {item.labExamId == null ? (
+                    <span className="px-3 py-2 text-sm text-gray-400">—</span>
+                  ) : !item.defaultAmount ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-yellow-100 text-yellow-800">
+                      <i className="bi bi-exclamation-triangle" /> Precio no configurado
+                    </span>
+                  ) : (
+                    <span className="px-3 py-2 text-sm font-semibold text-green-700 dark:text-green-400">
+                      {formatCurrency(item.defaultAmount)}
+                    </span>
+                  )}
                 </div>
 
                 <button
@@ -305,6 +332,15 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
               </div>
             ))}
           </div>
+
+          {/* ── Total ── */}
+          {items.length > 0 && (
+            <div className="flex justify-end mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+              <span className="text-lg font-bold text-blue-800 dark:text-blue-300">
+                Total: {formatCurrency(totalAmount)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* ── Submit ── */}

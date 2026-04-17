@@ -1,237 +1,167 @@
-# Documento de Diseño — Cuentas, Órdenes e Inventario (HIS)
+# Documento de Diseño Técnico — Cuentas, Órdenes e Inventario (HIS)
 
-## Visión General
+## Resumen General
 
 Este documento describe el diseño técnico para las mejoras al Sistema de Información Hospitalaria (HIS) en tres áreas: gestión de cuentas de usuario, cálculo de precios en órdenes médicas y gestión de inventario de farmacia.
 
-El diseño se divide en tres bloques funcionales:
+El diseño se alinea con la arquitectura existente del proyecto: backend ASP.NET Core 8 con patrón `EntityService<TEntity, TRequest, TId>` + `CrudController`, validación con FluentValidation, mapeo con Mapster, y frontend React 19 + TypeScript + Vite + HeroUI + TailwindCSS.
 
-1. **Cuentas de Usuario (Requisitos 1–6):** Mejoras al flujo de autenticación existente — recuperación de contraseña con respuesta genérica anti-enumeración, perfil de paciente en el portal, toggle de visibilidad de contraseña como componente reutilizable, cambio manual de contraseña para usuarios autenticados, plantillas HTML profesionales para correos transaccionales y limpieza del LoginForm administrativo.
+Se organiza en tres áreas funcionales:
 
-2. **Precios y Pagos de Órdenes (Requisitos 7–9):** Cálculo automático de precios en órdenes de laboratorio (copiando `LabExam.DefaultAmount` a `LabOrderItem.Amount` y sumando en `LabOrder.TotalAmount`), cálculo de precios en despachos de farmacia (copiando `Medicine.DefaultPrice` a `DispenseItem.UnitPrice` y sumando `UnitPrice × Quantity` en `Dispense.TotalAmount`), e integración de órdenes pendientes en el módulo de caja.
-
-3. **Inventario de Farmacia (Requisitos 10–11):** Nueva entidad `InventoryMovement` para bitácora de movimientos, operaciones CRUD de reabastecimiento con actualización atómica de stock usando bloqueo optimista (`RowVersion/xmin`), y alertas de stock bajo.
-
-### Decisiones de Diseño Clave
-
-| Decisión | Justificación |
-|----------|---------------|
-| Respuesta genérica en recuperación de contraseña | Previene enumeración de cuentas (OWASP) |
-| Cálculo de TotalAmount en servidor | El backend es la fuente de verdad; el frontend muestra un preview pero el servidor recalcula |
-| Toggle de visibilidad como componente reutilizable | Evita duplicación de lógica en 6+ formularios |
-| Plantillas de correo con CSS inline | Compatibilidad con Gmail, Outlook, Yahoo |
-| InventoryMovement como entidad separada | Trazabilidad completa de auditoría sin modificar MedicineInventory |
-| Bloqueo optimista para stock | Previene condiciones de carrera en actualizaciones concurrentes de inventario |
-| Nuevo endpoint `POST /api/v1/Auth/ManualChangePassword` | Separa el flujo de cambio manual (requiere contraseña actual) del flujo por token de recuperación |
+- **Área 1 — Cuentas de Usuario (Requisitos 1–6):** Recuperación de contraseña, perfil del paciente, toggle de visibilidad, cambio manual de contraseña, plantillas de correo y limpieza del login.
+- **Área 2 — Precios y Pagos (Requisitos 7–9):** Cálculo automático de precios en órdenes de laboratorio y despachos de farmacia, integración de órdenes pendientes en caja.
+- **Área 3 — Inventario de Farmacia (Requisitos 10–11):** Bitácora de movimientos de inventario y operaciones CRUD de reabastecimiento.
 
 ---
 
 ## Arquitectura
 
-### Diagrama de Componentes
+### Diagrama de Arquitectura General
 
 ```mermaid
 graph TB
     subgraph Frontend["Frontend (React 19 + TypeScript)"]
-        LF[LoginForm Limpio]
-        PP[Portal Paciente - Perfil]
-        PTV[PasswordToggle Componente]
-        CP[Cambio Contraseña]
-        LOV[LabOrder Vista Precios]
-        DV[Dispense Vista Precios]
-        CJ[Caja - Órdenes Pendientes]
-        INV[Inventario - Bitácora]
-        CRUD_INV[Inventario - CRUD Movimientos]
+        LP[LoginPage]
+        PP[ProfilePage - Portal]
+        CPP[ChangePasswordPage]
+        LOP[LabOrderPage]
+        DP[DispensePage]
+        PAY[PaymentPage + Órdenes Pendientes]
+        MIP[MedicineInventoryPage + Bitácora]
+        PVT[PasswordVisibilityToggle]
     end
 
     subgraph Backend["Backend (ASP.NET Core 8)"]
         AC[AuthController]
+        UC[UserController]
+        LOC[LabOrderController]
+        DC[DispenseController]
+        PC[PaymentController]
+        MIC[MedicineInventoryController]
+        IMC[InventoryMovementController]
+        
         AS[AuthService]
         SE[SendEmail + Plantillas]
-        LOC[LabOrderController]
-        LOS[LabOrder Service/Interceptor]
-        DC[DispenseController]
-        DS[Dispense Service/Interceptor]
-        PC[PaymentController]
-        IMC[InventoryMovementController]
+        ES[EntityService genérico]
         IMS[InventoryMovementService]
+        
+        INT_LO[LabOrderBeforeCreateInterceptor]
+        INT_DI[DispenseBeforeCreateInterceptor]
+        INT_IM[InventoryMovementBeforeCreateInterceptor]
     end
 
     subgraph Database["PostgreSQL"]
-        UT[Users]
-        LO[LabOrders]
-        LOI[LabOrderItems]
-        LE[LabExams]
-        DI[Dispenses]
-        DIT[DispenseItems]
-        ME[Medicines]
-        MI[MedicineInventory]
-        IM[InventoryMovements]
-        PAY[Payments]
+        U[(User)]
+        LO[(LabOrder)]
+        LOI[(LabOrderItem)]
+        LE[(LabExam)]
+        DI[(Dispense)]
+        DII[(DispenseItem)]
+        ME[(Medicine)]
+        MI[(MedicineInventory)]
+        IM[(InventoryMovement)]
+        PA[(Payment)]
     end
 
-    LF --> AC
-    PP --> AC
-    CP --> AC
+    LP --> AC
+    PP --> UC
+    CPP --> AC
+    LOP --> LOC
+    DP --> DC
+    PAY --> PC
+    PAY --> LOC
+    PAY --> DC
+    MIP --> MIC
+    MIP --> IMC
+
     AC --> AS
     AS --> SE
-    AS --> UT
-
-    LOV --> LOC
-    LOC --> LOS
-    LOS --> LO
-    LOS --> LOI
-    LOS --> LE
-
-    DV --> DC
-    DC --> DS
-    DS --> DI
-    DS --> DIT
-    DS --> ME
-
-    CJ --> PC
-    CJ --> LOC
-    CJ --> DC
-    PC --> PAY
-
-    INV --> IMC
-    CRUD_INV --> IMC
+    LOC --> ES
+    LOC --> INT_LO
+    DC --> ES
+    DC --> INT_DI
     IMC --> IMS
+    IMS --> INT_IM
+
+    ES --> LO
+    ES --> LOI
+    ES --> DI
+    ES --> DII
+    ES --> MI
     IMS --> IM
     IMS --> MI
+    INT_LO --> LE
+    INT_DI --> ME
 ```
 
-### Flujo de Recuperación de Contraseña
+### Decisiones Arquitectónicas
 
-```mermaid
-sequenceDiagram
-    actor U as Usuario
-    participant FE as Frontend
-    participant BE as AuthController
-    participant AS as AuthService
-    participant DB as PostgreSQL
-    participant EM as SendEmail
+1. **Reutilización del patrón EntityService + CrudController:** La nueva entidad `InventoryMovement` seguirá el mismo patrón CRUD genérico existente. Sin embargo, necesitará un interceptor `IEntityBeforeCreateInterceptor` para la lógica de negocio de actualización de stock.
 
-    U->>FE: Ingresa email
-    FE->>BE: POST /api/v1/Auth/RecoveryPassword
-    BE->>AS: RecoveryPassword(model)
-    AS->>DB: Buscar usuario por email
-    alt Usuario encontrado
-        AS->>DB: Generar y guardar RecoveryToken + DateToken
-        AS->>EM: Enviar correo con plantilla profesional
-        EM-->>AS: Resultado envío
-    end
-    AS-->>BE: Respuesta genérica de éxito
-    BE-->>FE: 200 OK "Si el correo existe, recibirá instrucciones"
-    FE-->>U: Mensaje genérico
-```
+2. **Interceptores para cálculo de precios:** Se usarán `IEntityBeforeCreateInterceptor` existentes (o se crearán nuevos) para:
+   - Copiar `LabExam.DefaultAmount` → `LabOrderItem.Amount` al crear ítems de orden.
+   - Copiar `Medicine.DefaultPrice` → `DispenseItem.UnitPrice` al crear ítems de despacho.
+   - Recalcular `TotalAmount` en el servidor al crear/actualizar órdenes y despachos.
 
-### Flujo de Cálculo de Precios (LabOrder)
+3. **Servicio de correo con plantillas:** Se extenderá `ISendMail` con un nuevo método que acepte un tipo de plantilla y datos dinámicos, manteniendo retrocompatibilidad con el método `Send` existente.
 
-```mermaid
-sequenceDiagram
-    actor D as Doctor
-    participant FE as Frontend
-    participant BE as LabOrderController
-    participant INT as LabOrderInterceptor
-    participant DB as PostgreSQL
+4. **Componente reutilizable PasswordVisibilityToggle:** Se creará como componente React independiente que envuelve cualquier campo `<Input>` de contraseña, con auto-revert a tipo "password" después de 10 segundos.
 
-    D->>FE: Selecciona exámenes para orden
-    FE->>FE: Preview: copia DefaultAmount a cada item
-    FE->>FE: Preview: suma TotalAmount en tiempo real
-    D->>FE: Confirma orden
-    FE->>BE: POST /api/v1/LabOrder (con Items)
-    BE->>INT: BeforeCreate interceptor
-    INT->>DB: Consultar LabExam.DefaultAmount por cada item
-    INT->>INT: Asignar Amount a cada LabOrderItem
-    INT->>INT: Calcular TotalAmount = Σ(Amount)
-    INT->>DB: Guardar LabOrder + Items
-    BE-->>FE: 200 OK con LabOrder creada
-```
+5. **Bloqueo optimista para inventario:** Se mantiene el uso de `RowVersion` (xmin de PostgreSQL) en `MedicineInventory` para prevenir condiciones de carrera en actualizaciones concurrentes de stock.
 
-### Flujo de Movimiento de Inventario
-
-```mermaid
-sequenceDiagram
-    actor F as Farmacéutico
-    participant FE as Frontend
-    participant BE as InventoryMovementController
-    participant SVC as InventoryMovementService
-    participant DB as PostgreSQL
-
-    F->>FE: Registra compra de medicamento
-    FE->>BE: POST /api/v1/InventoryMovement
-    BE->>SVC: Create(movement)
-    SVC->>DB: Leer MedicineInventory (con RowVersion)
-    SVC->>SVC: Calcular PreviousStock, NewStock
-    alt Salida y stock insuficiente
-        SVC-->>BE: Error "Stock insuficiente"
-    else Stock suficiente o es entrada
-        SVC->>DB: Actualizar CurrentStock (WHERE RowVersion = @expected)
-        alt Conflicto de concurrencia
-            SVC-->>BE: Reintentar o error de concurrencia
-        else Éxito
-            SVC->>DB: Guardar InventoryMovement
-            SVC->>SVC: Verificar MinimumStock → alerta si aplica
-            SVC-->>BE: 200 OK con movimiento creado
-        end
-    end
-    BE-->>FE: Respuesta
-```
+6. **Endpoint personalizado para órdenes pendientes:** Se agregará un endpoint `GET /api/v1/Payment/PendingOrders?dpi={dpi}` en `PaymentController` para consultar órdenes pendientes de pago por DPI del paciente.
 
 ---
 
 ## Componentes e Interfaces
 
-### Área 1: Cuentas de Usuario
+### Área 1 — Cuentas de Usuario
 
-#### Backend
+#### 1.1 Mejoras al AuthService (Requisitos 1, 4)
 
-**AuthService — Modificaciones:**
-
-| Método | Cambio | Descripción |
-|--------|--------|-------------|
-| `RecoveryPassword` | Modificar | Retornar respuesta genérica siempre (sin revelar si el email existe). Usar plantilla HTML profesional para el correo. |
-| `ChangePassword` | Sin cambios | Ya funciona con token de recuperación. |
-| `ManualChangePassword` (nuevo) | Crear | Nuevo método que recibe `currentPassword`, `newPassword`, `confirmPassword`. Valida contraseña actual con BCrypt, aplica reglas de nueva contraseña (≥12 chars, diferente a actual), actualiza `LastPasswordChange`. |
-
-**AuthController — Modificaciones:**
-
-| Endpoint | Método HTTP | Cambio |
-|----------|-------------|--------|
-| `POST /api/v1/Auth/ManualChangePassword` | POST | Nuevo endpoint `[Authorize]`. Recibe `ManualChangePasswordRequest`. Obtiene `UserId` del JWT. |
-
-**Nuevos DTOs:**
-
+**Cambios en `IAuthService`:**
 ```csharp
-// ManualChangePasswordRequest
+// Nuevo método para cambio manual de contraseña (usuario autenticado)
+Response<string, List<ValidationFailure>> ManualChangePassword(ManualChangePasswordRequest model);
+```
+
+**Nuevo DTO `ManualChangePasswordRequest`:**
+```csharp
 public class ManualChangePasswordRequest
 {
-    public string CurrentPassword { get; set; }
-    public string NewPassword { get; set; }
-    public string ConfirmNewPassword { get; set; }
+    public long UserId { get; set; }           // Inyectado desde JWT
+    public string CurrentPassword { get; set; } // Contraseña actual
+    public string NewPassword { get; set; }     // Nueva contraseña (min 12 chars)
+    public string ConfirmPassword { get; set; } // Confirmación
 }
 ```
 
-**SendEmail — Modificaciones:**
+**Mejoras al flujo `RecoveryPassword`:**
+- Cambiar la respuesta cuando el correo no existe: retornar éxito genérico (prevenir enumeración de cuentas — Req 1.4).
+- Validar vigencia del token (15 minutos) en `ChangePassword`.
+- Validar mínimo 12 caracteres y diferencia con contraseña anterior en `ChangePassword`.
+- Limpiar `RecoveryToken`, establecer `Reset=false` y registrar `UpdatedAt` tras cambio exitoso.
 
-| Método | Cambio | Descripción |
-|--------|--------|-------------|
-| `Send` | Sin cambios en firma | Se mantiene `Send(correo, asunto, mensaje)` |
-| `SendWithTemplate` (nuevo) | Crear | Nuevo método que recibe tipo de plantilla + diccionario de datos dinámicos. Carga plantilla HTML, reemplaza placeholders, llama a `Send`. |
+**Nuevo endpoint en `AuthController`:**
+```csharp
+[Authorize]
+[HttpPost("ManualChangePassword")]
+public ActionResult ManualChangePassword([FromBody] ManualChangePasswordRequest model)
+```
 
-**Interfaz ISendMail — Extensión:**
+#### 1.2 Servicio de Correo con Plantillas (Requisito 5)
 
+**Extensión de `ISendMail`:**
 ```csharp
 public interface ISendMail
 {
     bool Send(string correo, string asunto, string mensaje);
+    // Nuevo método con plantillas
     bool SendWithTemplate(string correo, string asunto, EmailTemplateType templateType, Dictionary<string, string> data);
 }
 ```
 
-**EmailTemplateType (enum):**
-
+**Enum `EmailTemplateType`:**
 ```csharp
 public enum EmailTemplateType
 {
@@ -242,218 +172,166 @@ public enum EmailTemplateType
 }
 ```
 
-**Plantillas HTML:** Se almacenarán como archivos `.html` embebidos en `Hospital.Server/Templates/Email/` con placeholders `{{NombreUsuario}}`, `{{EnlaceRecuperacion}}`, `{{FechaHora}}`, etc. CSS inline para compatibilidad con clientes de correo.
+**Clase `EmailTemplateService`:**
+- Carga plantillas HTML desde archivos embebidos o strings constantes.
+- Reemplaza placeholders `{{NombreUsuario}}`, `{{EnlaceRecuperacion}}`, `{{FechaHora}}`, etc.
+- Usa CSS inline y tablas para compatibilidad con Gmail, Outlook, Yahoo.
+- Incluye encabezado con logo HIS, pie de página con datos de contacto y aviso de no-responder.
 
-#### Frontend
+#### 1.3 Perfil del Paciente (Requisito 2)
 
-**PasswordToggleInput (nuevo componente reutilizable):**
+**Frontend — Nueva página `ProfilePage.tsx`:**
+- Ruta: `/portal/profile`
+- Muestra datos del usuario autenticado: nombre, email, teléfono, DPI (solo lectura), NIT, número de seguro.
+- Formulario con validación Zod: nombre (10–100 chars), teléfono (8 dígitos), email válido.
+- Envía `PATCH /api/v1/User` con solo los campos modificados.
+- DPI (`IdentificationDocument`) se renderiza como campo `isReadOnly`.
 
+**No requiere cambios en backend:** El endpoint `PATCH /api/v1/User` ya existe y soporta actualización parcial.
+
+#### 1.4 Toggle de Visibilidad de Contraseña (Requisito 3)
+
+**Nuevo componente `PasswordVisibilityToggle.tsx`:**
 ```typescript
-interface PasswordToggleInputProps {
-  name: string;
-  label: string;
+interface PasswordToggleProps {
   value: string;
   onChange: (val: string) => void;
+  name: string;
+  label: string;
   isInvalid?: boolean;
   errorMessage?: string;
-  autoHideSeconds?: number; // default: 10
 }
 ```
 
-- Alterna `type` entre `"password"` y `"text"`
-- Icono: ojo abierto (oculto) / ojo tachado (visible)
-- Auto-revert a `"password"` después de 10 segundos de inactividad
-- Basado en componentes HeroUI (`Input`, `TextField`)
+- Alterna `type` entre "password" y "text".
+- Icono de ojo abierto (oculto) / ojo tachado (visible).
+- Auto-revert a "password" después de 10 segundos de inactividad (useEffect con timer).
+- Se integra en: LoginForm, formulario de login del portal, registro, recuperación, cambio de contraseña y perfil.
 
-**LoginForm — Modificaciones:**
-- Reemplazar campo de contraseña con `PasswordToggleInput`
-- Eliminar enlace "No tienes cuenta? Registrate"
-- Eliminar enlace "Ver Portal de Servicios"
-- Mantener solo: campos usuario/contraseña, botón login, enlace "¿Olvidó su contraseña?"
+#### 1.5 Limpieza del LoginForm (Requisito 6)
 
-**ProfilePage (nueva página portal):**
-- Ruta: `/portal/profile`
-- Muestra datos del paciente autenticado
-- DPI como campo de solo lectura
-- Campos editables: nombre, email, teléfono, NIT, número de seguro
-- Validación Zod en frontend
-- Envía `PATCH /api/v1/User` con campos modificados
-
-**ManualChangePasswordForm (nuevo componente):**
-- Tres campos: contraseña actual, nueva contraseña, confirmar nueva contraseña
-- Todos con `PasswordToggleInput`
-- Validación: nueva contraseña ≥ 12 caracteres, confirmación coincide
-- Accesible desde perfil del portal y menú del panel administrativo
+**Cambios en `LoginForm.tsx`:**
+- Eliminar el enlace "No tienes cuenta? Registrate".
+- Eliminar el enlace "Ver Portal de Servicios".
+- Mantener solo: campos de usuario/contraseña, botón "Iniciar Sesión" y enlace "¿Olvidó su contraseña?".
+- Integrar `PasswordVisibilityToggle` en el campo de contraseña.
 
 ---
 
-### Área 2: Precios y Pagos de Órdenes
+### Área 2 — Precios y Pagos de Órdenes
 
-#### Backend
+#### 2.1 Cálculo de Precios en Órdenes de Laboratorio (Requisito 7)
 
-**LabOrder — Interceptor de Precios (nuevo):**
-
-Se creará un `IEntityBeforeCreateInterceptor<LabOrder, LabOrderRequest>` que:
-1. Para cada `LabOrderItem` en la orden, consulta `LabExam.DefaultAmount` y lo asigna a `LabOrderItem.Amount`
-2. Calcula `LabOrder.TotalAmount = Σ(LabOrderItem.Amount)` donde `State=1`
-3. Ignora cualquier `TotalAmount` enviado por el frontend
-
-Se creará un `IEntityBeforeUpdateInterceptor<LabOrder, LabOrderRequest>` con la misma lógica de recálculo.
-
-**Dispense — Interceptor de Precios (nuevo):**
-
-Se creará un `IEntityBeforeCreateInterceptor<Dispense, DispenseRequest>` que:
-1. Para cada `DispenseItem`, consulta `Medicine.DefaultPrice` y lo asigna a `DispenseItem.UnitPrice`
-2. Calcula `Dispense.TotalAmount = Σ(DispenseItem.UnitPrice × DispenseItem.Quantity)` donde `State=1`
-3. Ignora cualquier `TotalAmount` enviado por el frontend
-
-Se creará un `IEntityBeforeUpdateInterceptor<Dispense, DispenseRequest>` con la misma lógica.
-
-**Nota:** Si ya existen interceptores `LabOrderBeforeCreateInterceptor` y `DispenseAfterCreateInterceptor` (como se ve en `ServicesGroup.cs`), la lógica de precios se integrará en los interceptores existentes en lugar de crear nuevos.
-
-#### Frontend
-
-**LabOrderForm — Modificaciones:**
-- Al seleccionar un `LabExam`, copiar `DefaultAmount` al campo `Amount` del item (preview)
-- Mostrar precio individual por examen y total acumulado en tiempo real
-- Si `DefaultAmount` es 0 o nulo, mostrar badge "Precio no configurado"
-- Formato moneda: `Q {monto.toFixed(2)}`
-
-**DispenseForm — Modificaciones:**
-- Al seleccionar un `Medicine`, copiar `DefaultPrice` al campo `UnitPrice` del item
-- Mostrar: nombre, cantidad, precio unitario, subtotal por línea, total del despacho
-- Recalcular en tiempo real al cambiar cantidad
-- Si `DefaultPrice` es 0 o nulo, mostrar badge "Precio no configurado"
-
-**PaymentPage — Sección Órdenes Pendientes (nueva):**
-- Búsqueda por DPI del paciente o número de orden
-- Consulta `GET /api/v1/LabOrder?Filters=OrderStatus:eq:0,PatientId:eq:{id}&Include=Patient,Items`
-- Consulta `GET /api/v1/Dispense?Filters=DispenseStatus:eq:0,PatientId:eq:{id}&Include=Patient,Items`
-- Tabla con: tipo (Lab/Farmacia), número, paciente, fecha, cantidad items, total, botón "Cobrar"
-- Al cobrar: abre formulario de pago prellenado con monto, tipo y referencia
-- Tras pago exitoso: `PATCH` para actualizar estado de la orden
-- Genera `IdempotencyKey` (UUID v4) por transacción
-
----
-
-### Área 3: Inventario de Farmacia
-
-#### Backend
-
-**InventoryMovement (nueva entidad):**
-
-Sigue el patrón `IEntity<long>` del proyecto. Campos detallados en la sección de Modelos de Datos.
-
-**InventoryMovementController (nuevo):**
-
+**Backend — Interceptor `LabOrderItemBeforeCreateInterceptor`:**
 ```csharp
-[ModuleInfo(
-    DisplayName = "Movimientos de Inventario",
-    Description = "Bitácora de entradas y salidas de medicamentos",
-    Icon = "bi-arrow-left-right",
-    Path = "InventoryMovement",
-    Order = 16,
-    IsVisible = true
-)]
-[Route("api/v1/[controller]")]
-public class InventoryMovementController : CrudController<InventoryMovement, InventoryMovementRequest, InventoryMovementResponse, long>
+public class LabOrderItemBeforeCreateInterceptor : IEntityBeforeCreateInterceptor<LabOrderItem, LabOrderItemRequest>
+{
+    // 1. Buscar LabExam por LabExamId
+    // 2. Copiar LabExam.DefaultAmount → LabOrderItem.Amount
+    // 3. Copiar LabExam.Name → LabOrderItem.ExamName
+}
 ```
 
-**InventoryMovementService (servicio personalizado):**
+**Backend — Interceptor `LabOrderAfterCreateInterceptor` (mejorar existente):**
+- Después de crear una LabOrder con Items, recalcular `TotalAmount = SUM(Items.Amount)` donde `State=1`.
+- Ignorar cualquier `TotalAmount` enviado por el frontend.
 
-No se usará el `EntityService` genérico directamente para la creación, ya que se necesita lógica de negocio adicional:
-1. Leer `MedicineInventory.CurrentStock` con `RowVersion`
-2. Validar stock suficiente para salidas
-3. Calcular `PreviousStock` y `NewStock`
-4. Actualizar `MedicineInventory.CurrentStock` con bloqueo optimista
-5. Crear el registro `InventoryMovement`
-6. Todo dentro de una transacción
+**Frontend — Mejoras en `LabOrderForm.tsx`:**
+- Al seleccionar un LabExam, mostrar su `DefaultAmount` como precio.
+- Mostrar tabla con: nombre del examen, precio individual, y total acumulado en tiempo real.
+- Si `DefaultAmount` es 0 o nulo, mostrar advertencia "Precio no configurado".
+- Formato de moneda: `Q {monto}` con 2 decimales.
 
-Se implementará como un servicio que hereda de `EntityService<InventoryMovement, InventoryMovementRequest, long>` y sobrescribe el método `Create` para agregar la lógica de actualización de stock.
+#### 2.2 Cálculo de Precios en Despachos de Farmacia (Requisito 9)
 
-Alternativamente, se puede usar un `IEntityBeforeCreateInterceptor<InventoryMovement, InventoryMovementRequest>` para inyectar la lógica de stock antes de la creación.
+**Backend — Interceptor `DispenseItemBeforeCreateInterceptor`:**
+```csharp
+public class DispenseItemBeforeCreateInterceptor : IEntityBeforeCreateInterceptor<DispenseItem, DispenseItemRequest>
+{
+    // 1. Buscar Medicine por MedicineId
+    // 2. Copiar Medicine.DefaultPrice → DispenseItem.UnitPrice
+}
+```
 
-**Decisión:** Usar un interceptor `IEntityBeforeCreateInterceptor` para mantener consistencia con el patrón existente del proyecto. El interceptor:
-- Lee el `MedicineInventory` correspondiente
-- Valida stock para salidas
-- Asigna `PreviousStock` y `NewStock` al movimiento
-- Actualiza `MedicineInventory.CurrentStock`
-- Usa `RowVersion` para bloqueo optimista
+**Backend — Interceptor para Dispense (mejorar existente):**
+- Recalcular `TotalAmount = SUM(Items.UnitPrice × Items.Quantity)` donde `State=1`.
+- Ignorar cualquier `TotalAmount` enviado por el frontend.
 
-**Despacho automático (Requisito 10.8):**
+**Frontend — Mejoras en `DispenseForm.tsx`:**
+- Al seleccionar un Medicine, mostrar su `DefaultPrice` como precio unitario.
+- Mostrar tabla con: nombre, cantidad, precio unitario, subtotal por línea, total acumulado.
+- Recalcular en tiempo real al cambiar cantidad.
+- Si `DefaultPrice` es 0 o nulo, mostrar advertencia "Precio no configurado".
 
-Cuando un `Dispense` cambia a estado `Dispensed` (DispenseStatus=2), se creará automáticamente un `InventoryMovement` de tipo `Despacho` (MovementType=6) por cada `DispenseItem`. Esto se implementará en el interceptor `DispenseAfterUpdateInterceptor`.
+#### 2.3 Órdenes Pendientes en Módulo de Caja (Requisito 8)
 
-#### Frontend
+**Backend — Nuevo endpoint en `PaymentController`:**
+```csharp
+[HttpGet("PendingOrders")]
+public ActionResult GetPendingOrders([FromQuery] string? dpi, [FromQuery] string? orderNumber)
+{
+    // 1. Buscar paciente por DPI (IdentificationDocument)
+    // 2. Consultar LabOrders con OrderStatus=0 del paciente
+    // 3. Consultar Dispenses con DispenseStatus=0 del paciente
+    // 4. Retornar lista consolidada de PendingOrderResponse
+}
+```
 
-**InventoryMovementPage (nueva página):**
-- Tabla de bitácora con columnas: fecha, tipo (badge color), medicamento, sucursal, cantidad, stock anterior, stock nuevo, costo, referencia, usuario
-- Filtros: medicamento, sucursal, tipo de movimiento, rango de fechas, usuario
-- Paginación estándar
+**Nuevo DTO `PendingOrderResponse`:**
+```csharp
+public class PendingOrderResponse
+{
+    public string OrderType { get; set; }       // "LabOrder" o "Dispense"
+    public long OrderId { get; set; }
+    public string OrderNumber { get; set; }
+    public string PatientName { get; set; }
+    public string PatientDpi { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public int ItemCount { get; set; }
+    public decimal TotalAmount { get; set; }
+    public int PaymentType { get; set; }        // 1=Laboratorio, 2=Farmacia
+}
+```
 
-**InventoryMovementForm (nuevo formulario):**
-- Campos dinámicos según tipo de movimiento:
-  - Compra: medicamento, sucursal, cantidad, costo unitario, número de factura, notas
-  - Devolución: medicamento, sucursal, cantidad, referencia, motivo (notas)
-  - Venta: medicamento, sucursal, cantidad, referencia
-  - Reclamo: medicamento, sucursal, cantidad, referencia, motivo (notas)
-  - Ajuste (+/-): medicamento, sucursal, cantidad, justificación obligatoria (≥10 chars)
-- Validación Zod
-
-**MedicineInventory Vista — Resumen (modificación):**
-- Agregar a la vista de inventario por medicamento: stock actual, stock mínimo, entradas del mes, salidas del mes, último movimiento
+**Frontend — Mejoras en `PaymentPage.tsx`:**
+- Agregar sección "Órdenes Pendientes de Pago" arriba de la tabla de pagos.
+- Campo de búsqueda por DPI o número de orden.
+- Tabla de resultados con: tipo, número de orden, paciente, fecha, cantidad de ítems, total, botón "Cobrar".
+- Al hacer clic en "Cobrar", abrir modal/formulario de pago prellenado con monto, tipo de pago y referencia.
+- Tras pago exitoso, actualizar estado de la orden vía `PATCH`.
+- Generar `IdempotencyKey` (UUID v4) por cada transacción.
+- Soporte para selección múltiple cuando un paciente tiene varias órdenes pendientes.
 
 ---
 
-## Modelos de Datos
+### Área 3 — Inventario de Farmacia
 
-### Entidades Existentes — Modificaciones
+#### 3.1 Nueva Entidad InventoryMovement (Requisito 10)
 
-No se requieren cambios en las entidades existentes de base de datos. Las entidades `User`, `LabOrder`, `LabOrderItem`, `LabExam`, `Dispense`, `DispenseItem`, `Medicine`, `MedicineInventory` y `Payment` ya tienen todos los campos necesarios.
-
-Los cambios son de **lógica de negocio** (interceptores, servicios) y **frontend** (nuevas vistas, componentes).
-
-### Nueva Entidad: InventoryMovement
-
+**Entidad `InventoryMovement`:**
 ```csharp
 public class InventoryMovement : IEntity<long>
 {
     public long Id { get; set; }
-
-    // Referencias
-    public long MedicineInventoryId { get; set; }  // FK a MedicineInventory
-    public long MedicineId { get; set; }            // FK a Medicine (desnormalizado para consultas)
-    public long BranchId { get; set; }              // FK a Branch (desnormalizado para consultas)
-
-    // Tipo de movimiento
-    // 0=Compra, 1=Devolución_Proveedor, 2=Venta, 3=Reclamo,
-    // 4=Ajuste_Positivo, 5=Ajuste_Negativo, 6=Despacho
-    public int MovementType { get; set; }
-
-    // Cantidades
-    public int Quantity { get; set; }               // Siempre positivo
-    public int PreviousStock { get; set; }          // Stock antes del movimiento
-    public int NewStock { get; set; }               // Stock después del movimiento
-
-    // Costos
-    public decimal UnitCost { get; set; }           // Costo unitario (precision 10,2)
-    public decimal TotalCost { get; set; }          // Costo total (precision 10,2)
-
-    // Referencias documentales
-    public string? ReferenceNumber { get; set; }    // Número de factura, orden, etc.
-    public string? ReferenceType { get; set; }      // "Factura", "OrdenCompra", "Despacho", "Reclamo"
-    public string? Notes { get; set; }              // Observaciones
-
-    // Usuario responsable
-    public long UserId { get; set; }                // FK a User
-
-    // Auditoría estándar
+    public long MedicineInventoryId { get; set; }
+    public long MedicineId { get; set; }
+    public long BranchId { get; set; }
+    public int MovementType { get; set; }       // Enum: 0-6
+    public int Quantity { get; set; }
+    public int PreviousStock { get; set; }
+    public int NewStock { get; set; }
+    public decimal UnitCost { get; set; }
+    public decimal TotalCost { get; set; }
+    public string? ReferenceNumber { get; set; }
+    public string? ReferenceType { get; set; }
+    public string? Notes { get; set; }
+    public long UserId { get; set; }
+    // Campos de auditoría estándar
     public int State { get; set; } = 1;
     public DateTime CreatedAt { get; set; }
     public long CreatedBy { get; set; }
     public long? UpdatedBy { get; set; }
     public DateTime? UpdatedAt { get; set; }
-
     // Navegación
     public virtual MedicineInventory? MedicineInventory { get; set; }
     public virtual Medicine? Medicine { get; set; }
@@ -462,56 +340,170 @@ public class InventoryMovement : IEntity<long>
 }
 ```
 
-### Configuración de Entidad (EF Core)
+**Enum `MovementType`:**
+| Valor | Nombre              | Tipo    |
+|-------|---------------------|---------|
+| 0     | Compra              | Entrada |
+| 1     | Devolución_Proveedor| Entrada |
+| 2     | Venta               | Salida  |
+| 3     | Reclamo             | Salida  |
+| 4     | Ajuste_Positivo     | Entrada |
+| 5     | Ajuste_Negativo     | Salida  |
+| 6     | Despacho            | Salida  |
+
+**Patrón CRUD completo:**
+- `InventoryMovementRequest` (IRequest<long?>)
+- `InventoryMovementResponse`
+- `CreateInventoryMovementValidation`, `UpdateInventoryMovementValidation`, `PartialInventoryMovementValidation`
+- Mappers en `MapsterConfig.cs`
+- Registro en `ServicesGroup.cs` y `ValidationsGroup.cs`
+- Configuración de entidad en `Context/Configurations/InventoryMovementConfiguration.cs`
+
+#### 3.2 Controlador InventoryMovementController (Requisito 10)
 
 ```csharp
-// Hospital.Server/Context/Config/InventoryMovementConfiguration.cs
+[ModuleInfo(
+    DisplayName = "Bitácora de Inventario",
+    Description = "Gestión de movimientos de inventario de farmacia",
+    Icon = "bi-journal-text",
+    Path = "inventory-movement",
+    Order = 16,
+    IsVisible = true
+)]
+[Route("api/v1/[controller]")]
+public class InventoryMovementController : CrudController<InventoryMovement, InventoryMovementRequest, InventoryMovementResponse, long>
+```
+
+#### 3.3 Interceptor de Movimientos de Inventario
+
+**`InventoryMovementBeforeCreateInterceptor`:**
+```
+1. Obtener MedicineInventory por MedicineInventoryId
+2. Registrar PreviousStock = MedicineInventory.CurrentStock
+3. Si es entrada (Compra, Devolución, Ajuste_Positivo):
+   - NewStock = PreviousStock + Quantity
+4. Si es salida (Venta, Reclamo, Ajuste_Negativo, Despacho):
+   - Validar que PreviousStock >= Quantity (sino rechazar: "Stock insuficiente")
+   - NewStock = PreviousStock - Quantity
+5. Actualizar MedicineInventory.CurrentStock = NewStock
+6. Calcular TotalCost = UnitCost × Quantity
+7. Usar bloqueo optimista (RowVersion) al guardar MedicineInventory
+```
+
+#### 3.4 Movimiento Automático por Despacho (Requisito 10.8)
+
+**`DispenseAfterStatusChangeInterceptor`:**
+- Cuando un Dispense cambia a `DispenseStatus=2` (Dispensed), crear automáticamente un `InventoryMovement` de tipo `Despacho` (6) por cada `DispenseItem`, decrementando el stock correspondiente.
+
+#### 3.5 Frontend — Bitácora de Movimientos
+
+**Nueva sección en `MedicineInventoryPage.tsx`:**
+- Tab o sección "Bitácora de Movimientos" debajo de la tabla de inventario.
+- Tabla con filtros por: medicamento, sucursal, tipo de movimiento, rango de fechas, usuario.
+- Columnas: fecha/hora, tipo (badge de color), medicamento, sucursal, cantidad, stock anterior, stock nuevo, costo, referencia, usuario.
+- Badges de color por tipo: Compra=verde, Venta=azul, Reclamo=rojo, Ajuste=amarillo, Despacho=morado.
+
+#### 3.6 Frontend — Formularios de Operaciones CRUD (Requisito 11)
+
+**Nuevo componente `InventoryMovementForm.tsx`:**
+- Selector de tipo de operación (Compra, Devolución, Venta, Reclamo, Ajuste+, Ajuste-).
+- Campos dinámicos según tipo:
+  - Compra: medicamento, sucursal, cantidad, costo unitario, número de factura, notas.
+  - Devolución: medicamento, sucursal, cantidad, referencia, motivo (notas).
+  - Venta: medicamento, sucursal, cantidad, referencia.
+  - Reclamo: medicamento, sucursal, cantidad, referencia, motivo (notas).
+  - Ajustes: medicamento, sucursal, cantidad, justificación obligatoria (min 10 chars en Notes).
+- Validación: cantidad > 0 (entero), costo unitario > 0 (decimal, 2 decimales) para compras.
+- Alerta visual si stock cae por debajo de `Medicine.MinimumStock` tras operación de salida.
+
+**Resumen por medicamento en vista de inventario:**
+- Stock actual, stock mínimo, total entradas del mes, total salidas del mes, último movimiento.
+
+---
+
+## Modelos de Datos
+
+### Nueva Entidad: InventoryMovement
+
+```mermaid
+erDiagram
+    MedicineInventory ||--o{ InventoryMovement : "tiene movimientos"
+    Medicine ||--o{ InventoryMovement : "referenciado en"
+    Branch ||--o{ InventoryMovement : "ocurre en"
+    User ||--o{ InventoryMovement : "realizado por"
+
+    InventoryMovement {
+        long Id PK
+        long MedicineInventoryId FK
+        long MedicineId FK
+        long BranchId FK
+        int MovementType
+        int Quantity
+        int PreviousStock
+        int NewStock
+        decimal UnitCost
+        decimal TotalCost
+        string ReferenceNumber
+        string ReferenceType
+        string Notes
+        long UserId FK
+        int State
+        datetime CreatedAt
+        long CreatedBy
+        long UpdatedBy
+        datetime UpdatedAt
+    }
+
+    MedicineInventory {
+        long Id PK
+        long MedicineId FK
+        long BranchId FK
+        int CurrentStock
+        uint RowVersion
+        int State
+    }
+```
+
+### Configuración de Entidad (EF Core)
+
+**`InventoryMovementConfiguration.cs`** en `Context/Configurations/`:
+```csharp
 public class InventoryMovementConfiguration : IEntityTypeConfiguration<InventoryMovement>
 {
-    public void Configure(EntityTypeBuilder<InventoryMovement> entity)
+    public void Configure(EntityTypeBuilder<InventoryMovement> builder)
     {
-        entity.ToTable("InventoryMovements");
-        entity.HasKey(e => e.Id);
-
-        entity.Property(e => e.Quantity).IsRequired();
-        entity.Property(e => e.PreviousStock).IsRequired();
-        entity.Property(e => e.NewStock).IsRequired();
-        entity.Property(e => e.MovementType).IsRequired();
-        entity.Property(e => e.UnitCost).HasPrecision(10, 2);
-        entity.Property(e => e.TotalCost).HasPrecision(10, 2);
-        entity.Property(e => e.ReferenceNumber).HasMaxLength(100);
-        entity.Property(e => e.ReferenceType).HasMaxLength(50);
-        entity.Property(e => e.Notes).HasMaxLength(1000);
-
-        entity.HasOne(e => e.MedicineInventory)
-              .WithMany()
-              .HasForeignKey(e => e.MedicineInventoryId)
-              .OnDelete(DeleteBehavior.Restrict);
-
-        entity.HasOne(e => e.Medicine)
-              .WithMany()
-              .HasForeignKey(e => e.MedicineId)
-              .OnDelete(DeleteBehavior.Restrict);
-
-        entity.HasOne(e => e.Branch)
-              .WithMany()
-              .HasForeignKey(e => e.BranchId)
-              .OnDelete(DeleteBehavior.Restrict);
-
-        entity.HasOne(e => e.User)
-              .WithMany()
-              .HasForeignKey(e => e.UserId)
-              .OnDelete(DeleteBehavior.Restrict);
+        builder.ToTable("InventoryMovements");
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Quantity).IsRequired();
+        builder.Property(e => e.PreviousStock).IsRequired();
+        builder.Property(e => e.NewStock).IsRequired();
+        builder.Property(e => e.UnitCost).HasPrecision(10, 2);
+        builder.Property(e => e.TotalCost).HasPrecision(10, 2);
+        builder.Property(e => e.ReferenceNumber).HasMaxLength(100);
+        builder.Property(e => e.ReferenceType).HasMaxLength(50);
+        builder.Property(e => e.Notes).HasMaxLength(500);
+        
+        builder.HasOne(e => e.MedicineInventory)
+            .WithMany()
+            .HasForeignKey(e => e.MedicineInventoryId);
+        builder.HasOne(e => e.Medicine)
+            .WithMany()
+            .HasForeignKey(e => e.MedicineId);
+        builder.HasOne(e => e.Branch)
+            .WithMany()
+            .HasForeignKey(e => e.BranchId);
+        builder.HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId);
     }
 }
 ```
 
 ### DTOs Nuevos
 
-**InventoryMovementRequest:**
-
+**`InventoryMovementRequest`:**
 ```csharp
-public class InventoryMovementRequest : IRequest<long>
+public class InventoryMovementRequest : IRequest<long?>
 {
     public long? Id { get; set; }
     public long? MedicineInventoryId { get; set; }
@@ -533,8 +525,7 @@ public class InventoryMovementRequest : IRequest<long>
 }
 ```
 
-**InventoryMovementResponse:**
-
+**`InventoryMovementResponse`:**
 ```csharp
 public class InventoryMovementResponse
 {
@@ -553,64 +544,48 @@ public class InventoryMovementResponse
     public string? Notes { get; set; }
     public long UserId { get; set; }
     public int State { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public string CreatedAt { get; set; } = string.Empty;
     public long CreatedBy { get; set; }
     public long? UpdatedBy { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-
-    // Navegación aplanada
-    public string? MedicineName { get; set; }
-    public string? BranchName { get; set; }
-    public string? UserName { get; set; }
+    public string? UpdatedAt { get; set; }
 }
 ```
 
-**ManualChangePasswordRequest:**
+**`PendingOrderResponse`:**
+```csharp
+public class PendingOrderResponse
+{
+    public string OrderType { get; set; } = string.Empty;
+    public long OrderId { get; set; }
+    public string OrderNumber { get; set; } = string.Empty;
+    public string PatientName { get; set; } = string.Empty;
+    public string PatientDpi { get; set; } = string.Empty;
+    public string CreatedAt { get; set; } = string.Empty;
+    public int ItemCount { get; set; }
+    public decimal TotalAmount { get; set; }
+    public int PaymentType { get; set; }
+}
+```
 
+**`ManualChangePasswordRequest`:**
 ```csharp
 public class ManualChangePasswordRequest
 {
+    public long UserId { get; set; }
     public string CurrentPassword { get; set; } = string.Empty;
     public string NewPassword { get; set; } = string.Empty;
-    public string ConfirmNewPassword { get; set; } = string.Empty;
+    public string ConfirmPassword { get; set; } = string.Empty;
 }
 ```
 
-### Diagrama Entidad-Relación (Nuevas Relaciones)
+### Resumen de Cambios en Entidades Existentes
 
-```mermaid
-erDiagram
-    MedicineInventory ||--o{ InventoryMovement : "tiene movimientos"
-    Medicine ||--o{ InventoryMovement : "referenciado en"
-    Branch ||--o{ InventoryMovement : "ubicación"
-    User ||--o{ InventoryMovement : "responsable"
-
-    InventoryMovement {
-        long Id PK
-        long MedicineInventoryId FK
-        long MedicineId FK
-        long BranchId FK
-        int MovementType
-        int Quantity
-        int PreviousStock
-        int NewStock
-        decimal UnitCost
-        decimal TotalCost
-        string ReferenceNumber
-        string ReferenceType
-        string Notes
-        long UserId FK
-        int State
-        datetime CreatedAt
-        long CreatedBy
-    }
-
-    MedicineInventory {
-        long Id PK
-        long MedicineId FK
-        long BranchId FK
-        int CurrentStock
-        uint RowVersion
-    }
-```
+| Entidad | Cambio | Detalle |
+|---------|--------|---------|
+| `LabOrderItem` | Sin cambios de esquema | El campo `Amount` ya existe; se poblará automáticamente desde `LabExam.DefaultAmount` vía interceptor |
+| `LabOrder` | Sin cambios de esquema | `TotalAmount` ya existe; se recalculará en servidor |
+| `DispenseItem` | Sin cambios de esquema | `UnitPrice` ya existe; se poblará desde `Medicine.DefaultPrice` vía interceptor |
+| `Dispense` | Sin cambios de esquema | `TotalAmount` ya existe; se recalculará en servidor |
+| `User` | Sin cambios de esquema | `RecoveryToken`, `DateToken`, `Reset`, `LastPasswordChange` ya existen |
+| `Payment` | Sin cambios de esquema | `LabOrderId`, `DispenseId`, `IdempotencyKey` ya existen |
 

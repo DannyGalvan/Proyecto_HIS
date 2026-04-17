@@ -94,6 +94,9 @@ export const nameRoutes = {
   // Dispense
   dispense: "/dispense",
   dispenseCreate: "/dispense/create",
+  // InventoryMovement
+  inventoryMovement: "/inventory-movement",
+  inventoryMovementCreate: "/inventory-movement/create",
   // Admin
   doctorManagement: "/doctor-management",
   doctorTransfer: "/doctor-transfer",
@@ -110,6 +113,7 @@ export const nameRoutes = {
   portalPay: "/portal/book/pay",
   portalConfirm: "/portal/book/confirm",
   portalAppointments: "/portal/appointments",
+  portalProfile: "/portal/profile",
 };
 
 export const authInitialState: InitialAuth = {

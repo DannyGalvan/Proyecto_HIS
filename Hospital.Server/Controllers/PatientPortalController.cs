@@ -857,5 +857,120 @@ namespace Hospital.Server.Controllers
                 Message = "Cita cancelada correctamente. Se ha enviado un correo de confirmación."
             });
         }
+
+        /// <summary>
+        /// Returns the authenticated patient's profile data.
+        /// GET /api/v1/PatientPortal/my-profile
+        /// </summary>
+        [Authorize]
+        [HttpGet("my-profile")]
+        [ExcludeFromSync]
+        public async Task<IActionResult> GetMyProfile()
+        {
+            long userId = GetUserId();
+
+            var user = await _bd.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == userId && u.State == 1);
+
+            if (user == null)
+            {
+                return NotFound(new Response<string>
+                {
+                    Success = false,
+                    Message = "Usuario no encontrado."
+                });
+            }
+
+            var profile = new
+            {
+                user.Id,
+                user.Name,
+                user.Email,
+                user.Number,
+                user.IdentificationDocument,
+                user.Nit,
+                user.InsuranceNumber,
+                user.UserName
+            };
+
+            return Ok(new Response<object>
+            {
+                Success = true,
+                Message = "Perfil obtenido correctamente.",
+                Data = profile,
+                TotalResults = 1
+            });
+        }
+
+        /// <summary>
+        /// Updates the authenticated patient's profile data (partial update).
+        /// PATCH /api/v1/PatientPortal/my-profile
+        /// </summary>
+        [Authorize]
+        [HttpPatch("my-profile")]
+        [ExcludeFromSync]
+        public async Task<IActionResult> UpdateMyProfile([FromBody] UserRequest request)
+        {
+            long userId = GetUserId();
+
+            var user = await _bd.Users
+                .FirstOrDefaultAsync(u => u.Id == userId && u.State == 1);
+
+            if (user == null)
+            {
+                return NotFound(new Response<string>
+                {
+                    Success = false,
+                    Message = "Usuario no encontrado."
+                });
+            }
+
+            // Only allow updating safe fields — not password, role, DPI, etc.
+            if (request.Name != null) user.Name = request.Name;
+            if (request.Email != null)
+            {
+                // Check email uniqueness
+                var emailExists = await _bd.Users
+                    .AnyAsync(u => u.Email == request.Email && u.Id != userId && u.State == 1);
+                if (emailExists)
+                {
+                    return BadRequest(new Response<string>
+                    {
+                        Success = false,
+                        Message = "El correo electrónico ya está en uso por otra cuenta."
+                    });
+                }
+                user.Email = request.Email;
+            }
+            if (request.Number != null) user.Number = request.Number;
+            if (request.Nit != null) user.Nit = request.Nit;
+            if (request.InsuranceNumber != null) user.InsuranceNumber = request.InsuranceNumber;
+
+            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedBy = userId;
+
+            await _bd.SaveChangesAsync();
+
+            var profile = new
+            {
+                user.Id,
+                user.Name,
+                user.Email,
+                user.Number,
+                user.IdentificationDocument,
+                user.Nit,
+                user.InsuranceNumber,
+                user.UserName
+            };
+
+            return Ok(new Response<object>
+            {
+                Success = true,
+                Message = "Perfil actualizado correctamente",
+                Data = profile,
+                TotalResults = 1
+            });
+        }
     }
 }

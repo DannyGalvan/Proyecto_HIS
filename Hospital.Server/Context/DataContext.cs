@@ -98,6 +98,9 @@ namespace Hospital.Server.Context
         // Notification tracking (CU-11)
         public DbSet<NotificationLog> NotificationLogs { get; set; }
 
+        // Inventory movements (Bitácora de inventario)
+        public DbSet<InventoryMovement> InventoryMovements { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

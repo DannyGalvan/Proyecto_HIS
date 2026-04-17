@@ -2,6 +2,7 @@ import { api } from "../configs/axios/interceptors";
 import type { ApiResponse } from "../types/ApiResponse";
 import type { filterOptions } from "../types/FilterTypes";
 import type { PaymentRequest, PaymentResponse } from "../types/PaymentResponse";
+import type { PendingOrderResponse } from "../types/PendingOrderResponse";
 
 export const getPayments = async ({
   pageNumber = 1,
@@ -28,3 +29,16 @@ export const updatePayment = async (data: PaymentRequest): Promise<ApiResponse<P
 
 export const deletePayment = async (id: number): Promise<ApiResponse<PaymentResponse>> =>
   api.delete<unknown, ApiResponse<PaymentResponse>>(`Payment/${id}`);
+
+export const getPendingOrders = async (
+  dpi?: string,
+  orderNumber?: string
+): Promise<ApiResponse<PendingOrderResponse[]>> => {
+  const params = new URLSearchParams();
+  if (dpi) params.append("dpi", dpi);
+  if (orderNumber) params.append("orderNumber", orderNumber);
+  const query = params.toString();
+  return api.get<unknown, ApiResponse<PendingOrderResponse[]>>(
+    `Payment/PendingOrders${query ? `?${query}` : ""}`
+  );
+};

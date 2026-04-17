@@ -64,5 +64,34 @@ namespace Hospital.Server.Services.Core
 
             return resultado;
         }
+
+        /// <summary>
+        /// Defines the _emailTemplateService
+        /// </summary>
+        private readonly EmailTemplateService _emailTemplateService;
+
+        /// <summary>
+        /// Sends an email using a predefined HTML template with dynamic data replacement.
+        /// Uses <see cref="EmailTemplateService"/> to generate the HTML body from the
+        /// specified template type and data, then sends it via the existing SMTP logic.
+        /// </summary>
+        /// <param name="correo">The recipient email address.</param>
+        /// <param name="asunto">The email subject.</param>
+        /// <param name="templateType">The type of email template to use.</param>
+        /// <param name="data">Dictionary of placeholder keys and their replacement values.</param>
+        /// <returns><c>true</c> if the email was sent successfully; otherwise, <c>false</c>.</returns>
+        public bool SendWithTemplate(string correo, string asunto, EmailTemplateType templateType, Dictionary<string, string> data)
+        {
+            try
+            {
+                string htmlBody = _emailTemplateService.GenerateHtml(templateType, data);
+                return Send(correo, asunto, htmlBody);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al generar plantilla de correo para tipo {TemplateType}", templateType);
+                return false;
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using Hospital.Server.Entities.Request;
 using Hospital.Server.Interceptors.Interfaces;
 using Hospital.Server.Interceptors.userInterceptors;
 using Hospital.Server.Interceptors.AppointmentInterceptors;
+using Hospital.Server.Interceptors.InventoryInterceptors;
 using Hospital.Server.Services.Background;
 using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
@@ -64,6 +65,7 @@ namespace Hospital.Server.Configs.Extensions
             services.AddScoped<IEntityService<MedicineInventory, MedicineInventoryRequest, long>, Services.Core.EntityService<MedicineInventory, MedicineInventoryRequest, long>>();
             services.AddScoped<IEntityService<Dispense, DispenseRequest, long>, Services.Core.EntityService<Dispense, DispenseRequest, long>>();
             services.AddScoped<IEntityService<DispenseItem, DispenseItemRequest, long>, Services.Core.EntityService<DispenseItem, DispenseItemRequest, long>>();
+            services.AddScoped<IEntityService<InventoryMovement, InventoryMovementRequest, long>, Services.Core.EntityService<InventoryMovement, InventoryMovementRequest, long>>();
 
             // Notification CRUD services (CU-11)
             services.AddScoped<IEntityService<NotificationLog, NotificationLogRequest, long>, Services.Core.EntityService<NotificationLog, NotificationLogRequest, long>>();
@@ -87,6 +89,19 @@ namespace Hospital.Server.Configs.Extensions
             services.AddScoped<IEntityBeforeCreateInterceptor<Prescription, PrescriptionRequest>, PrescriptionBeforeCreateInterceptor>();
             services.AddScoped<IEntityBeforeCreateInterceptor<LabOrder, LabOrderRequest>, LabOrderBeforeCreateInterceptor>();
 
+            // LabOrderItem price interceptor — copies DefaultAmount and ExamName from LabExam
+            services.AddScoped<IEntityBeforeCreateInterceptor<LabOrderItem, LabOrderItemRequest>, LabOrderItemBeforeCreateInterceptor>();
+
+            // DispenseItem price interceptor — copies DefaultPrice from Medicine
+            services.AddScoped<IEntityBeforeCreateInterceptor<DispenseItem, DispenseItemRequest>, DispenseItemBeforeCreateInterceptor>();
+
+            // InventoryMovement interceptor — updates stock, validates sufficiency, calculates TotalCost
+            services.AddScoped<IEntityBeforeCreateInterceptor<InventoryMovement, InventoryMovementRequest>, InventoryMovementBeforeCreateInterceptor>();
+
+            // Dispense status change interceptor — auto-creates InventoryMovement (Despacho) when DispenseStatus changes to 2
+            services.AddScoped<IEntityAfterUpdateInterceptor<Dispense, DispenseRequest>, DispenseAfterStatusChangeInterceptor>();
+            services.AddScoped<IEntityAfterPartialUpdateInterceptor<Dispense, DispenseRequest>, DispenseAfterStatusChangeInterceptor>();
+
             // security services
             services.AddScoped<ISecurityAuthService, SecurityAuthService>();
             // SessionAuthService and SessionAuthorizationFilter removed - using JWT authorization
@@ -107,6 +122,9 @@ namespace Hospital.Server.Configs.Extensions
 
             // payment gateway (swap MockPaymentGateway for real implementation in production)
             services.AddScoped<IPaymentGateway, MockPaymentGateway>();
+
+            // email template service
+            services.AddScoped<EmailTemplateService>();
 
             // other services
             services.AddScoped<ISendMail, SendEmail>();
