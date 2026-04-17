@@ -16,9 +16,13 @@ interface VitalSignFormProps {
   readonly type: "create" | "edit";
   readonly initialForm: VitalSignRequest;
   readonly onSubmit: (form: VitalSignRequest) => Promise<ApiResponse<unknown | ValidationFailure[]>>;
+  /** When true, appointmentId and nurseId are pre-filled and hidden */
+  readonly fromNurseDashboard?: boolean;
+  /** Patient name to display as context header */
+  readonly patientName?: string;
 }
 
-export function VitalSignForm({ type, initialForm, onSubmit }: VitalSignFormProps) {
+export function VitalSignForm({ type, initialForm, onSubmit, fromNurseDashboard = false, patientName }: VitalSignFormProps) {
   const isEditing = type === "edit";
   const navigate = useNavigate();
 
@@ -50,22 +54,38 @@ export function VitalSignForm({ type, initialForm, onSubmit }: VitalSignFormProp
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">
+      <h1 className="text-2xl font-bold text-center mb-2">
         {isEditing ? "Editar Signos Vitales" : "Registrar Signos Vitales"}
       </h1>
+      {fromNurseDashboard && patientName && (
+        <div className="mb-4 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-center dark:bg-blue-900/20 dark:border-blue-700">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            <i className="bi bi-person-check mr-2" />
+            Registrando signos vitales para: <strong>{patientName}</strong>
+          </p>
+          <p className="text-xs text-blue-500 mt-0.5">
+            Cita #{initialForm.appointmentId}
+          </p>
+        </div>
+      )}
       {success != null && <Response message={message} type={success} />}
       <Form className="flex flex-col gap-4" validationErrors={errors} onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.appointmentId} name="appointmentId" onChange={handleTextChange("appointmentId")}>
-            <Label className="font-bold">ID de Cita</Label>
-            <Input className="w-full px-3 py-2 border rounded-md" type="number" value={form.appointmentId?.toString() || ""} />
-            {errors?.appointmentId ? <FieldError>{errors.appointmentId as string}</FieldError> : null}
-          </TextField>
-          <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.nurseId} name="nurseId" onChange={handleTextChange("nurseId")}>
-            <Label className="font-bold">ID Enfermero/a</Label>
-            <Input className="w-full px-3 py-2 border rounded-md" type="number" value={form.nurseId?.toString() || ""} />
-            {errors?.nurseId ? <FieldError>{errors.nurseId as string}</FieldError> : null}
-          </TextField>
+          {/* Only show manual ID fields when NOT coming from nurse dashboard */}
+          {!fromNurseDashboard && (
+            <>
+              <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.appointmentId} name="appointmentId" onChange={handleTextChange("appointmentId")}>
+                <Label className="font-bold">ID de Cita</Label>
+                <Input className="w-full px-3 py-2 border rounded-md" type="number" value={form.appointmentId?.toString() || ""} />
+                {errors?.appointmentId ? <FieldError>{errors.appointmentId as string}</FieldError> : null}
+              </TextField>
+              <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.nurseId} name="nurseId" onChange={handleTextChange("nurseId")}>
+                <Label className="font-bold">ID Enfermero/a</Label>
+                <Input className="w-full px-3 py-2 border rounded-md" type="number" value={form.nurseId?.toString() || ""} />
+                {errors?.nurseId ? <FieldError>{errors.nurseId as string}</FieldError> : null}
+              </TextField>
+            </>
+          )}
 
           <div className="md:col-span-2">
             <p className="text-sm font-semibold text-gray-600 mb-2">Presión Arterial</p>
@@ -135,11 +155,11 @@ export function VitalSignForm({ type, initialForm, onSubmit }: VitalSignFormProp
         </div>
         <VitalSignAlertsDisplay alerts={alerts} />
         <div className="flex gap-4 justify-end mt-4">
-          <AsyncButton className="font-bold" isLoading={false} size="lg" type="button" variant="secondary" onClick={() => navigate("/vital-sign")}>
+          <AsyncButton className="font-bold" isLoading={false} size="lg" type="button" variant="secondary" onClick={() => navigate(fromNurseDashboard ? "/nurse-dashboard" : "/vital-sign")}>
             Cancelar
           </AsyncButton>
           <AsyncButton className="font-bold" isLoading={loading} loadingText={isEditing ? "Actualizando..." : "Registrando..."} size="lg" type="submit" variant="primary">
-            {isEditing ? "Actualizar" : "Registrar"}
+            {isEditing ? "Actualizar" : "Registrar Signos Vitales"}
           </AsyncButton>
         </div>
       </Form>
