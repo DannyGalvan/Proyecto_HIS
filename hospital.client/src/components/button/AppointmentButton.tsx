@@ -18,8 +18,8 @@ export function AppointmentButton({ data }: AppointmentButtonProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleEdit = useCallback(() => {
-    navigate(`/appointment/update/${data.id}`);
+  const handleView = useCallback(() => {
+    navigate(`/appointment/view/${data.id}`);
   }, [navigate, data.id]);
 
   const handleDeleteClick = useCallback(() => setIsDeleteDialogOpen(true), []);
@@ -56,8 +56,8 @@ export function AppointmentButton({ data }: AppointmentButtonProps) {
         </Dropdown.Trigger>
         <Dropdown.Popover>
           <Dropdown.Menu aria-label="Acciones de cita">
-            <Dropdown.Item key="edit" className="text-warning hover:text-white" onClick={handleEdit}>
-              Editar
+            <Dropdown.Item key="view" className="text-primary hover:text-white" onClick={handleView}>
+              Ver Detalle
             </Dropdown.Item>
             <Dropdown.Item key="delete" className="text-danger hover:text-white" onClick={handleDeleteClick}>
               Eliminar

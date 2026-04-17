@@ -1,6 +1,7 @@
 import { Button } from "@heroui/react";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 
 interface HeaderProps {
   readonly toggleSidebar: () => void;
@@ -8,6 +9,7 @@ interface HeaderProps {
 
 export function Header({ toggleSidebar }: HeaderProps) {
   const { setTheme, resolvedTheme } = useTheme();
+  const { name } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -29,6 +31,14 @@ export function Header({ toggleSidebar }: HeaderProps) {
       </Button>
 
       <div className="flex items-center gap-4">
+        {/* User name */}
+        {name && (
+          <span className="hidden sm:flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <i className="bi bi-person-circle text-blue-600" />
+            {name}
+          </span>
+        )}
+
         {mounted ? (
           <Button
             aria-label="Alternar tema"

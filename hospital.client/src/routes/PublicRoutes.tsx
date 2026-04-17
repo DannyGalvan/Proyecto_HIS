@@ -29,7 +29,7 @@ import { CreateBranchSpecialtyPage } from "../pages/branch-specialty/CreateBranc
 // Appointment pages
 import { AppointmentPage } from "../pages/appointment/AppointmentPage";
 import { CreateAppointmentPage } from "../pages/appointment/CreateAppointmentPage";
-import { UpdateAppointmentPage } from "../pages/appointment/UpdateAppointmentPage";
+import { AppointmentViewPage } from "../pages/appointment/AppointmentViewPage";
 
 // Vital Sign pages
 import { VitalSignPage } from "../pages/vital-sign/VitalSignPage";
@@ -210,8 +210,8 @@ export const PublicRoutes: RouteObject[] = [
     element: <ProtectedPublic><CreateAppointmentPage /></ProtectedPublic>,
   },
   {
-    path: `${nameRoutes.appointmentUpdate}/:id`,
-    element: <ProtectedPublic><UpdateAppointmentPage /></ProtectedPublic>,
+    path: `${nameRoutes.appointmentView}/:id`,
+    element: <ProtectedPublic><AppointmentViewPage /></ProtectedPublic>,
   },
   // Vital Signs
   {

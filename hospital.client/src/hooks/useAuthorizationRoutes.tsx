@@ -7,14 +7,29 @@ import { ErrorRoutes } from "../routes/ErrorRoutes";
 import { PublicRoutes } from "../routes/PublicRoutes";
 import { PortalRoutes } from "../routes/PortalRoutes";
 import { useAuth } from "./useAuth";
+import { getRoleFromToken } from "../utils/jwt";
 
-// Index route component: redirect to portal if not admin-logged-in,
-// otherwise redirect to admin dashboard
+// Index route: redirect based on role or to portal if not logged in
 function RootIndex() {
-  const { isLoggedIn } = useAuth();
-  return isLoggedIn
-    ? <Navigate to={nameRoutes.doctorDashboard} replace />
-    : <Navigate to={nameRoutes.portalHome} replace />;
+  const { isLoggedIn, token } = useAuth();
+
+  if (!isLoggedIn) {
+    return <Navigate to={nameRoutes.portalHome} replace />;
+  }
+
+  const role = token ? getRoleFromToken(token) : null;
+
+  switch (role) {
+    case "Medico":
+      return <Navigate to={nameRoutes.doctorDashboard} replace />;
+    case "Enfermero":
+      return <Navigate to={nameRoutes.nurseDashboard} replace />;
+    case "Paciente":
+      return <Navigate to={nameRoutes.portalDashboard} replace />;
+    default:
+      // SA, Recepcionista, Cajero, etc. → admin dashboard
+      return <Navigate to={nameRoutes.adminDashboard} replace />;
+  }
 }
 
 export const useAuthorizationRoutes = () => {

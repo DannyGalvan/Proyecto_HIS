@@ -41,6 +41,7 @@ export const nameRoutes = {
   appointment: "/appointment",
   appointmentCreate: "/appointment/create",
   appointmentUpdate: "/appointment/update",
+  appointmentView: "/appointment/view",
   // Vital Signs
   vitalSign: "/vital-sign",
   vitalSignCreate: "/vital-sign/create",
