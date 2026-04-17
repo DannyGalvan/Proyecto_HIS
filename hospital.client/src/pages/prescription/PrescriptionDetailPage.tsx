@@ -7,6 +7,7 @@ import { Response } from "../../components/messages/Response";
 import { AsyncButton } from "../../components/button/AsyncButton";
 import { useForm } from "../../hooks/useForm";
 import { useAuth } from "../../hooks/useAuth";
+import { nameRoutes } from "../../configs/constants";
 import {
   createPrescription,
   createPrescriptionItem,
@@ -14,6 +15,7 @@ import {
   getPrescriptionById,
   getPrescriptionItems,
 } from "../../services/prescriptionService";
+import { getMedicalConsultations } from "../../services/medicalConsultationService";
 import type { PrescriptionRequest } from "../../types/PrescriptionResponse";
 import type { PrescriptionItemRequest } from "../../types/PrescriptionItemResponse";
 import { validatePrescription, validatePrescriptionItem } from "../../validations/prescriptionValidation";
@@ -98,14 +100,33 @@ export function PrescriptionDetailPage() {
   // Modo creación desde dashboard
   const appointmentId = searchParams.get("appointmentId");
   const doctorId = searchParams.get("doctorId") ?? String(userId);
+  const patientNameParam = searchParams.get("patientName");
   const isCreating = !id;
+  const fromDoctorDashboard = !!appointmentId;
+
+  // Look up the completed consultation for this appointment
+  const { data: consultationData } = useQuery({
+    queryKey: ["consultation-for-prescription", appointmentId],
+    queryFn: () => getMedicalConsultations({
+      pageNumber: 1,
+      pageSize: 1,
+      filters: `AppointmentId:eq:${appointmentId} AND ConsultationStatus:eq:1 AND State:eq:1`,
+      include: null,
+      includeTotal: false,
+    }),
+    enabled: !!appointmentId && isCreating,
+  });
+
+  const resolvedConsultationId = consultationData?.success && consultationData.data.length > 0
+    ? consultationData.data[0].id
+    : null;
 
   // Estado para nueva receta
   const [prescriptionId, setPrescriptionId] = useState<number | null>(isCreating ? null : Number(id));
   const [isCreatingPrescription, setIsCreatingPrescription] = useState(false);
 
   const initialPrescription: PrescriptionRequest = {
-    consultationId: null,
+    consultationId: resolvedConsultationId,
     doctorId: Number(doctorId),
     prescriptionDate: new Date().toISOString().split("T")[0],
     notes: "",
@@ -118,6 +139,10 @@ export function PrescriptionDetailPage() {
       if (response.success && response.data) {
         setPrescriptionId((response.data as { id: number }).id);
         toast.success("Receta creada. Ahora puede agregar medicamentos.");
+        if (fromDoctorDashboard) {
+          // After creating prescription, stay on page to add medicines
+          // The "Volver" button will go back to dashboard
+        }
       }
       return response;
     });
@@ -171,13 +196,23 @@ export function PrescriptionDetailPage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex items-center gap-3 mb-6">
-        <Button size="sm" variant="secondary" onPress={() => navigate(-1)}>
+        <Button size="sm" variant="secondary" onPress={() => fromDoctorDashboard ? navigate(nameRoutes.doctorDashboard) : navigate(-1)}>
           <i className="bi bi-arrow-left mr-1" /> Volver
         </Button>
         <h1 className="text-2xl font-bold">
           {prescriptionId ? `Receta #${prescriptionId}` : "Nueva Receta Médica"}
         </h1>
       </div>
+
+      {/* Patient context banner when coming from doctor dashboard */}
+      {fromDoctorDashboard && patientNameParam && (
+        <div className="mb-4 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 dark:bg-blue-900/20 dark:border-blue-700">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            <i className="bi bi-person-check mr-2" />
+            Receta para: <strong>{patientNameParam}</strong>
+          </p>
+        </div>
+      )}
 
       {/* Crear receta si no existe */}
       {!prescriptionId && (
@@ -186,11 +221,13 @@ export function PrescriptionDetailPage() {
           {success != null && <Response message={message} type={success} />}
           <Form className="flex flex-col gap-4" validationErrors={errors} onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <TextField isRequired className="flex flex-col gap-1" isInvalid={!!errors?.consultationId} name="consultationId" onChange={handleTextChange("consultationId")}>
-                <Label className="font-bold">ID de Consulta *</Label>
-                <Input className="px-3 py-2 border rounded-md" type="number" value={form.consultationId?.toString() || ""} />
-                {errors?.consultationId ? <FieldError>{errors.consultationId as string}</FieldError> : null}
-              </TextField>
+              {!fromDoctorDashboard && (
+                <TextField isRequired className="flex flex-col gap-1" isInvalid={!!errors?.consultationId} name="consultationId" onChange={handleTextChange("consultationId")}>
+                  <Label className="font-bold">ID de Consulta *</Label>
+                  <Input className="px-3 py-2 border rounded-md" type="number" value={form.consultationId?.toString() || ""} />
+                  {errors?.consultationId ? <FieldError>{errors.consultationId as string}</FieldError> : null}
+                </TextField>
+              )}
               <TextField isRequired className="flex flex-col gap-1" isInvalid={!!errors?.prescriptionDate} name="prescriptionDate" onChange={handleTextChange("prescriptionDate")}>
                 <Label className="font-bold">Fecha de Receta *</Label>
                 <Input className="px-3 py-2 border rounded-md" type="date" value={form.prescriptionDate || ""} />

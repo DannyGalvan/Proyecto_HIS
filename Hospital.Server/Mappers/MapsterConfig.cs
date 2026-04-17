@@ -334,7 +334,9 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
                 .Map(dest => dest.Specialty, src => src.Specialty)
                 .Map(dest => dest.Branch, src => src.Branch)
-                .Map(dest => dest.AppointmentStatus, src => src.AppointmentStatus);
+                .Map(dest => dest.AppointmentStatus, src => src.AppointmentStatus)
+                .Map(dest => dest.Patient, src => src.Patient)
+                .Map(dest => dest.Doctor, src => src.Doctor);
 
             TypeAdapterConfig<Appointment, Appointment>.NewConfig();
 

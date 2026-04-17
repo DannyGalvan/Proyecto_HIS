@@ -15,9 +15,11 @@ interface MedicalConsultationFormProps {
   readonly type: "create" | "edit";
   readonly initialForm: MedicalConsultationRequest;
   readonly onSubmit: (form: MedicalConsultationRequest) => Promise<ApiResponse<unknown | ValidationFailure[]>>;
+  readonly fromDoctorDashboard?: boolean;
+  readonly patientName?: string;
 }
 
-export function MedicalConsultationForm({ type, initialForm, onSubmit }: MedicalConsultationFormProps) {
+export function MedicalConsultationForm({ type, initialForm, onSubmit, fromDoctorDashboard = false, patientName }: MedicalConsultationFormProps) {
   const isEditing = type === "edit";
   const navigate = useNavigate();
 
@@ -46,22 +48,36 @@ export function MedicalConsultationForm({ type, initialForm, onSubmit }: Medical
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">
+      <h1 className="text-2xl font-bold text-center mb-2">
         {isEditing ? "Editar Consulta Médica" : "Nueva Consulta Médica"}
       </h1>
+      {fromDoctorDashboard && patientName && (
+        <div className="mb-4 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-center dark:bg-blue-900/20 dark:border-blue-700">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            <i className="bi bi-person-check mr-2" />
+            Consulta para: <strong>{patientName}</strong>
+          </p>
+          <p className="text-xs text-blue-500 mt-0.5">Cita #{initialForm.appointmentId}</p>
+        </div>
+      )}
       {success != null && <Response message={message} type={success} />}
       <Form className="flex flex-col gap-4" validationErrors={errors} onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.appointmentId} name="appointmentId" onChange={handleTextChange("appointmentId")}>
-            <Label className="font-bold">ID de Cita</Label>
-            <Input className="w-full px-3 py-2 border rounded-md" type="number" value={form.appointmentId?.toString() || ""} />
-            {errors?.appointmentId ? <FieldError>{errors.appointmentId as string}</FieldError> : null}
-          </TextField>
-          <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.doctorId} name="doctorId" onChange={handleTextChange("doctorId")}>
-            <Label className="font-bold">ID Médico</Label>
-            <Input className="w-full px-3 py-2 border rounded-md" type="number" value={form.doctorId?.toString() || ""} />
-            {errors?.doctorId ? <FieldError>{errors.doctorId as string}</FieldError> : null}
-          </TextField>
+          {/* Hide manual ID fields when coming from doctor dashboard */}
+          {!fromDoctorDashboard && (
+            <>
+              <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.appointmentId} name="appointmentId" onChange={handleTextChange("appointmentId")}>
+                <Label className="font-bold">ID de Cita</Label>
+                <Input className="w-full px-3 py-2 border rounded-md" type="number" value={form.appointmentId?.toString() || ""} />
+                {errors?.appointmentId ? <FieldError>{errors.appointmentId as string}</FieldError> : null}
+              </TextField>
+              <TextField isRequired className="w-full flex flex-col gap-1" isInvalid={!!errors?.doctorId} name="doctorId" onChange={handleTextChange("doctorId")}>
+                <Label className="font-bold">ID Médico</Label>
+                <Input className="w-full px-3 py-2 border rounded-md" type="number" value={form.doctorId?.toString() || ""} />
+                {errors?.doctorId ? <FieldError>{errors.doctorId as string}</FieldError> : null}
+              </TextField>
+            </>
+          )}
           <TextField isRequired className="w-full flex flex-col gap-1 md:col-span-2" isInvalid={!!errors?.reasonForVisit} name="reasonForVisit" onChange={handleTextChange("reasonForVisit")}>
             <Label className="font-bold">Motivo de Visita</Label>
             <Input className="w-full px-3 py-2 border rounded-md" type="text" value={form.reasonForVisit || ""} />
@@ -183,7 +199,7 @@ export function MedicalConsultationForm({ type, initialForm, onSubmit }: Medical
               </button>
             </div>
           )}
-          <AsyncButton className="font-bold" isLoading={false} size="lg" type="button" variant="secondary" onClick={() => navigate("/medical-consultation")}>
+          <AsyncButton className="font-bold" isLoading={false} size="lg" type="button" variant="secondary" onClick={() => navigate(fromDoctorDashboard ? "/dashboard" : "/medical-consultation")}>
             Cancelar
           </AsyncButton>
           <AsyncButton className="font-bold" isLoading={loading} loadingText={isEditing ? "Actualizando..." : "Guardando..."} size="lg" type="submit" variant="primary">

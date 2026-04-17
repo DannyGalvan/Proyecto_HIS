@@ -26,5 +26,7 @@ namespace Hospital.Server.Entities.Response
         public virtual SpecialtyResponse? Specialty { get; set; }
         public virtual BranchResponse? Branch { get; set; }
         public virtual AppointmentStatusResponse? AppointmentStatus { get; set; }
+        public virtual UserResponse? Patient { get; set; }
+        public virtual UserResponse? Doctor { get; set; }
     }
 }

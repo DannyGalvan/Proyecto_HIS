@@ -168,13 +168,13 @@ export function DoctorDashboardPage() {
           noShowMutation.mutate(appt);
           break;
         case "consultation":
-          navigate(`/medical-consultation/create?appointmentId=${appt.id}&doctorId=${userId}`);
+          navigate(`/medical-consultation/create?appointmentId=${appt.id}&doctorId=${userId}&patientName=${encodeURIComponent(appt.patient?.name ?? "")}`);
           break;
         case "prescription":
-          navigate(`/prescription/create?appointmentId=${appt.id}&doctorId=${userId}`);
+          navigate(`/prescription/create?appointmentId=${appt.id}&doctorId=${userId}&patientName=${encodeURIComponent(appt.patient?.name ?? "")}`);
           break;
         case "lab-order":
-          navigate(`/lab-order/create?appointmentId=${appt.id}&doctorId=${userId}&patientId=${appt.patientId}`);
+          navigate(`/lab-order/create?appointmentId=${appt.id}&doctorId=${userId}&patientId=${appt.patientId}&patientName=${encodeURIComponent(appt.patient?.name ?? "")}`);
           break;
       }
     },

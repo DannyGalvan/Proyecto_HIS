@@ -83,6 +83,10 @@ namespace Hospital.Server.Configs.Extensions
             services.AddScoped<IEntityAfterCreateInterceptor<LabOrder, LabOrderRequest>, LabOrderAfterCreateInterceptor>();
             services.AddScoped<IEntityAfterCreateInterceptor<Dispense, DispenseRequest>, DispenseAfterCreateInterceptor>();
 
+            // Prescription and LabOrder require a completed consultation
+            services.AddScoped<IEntityBeforeCreateInterceptor<Prescription, PrescriptionRequest>, PrescriptionBeforeCreateInterceptor>();
+            services.AddScoped<IEntityBeforeCreateInterceptor<LabOrder, LabOrderRequest>, LabOrderBeforeCreateInterceptor>();
+
             // security services
             services.AddScoped<ISecurityAuthService, SecurityAuthService>();
             // SessionAuthService and SessionAuthorizationFilter removed - using JWT authorization

@@ -12,6 +12,10 @@ import type { SingleValue } from "react-select";
 
 interface LabOrderFormProps {
   readonly initialConsultationId?: number | null;
+  readonly initialDoctorId?: number | null;
+  readonly initialPatientId?: number | null;
+  readonly fromDoctorDashboard?: boolean;
+  readonly patientName?: string;
   readonly onSuccess?: (labOrderId: number) => void;
 }
 
@@ -35,11 +39,11 @@ const newItemRow = (): LabOrderItemRow => ({
   amount: 1,
 });
 
-export function LabOrderForm({ initialConsultationId, onSuccess }: LabOrderFormProps) {
+export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPatientId, fromDoctorDashboard = false, patientName, onSuccess }: LabOrderFormProps) {
   const [form, setForm] = useState<LabOrderFormState>({
     consultationId: initialConsultationId ?? null,
-    doctorId: null,
-    patientId: null,
+    doctorId: initialDoctorId ?? null,
+    patientId: initialPatientId ?? null,
     isExternal: false,
     notes: "",
   });
@@ -165,7 +169,16 @@ export function LabOrderForm({ initialConsultationId, onSuccess }: LabOrderFormP
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">Nueva Orden de Laboratorio</h1>
+      <h1 className="text-2xl font-bold text-center mb-2">Nueva Orden de Laboratorio</h1>
+
+      {fromDoctorDashboard && patientName && (
+        <div className="mb-4 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-center dark:bg-blue-900/20 dark:border-blue-700">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            <i className="bi bi-flask mr-2" />
+            Orden para: <strong>{patientName}</strong>
+          </p>
+        </div>
+      )}
 
       {submitError && <Response message={submitError} type={false} />}
       {submitSuccess && <Response message={submitSuccess} type={true} />}
@@ -173,39 +186,23 @@ export function LabOrderForm({ initialConsultationId, onSuccess }: LabOrderFormP
       <Form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         {/* ── Header fields ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextField className="flex flex-col gap-1" name="consultationId">
-            <Label className="font-bold text-sm">ID de Consulta (opcional)</Label>
-            <Input
-              className="px-3 py-2 border rounded-md"
-              name="consultationId"
-              type="number"
-              value={form.consultationId?.toString() ?? ""}
-              onChange={handleChange}
-            />
-          </TextField>
-
-          <TextField isRequired className="flex flex-col gap-1" name="doctorId">
-            <Label className="font-bold text-sm">ID del Médico *</Label>
-            <Input
-              className="px-3 py-2 border rounded-md"
-              name="doctorId"
-              type="number"
-              value={form.doctorId?.toString() ?? ""}
-              onChange={handleChange}
-            />
-          </TextField>
-
-          <TextField isRequired className="flex flex-col gap-1" name="patientId">
-            <Label className="font-bold text-sm">ID del Paciente *</Label>
-            <Input
-              className="px-3 py-2 border rounded-md"
-              name="patientId"
-              type="number"
-              value={form.patientId?.toString() ?? ""}
-              onChange={handleChange}
-            />
-          </TextField>
-
+          {/* Only show manual ID fields when NOT coming from doctor dashboard */}
+          {!fromDoctorDashboard && (
+            <>
+              <TextField className="flex flex-col gap-1" name="consultationId">
+                <Label className="font-bold text-sm">ID de Consulta (opcional)</Label>
+                <Input className="px-3 py-2 border rounded-md" name="consultationId" type="number" value={form.consultationId?.toString() ?? ""} onChange={handleChange} />
+              </TextField>
+              <TextField isRequired className="flex flex-col gap-1" name="doctorId">
+                <Label className="font-bold text-sm">ID del Médico *</Label>
+                <Input className="px-3 py-2 border rounded-md" name="doctorId" type="number" value={form.doctorId?.toString() ?? ""} onChange={handleChange} />
+              </TextField>
+              <TextField isRequired className="flex flex-col gap-1" name="patientId">
+                <Label className="font-bold text-sm">ID del Paciente *</Label>
+                <Input className="px-3 py-2 border rounded-md" name="patientId" type="number" value={form.patientId?.toString() ?? ""} onChange={handleChange} />
+              </TextField>
+            </>
+          )}
           <div className="flex flex-col gap-1">
             <label className="font-bold text-sm">Estado</label>
             <input
