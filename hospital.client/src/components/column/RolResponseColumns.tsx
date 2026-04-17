@@ -1,6 +1,7 @@
 import type { RolResponse } from "../../types/RolResponse";
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import { RolButton } from "../button/RolButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const RolResponseColumns: TableColumnWithFilters<RolResponse>[] = [
   {
@@ -54,7 +55,7 @@ export const RolResponseColumns: TableColumnWithFilters<RolResponse>[] = [
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,
@@ -62,7 +63,7 @@ export const RolResponseColumns: TableColumnWithFilters<RolResponse>[] = [
   {
     id: "updatedAt",
     name: "Actualizado",
-    selector: (data) => data.updatedAt ?? "",
+    selector: (data) => formatDateTime(data.updatedAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

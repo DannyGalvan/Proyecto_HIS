@@ -2,6 +2,7 @@ import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters"
 import type { InventoryMovementResponse } from "../../types/InventoryMovementResponse";
 import { MovementTypeLabels } from "../../types/InventoryMovementResponse";
 import { InventoryMovementButton } from "../button/InventoryMovementButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 function MovementTypeBadge({ movementType }: { readonly movementType: number }) {
   const info = MovementTypeLabels[movementType] ?? { label: "Desconocido", color: "bg-gray-100 text-gray-800" };
@@ -16,7 +17,7 @@ export const InventoryMovementResponseColumns: TableColumnWithFilters<InventoryM
   {
     id: "createdAt",
     name: "Fecha/Hora",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     wrap: true,
     omit: false,

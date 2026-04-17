@@ -2,6 +2,7 @@ import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters"
 import type { MedicineResponse } from "../../types/MedicineResponse";
 import { MedicineButton } from "../button/MedicineButton";
 import { MedicineControlledBadge } from "../badge/MedicineControlledBadge";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const MedicineResponseColumns: TableColumnWithFilters<MedicineResponse>[] = [
   {
@@ -80,7 +81,7 @@ export const MedicineResponseColumns: TableColumnWithFilters<MedicineResponse>[]
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

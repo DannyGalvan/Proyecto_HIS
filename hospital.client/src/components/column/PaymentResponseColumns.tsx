@@ -1,5 +1,6 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { PaymentResponse } from "../../types/PaymentResponse";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 const paymentMethodLabel: Record<number, string> = {
   0: "Efectivo",
@@ -81,7 +82,7 @@ export const PaymentResponseColumns: TableColumnWithFilters<PaymentResponse>[] =
   {
     id: "paymentDate",
     name: "Fecha",
-    selector: (data) => data.paymentDate ?? "",
+    selector: (data) => formatDateTime(data.paymentDate),
     sortable: true,
     wrap: true,
     omit: false,
@@ -90,7 +91,7 @@ export const PaymentResponseColumns: TableColumnWithFilters<PaymentResponse>[] =
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

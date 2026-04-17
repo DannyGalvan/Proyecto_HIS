@@ -14,6 +14,7 @@ import { getUsers } from "../../services/userService";
 import { DynamicCalendar } from "../../components/portal/DynamicCalendar";
 import { CatalogueSelect } from "../../components/select/CatalogueSelect";
 import { useAuth } from "../../hooks/useAuth";
+import { formatDateLong, formatTime } from "../../utils/dateFormatter";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
 import type { BranchResponse } from "../../types/BranchResponse";
 import type { DoctorResponse } from "../../types/PatientPortalTypes";
@@ -442,14 +443,7 @@ function Step5Slot({
         <p className="mb-4 text-sm font-medium text-green-600">
           <i className="bi bi-check-circle mr-1" />
           Horario seleccionado:{" "}
-          {selectedSlot.toLocaleString("es-GT", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatDateLong(selectedSlot.toISOString())}
         </p>
       )}
 
@@ -531,16 +525,8 @@ function Step6Confirm({
     }
   }, [reason, onConfirm]);
 
-  const formattedDate = summary.appointmentDate.toLocaleDateString("es-GT", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-  const formattedTime = summary.appointmentDate.toLocaleTimeString("es-GT", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const formattedDate = formatDateLong(summary.appointmentDate.toISOString());
+  const formattedTime = formatTime(summary.appointmentDate.toISOString());
 
   return (
     <div>

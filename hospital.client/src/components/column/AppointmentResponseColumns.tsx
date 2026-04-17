@@ -2,6 +2,7 @@ import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters"
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 import { AppointmentButton } from "../button/AppointmentButton";
 import { AppointmentStatusBadge } from "../badge/AppointmentStatusBadge";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const AppointmentResponseColumns: TableColumnWithFilters<AppointmentResponse>[] = [
   {
@@ -45,7 +46,7 @@ export const AppointmentResponseColumns: TableColumnWithFilters<AppointmentRespo
   {
     id: "appointmentDate",
     name: "Fecha",
-    selector: (data) => data.appointmentDate ?? "",
+    selector: (data) => formatDateTime(data.appointmentDate),
     sortable: true,
     wrap: true,
     omit: false,
@@ -80,7 +81,7 @@ export const AppointmentResponseColumns: TableColumnWithFilters<AppointmentRespo
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

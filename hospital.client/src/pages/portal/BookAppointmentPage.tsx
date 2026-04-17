@@ -7,6 +7,7 @@ import { getDoctorsByBranchAndSpecialty, getSpecialtiesByBranch, bookAppointment
 import { getBranches } from "../../services/branchService";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
 import { DynamicCalendar } from "../../components/portal/DynamicCalendar";
+import { formatDateLong, formatTime } from "../../utils/dateFormatter";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
 import type { BranchResponse } from "../../types/BranchResponse";
 import type { DoctorResponse } from "../../types/PatientPortalTypes";
@@ -175,7 +176,7 @@ function Step4Slot({ doctorId, doctorName, specialtyName, branchName, onSelect, 
       {selectedSlot && (
         <p className="mb-4 text-sm text-green-600 font-medium">
           <i className="bi bi-check-circle mr-1" />
-          Horario seleccionado: {selectedSlot.toLocaleString("es-GT", { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+          Horario seleccionado: {formatDateLong(selectedSlot.toISOString())}
         </p>
       )}
       <div className="flex items-center justify-between">
@@ -207,8 +208,8 @@ function Step5Confirm({ summary, onBack, onConfirm }: { readonly summary: Summar
     catch (err: unknown) { setApiError(err instanceof Error ? err.message : "Error al confirmar la cita."); }
     finally { setIsSubmitting(false); }
   }, [reason, onConfirm]);
-  const formattedDate = summary.appointmentDate.toLocaleDateString("es-GT", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-  const formattedTime = summary.appointmentDate.toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit" });
+  const formattedDate = formatDateLong(summary.appointmentDate.toISOString());
+  const formattedTime = formatTime(summary.appointmentDate.toISOString());
   return (
     <div>
       <h2 className="mb-1 text-xl font-bold text-gray-800 dark:text-gray-100">Confirmar Cita</h2>

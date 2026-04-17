@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { VitalSignResponse } from "../../types/VitalSignResponse";
 import { VitalSignButton } from "../button/VitalSignButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const VitalSignResponseColumns: TableColumnWithFilters<VitalSignResponse>[] = [
   {
@@ -88,7 +89,7 @@ export const VitalSignResponseColumns: TableColumnWithFilters<VitalSignResponse>
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

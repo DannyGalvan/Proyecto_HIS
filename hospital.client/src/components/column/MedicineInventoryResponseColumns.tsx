@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { MedicineInventoryResponse } from "../../types/MedicineInventoryResponse";
 import { MedicineInventoryButton } from "../button/MedicineInventoryButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const MedicineInventoryResponseColumns: TableColumnWithFilters<MedicineInventoryResponse>[] = [
   {
@@ -88,7 +89,7 @@ export const MedicineInventoryResponseColumns: TableColumnWithFilters<MedicineIn
   {
     id: "updatedAt",
     name: "Actualizado",
-    selector: (data) => data.updatedAt ?? "",
+    selector: (data) => formatDateTime(data.updatedAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

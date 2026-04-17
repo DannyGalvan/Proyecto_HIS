@@ -8,6 +8,7 @@ import { useReservationTimer } from "../../hooks/useReservationTimer";
 import { getBranches } from "../../services/branchService";
 import { getSpecialties } from "../../services/specialtyService";
 import { getUsers } from "../../services/userService";
+import { formatDateTimeLong } from "../../utils/dateFormatter";
 import type { ApiResponse } from "../../types/ApiResponse";
 import type { AppointmentRequest, AppointmentResponse } from "../../types/AppointmentResponse";
 import type { BranchResponse } from "../../types/BranchResponse";
@@ -121,7 +122,7 @@ function ConfirmationStep({ state, onExpiry, onSubmit, loading, submitError }: C
         <SummaryRow
           label="Fecha y hora"
           value={state.appointmentDate
-            ? new Date(state.appointmentDate).toLocaleString("es-GT")
+            ? formatDateTimeLong(state.appointmentDate)
             : "—"}
         />
         <SummaryRow label="Motivo" value={state.reason} />
@@ -391,14 +392,7 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
                   <p className="text-sm text-green-600 font-medium ms-1">
                     <i className="bi bi-check-circle mr-1" />
                     Horario seleccionado:{" "}
-                    {new Date(formState.appointmentDate).toLocaleString("es-GT", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatDateTimeLong(formState.appointmentDate)}
                   </p>
                 )}
               </div>

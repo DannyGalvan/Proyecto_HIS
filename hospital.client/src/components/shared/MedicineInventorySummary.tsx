@@ -4,6 +4,7 @@ import { getInventoryMovements } from "../../services/inventoryMovementService";
 import type { InventoryMovementResponse } from "../../types/InventoryMovementResponse";
 import { MovementTypeLabels } from "../../types/InventoryMovementResponse";
 import type { MedicineInventoryResponse } from "../../types/MedicineInventoryResponse";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 interface MedicineInventorySummaryProps {
   readonly data: MedicineInventoryResponse;
@@ -22,21 +23,6 @@ function getMonthDateRange(): { start: string; end: string } {
     start: start.toISOString().split("T")[0],
     end: end.toISOString().split("T")[0],
   };
-}
-
-function formatDate(dateStr: string): string {
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("es-GT", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return dateStr;
-  }
 }
 
 export function MedicineInventorySummary({ data }: MedicineInventorySummaryProps) {
@@ -155,7 +141,7 @@ export function MedicineInventorySummary({ data }: MedicineInventorySummaryProps
                 {MovementTypeLabels[lastMovement.movementType]?.label ?? "Desconocido"}
               </span>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {formatDate(lastMovement.createdAt)} — {lastMovement.quantity} uds.
+                {formatDateTime(lastMovement.createdAt)} — {lastMovement.quantity} uds.
               </p>
               {lastMovement.user?.name && (
                 <p className="text-xs text-gray-400 dark:text-gray-500">

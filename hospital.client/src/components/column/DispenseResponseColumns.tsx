@@ -2,6 +2,7 @@ import { Button } from "@heroui/react";
 import { useNavigate } from "react-router";
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { DispenseResponse } from "../../types/DispenseResponse";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 function DispenseButton({ data }: { readonly data: DispenseResponse }) {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export const DispenseResponseColumns: TableColumnWithFilters<DispenseResponse>[]
   {
     id: "dispenseDate",
     name: "Fecha de Despacho",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     wrap: true,
     omit: false,

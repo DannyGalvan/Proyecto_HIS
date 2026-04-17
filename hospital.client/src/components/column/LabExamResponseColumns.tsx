@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { LabExamResponse } from "../../types/LabExamResponse";
 import { LabExamButton } from "../button/LabExamButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const LabExamResponseColumns: TableColumnWithFilters<LabExamResponse>[] = [
   {
@@ -70,7 +71,7 @@ export const LabExamResponseColumns: TableColumnWithFilters<LabExamResponse>[] =
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

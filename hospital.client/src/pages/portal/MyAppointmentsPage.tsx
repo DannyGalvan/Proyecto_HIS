@@ -5,31 +5,7 @@ import { Button, Modal, toast } from "@heroui/react";
 
 import { nameRoutes } from "../../configs/constants";
 import { getMyAppointments, cancelAppointment } from "../../services/patientPortalService";
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const formatDate = (iso: string): string => {
-  try {
-    return new Date(iso).toLocaleDateString("es-GT", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return iso;
-  }
-};
-
-const formatTime = (iso: string): string => {
-  try {
-    return new Date(iso).toLocaleTimeString("es-GT", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "";
-  }
-};
+import { formatDateShort, formatTime, APP_TIMEZONE, APP_LOCALE } from "../../utils/dateFormatter";
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { readonly status: string }) {
@@ -85,10 +61,10 @@ function AppointmentRow({
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/30">
             <span className="text-xs font-bold text-blue-600 dark:text-blue-300">
-              {new Date(appt.appointmentDate).toLocaleDateString("es-GT", { month: "short" }).toUpperCase()}
+              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, { month: "short", timeZone: APP_TIMEZONE }).toUpperCase()}
             </span>
             <span className="text-xl font-bold text-blue-800 dark:text-blue-200">
-              {new Date(appt.appointmentDate).getDate()}
+              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, { day: "numeric", timeZone: APP_TIMEZONE })}
             </span>
           </div>
           <div>
@@ -132,7 +108,7 @@ function AppointmentRow({
 
       {/* Full date on mobile */}
       <p className="mt-2 text-xs text-gray-400 dark:text-gray-500 sm:hidden">
-        {formatDate(appt.appointmentDate)}
+        {formatDateShort(appt.appointmentDate)}
       </p>
     </div>
   );

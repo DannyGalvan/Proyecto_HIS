@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { getAppointments } from "../../services/appointmentService";
 import { nameRoutes } from "../../configs/constants";
+import { formatDateLong } from "../../utils/dateFormatter";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 
 const statusColors: Record<string, string> = {
@@ -140,7 +141,7 @@ export function AdminDashboardPage() {
         </span>
       </div>
       <p className="text-gray-500 text-sm mb-6">
-        Resumen de operaciones del día — {todayStart.toLocaleDateString("es-GT", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+        Resumen de operaciones del día — {formatDateLong(todayStart.toISOString())}
       </p>
 
       {isLoading && <LoadingComponent />}

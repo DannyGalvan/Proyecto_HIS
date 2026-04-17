@@ -1,5 +1,4 @@
 using Hospital.Server.Context;
-using Hospital.Server.Entities.Models;
 using Hospital.Server.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

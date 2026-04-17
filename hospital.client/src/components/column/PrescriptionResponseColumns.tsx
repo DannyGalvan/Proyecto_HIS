@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { PrescriptionResponse } from "../../types/PrescriptionResponse";
 import { PrescriptionButton } from "../button/PrescriptionButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const PrescriptionResponseColumns: TableColumnWithFilters<PrescriptionResponse>[] = [
   {
@@ -35,7 +36,7 @@ export const PrescriptionResponseColumns: TableColumnWithFilters<PrescriptionRes
   {
     id: "prescriptionDate",
     name: "Fecha",
-    selector: (data) => data.prescriptionDate ?? "",
+    selector: (data) => formatDateTime(data.prescriptionDate),
     sortable: true,
     wrap: true,
     omit: false,

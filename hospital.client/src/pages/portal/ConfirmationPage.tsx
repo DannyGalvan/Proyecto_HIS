@@ -3,31 +3,7 @@ import { useLocation, useNavigate } from "react-router";
 import { nameRoutes } from "../../configs/constants";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
 import type { PaymentConfirmationResponse } from "../../types/PatientPortalTypes";
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const formatDate = (iso: string): string => {
-  try {
-    return new Date(iso).toLocaleDateString("es-GT", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return iso;
-  }
-};
-
-const formatTime = (iso: string): string => {
-  try {
-    return new Date(iso).toLocaleTimeString("es-GT", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "";
-  }
-};
+import { formatDateLong, formatTime } from "../../utils/dateFormatter";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export function ConfirmationPage() {
@@ -113,7 +89,7 @@ export function ConfirmationPage() {
                   Fecha de la Cita
                 </dt>
                 <dd className="font-semibold text-gray-800 dark:text-gray-100">
-                  {formatDate(confirmation.appointmentDate)}
+                  {formatDateLong(confirmation.appointmentDate)}
                 </dd>
               </div>
 

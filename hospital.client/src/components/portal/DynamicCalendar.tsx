@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { getDoctorAvailability } from '../../services/patientPortalService';
+import { formatDateLong } from '../../utils/dateFormatter';
 
 interface DynamicCalendarProps {
   doctorId: number;
@@ -111,12 +112,7 @@ export function DynamicCalendar({ doctorId, onSlotSelected }: DynamicCalendarPro
         <div className="mt-2">
           <h3 className="mb-2 font-semibold text-gray-700">
             Horarios disponibles para el{' '}
-            {selectedDate.toLocaleDateString('es-GT', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+            {formatDateLong(selectedDate.toISOString())}
           </h3>
 
           {loading ? (

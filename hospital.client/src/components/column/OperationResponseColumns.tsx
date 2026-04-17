@@ -1,6 +1,7 @@
 import type { OperationResponse } from "../../types/OperationResponse";
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import { OperationButton } from "../button/OperationButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const OperationResponseColumns: TableColumnWithFilters<OperationResponse>[] =
   [
@@ -55,7 +56,7 @@ export const OperationResponseColumns: TableColumnWithFilters<OperationResponse>
     {
       id: "createdAt",
       name: "Creado",
-      selector: (data) => data.createdAt ?? "",
+      selector: (data) => formatDateTime(data.createdAt),
       sortable: true,
       maxWidth: "160px",
       omit: true,
@@ -63,7 +64,7 @@ export const OperationResponseColumns: TableColumnWithFilters<OperationResponse>
     {
       id: "updatedAt",
       name: "Actualizado",
-      selector: (data) => data.updatedAt ?? "",
+      selector: (data) => formatDateTime(data.updatedAt),
       sortable: true,
       maxWidth: "160px",
       omit: true,

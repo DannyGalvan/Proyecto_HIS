@@ -2,6 +2,7 @@ import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters"
 import type { UserResponse } from "../../types/UserResponse";
 import { maskCardNumber } from "../../utils/maskCardNumber";
 import { UserButton } from "../button/UserButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const UserResponseColumns: TableColumnWithFilters<UserResponse>[] = [
   {
@@ -111,7 +112,7 @@ export const UserResponseColumns: TableColumnWithFilters<UserResponse>[] = [
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,
@@ -119,7 +120,7 @@ export const UserResponseColumns: TableColumnWithFilters<UserResponse>[] = [
   {
     id: "updatedAt",
     name: "Actualizado",
-    selector: (data) => data.updatedAt ?? "",
+    selector: (data) => formatDateTime(data.updatedAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

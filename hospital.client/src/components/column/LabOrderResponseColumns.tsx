@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { LabOrderResponse } from "../../types/LabOrderResponse";
 import { LabOrderButton } from "../button/LabOrderButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 const orderStatusLabel: Record<number, string> = {
   0: "Pendiente",
@@ -92,7 +93,7 @@ export const LabOrderResponseColumns: TableColumnWithFilters<LabOrderResponse>[]
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

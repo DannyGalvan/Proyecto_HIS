@@ -6,6 +6,7 @@ import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
 import { ReservationTimer } from "../../components/portal/ReservationTimer";
 import { PaymentForm } from "../../components/portal/PaymentForm";
 import type { PaymentConfirmationResponse } from "../../types/PatientPortalTypes";
+import { formatDateLong, formatTime } from "../../utils/dateFormatter";
 
 // ── Navigation state shape ────────────────────────────────────────────────────
 interface PaymentLocationState {
@@ -17,31 +18,6 @@ interface PaymentLocationState {
   appointmentDate: string;
   amount: number;
 }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const formatDate = (iso: string): string => {
-  try {
-    return new Date(iso).toLocaleDateString("es-GT", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return iso;
-  }
-};
-
-const formatTime = (iso: string): string => {
-  try {
-    return new Date(iso).toLocaleTimeString("es-GT", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "";
-  }
-};
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 // Note: named PortalPaymentPage to avoid collision with admin PaymentPage
@@ -175,7 +151,7 @@ function PortalPaymentContent({
                 <div>
                   <dt className="text-gray-500 dark:text-gray-400">Fecha</dt>
                   <dd className="font-semibold text-gray-800 dark:text-gray-100">
-                    {formatDate(appointmentDate)}
+                    {formatDateLong(appointmentDate)}
                   </dd>
                 </div>
                 <div>

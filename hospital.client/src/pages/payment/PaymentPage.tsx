@@ -12,6 +12,7 @@ import { customStyles } from "../../theme/tableTheme";
 import type { PendingOrderResponse } from "../../types/PendingOrderResponse";
 import type { PaymentRequest } from "../../types/PaymentResponse";
 import { generateIdempotencyKey } from "../../utils/generateIdempotencyKey";
+import { formatDate } from "../../utils/dateFormatter";
 
 type PaymentMethodType = "cash" | "card";
 
@@ -28,18 +29,6 @@ const ORDER_TYPE_LABELS: Record<string, string> = {
 
 function formatCurrency(amount: number): string {
   return `Q ${amount.toFixed(2)}`;
-}
-
-function formatDate(dateStr: string): string {
-  try {
-    return new Date(dateStr).toLocaleDateString("es-GT", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  } catch {
-    return dateStr;
-  }
 }
 
 export function PaymentPage() {

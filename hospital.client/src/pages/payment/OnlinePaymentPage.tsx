@@ -6,6 +6,7 @@ import { PaymentReceipt } from '../../components/shared/PaymentReceipt';
 import { LoadingComponent } from '../../components/spinner/LoadingComponent';
 import { partialUpdateAppointment, getAppointmentById } from '../../services/appointmentService';
 import type { PaymentResponse } from '../../types/PaymentResponse';
+import { formatDateLong } from '../../utils/dateFormatter';
 
 /** appointmentStatusId that corresponds to "Pagada" */
 const PAID_STATUS_ID = 1;
@@ -73,9 +74,7 @@ export function OnlinePaymentPage() {
   const branchName = appointment.branch?.name ?? '—';
 
   const formattedDate = appointment.appointmentDate
-    ? new Date(appointment.appointmentDate).toLocaleDateString('es-GT', {
-        dateStyle: 'long',
-      })
+    ? formatDateLong(appointment.appointmentDate)
     : '—';
 
   // Show receipt after successful payment

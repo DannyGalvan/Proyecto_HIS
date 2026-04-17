@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { BranchSpecialtyResponse } from "../../types/BranchSpecialtyResponse";
 import { BranchSpecialtyButton } from "../button/BranchSpecialtyButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const BranchSpecialtyResponseColumns: TableColumnWithFilters<BranchSpecialtyResponse>[] = [
   {
@@ -51,7 +52,7 @@ export const BranchSpecialtyResponseColumns: TableColumnWithFilters<BranchSpecia
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

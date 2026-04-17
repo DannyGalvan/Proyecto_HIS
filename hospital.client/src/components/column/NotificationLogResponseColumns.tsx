@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { NotificationLogResponse } from "../../types/NotificationLogResponse";
 import { NotificationStatusBadge } from "../badge/NotificationStatusBadge";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 const notificationTypeLabel: Record<number, string> = {
   0: "Confirmación Cita",
@@ -70,7 +71,7 @@ export const NotificationLogResponseColumns: TableColumnWithFilters<Notification
   {
     id: "sentAt",
     name: "Enviado",
-    selector: (data) => data.sentAt ?? "—",
+    selector: (data) => formatDateTime(data.sentAt),
     sortable: true,
     wrap: true,
     omit: false,

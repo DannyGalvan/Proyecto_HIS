@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { MedicalConsultationResponse } from "../../types/MedicalConsultationResponse";
 import { MedicalConsultationButton } from "../button/MedicalConsultationButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 const consultationStatusLabel: Record<number, string> = {
   0: "En curso",
@@ -88,7 +89,7 @@ export const MedicalConsultationResponseColumns: TableColumnWithFilters<MedicalC
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

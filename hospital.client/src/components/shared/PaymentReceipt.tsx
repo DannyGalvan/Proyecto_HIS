@@ -1,4 +1,5 @@
 import type { PaymentResponse } from '../../types/PaymentResponse';
+import { formatDateTimeLong } from '../../utils/dateFormatter';
 
 interface PaymentReceiptProps {
   readonly payment: PaymentResponse;
@@ -18,10 +19,7 @@ export function PaymentReceipt({
   branchName,
 }: PaymentReceiptProps) {
   const formattedDate = payment.paymentDate
-    ? new Date(payment.paymentDate).toLocaleString('es-GT', {
-        dateStyle: 'long',
-        timeStyle: 'short',
-      })
+    ? formatDateTimeLong(payment.paymentDate)
     : '—';
 
   const formattedAmount = new Intl.NumberFormat('es-GT', {

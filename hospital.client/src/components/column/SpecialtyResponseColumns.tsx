@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
 import { SpecialtyButton } from "../button/SpecialtyButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 export const SpecialtyResponseColumns: TableColumnWithFilters<SpecialtyResponse>[] = [
   {
@@ -52,7 +53,7 @@ export const SpecialtyResponseColumns: TableColumnWithFilters<SpecialtyResponse>
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,

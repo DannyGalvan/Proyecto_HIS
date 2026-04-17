@@ -5,31 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { nameRoutes } from "../../configs/constants";
 import { getMyAppointments } from "../../services/patientPortalService";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const formatDate = (iso: string): string => {
-  try {
-    return new Date(iso).toLocaleDateString("es-GT", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return iso;
-  }
-};
-
-const formatTime = (iso: string): string => {
-  try {
-    return new Date(iso).toLocaleTimeString("es-GT", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "";
-  }
-};
+import { formatDateShort, formatTime } from "../../utils/dateFormatter";
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { readonly status: string }) {
@@ -90,7 +66,7 @@ function AppointmentCard({ appt }: { readonly appt: AppointmentItem }) {
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-300">
             <i className="bi bi-calendar3 mr-1" />
-            {formatDate(appt.appointmentDate)} — {formatTime(appt.appointmentDate)}
+            {formatDateShort(appt.appointmentDate)} — {formatTime(appt.appointmentDate)}
           </p>
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">

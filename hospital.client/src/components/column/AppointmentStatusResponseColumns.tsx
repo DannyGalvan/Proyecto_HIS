@@ -1,6 +1,7 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { AppointmentStatusResponse } from "../../types/AppointmentStatusResponse";
 import { AppointmentStatusButton } from "../button/AppointmentStatusButton";
+import { formatDateTime } from "../../utils/dateFormatter";
 
 const statusColors: Record<string, string> = {
   Pagada: "bg-green-100 text-green-800",
@@ -70,7 +71,7 @@ export const AppointmentStatusResponseColumns: TableColumnWithFilters<Appointmen
   {
     id: "createdAt",
     name: "Creado",
-    selector: (data) => data.createdAt ?? "",
+    selector: (data) => formatDateTime(data.createdAt),
     sortable: true,
     maxWidth: "160px",
     omit: true,
