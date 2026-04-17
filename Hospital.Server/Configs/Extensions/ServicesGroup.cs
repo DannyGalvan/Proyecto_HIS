@@ -2,6 +2,7 @@
 using Hospital.Server.Entities.Request;
 using Hospital.Server.Interceptors.Interfaces;
 using Hospital.Server.Interceptors.userInterceptors;
+using Hospital.Server.Interceptors.AppointmentInterceptors;
 using Hospital.Server.Services.Background;
 using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
@@ -39,6 +40,7 @@ namespace Hospital.Server.Configs.Extensions
             services.AddScoped<IEntityService<Specialty, SpecialtyRequest, long>, Services.Core.EntityService<Specialty, SpecialtyRequest, long>>();
             services.AddScoped<IEntityService<Laboratory, LaboratoryRequest, long>, Services.Core.EntityService<Laboratory, LaboratoryRequest, long>>();
             services.AddScoped<IEntityService<Branch, BranchRequest, long>, Services.Core.EntityService<Branch, BranchRequest, long>>();
+            services.AddScoped<IEntityService<BranchSpecialty, BranchSpecialtyRequest, long>, Services.Core.EntityService<BranchSpecialty, BranchSpecialtyRequest, long>>();
             services.AddScoped<IEntityService<AppointmentStatus, AppointmentStatusRequest, long>, Services.Core.EntityService<AppointmentStatus, AppointmentStatusRequest, long>>();
 
             // Core CRUD services
@@ -69,6 +71,17 @@ namespace Hospital.Server.Configs.Extensions
             // User interceptors
             services.AddScoped<IEntityBeforeCreateInterceptor<User, UserRequest>, UserBeforeCreateInterceptor>();
             services.AddScoped<IEntityBeforeUpdateInterceptor<User, UserRequest>, UserBeforeUpdateInterceptor>();
+
+            // Appointment state machine
+            services.AddScoped<IAppointmentStateMachine, AppointmentStateMachine>();
+
+            // Appointment interceptors — enforce state machine on related entity creation
+            services.AddScoped<IEntityBeforeCreateInterceptor<Appointment, AppointmentRequest>, AppointmentBeforeCreateInterceptor>();
+            services.AddScoped<IEntityAfterCreateInterceptor<VitalSign, VitalSignRequest>, VitalSignAfterCreateInterceptor>();
+            services.AddScoped<IEntityAfterCreateInterceptor<MedicalConsultation, MedicalConsultationRequest>, MedicalConsultationAfterCreateInterceptor>();
+            services.AddScoped<IEntityAfterUpdateInterceptor<MedicalConsultation, MedicalConsultationRequest>, MedicalConsultationAfterUpdateInterceptor>();
+            services.AddScoped<IEntityAfterCreateInterceptor<LabOrder, LabOrderRequest>, LabOrderAfterCreateInterceptor>();
+            services.AddScoped<IEntityAfterCreateInterceptor<Dispense, DispenseRequest>, DispenseAfterCreateInterceptor>();
 
             // security services
             services.AddScoped<ISecurityAuthService, SecurityAuthService>();

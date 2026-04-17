@@ -70,6 +70,7 @@ namespace Hospital.Server.Context
         public DbSet<Specialty> Specialties { get; set; }
         public DbSet<Laboratory> Laboratories { get; set; }
         public DbSet<Branch> Branches { get; set; }
+        public DbSet<BranchSpecialty> BranchSpecialties { get; set; }
         public DbSet<AppointmentStatus> AppointmentStatuses { get; set; }
 
         // Core entities

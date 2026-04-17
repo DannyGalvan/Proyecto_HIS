@@ -33,3 +33,23 @@ export const partialUpdateAppointment = async (data: AppointmentRequest): Promis
 
 export const deleteAppointment = async (id: number): Promise<ApiResponse<AppointmentResponse>> =>
   api.delete<unknown, ApiResponse<AppointmentResponse>>(`Appointment/${id}`);
+
+// ── Appointment State Machine Transitions ─────────────────────────────────────
+
+const transition = (id: number, action: string): Promise<ApiResponse<string>> =>
+  api.post<unknown, ApiResponse<string>>(`AppointmentTransition/${id}/${action}`);
+
+/** Nurse: Confirmada → Signos Vitales */
+export const startVitals = (id: number) => transition(id, "start-vitals");
+
+/** Nurse: Signos Vitales → En Espera */
+export const completeVitals = (id: number) => transition(id, "vitals-done");
+
+/** Doctor: En Espera → Consulta Médica */
+export const startConsultation = (id: number) => transition(id, "start-consultation");
+
+/** Doctor: Evaluado/Laboratorio/Farmacia → Atención Finalizada */
+export const finishAppointment = (id: number) => transition(id, "finish");
+
+/** Doctor: Confirmada/En Espera → No Asistió */
+export const markNoShow = (id: number) => transition(id, "no-show");

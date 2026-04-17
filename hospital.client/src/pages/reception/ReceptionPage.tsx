@@ -140,6 +140,15 @@ export function ReceptionPage() {
                         Registrar Llegada
                       </Button>
                     )}
+                    {isPaid && (
+                      <Button
+                        variant="secondary"
+                        onPress={() => navigate(`/appointment/reassign?appointmentId=${appointment.id}`)}
+                      >
+                        <i className="bi bi-person-badge mr-2" />
+                        Reasignar Médico
+                      </Button>
+                    )}
                     {isPaid && appointment.arrivalTime && (
                       <div className="text-green-700 font-semibold text-sm text-center p-2 bg-green-50 rounded-lg border border-green-200">
                         ✅ Llegada registrada

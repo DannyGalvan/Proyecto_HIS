@@ -22,6 +22,10 @@ import { BranchPage } from "../pages/branch/BranchPage";
 import { CreateBranchPage } from "../pages/branch/CreateBranchPage";
 import { UpdateBranchPage } from "../pages/branch/UpdateBranchPage";
 
+// Branch-Specialty pages
+import { BranchSpecialtyPage } from "../pages/branch-specialty/BranchSpecialtyPage";
+import { CreateBranchSpecialtyPage } from "../pages/branch-specialty/CreateBranchSpecialtyPage";
+
 // Appointment pages
 import { AppointmentPage } from "../pages/appointment/AppointmentPage";
 import { CreateAppointmentPage } from "../pages/appointment/CreateAppointmentPage";
@@ -79,6 +83,7 @@ import { PrescriptionDetailPage } from "../pages/prescription/PrescriptionDetail
 
 // Dashboard
 import { DoctorDashboardPage } from "../pages/dashboard/DoctorDashboardPage";
+import { NurseDashboardPage } from "../pages/dashboard/NurseDashboardPage";
 
 // Reception & Cashier
 import { ReceptionPage } from "../pages/reception/ReceptionPage";
@@ -93,6 +98,14 @@ import { RolOperationPage } from "../pages/rol/RolOperationPage";
 // Dispense pages
 import { DispensePage } from "../pages/dispense/DispensePage";
 import { CreateDispensePage } from "../pages/dispense/CreateDispensePage";
+
+// Admin pages
+import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
+import { DoctorManagementPage } from "../pages/admin/DoctorManagementPage";
+import { DoctorTransferPage } from "../pages/admin/DoctorTransferPage";
+
+// Appointment Reassign
+import { AppointmentReassignPage } from "../pages/appointment/AppointmentReassignPage";
 
 // Middlewares
 // PublicOnly is available for future use
@@ -177,6 +190,15 @@ export const PublicRoutes: RouteObject[] = [
   {
     path: `${nameRoutes.branchUpdate}/:id`,
     element: <ProtectedPublic><UpdateBranchPage /></ProtectedPublic>,
+  },
+  // Branch-Specialty assignments
+  {
+    path: nameRoutes.branchSpecialty,
+    element: <ProtectedPublic><BranchSpecialtyPage /></ProtectedPublic>,
+  },
+  {
+    path: nameRoutes.branchSpecialtyCreate,
+    element: <ProtectedPublic><CreateBranchSpecialtyPage /></ProtectedPublic>,
   },
   // Appointments
   {
@@ -323,6 +345,11 @@ export const PublicRoutes: RouteObject[] = [
     path: nameRoutes.doctorDashboard,
     element: <ProtectedPublic><DoctorDashboardPage /></ProtectedPublic>,
   },
+  // Dashboard rol interino (signos vitales)
+  {
+    path: nameRoutes.nurseDashboard,
+    element: <ProtectedPublic><NurseDashboardPage /></ProtectedPublic>,
+  },
   // Recepción
   {
     path: nameRoutes.reception,
@@ -350,5 +377,23 @@ export const PublicRoutes: RouteObject[] = [
   {
     path: `${nameRoutes.dispenseCreate}/:prescriptionId`,
     element: <ProtectedPublic><CreateDispensePage /></ProtectedPublic>,
+  },
+  // Admin
+  {
+    path: nameRoutes.adminDashboard,
+    element: <ProtectedPublic><AdminDashboardPage /></ProtectedPublic>,
+  },
+  {
+    path: nameRoutes.doctorManagement,
+    element: <ProtectedPublic><DoctorManagementPage /></ProtectedPublic>,
+  },
+  {
+    path: nameRoutes.doctorTransfer,
+    element: <ProtectedPublic><DoctorTransferPage /></ProtectedPublic>,
+  },
+  // Appointment Reassign
+  {
+    path: nameRoutes.appointmentReassign,
+    element: <ProtectedPublic><AppointmentReassignPage /></ProtectedPublic>,
   },
 ];

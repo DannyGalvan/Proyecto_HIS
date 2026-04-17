@@ -34,6 +34,9 @@ export const nameRoutes = {
   branch: "/branch",
   branchCreate: "/branch/create",
   branchUpdate: "/branch/update",
+  // Branch-Specialty assignments
+  branchSpecialty: "/branch-specialty",
+  branchSpecialtyCreate: "/branch-specialty/create",
   // Appointments
   appointment: "/appointment",
   appointmentCreate: "/appointment/create",
@@ -79,6 +82,8 @@ export const nameRoutes = {
   prescriptionDetail: "/prescription",
   // Dashboard médico/enfermero
   doctorDashboard: "/dashboard",
+  // Dashboard rol interino (enfermero de signos vitales)
+  nurseDashboard: "/nurse-dashboard",
   // Recepción
   reception: "/reception",
   // Caja
@@ -88,6 +93,11 @@ export const nameRoutes = {
   // Dispense
   dispense: "/dispense",
   dispenseCreate: "/dispense/create",
+  // Admin
+  doctorManagement: "/doctor-management",
+  doctorTransfer: "/doctor-transfer",
+  adminDashboard: "/admin-dashboard",
+  appointmentReassign: "/appointment/reassign",
   // Registro externo
   register: "/register",
   // Portal del paciente

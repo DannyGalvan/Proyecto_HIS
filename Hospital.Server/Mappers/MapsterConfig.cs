@@ -197,6 +197,30 @@ namespace Hospital.Server.Mappers
 
             TypeAdapterConfig<Specialty, Specialty>.NewConfig();
 
+            //Mapper BranchSpecialty
+            TypeAdapterConfig<BranchSpecialtyRequest, BranchSpecialty>.NewConfig()
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<BranchSpecialty, BranchSpecialtyResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.BranchId, src => src.BranchId)
+                .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.Branch, src => src.Branch)
+                .Map(dest => dest.Specialty, src => src.Specialty)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+
+            TypeAdapterConfig<BranchSpecialty, BranchSpecialty>.NewConfig();
+
             //Mapper Laboratory
             TypeAdapterConfig<LaboratoryRequest, Laboratory>.NewConfig()
                 .Map(dest => dest.Name, src => src.Name)

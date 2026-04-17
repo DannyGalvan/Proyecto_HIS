@@ -55,13 +55,31 @@ export const useAuthorizationRoutes = () => {
     nameRoutes.login,
     nameRoutes.changePassword,
     nameRoutes.register,
+    nameRoutes.doctorDashboard,
+    nameRoutes.nurseDashboard,
+    nameRoutes.adminDashboard,
+    nameRoutes.reception,
+    nameRoutes.cashier,
+    nameRoutes.onlinePayment,
+    nameRoutes.doctorManagement,
+    nameRoutes.doctorTransfer,
+    nameRoutes.appointmentReassign,
   ]);
 
   const routesFiltered = routes.routes[0].children?.filter((route) => {
     if (route.index) return true;
     if (!route.path) return true;
-    // Normalize route path too: strip leading slash before comparing
-    const normalizedPath = route.path.toLowerCase().replace(/^\//, "");
+    if (errorPaths.has(route.path)) return true;
+
+    // Normalize route path:
+    // 1. Strip leading slash
+    // 2. Remove dynamic segments like /:id so "/specialty/update/:id" → "specialty/update"
+    const normalizedPath = route.path
+      .toLowerCase()
+      .replace(/^\//, "")
+      .replace(/\/:[^/]+/g, "")   // remove /:param anywhere in the path
+      .replace(/:.*$/, "");        // remove :param at the start (edge case)
+
     if (errorPaths.has(route.path)) return true;
     return operations.has(normalizedPath);
   });

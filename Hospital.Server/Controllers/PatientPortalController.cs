@@ -5,6 +5,7 @@ using Hospital.Server.Context;
 using Hospital.Server.Entities.Models;
 using Hospital.Server.Entities.Request;
 using Hospital.Server.Entities.Response;
+using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -40,6 +41,7 @@ namespace Hospital.Server.Controllers
         private readonly ISendMail _sendMail;
         private readonly IMapper _mapper;
         private readonly IValidator<PatientRegisterRequest> _registerValidator;
+        private readonly IAppointmentStateMachine _stateMachine;
 
         public PatientPortalController(
             DataContext bd,
@@ -50,7 +52,8 @@ namespace Hospital.Server.Controllers
             IPaymentGateway paymentGateway,
             ISendMail sendMail,
             IMapper mapper,
-            IValidator<PatientRegisterRequest> registerValidator)
+            IValidator<PatientRegisterRequest> registerValidator,
+            IAppointmentStateMachine stateMachine)
         {
             _bd = bd;
             _userService = userService;
@@ -61,6 +64,7 @@ namespace Hospital.Server.Controllers
             _sendMail = sendMail;
             _mapper = mapper;
             _registerValidator = registerValidator;
+            _stateMachine = stateMachine;
         }
 
         /// <summary>
@@ -219,19 +223,69 @@ namespace Hospital.Server.Controllers
         }
 
         /// <summary>
-        /// Retorna la lista de médicos activos, opcionalmente filtrados por especialidad.
-        /// GET /api/v1/PatientPortal/doctors?specialtyId={id}
+        /// Retorna las especialidades activas disponibles en una sede específica.
+        /// GET /api/v1/PatientPortal/specialties-by-branch?branchId={id}
+        /// </summary>
+        [AllowAnonymous]
+        [ExcludeFromSync]
+        [HttpGet("specialties-by-branch")]
+        public async Task<IActionResult> GetSpecialtiesByBranch([FromQuery] long branchId)
+        {
+            if (branchId <= 0)
+            {
+                return BadRequest(new Response<string>
+                {
+                    Success = false,
+                    Message = "Debe proporcionar un branchId válido"
+                });
+            }
+
+            List<Specialty> specialties = await _bd.BranchSpecialties
+                .Include(bs => bs.Specialty)
+                .Where(bs => bs.BranchId == branchId && bs.State == 1 && bs.Specialty != null && bs.Specialty.State == 1)
+                .Select(bs => bs.Specialty!)
+                .ToListAsync();
+
+            return Ok(new Response<List<SpecialtyResponse>>
+            {
+                Success = true,
+                Message = "Especialidades obtenidas correctamente",
+                Data = specialties.Select(s => new SpecialtyResponse
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    Description = s.Description,
+                    State = s.State,
+                    CreatedAt = s.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"),
+                    CreatedBy = s.CreatedBy,
+                    UpdatedBy = s.UpdatedBy,
+                    UpdatedAt = s.UpdatedAt.HasValue ? s.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null
+                }).ToList(),
+                TotalResults = specialties.Count
+            });
+        }
+
+        /// <summary>
+        /// Retorna la lista de médicos activos filtrados por sede y opcionalmente por especialidad.
+        /// GET /api/v1/PatientPortal/doctors?branchId={id}&amp;specialtyId={id}
         /// </summary>
         [AllowAnonymous]
         [ExcludeFromSync]
         [HttpGet("doctors")]
-        public async Task<IActionResult> GetDoctors([FromQuery] long specialtyId)
+        public async Task<IActionResult> GetDoctors([FromQuery] long branchId, [FromQuery] long specialtyId)
         {
             IQueryable<User> query = _bd.Users
                 .Include(u => u.Rol)
                 .Include(u => u.Specialty)
                 .Where(u => u.State == 1 && u.Rol != null && u.Rol.Name == "Medico");
 
+            // Filter by branch — a doctor belongs to exactly one branch via User.BranchId
+            if (branchId > 0)
+            {
+                query = query.Where(u => u.BranchId == branchId);
+            }
+
+            // Filter by specialty
             if (specialtyId > 0)
             {
                 query = query.Where(u => u.SpecialtyId == specialtyId);
@@ -280,22 +334,17 @@ namespace Hospital.Server.Controllers
             DateTime dayStart = parsedDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
             DateTime dayEnd = dayStart.AddDays(1);
 
-            // Only "Pagada" appointments block slots — pending reservations do not
-            AppointmentStatus? pagadaStatus = await _bd.AppointmentStatuses
-                .FirstOrDefaultAsync(s => s.Name == "Pagada");
-
-            List<Appointment> appointments = new();
-            if (pagadaStatus != null)
-            {
-                appointments = await _bd.Appointments
-                    .Where(a =>
-                        a.DoctorId == doctorId &&
-                        a.State == 1 &&
-                        a.AppointmentStatusId == pagadaStatus.Id &&
-                        a.AppointmentDate >= dayStart &&
-                        a.AppointmentDate < dayEnd)
-                    .ToListAsync();
-            }
+            // Block slots for all confirmed/active appointments.
+            // Only "Pendiente de Pago" (1) and "Cancelada" (11) do NOT block slots.
+            List<Appointment> appointments = await _bd.Appointments
+                .Where(a =>
+                    a.DoctorId == doctorId &&
+                    a.State == 1 &&
+                    a.AppointmentStatusId != AppointmentStateMachine.STATUS_PENDIENTE_PAGO &&
+                    a.AppointmentStatusId != AppointmentStateMachine.STATUS_CANCELADA &&
+                    a.AppointmentDate >= dayStart &&
+                    a.AppointmentDate < dayEnd)
+                .ToListAsync();
 
             // Return occupied slots as UTC ISO 8601 strings with Z suffix so the
             // frontend parses them unambiguously as UTC and converts to local time.
@@ -350,26 +399,70 @@ namespace Hospital.Server.Controllers
                 });
             }
 
-            // 3. Check slot conflict: only "Pagada" appointments block slots
+            // 3. Validate doctor belongs to selected branch and has selected specialty
+            User? doctor = await _bd.Users
+                .Include(u => u.Rol)
+                .FirstOrDefaultAsync(u =>
+                    u.Id == request.DoctorId &&
+                    u.State == 1 &&
+                    u.Rol != null && u.Rol.Name == "Medico");
+
+            if (doctor == null)
+            {
+                return BadRequest(new Response<string>
+                {
+                    Success = false,
+                    Message = "El médico seleccionado no existe o no está activo"
+                });
+            }
+
+            if (doctor.BranchId != request.BranchId)
+            {
+                return BadRequest(new Response<string>
+                {
+                    Success = false,
+                    Message = "El médico seleccionado no pertenece a la sede indicada"
+                });
+            }
+
+            if (doctor.SpecialtyId != request.SpecialtyId)
+            {
+                return BadRequest(new Response<string>
+                {
+                    Success = false,
+                    Message = "El médico seleccionado no tiene la especialidad indicada"
+                });
+            }
+
+            // Validate the specialty is offered at the selected branch
+            bool branchHasSpecialty = await _bd.BranchSpecialties.AnyAsync(bs =>
+                bs.BranchId == request.BranchId &&
+                bs.SpecialtyId == request.SpecialtyId &&
+                bs.State == 1);
+
+            if (!branchHasSpecialty)
+            {
+                return BadRequest(new Response<string>
+                {
+                    Success = false,
+                    Message = "La especialidad seleccionada no está disponible en la sede indicada"
+                });
+            }
+
+            // 4. Check slot conflict: only "Pagada" appointments block slots
             // (Pendiente reservations that haven't been paid yet are excluded)
             DateTime requestedStart = request.AppointmentDate;
             DateTime requestedEnd = requestedStart.AddMinutes(30);
 
-            // Get the Id of "Pagada" status to filter only paid appointments
-            AppointmentStatus? pagadaStatus = await _bd.AppointmentStatuses
-                .FirstOrDefaultAsync(s => s.Name == "Pagada");
-
-            bool slotConflict = false;
-            if (pagadaStatus != null)
-            {
-                slotConflict = await _bd.Appointments
-                    .AnyAsync(a =>
-                        a.DoctorId == request.DoctorId &&
-                        a.State == 1 &&
-                        a.AppointmentStatusId == pagadaStatus.Id &&
-                        a.AppointmentDate < requestedEnd &&
-                        a.AppointmentDate.AddMinutes(30) > requestedStart);
-            }
+            // Block conflict for any active confirmed appointment (not Pendiente de Pago or Cancelada)
+            bool slotConflict = await _bd.Appointments
+                .AnyAsync(a =>
+                    a.DoctorId == request.DoctorId &&
+                    a.State == 1 &&
+                    a.AppointmentStatusId != AppointmentStateMachine.STATUS_PENDIENTE_PAGO &&
+                    a.AppointmentStatusId != AppointmentStateMachine.STATUS_CANCELADA &&
+                    a.AppointmentDate < requestedEnd &&
+                    a.AppointmentDate.AddMinutes(30) > requestedStart);
 
             if (slotConflict)
             {
@@ -380,20 +473,22 @@ namespace Hospital.Server.Controllers
                 });
             }
 
-            // 4. Get AppointmentStatusId for "Pendiente"
+            // 5. Get AppointmentStatusId for "Pendiente de Pago"
+            // Note: The AppointmentBeforeCreateInterceptor will override this,
+            // but we still need a valid status for the entity to pass validation.
             AppointmentStatus? pendienteStatus = await _bd.AppointmentStatuses
-                .FirstOrDefaultAsync(s => s.Name == "Pendiente");
+                .FirstOrDefaultAsync(s => s.Name == "Pendiente de Pago");
 
             if (pendienteStatus == null)
             {
                 return StatusCode(500, new Response<string>
                 {
                     Success = false,
-                    Message = "El estado 'Pendiente' no está configurado en el sistema"
+                    Message = "El estado 'Pendiente de Pago' no está configurado en el sistema"
                 });
             }
 
-            // 5. Create appointment directly via DbContext
+            // 6. Create appointment directly via DbContext
             long userId = GetUserId();
 
             // Always use the authenticated user's ID as PatientId — never trust
@@ -416,7 +511,7 @@ namespace Hospital.Server.Controllers
             _bd.Appointments.Add(newAppointment);
             await _bd.SaveChangesAsync();
 
-            // 6. Return created appointment (Id and CreatedAt are needed for the timer)
+            // 7. Return created appointment (Id and CreatedAt are needed for the timer)
             return Ok(new Response<object>
             {
                 Success = true,
@@ -475,13 +570,13 @@ namespace Hospital.Server.Controllers
                 });
             }
 
-            // 3. Verify appointment status is "Pendiente"
-            if (appointment.AppointmentStatus?.Name != "Pendiente")
+            // 3. Verify appointment status is "Pendiente de Pago"
+            if (appointment.AppointmentStatus?.Name != "Pendiente de Pago")
             {
                 return BadRequest(new Response<string>
                 {
                     Success = false,
-                    Message = "La cita no se encuentra en estado Pendiente"
+                    Message = "La cita no se encuentra en estado Pendiente de Pago"
                 });
             }
 
@@ -551,16 +646,10 @@ namespace Hospital.Server.Controllers
 
             _bd.Payments.Add(payment);
 
-            // 7b. Update appointment status to "Pagada"
-            AppointmentStatus? pagadaStatus = await _bd.AppointmentStatuses
-                .FirstOrDefaultAsync(s => s.Name == "Pagada");
-
-            if (pagadaStatus != null)
-            {
-                appointment.AppointmentStatusId = pagadaStatus.Id;
-                appointment.UpdatedAt = DateTime.UtcNow;
-                appointment.UpdatedBy = userId;
-            }
+            // 7b. Update appointment status to "Confirmada" via state machine
+            appointment.AppointmentStatusId = AppointmentStateMachine.STATUS_CONFIRMADA;
+            appointment.UpdatedAt = DateTime.UtcNow;
+            appointment.UpdatedBy = userId;
 
             await _bd.SaveChangesAsync();
 
@@ -694,6 +783,67 @@ Gracias por confiar en nuestros servicios.";
                 Message = "Citas obtenidas correctamente",
                 Data = result,
                 TotalResults = totalResults
+            });
+        }
+
+        /// <summary>
+        /// Cancels a confirmed appointment by the authenticated patient.
+        /// Only "Pendiente de Pago" or "Confirmada" appointments can be cancelled.
+        /// POST /api/v1/PatientPortal/appointments/{id}/cancel
+        /// </summary>
+        [Authorize]
+        [HttpPost("appointments/{id}/cancel")]
+        [ExcludeFromSync]
+        public async Task<IActionResult> CancelAppointment(long id)
+        {
+            long userId = GetUserId();
+
+            Appointment? appointment = await _bd.Appointments
+                .Include(a => a.AppointmentStatus)
+                .Include(a => a.Specialty)
+                .Include(a => a.Patient)
+                .FirstOrDefaultAsync(a => a.Id == id && a.State == 1);
+
+            if (appointment == null)
+                return NotFound(new Response<string> { Success = false, Message = "Cita no encontrada" });
+
+            if (appointment.PatientId != userId)
+                return StatusCode(403, new Response<string> { Success = false, Message = "No tiene permiso para cancelar esta cita" });
+
+            var (success, error) = await _stateMachine.TransitionAsync(
+                id, AppointmentStateMachine.STATUS_CANCELADA, userId);
+
+            if (!success)
+                return BadRequest(new Response<string> { Success = false, Message = error });
+
+            // Send cancellation email
+            try
+            {
+                string patientEmail = appointment.Patient?.Email ?? string.Empty;
+                string emailBody = $@"Estimado/a {appointment.Patient?.Name},
+
+Su cita ha sido cancelada exitosamente.
+
+Detalles de la cita cancelada:
+- Especialidad: {appointment.Specialty?.Name}
+- Fecha y hora: {appointment.AppointmentDate:dd/MM/yyyy HH:mm}
+- Monto: Q{appointment.Amount:F2}
+
+Los fondos serán reintegrados a su cuenta según los términos del servicio.
+
+Si tiene alguna duda, comuníquese con nuestro equipo de soporte.";
+
+                _sendMail.Send(patientEmail, "Cancelación de Cita — Hospital HIS", emailBody);
+            }
+            catch
+            {
+                // Email failure should not block the cancellation response
+            }
+
+            return Ok(new Response<string>
+            {
+                Success = true,
+                Message = "Cita cancelada correctamente. Se ha enviado un correo de confirmación."
             });
         }
     }

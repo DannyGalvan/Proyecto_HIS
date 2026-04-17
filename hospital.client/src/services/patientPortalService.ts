@@ -57,8 +57,32 @@ export const loginPatient = (credentials: {
   api.post<unknown, ApiResponse<LoginResponse>, LoginRequest>('auth', credentials);
 
 /**
+ * Get specialties available at a specific branch.
+ * GET /api/v1/PatientPortal/specialties-by-branch?branchId={id}
+ */
+export const getSpecialtiesByBranch = (
+  branchId: number,
+): Promise<ApiResponse<import('../types/SpecialtyResponse').SpecialtyResponse[]>> =>
+  api.get(
+    `PatientPortal/specialties-by-branch?branchId=${branchId}`,
+  );
+
+/**
+ * Get doctors filtered by branch and optionally by specialty.
+ * GET /api/v1/PatientPortal/doctors?branchId={id}&specialtyId={id}
+ */
+export const getDoctorsByBranchAndSpecialty = (
+  branchId: number,
+  specialtyId: number,
+): Promise<ApiResponse<DoctorResponse[]>> =>
+  api.get<unknown, ApiResponse<DoctorResponse[]>>(
+    `PatientPortal/doctors?branchId=${branchId}&specialtyId=${specialtyId}`,
+  );
+
+/**
  * Get doctors filtered by specialty.
  * GET /api/v1/PatientPortal/doctors?specialtyId={id}
+ * @deprecated Use getDoctorsByBranchAndSpecialty for correct branch-based filtering
  */
 export const getDoctorsBySpecialty = (
   specialtyId: number,
@@ -126,4 +150,15 @@ export const getMyAppointments = (
     {
       headers: getPatientAuthHeader(),
     },
+  );
+
+/**
+ * Cancel a confirmed appointment (patient only).
+ * POST /api/v1/PatientPortal/appointments/{id}/cancel
+ */
+export const cancelAppointment = (
+  id: number,
+): Promise<ApiResponse<string>> =>
+  api.post<unknown, ApiResponse<string>>(
+    `PatientPortal/appointments/${id}/cancel`,
   );

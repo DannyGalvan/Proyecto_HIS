@@ -1,4 +1,6 @@
+import type { BranchResponse } from "./BranchResponse";
 import type { RolResponse } from "./RolResponse";
+import type { SpecialtyResponse } from "./SpecialtyResponse";
 
 export interface UserResponse {
   id: number;
@@ -10,6 +12,7 @@ export interface UserResponse {
   number: string;
   nit?: string | null;
   branchId?: number | null;
+  specialtyId?: number | null;
   insuranceNumber?: string | null;
   state: number;
   createdAt: string;
@@ -18,4 +21,6 @@ export interface UserResponse {
   updatedBy?: number | null;
 
   rol?: RolResponse | null;
+  branch?: BranchResponse | null;
+  specialty?: SpecialtyResponse | null;
 }

@@ -10,6 +10,7 @@
     using Hospital.Server.Validations.Specialty;
     using Hospital.Server.Validations.Laboratory;
     using Hospital.Server.Validations.Branch;
+    using Hospital.Server.Validations.BranchSpecialty;
     using Hospital.Server.Validations.AppointmentStatus;
     using Hospital.Server.Validations.Appointment;
     using Hospital.Server.Validations.Payment;
@@ -81,6 +82,11 @@
             services.AddKeyedScoped<IValidator<BranchRequest>, CreateBranchValidation>("Create");
             services.AddKeyedScoped<IValidator<BranchRequest>, UpdateBranchValidation>("Update");
             services.AddKeyedScoped<IValidator<BranchRequest>, PartialBranchValidation>("Partial");
+
+            //branchSpecialty validations
+            services.AddKeyedScoped<IValidator<BranchSpecialtyRequest>, CreateBranchSpecialtyValidation>("Create");
+            services.AddKeyedScoped<IValidator<BranchSpecialtyRequest>, UpdateBranchSpecialtyValidation>("Update");
+            services.AddKeyedScoped<IValidator<BranchSpecialtyRequest>, PartialBranchSpecialtyValidation>("Partial");
 
             //appointmentStatus validations
             services.AddKeyedScoped<IValidator<AppointmentStatusRequest>, CreateAppointmentStatusValidation>("Create");

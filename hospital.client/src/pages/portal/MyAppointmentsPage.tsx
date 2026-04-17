@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button, Modal, toast } from "@heroui/react";
 
 import { nameRoutes } from "../../configs/constants";
-import { getMyAppointments } from "../../services/patientPortalService";
+import { getMyAppointments, cancelAppointment } from "../../services/patientPortalService";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const formatDate = (iso: string): string => {
@@ -33,20 +34,28 @@ const formatTime = (iso: string): string => {
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { readonly status: string }) {
   const map: Record<string, string> = {
-    Pagada: "bg-green-100 text-green-800",
-    Pendiente: "bg-yellow-100 text-yellow-800",
+    "Pendiente de Pago": "bg-yellow-100 text-yellow-800",
+    Confirmada: "bg-green-100 text-green-800",
+    "Signos Vitales": "bg-purple-100 text-purple-800",
+    "En Espera": "bg-orange-100 text-orange-800",
+    "Consulta Médica": "bg-blue-100 text-blue-800",
+    Evaluado: "bg-teal-100 text-teal-800",
+    Laboratorio: "bg-indigo-100 text-indigo-800",
+    Farmacia: "bg-cyan-100 text-cyan-800",
+    "Atención Finalizada": "bg-gray-100 text-gray-700",
+    "No Asistió": "bg-red-100 text-red-800",
     Cancelada: "bg-red-100 text-red-800",
-    "En curso": "bg-blue-100 text-blue-800",
   };
   const cls = map[status] ?? "bg-gray-100 text-gray-700";
   return (
-    <span
-      className={`inline-block rounded-full px-3 py-0.5 text-xs font-semibold ${cls}`}
-    >
+    <span className={`inline-block rounded-full px-3 py-0.5 text-xs font-semibold ${cls}`}>
       {status}
     </span>
   );
 }
+
+// Appointments that the patient can still cancel
+const CANCELLABLE_STATUSES = new Set(["Pendiente de Pago", "Confirmada"]);
 
 // ── Appointment row ───────────────────────────────────────────────────────────
 interface AppointmentItem {
@@ -59,11 +68,19 @@ interface AppointmentItem {
   amount?: number;
 }
 
-function AppointmentRow({ appt }: { readonly appt: AppointmentItem }) {
+function AppointmentRow({
+  appt,
+  onCancel,
+}: {
+  readonly appt: AppointmentItem;
+  readonly onCancel: (id: number, patientName: string) => void;
+}) {
+  const canCancel = appt.status ? CANCELLABLE_STATUSES.has(appt.status) : false;
+
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Left: date + time */}
+        {/* Left: date + info */}
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/30">
             <span className="text-xs font-bold text-blue-600 dark:text-blue-300">
@@ -87,7 +104,7 @@ function AppointmentRow({ appt }: { readonly appt: AppointmentItem }) {
           </div>
         </div>
 
-        {/* Right: time + status + amount */}
+        {/* Right: time + status + amount + cancel */}
         <div className="flex flex-row items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
           <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
             <i className="bi bi-clock mr-1" />
@@ -98,6 +115,16 @@ function AppointmentRow({ appt }: { readonly appt: AppointmentItem }) {
             <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
               Q{appt.amount.toFixed(2)}
             </span>
+          )}
+          {canCancel && (
+            <button
+              className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 hover:underline"
+              type="button"
+              onClick={() => onCancel(appt.id, appt.doctorName ?? "cita")}
+            >
+              <i className="bi bi-x-circle mr-1" />
+              Cancelar cita
+            </button>
           )}
         </div>
       </div>
@@ -115,7 +142,9 @@ const PAGE_SIZE = 10;
 
 export function MyAppointmentsPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [cancelTarget, setCancelTarget] = useState<{ id: number; label: string } | null>(null);
 
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ["portal-my-appointments", page],
@@ -123,6 +152,31 @@ export function MyAppointmentsPage() {
     staleTime: 1000 * 60 * 2,
     placeholderData: (prev) => prev,
   });
+
+  const cancelMutation = useMutation({
+    mutationFn: (id: number) => cancelAppointment(id),
+    onSuccess: (res) => {
+      if (res.success) {
+        toast.success("Cita cancelada correctamente. Recibirá un correo de confirmación.");
+        queryClient.invalidateQueries({ queryKey: ["portal-my-appointments"] });
+      } else {
+        toast.danger(res.message ?? "No se pudo cancelar la cita");
+      }
+      setCancelTarget(null);
+    },
+    onError: () => {
+      toast.danger("Error al cancelar la cita. Intente de nuevo.");
+      setCancelTarget(null);
+    },
+  });
+
+  const handleCancelRequest = useCallback((id: number, label: string) => {
+    setCancelTarget({ id, label });
+  }, []);
+
+  const handleCancelConfirm = useCallback(() => {
+    if (cancelTarget) cancelMutation.mutate(cancelTarget.id);
+  }, [cancelTarget, cancelMutation]);
 
   const appointments = (data?.success ? (data.data as AppointmentItem[]) : []) ?? [];
   const hasMore = appointments.length === PAGE_SIZE;
@@ -189,7 +243,7 @@ export function MyAppointmentsPage() {
           <>
             <div className={`flex flex-col gap-3 transition-opacity ${isFetching ? "opacity-60" : "opacity-100"}`}>
               {appointments.map((appt) => (
-                <AppointmentRow key={appt.id} appt={appt} />
+                <AppointmentRow key={appt.id} appt={appt} onCancel={handleCancelRequest} />
               ))}
             </div>
 
@@ -222,6 +276,51 @@ export function MyAppointmentsPage() {
           </>
         )}
       </div>
+
+      {/* Cancel confirmation modal */}
+      <Modal isOpen={!!cancelTarget} onOpenChange={() => setCancelTarget(null)}>
+        <Modal.Backdrop>
+          <Modal.Container>
+            <Modal.Dialog className="max-w-md w-full">
+              <Modal.CloseTrigger />
+              <Modal.Header>
+                <Modal.Heading>Cancelar Cita</Modal.Heading>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="flex items-start gap-4 p-4">
+                  <i className="bi bi-exclamation-triangle text-red-500 text-3xl shrink-0" />
+                  <div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      ¿Está seguro que desea cancelar esta cita?
+                    </p>
+                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                      Recibirá un correo de confirmación y los fondos serán reintegrados según los términos del servicio.
+                    </p>
+                  </div>
+                </div>
+              </Modal.Body>
+              <Modal.Footer>
+                <div className="flex gap-2 justify-end w-full">
+                  <Button
+                    isDisabled={cancelMutation.isPending}
+                    variant="secondary"
+                    onPress={() => setCancelTarget(null)}
+                  >
+                    No, mantener cita
+                  </Button>
+                  <Button
+                    isPending={cancelMutation.isPending}
+                    variant="danger"
+                    onPress={handleCancelConfirm}
+                  >
+                    Sí, cancelar cita
+                  </Button>
+                </div>
+              </Modal.Footer>
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
     </section>
   );
 }
