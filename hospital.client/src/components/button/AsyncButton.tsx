@@ -10,6 +10,10 @@ interface AsyncButtonProps extends Omit<HeroButtonProps, "isPending" | "isDisabl
   readonly children: ReactNode;
   /** Optional label shown while loading. Defaults to children. */
   readonly loadingText?: string;
+  /**
+   * Whether the button should be disabled.
+   */
+  readonly isDisabled?:  boolean;
 }
 
 /**

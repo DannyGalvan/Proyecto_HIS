@@ -1,6 +1,6 @@
-import { Button, FieldError, Form, Input, Label, Modal, TextField, toast } from "@heroui/react";
+import { Button, FieldError, Form, Input, Label, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState, type ChangeEvent } from "react";
+import { useCallback, useMemo, useState, type ChangeEvent } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { Response } from "../../components/messages/Response";
@@ -8,6 +8,7 @@ import { AsyncButton } from "../../components/button/AsyncButton";
 import { useForm } from "../../hooks/useForm";
 import { useAuth } from "../../hooks/useAuth";
 import { nameRoutes } from "../../configs/constants";
+import { BlockedWithoutContext } from "../../components/shared/BlockedWithoutContext";
 import {
   createPrescription,
   createPrescriptionItem,
@@ -19,7 +20,6 @@ import { getMedicalConsultations } from "../../services/medicalConsultationServi
 import type { PrescriptionRequest } from "../../types/PrescriptionResponse";
 import type { PrescriptionItemRequest } from "../../types/PrescriptionItemResponse";
 import { validatePrescription, validatePrescriptionItem } from "../../validations/prescriptionValidation";
-import { OptionsSelect, type OptionValue } from "../../components/select/OptionsSelect";
 
 // ── Formulario de ítem de receta ──────────────────────────────────────────────
 function PrescriptionItemForm({
@@ -39,12 +39,14 @@ function PrescriptionItemForm({
     state: 1,
   };
 
+  const onSubmit = useCallback(async (data : PrescriptionItemRequest) => {
+    const response = await createPrescriptionItem(data);
+    if (response.success) onSuccess();
+    return response;
+  }, [])
+
   const { form, errors, handleChange, handleSubmit, success, message, loading } =
-    useForm<PrescriptionItemRequest, unknown>(initialItem, validatePrescriptionItem, async (data) => {
-      const response = await createPrescriptionItem(data);
-      if (response.success) onSuccess();
-      return response;
-    }, true);
+    useForm<PrescriptionItemRequest, unknown>(initialItem, validatePrescriptionItem, onSubmit, true);
 
   const handleTextChange = useCallback(
     (name: string) => (val: string) => {
@@ -104,6 +106,20 @@ export function PrescriptionDetailPage() {
   const isCreating = !id;
   const fromDoctorDashboard = !!appointmentId;
 
+
+  // ── Guard: no appointmentId and not editing → blocked ─────────────────────
+  if (!appointmentId && isCreating) {
+    return (
+      <BlockedWithoutContext
+        backLabel="Ir al Panel del Médico"
+        backRoute={nameRoutes.doctorDashboard}
+        icon="bi-prescription2"
+        message="No puedes crear una receta médica sin que provenga de una consulta médica completada. Las recetas solo pueden generarse desde el panel del médico."
+        title="Acceso no permitido"
+      />
+    );
+  }
+
   // Look up the completed consultation for this appointment
   const { data: consultationData } = useQuery({
     queryKey: ["consultation-for-prescription", appointmentId],
@@ -123,29 +139,31 @@ export function PrescriptionDetailPage() {
 
   // Estado para nueva receta
   const [prescriptionId, setPrescriptionId] = useState<number | null>(isCreating ? null : Number(id));
-  const [isCreatingPrescription, setIsCreatingPrescription] = useState(false);
 
-  const initialPrescription: PrescriptionRequest = {
+  const initialPrescription = useMemo<PrescriptionRequest>(() => ({
     consultationId: resolvedConsultationId,
     doctorId: Number(doctorId),
     prescriptionDate: new Date().toISOString().split("T")[0],
     notes: "",
     state: 1,
-  };
+  }), [resolvedConsultationId, doctorId]);
+
+  const onSubmit = useCallback(async (data : PrescriptionRequest) => {
+    const response = await createPrescription(data);
+    if (response.success && response.data) {
+      setPrescriptionId((response.data as { id: number }).id);
+      toast.success("Receta creada. Ahora puede agregar medicamentos.");
+      if (fromDoctorDashboard) {
+        // After creating prescription, stay on page to add medicines
+        // The "Volver" button will go back to dashboard
+      }
+    }
+    return response;
+  }, []);
+
 
   const { form, errors, handleChange, handleSubmit, success, message, loading } =
-    useForm<PrescriptionRequest, unknown>(initialPrescription, validatePrescription, async (data) => {
-      const response = await createPrescription(data);
-      if (response.success && response.data) {
-        setPrescriptionId((response.data as { id: number }).id);
-        toast.success("Receta creada. Ahora puede agregar medicamentos.");
-        if (fromDoctorDashboard) {
-          // After creating prescription, stay on page to add medicines
-          // The "Volver" button will go back to dashboard
-        }
-      }
-      return response;
-    });
+    useForm<PrescriptionRequest, unknown>(initialPrescription, validatePrescription, onSubmit);
 
   const handleTextChange = useCallback(
     (name: string) => (val: string) => {
@@ -192,6 +210,8 @@ export function PrescriptionDetailPage() {
 
   const items = itemsData?.success ? itemsData.data : [];
   const prescription = prescriptionData?.success ? prescriptionData.data : null;
+
+  if (fromDoctorDashboard && !resolvedConsultationId) return <LoadingComponent />;
 
   return (
     <div className="max-w-4xl mx-auto p-6">

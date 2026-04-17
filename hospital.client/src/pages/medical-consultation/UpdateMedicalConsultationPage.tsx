@@ -19,6 +19,8 @@ export function UpdateMedicalConsultationPage() {
 
   const onSubmit = useCallback(
     async (form: MedicalConsultationRequest) => {
+      form.updatedBy = null;
+      form.createdBy = null;
       const response = await updateMedicalConsultation(form);
       if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
       await client.invalidateQueries({ queryKey: ["medical-consultations"] });

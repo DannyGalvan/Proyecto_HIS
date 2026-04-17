@@ -1,28 +1,91 @@
 import { toast } from "@heroui/react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router";
 import { VitalSignForm } from "../../components/form/VitalSignForm";
-import { createVitalSign } from "../../services/vitalSignService";
+import { createVitalSign, getVitalSignByAppointment } from "../../services/vitalSignService";
 import { nameRoutes } from "../../configs/constants";
 import { useAuth } from "../../hooks/useAuth";
+import { LoadingComponent } from "../../components/spinner/LoadingComponent";
+import { BlockedWithoutContext } from "../../components/shared/BlockedWithoutContext";
 import type { VitalSignRequest } from "../../types/VitalSignResponse";
 
 export function CreateVitalSignPage() {
-  const client = useQueryClient();
-  const navigate = useNavigate();
   const { userId } = useAuth();
   const [searchParams] = useSearchParams();
 
-  // Read context from URL params (set by NurseDashboardPage)
   const appointmentIdParam = searchParams.get("appointmentId");
   const nurseIdParam = searchParams.get("nurseId");
   const patientNameParam = searchParams.get("patientName");
-  const fromNurseDashboard = !!appointmentIdParam;
+
+  // ── Guard: no appointmentId → blocked ──────────────────────────────────────
+  if (!appointmentIdParam) {
+    return (
+      <BlockedWithoutContext
+        backLabel="Ir al Panel de Signos Vitales"
+        backRoute={nameRoutes.nurseDashboard}
+        icon="bi-heart-pulse"
+        message="No puedes registrar signos vitales sin que provenga de una cita médica activa. Los signos vitales solo pueden registrarse desde el panel del rol interino."
+        title="Acceso no permitido"
+      />
+    );
+  }
+
+  return (
+    <CreateVitalSignGuard
+      appointmentId={Number(appointmentIdParam)}
+      nurseId={nurseIdParam ? Number(nurseIdParam) : (userId ?? 0)}
+      patientName={patientNameParam ?? undefined}
+    />
+  );
+}
+
+function CreateVitalSignGuard({
+  appointmentId,
+  nurseId,
+  patientName,
+}: {
+  readonly appointmentId: number;
+  readonly nurseId: number;
+  readonly patientName?: string;
+}) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data: vitalData, isLoading } = useQuery({
+    queryKey: ["vitals-check", appointmentId],
+    queryFn: () => getVitalSignByAppointment(appointmentId),
+    staleTime: 0,
+  });
+
+  if (isLoading) return <LoadingComponent />;
+
+  const alreadyHasVitals = vitalData?.success && vitalData.data.length > 0;
+
+  if (alreadyHasVitals) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 p-8 text-center">
+        <i className="bi bi-check-circle text-6xl text-green-400" />
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          Signos vitales ya registrados
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 max-w-md">
+          Esta cita ya tiene signos vitales registrados. No es posible registrarlos nuevamente.
+        </p>
+        <button
+          className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 transition-colors"
+          type="button"
+          onClick={() => navigate(nameRoutes.nurseDashboard)}
+        >
+          <i className="bi bi-arrow-left" />
+          Volver al Panel
+        </button>
+      </div>
+    );
+  }
 
   const initialData: VitalSignRequest = {
-    appointmentId: appointmentIdParam ? Number(appointmentIdParam) : null,
-    nurseId: nurseIdParam ? Number(nurseIdParam) : (userId ?? null),
+    appointmentId,
+    nurseId,
     bloodPressureSystolic: null,
     bloodPressureDiastolic: null,
     temperature: null,
@@ -33,32 +96,24 @@ export function CreateVitalSignPage() {
     state: 1,
   };
 
-  const onSubmit = useCallback(
-    async (form: VitalSignRequest) => {
-      const response = await createVitalSign(form);
-      if (!response.success) {
-        toast.danger(response.message);
-        return response;
-      }
-      await client.invalidateQueries({ queryKey: ["vital-signs"] });
-      await client.invalidateQueries({ queryKey: ["nurse-appointments"] });
-      toast.success("Signos vitales registrados. El paciente pasa a En Espera.");
-      // Return to nurse dashboard if we came from there
-      if (fromNurseDashboard) {
-        navigate(nameRoutes.nurseDashboard);
-      }
-      return response;
-    },
-    [client, navigate, fromNurseDashboard],
-  );
-
   return (
     <VitalSignForm
-      fromNurseDashboard={fromNurseDashboard}
+      fromNurseDashboard
       initialForm={initialData}
-      patientName={patientNameParam ?? undefined}
+      patientName={patientName}
       type="create"
-      onSubmit={onSubmit}
+      onSubmit={async (form) => {
+        const response = await createVitalSign(form);
+        if (response.success) {
+          toast.success("Signos vitales registrados. El paciente pasa a En Espera.");
+          await queryClient.invalidateQueries({ queryKey: ["vital-signs"] });
+          await queryClient.invalidateQueries({ queryKey: ["nurse-appointments"] });
+          navigate(nameRoutes.nurseDashboard);
+        } else {
+          toast.danger(response.message);
+        }
+        return response;
+      }}
     />
   );
 }
