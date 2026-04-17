@@ -108,7 +108,7 @@ export function DoctorDashboardPage() {
       getAppointments({
         pageNumber: 1,
         pageSize: 50,
-        filters: `DoctorId:eq:${userId} AND State:eq:1 AND (AppointmentStatusId:eq:${STATUS_EN_ESPERA} OR AppointmentStatusId:eq:${STATUS_CONSULTA} OR AppointmentStatusId:eq:${STATUS_EVALUADO})`,
+        filters: `DoctorId:eq:${userId} AND State:eq:1 AND AppointmentStatusId:in:${STATUS_EN_ESPERA},${STATUS_CONSULTA},${STATUS_EVALUADO}`,
         include: "Specialty,Branch,AppointmentStatus,Patient",
         includeTotal: false,
       }),

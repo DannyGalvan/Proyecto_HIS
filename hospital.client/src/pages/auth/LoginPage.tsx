@@ -3,7 +3,7 @@ import { Card } from "@heroui/react";
 import { LoginForm, type LoginFormData } from "../../components/form/LoginForm";
 
 import { useCallback } from "react";
-import { Images } from "../../assets/images/images";
+import { LogoHIS } from "../../components/brand/LogoHIS";
 import { useAuth } from "../../hooks/useAuth";
 import ProtectedLogin from "../../routes/middlewares/ProtectedLogin";
 import { authenticateUser } from "../../services/authService";
@@ -56,12 +56,8 @@ export function Component() {
         <div className="flex items-center px-6 md:mx-auto w-full md:max-w-md lg:max-w-lg xl:max-w-xl">
           <Card className="w-full shadow-[0px_20px_20px_10px_#A0AEC0] login-card">
             <div className="p-10 flex flex-col w-full">
-              <div className="flex justify-center">
-                <img
-                  alt="Esi Logo"
-                  src={Images.logo}
-                  style={{ maxWidth: "200px", marginBottom: "1.5rem" }}
-                />
+              <div className="flex flex-col items-center" style={{ marginBottom: "1.5rem" }}>
+                <LogoHIS height="auto" width="220px" />
               </div>
               <LoginForm initialForm={initialForm} onSubmit={petition} />
             </div>

@@ -6,7 +6,7 @@ import { getSpecialties } from "../../services/specialtyService";
 import { getBranches } from "../../services/branchService";
 import { verifyDpi } from "../../services/patientPortalService";
 import { nameRoutes } from "../../configs/constants";
-import { Images } from "../../assets/images/images";
+import { LogoHIS } from "../../components/brand/LogoHIS";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
 import type { BranchResponse } from "../../types/BranchResponse";
@@ -26,7 +26,7 @@ function HeroSection({ onSchedule }: { readonly onSchedule: () => void }) {
       />
       <div className="max-w-5xl mx-auto text-center relative z-10">
         <div className="flex justify-center mb-6">
-          <img alt="Hospital Logo" src={Images.logo} className="h-16 w-auto" />
+          <LogoHIS className="h-16 w-auto" height="auto" width="180px" />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
           Sistema Informático Hospitalario

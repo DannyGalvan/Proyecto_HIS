@@ -64,7 +64,7 @@ interface AppointmentItem {
   doctorName?: string;
   specialtyName?: string;
   branchName?: string;
-  status?: string;
+  appointmentStatusName?: string;  // matches the API response field
   amount?: number;
 }
 
@@ -73,9 +73,10 @@ function AppointmentRow({
   onCancel,
 }: {
   readonly appt: AppointmentItem;
-  readonly onCancel: (id: number, patientName: string) => void;
+  readonly onCancel: (id: number, label: string) => void;
 }) {
-  const canCancel = appt.status ? CANCELLABLE_STATUSES.has(appt.status) : false;
+  const statusName = appt.appointmentStatusName ?? "";
+  const canCancel = CANCELLABLE_STATUSES.has(statusName);
 
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
@@ -110,7 +111,7 @@ function AppointmentRow({
             <i className="bi bi-clock mr-1" />
             {formatTime(appt.appointmentDate)}
           </span>
-          {appt.status && <StatusBadge status={appt.status} />}
+          {statusName && <StatusBadge status={statusName} />}
           {appt.amount !== undefined && (
             <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
               Q{appt.amount.toFixed(2)}
@@ -118,11 +119,11 @@ function AppointmentRow({
           )}
           {canCancel && (
             <button
-              className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 hover:underline"
+              className="mt-1 flex items-center gap-1 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400"
               type="button"
-              onClick={() => onCancel(appt.id, appt.doctorName ?? "cita")}
+              onClick={() => onCancel(appt.id, appt.doctorName ?? `cita #${appt.id}`)}
             >
-              <i className="bi bi-x-circle mr-1" />
+              <i className="bi bi-x-circle" />
               Cancelar cita
             </button>
           )}

@@ -34,10 +34,17 @@ const formatTime = (iso: string): string => {
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { readonly status: string }) {
   const map: Record<string, string> = {
-    Pagada: "bg-green-100 text-green-800",
-    Pendiente: "bg-yellow-100 text-yellow-800",
+    "Pendiente de Pago": "bg-yellow-100 text-yellow-800",
+    Confirmada: "bg-green-100 text-green-800",
+    "Signos Vitales": "bg-purple-100 text-purple-800",
+    "En Espera": "bg-orange-100 text-orange-800",
+    "Consulta Médica": "bg-blue-100 text-blue-800",
+    Evaluado: "bg-teal-100 text-teal-800",
+    Laboratorio: "bg-indigo-100 text-indigo-800",
+    Farmacia: "bg-cyan-100 text-cyan-800",
+    "Atención Finalizada": "bg-gray-100 text-gray-700",
+    "No Asistió": "bg-red-100 text-red-800",
     Cancelada: "bg-red-100 text-red-800",
-    "En curso": "bg-blue-100 text-blue-800",
   };
   const cls = map[status] ?? "bg-gray-100 text-gray-700";
   return (
@@ -54,11 +61,19 @@ interface AppointmentItem {
   doctorName?: string;
   specialtyName?: string;
   branchName?: string;
-  status?: string;
+  appointmentStatusName?: string;  // matches API response field
   amount?: number;
 }
 
+// Statuses that indicate the appointment is finished or won't happen
+const PAST_STATUSES = new Set([
+  "Atención Finalizada",
+  "No Asistió",
+  "Cancelada",
+]);
+
 function AppointmentCard({ appt }: { readonly appt: AppointmentItem }) {
+  const statusName = appt.appointmentStatusName ?? "";
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
       <div className="flex items-start justify-between gap-2">
@@ -79,7 +94,7 @@ function AppointmentCard({ appt }: { readonly appt: AppointmentItem }) {
           </p>
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">
-          {appt.status && <StatusBadge status={appt.status} />}
+          {statusName && <StatusBadge status={statusName} />}
           {appt.amount !== undefined && (
             <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               Q{appt.amount.toFixed(2)}
@@ -98,11 +113,21 @@ export function PatientDashboardPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["portal-my-appointments-dashboard"],
-    queryFn: () => getMyAppointments(1, 3),
+    queryFn: () => getMyAppointments(1, 10),
     staleTime: 1000 * 60 * 2,
   });
 
-  const appointments = (data?.success ? (data.data as AppointmentItem[]) : []) ?? [];
+  const allAppointments = (data?.success ? (data.data as AppointmentItem[]) : []) ?? [];
+
+  // "Próximas": only "Confirmada" — paid and scheduled, haven't entered clinical flow yet
+  const upcomingAppointments = allAppointments.filter(
+    (a) => a.appointmentStatusName === "Confirmada",
+  );
+
+  // "Historial": finished, cancelled, no-show, or currently in clinical flow
+  const pastAppointments = allAppointments.filter(
+    (a) => a.appointmentStatusName && PAST_STATUSES.has(a.appointmentStatusName),
+  );
 
   const handleLogout = useCallback(() => {
     logoutPatient();
@@ -149,8 +174,8 @@ export function PatientDashboardPage() {
           </button>
         </div>
 
-        {/* Upcoming appointments */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        {/* ── Próximas Citas (Confirmadas) ─────────────────────────────────── */}
+        <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
               <i className="bi bi-calendar-check mr-2 text-blue-600" />
@@ -160,7 +185,7 @@ export function PatientDashboardPage() {
               className="text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
               to={nameRoutes.portalAppointments}
             >
-              Ver historial completo →
+              Ver todas →
             </Link>
           </div>
 
@@ -168,28 +193,51 @@ export function PatientDashboardPage() {
             <div className="flex items-center justify-center py-8">
               <i className="bi bi-hourglass-split animate-spin text-2xl text-blue-500" />
             </div>
-          ) : appointments.length === 0 ? (
+          ) : upcomingAppointments.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
               <i className="bi bi-calendar-x text-4xl text-gray-300" />
               <p className="text-gray-500 dark:text-gray-400">
-                No tiene citas registradas aún.
+                No tiene citas confirmadas próximas.
               </p>
               <button
                 className="mt-1 rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700"
                 type="button"
                 onClick={() => navigate(nameRoutes.portalBook)}
               >
-                Agendar su primera cita
+                Agendar una cita
               </button>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {appointments.map((appt) => (
+              {upcomingAppointments.map((appt) => (
                 <AppointmentCard key={appt.id} appt={appt} />
               ))}
             </div>
           )}
         </div>
+
+        {/* ── Citas Anteriores ─────────────────────────────────────────────── */}
+        {!isLoading && pastAppointments.length > 0 && (
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                <i className="bi bi-clock-history mr-2 text-gray-500" />
+                Citas Anteriores
+              </h2>
+              <Link
+                className="text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                to={nameRoutes.portalAppointments}
+              >
+                Ver historial completo →
+              </Link>
+            </div>
+            <div className="flex flex-col gap-3">
+              {pastAppointments.slice(0, 3).map((appt) => (
+                <AppointmentCard key={appt.id} appt={appt} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

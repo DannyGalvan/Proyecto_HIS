@@ -7,6 +7,7 @@ using Hospital.Server.Entities.Request;
 using Hospital.Server.Entities.Response;
 using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
+using Hospital.Server.Utils;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -334,14 +335,25 @@ namespace Hospital.Server.Controllers
             DateTime dayStart = parsedDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
             DateTime dayEnd = dayStart.AddDays(1);
 
-            // Block slots for all confirmed/active appointments.
-            // Only "Pendiente de Pago" (1) and "Cancelada" (11) do NOT block slots.
+            // Only block slots for appointments that are confirmed/active (status 2-9).
+            // "Pendiente de Pago" (1) and "Cancelada" (11) never block slots.
+            // "No Asistió" (10) also doesn't block — the slot is free again.
+            long[] blockingStatuses = {
+                AppointmentStateMachine.STATUS_CONFIRMADA,        // 2
+                AppointmentStateMachine.STATUS_SIGNOS_VITALES,    // 3
+                AppointmentStateMachine.STATUS_EN_ESPERA,         // 4
+                AppointmentStateMachine.STATUS_CONSULTA_MEDICA,   // 5
+                AppointmentStateMachine.STATUS_EVALUADO,          // 6
+                AppointmentStateMachine.STATUS_LABORATORIO,       // 7
+                AppointmentStateMachine.STATUS_FARMACIA,          // 8
+                AppointmentStateMachine.STATUS_ATENCION_FINAL,    // 9
+            };
+
             List<Appointment> appointments = await _bd.Appointments
                 .Where(a =>
                     a.DoctorId == doctorId &&
                     a.State == 1 &&
-                    a.AppointmentStatusId != AppointmentStateMachine.STATUS_PENDIENTE_PAGO &&
-                    a.AppointmentStatusId != AppointmentStateMachine.STATUS_CANCELADA &&
+                    blockingStatuses.Contains(a.AppointmentStatusId) &&
                     a.AppointmentDate >= dayStart &&
                     a.AppointmentDate < dayEnd)
                 .ToListAsync();
@@ -449,18 +461,26 @@ namespace Hospital.Server.Controllers
                 });
             }
 
-            // 4. Check slot conflict: only "Pagada" appointments block slots
-            // (Pendiente reservations that haven't been paid yet are excluded)
+            // 4. Check slot conflict: only confirmed/active appointments block slots
             DateTime requestedStart = request.AppointmentDate;
             DateTime requestedEnd = requestedStart.AddMinutes(30);
 
-            // Block conflict for any active confirmed appointment (not Pendiente de Pago or Cancelada)
+            long[] blockingStatuses = {
+                AppointmentStateMachine.STATUS_CONFIRMADA,
+                AppointmentStateMachine.STATUS_SIGNOS_VITALES,
+                AppointmentStateMachine.STATUS_EN_ESPERA,
+                AppointmentStateMachine.STATUS_CONSULTA_MEDICA,
+                AppointmentStateMachine.STATUS_EVALUADO,
+                AppointmentStateMachine.STATUS_LABORATORIO,
+                AppointmentStateMachine.STATUS_FARMACIA,
+                AppointmentStateMachine.STATUS_ATENCION_FINAL,
+            };
+
             bool slotConflict = await _bd.Appointments
                 .AnyAsync(a =>
                     a.DoctorId == request.DoctorId &&
                     a.State == 1 &&
-                    a.AppointmentStatusId != AppointmentStateMachine.STATUS_PENDIENTE_PAGO &&
-                    a.AppointmentStatusId != AppointmentStateMachine.STATUS_CANCELADA &&
+                    blockingStatuses.Contains(a.AppointmentStatusId) &&
                     a.AppointmentDate < requestedEnd &&
                     a.AppointmentDate.AddMinutes(30) > requestedStart);
 
@@ -655,20 +675,16 @@ namespace Hospital.Server.Controllers
 
             // 7d. Send confirmation email
             string patientEmail = appointment.Patient?.Email ?? string.Empty;
-            string emailSubject = $"Confirmación de cita - {appointment.Specialty?.Name}";
-            string emailBody = $@"Estimado/a {appointment.Patient?.Name},
-
-Su cita ha sido confirmada exitosamente.
-
-Detalles de la cita:
-- Número de transacción: {gatewayResponse.TransactionNumber}
-- Médico: {appointment.Doctor?.Name}
-- Especialidad: {appointment.Specialty?.Name}
-- Sucursal: {appointment.Branch?.Name}
-- Fecha y hora: {appointment.AppointmentDate:dd/MM/yyyy HH:mm}
-- Monto pagado: Q{request.Amount:F2}
-
-Gracias por confiar en nuestros servicios.";
+            string emailSubject = $"Cita Confirmada — {appointment.Specialty?.Name} | Hospital HIS";
+            string emailBody = EmailTemplates.AppointmentConfirmation(
+                patientName:       appointment.Patient?.Name ?? "Paciente",
+                specialtyName:     appointment.Specialty?.Name ?? "—",
+                doctorName:        appointment.Doctor?.Name ?? "Por asignar",
+                branchName:        appointment.Branch?.Name ?? "—",
+                appointmentDate:   appointment.AppointmentDate.ToLocalTime().ToString("dddd, dd 'de' MMMM 'de' yyyy — HH:mm 'hrs'"),
+                appointmentId:     appointment.Id,
+                transactionNumber: gatewayResponse.TransactionNumber,
+                amount:            request.Amount);
 
             int notificationStatus = 0; // Pending
             string? notificationError = null;
@@ -820,20 +836,15 @@ Gracias por confiar en nuestros servicios.";
             try
             {
                 string patientEmail = appointment.Patient?.Email ?? string.Empty;
-                string emailBody = $@"Estimado/a {appointment.Patient?.Name},
+                string emailBody = EmailTemplates.AppointmentCancellation(
+                    patientName:     appointment.Patient?.Name ?? "Paciente",
+                    specialtyName:   appointment.Specialty?.Name ?? "—",
+                    branchName:      appointment.Branch?.Name ?? "—",
+                    appointmentDate: appointment.AppointmentDate.ToLocalTime().ToString("dddd, dd 'de' MMMM 'de' yyyy — HH:mm 'hrs'"),
+                    appointmentId:   appointment.Id,
+                    amount:          appointment.Amount);
 
-Su cita ha sido cancelada exitosamente.
-
-Detalles de la cita cancelada:
-- Especialidad: {appointment.Specialty?.Name}
-- Fecha y hora: {appointment.AppointmentDate:dd/MM/yyyy HH:mm}
-- Monto: Q{appointment.Amount:F2}
-
-Los fondos serán reintegrados a su cuenta según los términos del servicio.
-
-Si tiene alguna duda, comuníquese con nuestro equipo de soporte.";
-
-                _sendMail.Send(patientEmail, "Cancelación de Cita — Hospital HIS", emailBody);
+                _sendMail.Send(patientEmail, "Cita Cancelada — Hospital HIS", emailBody);
             }
             catch
             {

@@ -1,9 +1,12 @@
 import { Button, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
+import { useNavigate } from "react-router";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
-import { getAppointments, startVitals, completeVitals } from "../../services/appointmentService";
+import { getAppointments, startVitals } from "../../services/appointmentService";
 import { callPatient } from "../../utils/tts";
+import { nameRoutes } from "../../configs/constants";
+import { useAuth } from "../../hooks/useAuth";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 
 const STATUS_CONFIRMADA = 2;
@@ -17,25 +20,26 @@ const statusColors: Record<string, string> = {
 function AppointmentCard({
   appointment,
   onStartVitals,
-  onCompleteVitals,
+  onGoToForm,
   isLoading,
 }: {
   readonly appointment: AppointmentResponse;
   readonly onStartVitals: (a: AppointmentResponse) => void;
-  readonly onCompleteVitals: (a: AppointmentResponse) => void;
+  readonly onGoToForm: (a: AppointmentResponse) => void;
   readonly isLoading: boolean;
 }) {
   const statusName = appointment.appointmentStatus?.name ?? "";
   const colorClass = statusColors[statusName] ?? "bg-gray-100 text-gray-800 border-gray-200";
   const isConfirmed = appointment.appointmentStatusId === STATUS_CONFIRMADA;
   const isVitals = appointment.appointmentStatusId === STATUS_SIGNOS;
+  const patientName = appointment.patient?.name ?? `Paciente #${appointment.patientId}`;
 
   return (
     <div className={`rounded-xl border p-4 flex flex-col gap-3 shadow-sm ${colorClass}`}>
       <div className="flex justify-between items-start">
         <div>
-          <p className="font-bold">
-            #{appointment.id} — {appointment.patient?.name ?? `Paciente #${appointment.patientId}`}
+          <p className="font-bold text-base">
+            #{appointment.id} — {patientName}
           </p>
           <p className="text-sm opacity-75">{appointment.specialty?.name ?? "—"}</p>
           <p className="text-sm opacity-75">{appointment.branch?.name ?? "—"}</p>
@@ -53,19 +57,19 @@ function AppointmentCard({
             isDisabled={isLoading}
             onPress={() => onStartVitals(appointment)}
           >
-            <i className="bi bi-heart-pulse mr-1" />
-            Iniciar Signos Vitales
+            <i className="bi bi-megaphone mr-1" />
+            Llamar y Tomar Signos
           </Button>
         )}
         {isVitals && (
           <Button
             size="sm"
-            variant="secondary"
+            variant="primary"
             isDisabled={isLoading}
-            onPress={() => onCompleteVitals(appointment)}
+            onPress={() => onGoToForm(appointment)}
           >
-            <i className="bi bi-check-circle mr-1" />
-            Completar Signos Vitales
+            <i className="bi bi-heart-pulse mr-1" />
+            Registrar Signos Vitales
           </Button>
         )}
       </div>
@@ -75,6 +79,8 @@ function AppointmentCard({
 
 export function NurseDashboardPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { userId } = useAuth();
 
   const { data, isLoading } = useQuery({
     queryKey: ["nurse-appointments"],
@@ -82,19 +88,21 @@ export function NurseDashboardPage() {
       getAppointments({
         pageNumber: 1,
         pageSize: 100,
-        filters: `State:eq:1 AND (AppointmentStatusId:eq:${STATUS_CONFIRMADA} OR AppointmentStatusId:eq:${STATUS_SIGNOS})`,
+        filters: `State:eq:1 AND AppointmentStatusId:in:${STATUS_CONFIRMADA},${STATUS_SIGNOS}`,
         include: "Specialty,Branch,AppointmentStatus,Patient",
         includeTotal: false,
       }),
     refetchInterval: 30000,
   });
 
+  // Step 1: call patient via TTS + transition to "Signos Vitales"
   const startVitalsMutation = useMutation({
     mutationFn: (appt: AppointmentResponse) => startVitals(appt.id),
     onSuccess: (res, appt) => {
       if (res.success) {
-        callPatient(appt.id, appt.patient?.name ?? "Paciente", "favor pasar a toma de signos vitales");
-        toast.success(`Cita #${appt.id} iniciando signos vitales`);
+        const patientName = appt.patient?.name ?? "Paciente";
+        callPatient(appt.id, patientName, "favor pasar a toma de signos vitales");
+        toast.success(`Paciente ${patientName} llamado — cita #${appt.id}`);
         queryClient.invalidateQueries({ queryKey: ["nurse-appointments"] });
       } else {
         toast.danger(res.message ?? "Error al cambiar estado");
@@ -103,26 +111,16 @@ export function NurseDashboardPage() {
     onError: () => toast.danger("Error al actualizar estado"),
   });
 
-  const completeVitalsMutation = useMutation({
-    mutationFn: (appt: AppointmentResponse) => completeVitals(appt.id),
-    onSuccess: (res, appt) => {
-      if (res.success) {
-        toast.success(`Cita #${appt.id} en espera de consulta`);
-        queryClient.invalidateQueries({ queryKey: ["nurse-appointments"] });
-      } else {
-        toast.danger(res.message ?? "Error al cambiar estado");
-      }
-    },
-    onError: () => toast.danger("Error al actualizar estado"),
-  });
+  // Step 2: navigate to the vitals form with appointment context
+  const handleGoToForm = useCallback((appt: AppointmentResponse) => {
+    navigate(
+      `/vital-sign/create?appointmentId=${appt.id}&patientId=${appt.patientId}&nurseId=${userId}&patientName=${encodeURIComponent(appt.patient?.name ?? "")}`,
+    );
+  }, [navigate, userId]);
 
   const handleStartVitals = useCallback((appt: AppointmentResponse) => {
     startVitalsMutation.mutate(appt);
   }, [startVitalsMutation]);
-
-  const handleCompleteVitals = useCallback((appt: AppointmentResponse) => {
-    completeVitalsMutation.mutate(appt);
-  }, [completeVitalsMutation]);
 
   if (isLoading) return <LoadingComponent />;
 
@@ -149,15 +147,18 @@ export function NurseDashboardPage() {
         <section className="mb-8">
           <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-purple-500 inline-block" />
-            En Toma de Signos Vitales ({inVitals.length})
+            Pacientes Llamados — Pendiente de Registrar Signos ({inVitals.length})
           </h2>
+          <p className="text-xs text-gray-500 mb-3">
+            Estos pacientes ya fueron llamados. Haga clic en "Registrar Signos Vitales" para completar el formulario.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {inVitals.map(a => (
               <AppointmentCard
                 key={a.id}
                 appointment={a}
-                isLoading={startVitalsMutation.isPending || completeVitalsMutation.isPending}
-                onCompleteVitals={handleCompleteVitals}
+                isLoading={startVitalsMutation.isPending}
+                onGoToForm={handleGoToForm}
                 onStartVitals={handleStartVitals}
               />
             ))}
@@ -169,15 +170,15 @@ export function NurseDashboardPage() {
         <section className="mb-8">
           <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-green-500 inline-block" />
-            Citas Confirmadas — Esperando Signos Vitales ({confirmed.length})
+            Citas Confirmadas — En Espera de Ser Llamadas ({confirmed.length})
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {confirmed.map(a => (
               <AppointmentCard
                 key={a.id}
                 appointment={a}
-                isLoading={startVitalsMutation.isPending || completeVitalsMutation.isPending}
-                onCompleteVitals={handleCompleteVitals}
+                isLoading={startVitalsMutation.isPending}
+                onGoToForm={handleGoToForm}
                 onStartVitals={handleStartVitals}
               />
             ))}

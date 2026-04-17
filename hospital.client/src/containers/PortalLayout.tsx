@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from "react-router";
 
-import { Images } from "../assets/images/images";
+import { LogoHIS } from "../components/brand/LogoHIS";
 import { nameRoutes } from "../configs/constants";
 import { usePatientAuthStore } from "../stores/usePatientAuthStore";
 
@@ -23,7 +23,7 @@ export function PortalLayout() {
             to={nameRoutes.portalHome}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
-            <img alt="Hospital HIS" src={Images.logo} className="h-8 w-auto" />
+            <LogoHIS width="120px" height="auto" />
             <span className="font-bold text-gray-800 dark:text-gray-100 text-lg hidden sm:block">
               Hospital HIS
             </span>

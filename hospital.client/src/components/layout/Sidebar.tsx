@@ -2,7 +2,7 @@
 import { Button, Tooltip } from "@heroui/react";
 import { useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { Images } from "../../assets/images/images";
+import { LogoHIS } from "../brand/LogoHIS";
 import { nameRoutes } from "../../configs/constants";
 import { useAuth } from "../../hooks/useAuth";
 import { SubMenu } from "../links/SubMenu";
@@ -51,13 +51,13 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
             to={nameRoutes.root}
           >
             <div
-              className={`relative flex items-center justify-center transition-all duration-300 ${isOpen ? "w-30" : "w-10"}`}
+              className={`relative flex items-center justify-center transition-all duration-300 ${isOpen ? "w-36" : "w-10"}`}
             >
-              <img
-                alt="Logo"
-                className={`object-contain transition-all duration-300 ${isOpen ? "w-full rounded-xl" : "w-8 h-8 rounded-md"}`}
-                src={Images.logo}
-              />
+              {isOpen ? (
+                <LogoHIS className="rounded-xl" height="auto" width="140px" />
+              ) : (
+                <LogoHIS height={36} width={36} />
+              )}
             </div>
           </Link>
           <Button

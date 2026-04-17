@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
 import { Images } from "../../assets/images/images";
+import { LogoHIS } from "../../components/brand/LogoHIS";
 import { nameRoutes } from "../../configs/constants";
 import { registerPatient } from "../../services/patientPortalService";
 import type { PatientRegisterRequest } from "../../types/PatientPortalTypes";
@@ -191,7 +192,7 @@ export function PortalRegisterPage() {
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
           {/* Logo */}
           <div className="flex justify-center mb-6">
-            <img alt="Hospital HIS" src={Images.logo} className="h-14 w-auto" />
+            <LogoHIS className="h-14 w-auto" height="auto" width="160px" />
           </div>
 
           <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-1">

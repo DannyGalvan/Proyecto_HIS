@@ -5,6 +5,7 @@ import { AsyncButton } from "../../components/button/AsyncButton";
 import { Response } from "../../components/messages/Response";
 import { useForm } from "../../hooks/useForm";
 import { Images } from "../../assets/images/images";
+import { LogoHIS } from "../../components/brand/LogoHIS";
 import { api } from "../../configs/axios/interceptors";
 import type { ApiResponse } from "../../types/ApiResponse";
 import type { RegisterFormData } from "../../validations/registerValidation";
@@ -54,7 +55,7 @@ export function RegisterPage() {
         <Card className="w-full shadow-[0px_20px_20px_10px_#A0AEC0] login-card">
           <div className="p-8 flex flex-col w-full">
             <div className="flex justify-center mb-6">
-              <img alt="Logo" src={Images.logo} style={{ maxWidth: "160px" }} />
+              <LogoHIS height="auto" width="160px" />
             </div>
             <h1 className="text-2xl font-bold text-center mb-2">Registro de Paciente</h1>
             <p className="text-gray-500 text-sm text-center mb-6">

@@ -1,23 +1,23 @@
-import { Images } from "../../assets/images/images";
-import { Col } from "../../components/grid/Col";
+import { LogoHIS } from '../../components/brand/LogoHIS';
 
 function LoadingPage() {
   return (
-    <div className="flex h-screen flex-row items-center">
-      <div className="container mx-auto">
-        <div className="flex flex-row justify-center">
-          <Col md={4} sm={4} xs={8}>
-            <img
-              alt="logo"
-              className="loading w-100 rounded-xl object-cover"
-              src={Images.logo}
-            />
-            <h3 className="text-center text-3xl text-gray-500 loading">
-              Cargando... Espere
-            </h3>
-          </Col>
+    // 'bg-background' o similar para que tome el color de tu tema
+    <div className="flex h-screen flex-col items-center justify-center gap-6 bg-white dark:bg-slate-950">
+
+      {/* El logo ahora es "inteligente", no necesita un div padre que lo fuerce */}
+      <LogoHIS width="240px" height="auto" />
+
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-xl font-medium text-gray-500 dark:text-gray-400 animate-pulse">
+          Cargando... Espere
+        </p>
+        {/* Un pequeño detalle visual opcional */}
+        <div className="h-1.5 w-12 rounded-full bg-blue-500/20">
+          <div className="h-full w-full animate-loading-bar rounded-full bg-blue-500"></div>
         </div>
       </div>
+
     </div>
   );
 }

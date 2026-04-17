@@ -95,6 +95,12 @@ namespace Hospital.Server.Configs.Extensions
             // hosted service para sincronización al inicio
             services.AddHostedService<OperationSyncHostedService>();
 
+            // hosted service para expiración automática de citas pendientes de pago
+            services.AddHostedService<AppointmentExpirationService>();
+
+            // hosted service para recordatorios de cita por correo (24h y 4h antes)
+            services.AddHostedService<AppointmentReminderService>();
+
             // payment gateway (swap MockPaymentGateway for real implementation in production)
             services.AddScoped<IPaymentGateway, MockPaymentGateway>();
 
