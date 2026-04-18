@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
 import { LogoHIS } from "../../components/brand/LogoHIS";
-import { PasswordVisibilityToggle } from "../../components/input/PasswordVisibilityToggle";
 import { nameRoutes } from "../../configs/constants";
 import { loginPatient } from "../../services/patientPortalService";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
+import { getRoleFromToken } from "../../utils/jwt";
 
 // ── Zod schema ────────────────────────────────────────────────────────────────
 const loginSchema = z.object({
@@ -30,6 +30,7 @@ export function PortalLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<Date | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const isLocked = lockedUntil !== null && new Date() < lockedUntil;
 
@@ -68,6 +69,13 @@ export function PortalLoginPage() {
 
         if (response.success) {
           const { token, userId: responseUserId, name: responseName, email: responseEmail, timezoneIanaId: responseTz } = response.data;
+
+          // Only patients can log in via the portal
+          const roleName = getRoleFromToken(token);
+          if (roleName !== "Paciente") {
+            setApiError("Este acceso es exclusivo para pacientes. Si es personal del hospital, use el panel administrativo.");
+            return;
+          }
 
           signInPatient({
             isLoggedIn: true,
@@ -169,16 +177,45 @@ export function PortalLoginPage() {
             </div>
 
             {/* Password */}
-            <PasswordVisibilityToggle
-              isRequired
-              errorMessage={fieldErrors.password}
-              isInvalid={!!fieldErrors.password}
-              label="Contraseña"
-              name="password"
-              placeholder="Ingrese su contraseña"
-              value={form.password}
-              onChange={(val) => { setForm((prev) => ({ ...prev, password: val })); setFieldErrors((prev) => ({ ...prev, password: undefined })); setApiError(""); }}
-            />
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="portal-password"
+                className="text-sm font-bold text-gray-700 dark:text-gray-300"
+              >
+                Contraseña *
+              </label>
+              <div className="relative">
+                <input
+                  id="portal-password"
+                  autoComplete="current-password"
+                  className={`w-full px-4 py-3 pr-12 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
+                    fieldErrors.password
+                      ? "border-red-400 bg-red-50 dark:bg-red-900/20"
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
+                  disabled={isLocked}
+                  placeholder="Ingrese su contraseña"
+                  type={showPassword ? "text" : "password"}
+                  value={form.password}
+                  onChange={(e) => { setForm((prev) => ({ ...prev, password: e.target.value })); setFieldErrors((prev) => ({ ...prev, password: undefined })); setApiError(""); }}
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  onClick={() => setShowPassword((prev) => !prev)}
+                >
+                  <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-lg`} />
+                </button>
+              </div>
+              {fieldErrors.password && (
+                <p className="text-red-500 text-xs mt-0.5">
+                  <i className="bi bi-exclamation-circle mr-1" />
+                  {fieldErrors.password}
+                </p>
+              )}
+            </div>
 
             {/* Submit */}
             <button
@@ -223,6 +260,13 @@ export function PortalLoginPage() {
             >
               <i className="bi bi-arrow-left mr-1" />
               Volver al portal
+            </Link>
+            <Link
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xs mt-1"
+              to={nameRoutes.login}
+            >
+              <i className="bi bi-shield-lock mr-1" />
+              Acceso Panel Administrativo
             </Link>
           </div>
         </div>

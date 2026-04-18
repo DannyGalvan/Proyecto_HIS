@@ -96,7 +96,7 @@ function PortalPaymentContent({
   }, []);
 
   return (
-    <section className="min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 dark:bg-gray-900">
+    <section className="min-h-[calc(100vh-140px)] px-4 py-10 bg-white dark:bg-gray-800">
       <div className="mx-auto max-w-2xl">
         {/* Header */}
         <div className="mb-6 text-center">
@@ -130,7 +130,7 @@ function PortalPaymentContent({
             </div>
 
             {/* Appointment summary */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="rounded-2xl border border-gray-100 p-6 shadow-sm dark:border-gray-700">
               <h2 className="mb-4 font-bold text-gray-800 dark:text-gray-100">
                 <i className="bi bi-clipboard2-check mr-2 text-blue-600" />
                 Resumen de la Cita
@@ -178,7 +178,7 @@ function PortalPaymentContent({
             )}
 
             {/* Payment form */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="rounded-2xl border border-gray-100  p-6 shadow-sm dark:border-gray-700 ">
               <PaymentForm
                 amount={amount}
                 appointmentId={appointmentId}

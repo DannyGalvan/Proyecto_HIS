@@ -10,7 +10,7 @@ import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 // ── Sección Hero ──────────────────────────────────────────────────────────────
 function HeroSection({ onSchedule }: { readonly onSchedule: () => void }) {
   return (
-    <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-cyan-700 text-white py-20 px-6 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-blue-700 via-blue-800 to-cyan-600 dark:from-blue-900 dark:via-blue-800 dark:to-cyan-700 text-white py-20 px-6 overflow-hidden">
       {/* Patrón de cruces médicas decorativo */}
       <div
         aria-hidden="true"
@@ -69,9 +69,9 @@ function SpecialtyCard({ specialty }: { readonly specialty: { id: number; name: 
   const icon = icons[specialty.name] ?? "bi-hospital";
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
-      <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-4">
-        <i className={`bi ${icon} text-2xl text-blue-600 dark:text-blue-300`} />
+    <div className="bg-white dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
+      <div className="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-4">
+        <i className={`bi ${icon} text-2xl text-blue-600 dark:text-blue-400`} />
       </div>
       <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-2">{specialty.name}</h3>
       <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{specialty.description}</p>
@@ -82,10 +82,10 @@ function SpecialtyCard({ specialty }: { readonly specialty: { id: number; name: 
 // ── Tarjeta de sucursal ───────────────────────────────────────────────────────
 function BranchCard({ branch }: { readonly branch: { id: number; name: string; address?: string | null; phone?: string | null; description?: string | null } }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center shrink-0">
-          <i className="bi bi-geo-alt-fill text-xl text-cyan-600 dark:text-cyan-300" />
+        <div className="w-12 h-12 rounded-full bg-cyan-50 dark:bg-cyan-900/30 flex items-center justify-center shrink-0">
+          <i className="bi bi-geo-alt-fill text-xl text-cyan-600 dark:text-cyan-400" />
         </div>
         <div>
           <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1">{branch.name}</h3>
@@ -291,13 +291,14 @@ export function PortalPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="w-full min-h-screen bg-white dark:bg-gray-900">
       {/* Hero */}
       <HeroSection onSchedule={handleScheduleClick} />
 
       {/* Servicios / Especialidades */}
-      <section id="servicios" className="py-16 px-6 max-w-6xl mx-auto">
-        <div className="text-center mb-10">
+      <section id="servicios" className="py-16 px-6 bg-white dark:bg-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">
             Nuestras Especialidades
           </h2>
@@ -306,21 +307,22 @@ export function PortalPage() {
           </p>
         </div>
 
-        {loadingSpecialties ? (
-          <LoadingComponent />
-        ) : specialties.length === 0 ? (
-          <p className="text-center text-gray-400">No hay especialidades disponibles en este momento.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {specialties.map((s) => (
-              <SpecialtyCard key={s.id} specialty={s} />
-            ))}
-          </div>
-        )}
+          {loadingSpecialties ? (
+            <LoadingComponent />
+          ) : specialties.length === 0 ? (
+            <p className="text-center text-gray-400">No hay especialidades disponibles en este momento.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {specialties.map((s) => (
+                <SpecialtyCard key={s.id} specialty={s} />
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Sucursales */}
-      <section className="py-16 px-6 bg-white dark:bg-gray-800">
+      <section className="py-16 px-6 bg-white dark:bg-gray-800 border-y border-gray-200 dark:border-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">
@@ -346,29 +348,31 @@ export function PortalPage() {
       </section>
 
       {/* Horarios de atención */}
-      <section className="py-16 px-6 max-w-6xl mx-auto">
-        <div className="text-center mb-10">
+      <section className="py-16 px-6 bg-white dark:bg-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">
             Horarios de Atención
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { icon: "bi-sun", title: "Lunes a Viernes", hours: "7:00 AM – 7:00 PM", color: "bg-yellow-50 border-yellow-200 text-yellow-800" },
-            { icon: "bi-calendar-week", title: "Sábados", hours: "8:00 AM – 2:00 PM", color: "bg-blue-50 border-blue-200 text-blue-800" },
-            { icon: "bi-alarm", title: "Emergencias", hours: "24 horas / 7 días", color: "bg-red-50 border-red-200 text-red-800" },
-          ].map((item) => (
-            <div key={item.title} className={`rounded-xl border p-6 text-center ${item.color}`}>
-              <i className={`bi ${item.icon} text-3xl block mb-3`} />
-              <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-              <p className="font-semibold text-xl">{item.hours}</p>
-            </div>
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: "bi-sun", title: "Lunes a Viernes", hours: "7:00 AM – 7:00 PM", color: "bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300" },
+              { icon: "bi-calendar-week", title: "Sábados", hours: "8:00 AM – 2:00 PM", color: "bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300" },
+              { icon: "bi-alarm", title: "Emergencias", hours: "24 horas / 7 días", color: "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300" },
+            ].map((item) => (
+              <div key={item.title} className={`rounded-xl border p-6 text-center ${item.color}`}>
+                <i className={`bi ${item.icon} text-3xl block mb-3`} />
+                <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                <p className="font-semibold text-xl">{item.hours}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA final */}
-      <section className="py-16 px-6 bg-gradient-to-r from-blue-800 to-cyan-700 text-white text-center">
+      <section className="py-16 px-6 bg-gradient-to-r from-blue-700 to-cyan-600 dark:from-blue-900 dark:to-cyan-800 text-white text-center">
         <h2 className="text-3xl font-bold mb-4">¿Listo para agendar su cita?</h2>
         <p className="text-blue-100 mb-8 max-w-xl mx-auto">
           El proceso es rápido y sencillo. Solo necesita su DPI y unos minutos.
@@ -395,14 +399,14 @@ export function PortalPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 px-6 text-center text-sm">
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 py-8 px-6 text-center text-sm">
         <p className="mb-2">
           <i className="bi bi-hospital mr-2" />
           Sistema Informático Hospitalario (HIS) — Todos los derechos reservados.
         </p>
         <p>
           Este es un sistema automático. Para consultas, comuníquese al teléfono{" "}
-          <span className="text-white font-semibold">+502 2222-3333</span>.
+          <span className="text-gray-900 dark:text-gray-100 font-semibold">+502 2222-3333</span>.
         </p>
       </footer>
 

@@ -14,6 +14,16 @@ function RootIndex() {
   const { isLoggedIn, token } = useAuth();
 
   if (!isLoggedIn) {
+    // Check if patient is logged in via patient store
+    const patientAuth = window.localStorage.getItem("@patient-auth");
+    if (patientAuth) {
+      try {
+        const parsed = JSON.parse(patientAuth);
+        if (parsed?.isLoggedIn && parsed?.token) {
+          return <Navigate to={nameRoutes.portalDashboard} replace />;
+        }
+      } catch { /* ignore */ }
+    }
     return <Navigate to={nameRoutes.portalHome} replace />;
   }
 

@@ -65,7 +65,7 @@ function Step1Branch({ onSelect }: { readonly onSelect: (branch: BranchResponse)
       {!isLoading && !isError && branches.length === 0 && <p className="text-center text-gray-400">No hay sedes disponibles.</p>}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {branches.map((b) => (
-          <button key={b.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500" type="button" onClick={() => onSelect(b)}>
+          <button key={b.id} className="flex items-start gap-4 rounded-xl border border-gray-200 p-5 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500" type="button" onClick={() => onSelect(b)}>
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
               <i className="bi bi-building text-2xl text-blue-600 dark:text-blue-300" />
             </div>
@@ -101,7 +101,7 @@ function Step2Specialty({ branchId, branchName, onSelect, onBack }: { readonly b
         {specialties.map((s) => {
           const icon = SPECIALTY_ICONS[s.name] ?? "bi-hospital";
           return (
-            <button key={s.id} className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500" type="button" onClick={() => onSelect(s)}>
+            <button key={s.id} className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 p-5 text-center shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500" type="button" onClick={() => onSelect(s)}>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
                 <i className={`bi ${icon} text-2xl text-blue-600 dark:text-blue-300`} />
               </div>
@@ -138,7 +138,7 @@ function Step3Doctor({ branchId, specialtyId, specialtyName, branchName, onSelec
       {!isLoading && !isError && doctors.length === 0 && <p className="text-center text-gray-400">No se encontraron horarios disponibles para la especialidad {specialtyName} en la sucursal {branchName}. Por favor, seleccione otra especialidad o sede.</p>}
       <div className="flex flex-col gap-3">
         {doctors.map((d) => (
-          <button key={d.id} className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500" type="button" onClick={() => onSelect(d)}>
+          <button key={d.id} className="flex items-center gap-4 rounded-xl border border-gray-200 p-4 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500" type="button" onClick={() => onSelect(d)}>
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-cyan-100 dark:bg-cyan-900">
               <i className="bi bi-person-badge text-2xl text-cyan-600 dark:text-cyan-300" />
             </div>
@@ -171,7 +171,7 @@ function Step4Slot({ doctorId, doctorName, specialtyName, branchName, onSelect, 
         <span className="mx-2 text-gray-300">|</span>
         <span className="font-semibold text-blue-600">{doctorName}</span>
       </p>
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 mb-4">
+      <div className="rounded-xl border border-gray-200  p-4 dark:border-gray-700  mb-4">
         <DynamicCalendar doctorId={doctorId} onSlotSelected={handleSlotSelected} />
       </div>
       {selectedSlot && (
@@ -271,7 +271,7 @@ export function BookAppointmentPage() {
     }
   }, [wizard, userId, navigate]);
   return (
-    <section className="min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 dark:bg-gray-900">
+    <section className="min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 bg-white dark:bg-gray-800">
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100"><i className="bi bi-calendar-plus mr-2 text-blue-600" />Agendar Nueva Cita</h1>
@@ -283,7 +283,7 @@ export function BookAppointmentPage() {
             <i className="bi bi-exclamation-triangle-fill mr-2" />El horario seleccionado ya no esta disponible. Por favor, elija otro horario.
           </div>
         )}
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-2xl border border-gray-100 p-6 shadow-sm dark:border-gray-700">
           {wizard.step === 1 && <Step1Branch onSelect={handleBranchSelect} />}
           {wizard.step === 2 && wizard.branch && <Step2Specialty branchId={wizard.branch.id} branchName={wizard.branch.name} onBack={() => setWizard((prev) => ({ ...prev, step: 1 }))} onSelect={handleSpecialtySelect} />}
           {wizard.step === 3 && wizard.branch && wizard.specialty && <Step3Doctor branchId={wizard.branch.id} branchName={wizard.branch.name} specialtyId={wizard.specialty.id} specialtyName={wizard.specialty.name} onBack={() => setWizard((prev) => ({ ...prev, step: 2 }))} onSelect={handleDoctorSelect} />}

@@ -46,7 +46,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ loading: true });
       await retrase(1000);
-      window.localStorage.clear();
+      window.localStorage.removeItem("@auth");
       setAuthorization("");
       set({ authState: authInitialState });
       set({ loading: false });

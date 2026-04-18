@@ -22,7 +22,7 @@ export function ConfirmationPage() {
   const patientEmail = confirmation.patientEmail || email;
 
   return (
-    <section className="min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 dark:bg-gray-900">
+    <section className="min-h-[calc(100vh-140px)] px-4 py-10 bg-white dark:bg-gray-800">
       <div className="mx-auto max-w-2xl">
         {/* Success header */}
         <div className="mb-8 flex flex-col items-center text-center">
@@ -38,7 +38,7 @@ export function ConfirmationPage() {
         </div>
 
         {/* Receipt card */}
-        <div className="mb-6 rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="mb-6 rounded-2xl border border-gray-100 shadow-sm dark:border-gray-700">
           {/* Receipt header */}
           <div className="rounded-t-2xl bg-gradient-to-r from-blue-700 to-cyan-600 px-6 py-4 text-white">
             <div className="flex items-center justify-between">
@@ -129,7 +129,7 @@ export function ConfirmationPage() {
         {/* Action buttons */}
         <div className="flex flex-col gap-3 sm:flex-row">
           <button
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 bg-success  px-5 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-green-800  dark:text-gray-200 dark:hover:bg-gray-700"
             type="button"
             onClick={() => navigate(nameRoutes.portalDashboard)}
           >

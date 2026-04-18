@@ -258,7 +258,7 @@ export function ProfilePage() {
   // ── Render ────────────────────────────────────────────────────────────────
   if (isFetching) {
     return (
-      <section className="min-h-[calc(100vh-140px)] flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <section className="w-full min-h-[calc(100vh-140px)] flex items-center justify-center bg-white dark:bg-gray-800">
         <div className="flex flex-col items-center gap-3">
           <i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" />
           <p className="text-gray-500 dark:text-gray-400">Cargando perfil...</p>
@@ -268,7 +268,7 @@ export function ProfilePage() {
   }
 
   return (
-    <section className="min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 dark:bg-gray-900">
+    <section className="w-full min-h-[calc(100vh-140px)] bg-white dark:bg-gray-800 px-4 py-10">
       <div className="mx-auto max-w-2xl">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
@@ -282,7 +282,7 @@ export function ProfilePage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
+        <div className="rounded-2xl shadow-lg border border-gray-100 p-8 ">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30">
               <i className="bi bi-person-circle text-2xl text-blue-600" />

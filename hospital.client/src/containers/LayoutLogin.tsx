@@ -5,5 +5,5 @@ interface LayoutLoginProps {
 }
 
 export function LayoutLogin({ children }: LayoutLoginProps) {
-  return <main className="flex h-[100vh] justify-center">{children}</main>;
+  return <main className="min-h-screen w-full flex flex-col">{children}</main>;
 }

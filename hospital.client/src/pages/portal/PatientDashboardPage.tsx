@@ -51,7 +51,7 @@ const PAST_STATUSES = new Set([
 function AppointmentCard({ appt }: { readonly appt: AppointmentItem }) {
   const statusName = appt.appointmentStatusName ?? "";
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800/90">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1">
           <p className="font-semibold text-gray-800 dark:text-gray-100">
@@ -111,7 +111,7 @@ export function PatientDashboardPage() {
   }, [logoutPatient, navigate]);
 
   return (
-    <section className="min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 dark:bg-gray-900">
+    <section className="w-full min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 bg-white dark:bg-gray-800">
       <div className="mx-auto max-w-3xl">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -151,7 +151,7 @@ export function PatientDashboardPage() {
         </div>
 
         {/* ── Próximas Citas (Confirmadas) ─────────────────────────────────── */}
-        <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="mb-6 rounded-2xl border border-gray-100 p-6 shadow-sm dark:border-gray-700">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
               <i className="bi bi-calendar-check mr-2 text-blue-600" />
@@ -194,7 +194,7 @@ export function PatientDashboardPage() {
 
         {/* ── Citas Anteriores ─────────────────────────────────────────────── */}
         {!isLoading && pastAppointments.length > 0 && (
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="rounded-2xl border border-gray-100 p-6 shadow-sm dark:border-gray-700">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
                 <i className="bi bi-clock-history mr-2 text-gray-500" />

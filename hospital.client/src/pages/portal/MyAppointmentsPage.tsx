@@ -55,7 +55,7 @@ function AppointmentRow({
   const canCancel = CANCELLABLE_STATUSES.has(statusName);
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800/90">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Left: date + info */}
         <div className="flex items-center gap-4">
@@ -160,7 +160,7 @@ export function MyAppointmentsPage() {
   const hasPrev = page > 1;
 
   return (
-    <section className="min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 dark:bg-gray-900">
+    <section className="w-full min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 bg-white dark:bg-gray-800">
       <div className="mx-auto max-w-3xl">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -227,7 +227,7 @@ export function MyAppointmentsPage() {
             {/* Pagination */}
             <div className="mt-6 flex items-center justify-between">
               <button
-                className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+                className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
                 disabled={!hasPrev || isFetching}
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -241,7 +241,7 @@ export function MyAppointmentsPage() {
               </span>
 
               <button
-                className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+                className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
                 disabled={!hasMore || isFetching}
                 type="button"
                 onClick={() => setPage((p) => p + 1)}

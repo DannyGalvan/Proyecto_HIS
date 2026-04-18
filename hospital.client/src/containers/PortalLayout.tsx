@@ -1,3 +1,4 @@
+import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router";
 
@@ -12,8 +13,14 @@ import { getAppTimezone } from "../utils/dateFormatter";
 
 export function PortalLayout() {
   const navigate = useNavigate();
+  const { setTheme, resolvedTheme } = useTheme();
   const { isLoggedIn, name, loading, logoutPatient, syncPatientAuth, signInPatient, ...patientState } = usePatientAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Timezone dropdown state
   const [tzOpen, setTzOpen] = useState(false);
@@ -82,6 +89,10 @@ export function PortalLayout() {
     [navigate],
   );
 
+  const handleThemeChange = useCallback(() => {
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  }, [setTheme, resolvedTheme]);
+
   // Show loading while syncing auth from localStorage
   if (loading) {
     return (
@@ -133,6 +144,20 @@ export function PortalLayout() {
 
             {/* Desktop actions */}
             <div className="hidden lg:flex items-center gap-2">
+              {mounted && (
+                <button
+                  type="button"
+                  aria-label="Alternar tema"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mr-2"
+                  onClick={handleThemeChange}
+                >
+                  {resolvedTheme === "dark" ? (
+                    <i className="bi bi-sun-fill text-base" />
+                  ) : (
+                    <i className="bi bi-moon-stars-fill text-base" />
+                  )}
+                </button>
+              )}
               {isLoggedIn ? (
                 <>
                   {/* Timezone selector */}
@@ -223,6 +248,20 @@ export function PortalLayout() {
 
             {/* Mobile: CTA + hamburger */}
             <div className="flex lg:hidden items-center gap-2">
+              {mounted && (
+                <button
+                  type="button"
+                  aria-label="Alternar tema"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  onClick={handleThemeChange}
+                >
+                  {resolvedTheme === "dark" ? (
+                    <i className="bi bi-sun-fill text-base" />
+                  ) : (
+                    <i className="bi bi-moon-stars-fill text-base" />
+                  )}
+                </button>
+              )}
               {isLoggedIn && (
                 <button
                   type="button"
@@ -341,24 +380,24 @@ export function PortalLayout() {
       </nav>
 
       {/* Contenido principal */}
-      <main className="flex-1">
+      <main className="flex-1 bg-gray-50 dark:bg-gray-900">
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 px-6">
+      <footer className="bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 py-8 px-6 border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <i className="bi bi-hospital text-blue-400 text-xl" />
-              <span className="font-bold text-white text-lg">Hospital HIS</span>
+              <span className="font-bold text-gray-900 dark:text-white text-lg">Hospital HIS</span>
             </div>
             <p className="text-sm leading-relaxed">
               Sistema Informático Hospitalario. Atención médica de calidad al alcance de todos.
             </p>
           </div>
           <div>
-            <h3 className="font-bold text-white mb-3">Contacto</h3>
+            <h3 className="font-bold text-gray-900 dark:text-white mb-3">Contacto</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
                 <i className="bi bi-telephone text-blue-400" />
@@ -375,7 +414,7 @@ export function PortalLayout() {
             </ul>
           </div>
           <div>
-            <h3 className="font-bold text-white mb-3">Horarios de Atención</h3>
+            <h3 className="font-bold text-gray-900 dark:text-white mb-3">Horarios de Atención</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
                 <i className="bi bi-clock text-blue-400" />
@@ -392,7 +431,7 @@ export function PortalLayout() {
             </ul>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-gray-700 text-center text-xs">
+        <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center text-xs">
           <p>© {new Date().getFullYear()} Hospital HIS — Todos los derechos reservados.</p>
         </div>
       </footer>
