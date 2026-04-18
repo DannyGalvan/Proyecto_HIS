@@ -14,7 +14,7 @@ namespace Hospital.Server.Controllers
     [Route("api/v1/[controller]")]
     [Authorize]
     [ModuleInfo(
-        DisplayName = "Inventario de Farmacia",
+        DisplayName = "Inventario Farmacia",
         Description = "Gestión de inventario de medicamentos por sucursal",
         Icon = "bi-box-seam",
         Path = "medicine-inventory",

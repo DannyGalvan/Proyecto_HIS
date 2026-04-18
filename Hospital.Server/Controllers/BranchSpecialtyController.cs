@@ -17,7 +17,7 @@ namespace Hospital.Server.Controllers
     [ApiController]
     [Route("api/v1/[controller]")]
     [ModuleInfo(
-        DisplayName = "Especialidades por Sede",
+        DisplayName = "Sedes y Especialidades",
         Description = "Configuración de especialidades disponibles en cada sede",
         Icon = "bi-hospital",
         Path = "branch-specialty",

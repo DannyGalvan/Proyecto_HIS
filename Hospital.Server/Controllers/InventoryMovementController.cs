@@ -14,7 +14,7 @@ namespace Hospital.Server.Controllers
     [Route("api/v1/[controller]")]
     [Authorize]
     [ModuleInfo(
-        DisplayName = "Bitácora de Inventario",
+        DisplayName = "Bitácora Inventario",
         Description = "Gestión de movimientos de inventario de farmacia",
         Icon = "bi-journal-text",
         Path = "inventory-movement",

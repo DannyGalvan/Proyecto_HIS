@@ -14,7 +14,7 @@ namespace Hospital.Server.Controllers
     [Route("api/v1/[controller]")]
     [Authorize]
     [ModuleInfo(
-        DisplayName = "Catálogo de Exámenes",
+        DisplayName = "Exámenes Lab",
         Description = "Catálogo de exámenes de laboratorio disponibles",
         Icon = "bi-droplet",
         Path = "lab-exam",

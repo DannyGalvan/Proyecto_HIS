@@ -41,7 +41,7 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
       <aside
         className={`fixed left-0 top-0 z-48 flex h-screen flex-col border-r border-[var(--color-border)] bg-[var(--color-surface-50)] transition-all duration-300 ease-in-out md:sticky whitespace-nowrap ${
           isOpen
-            ? "w-[16rem] translate-x-0 shadow-[4px_0_12px_rgba(10,79,166,0.08)] md:shadow-none"
+            ? "w-[17rem] translate-x-0 shadow-[4px_0_12px_rgba(10,79,166,0.08)] md:shadow-none"
             : "w-18 -translate-x-full md:translate-x-0"
         }`}
       >
