@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "@heroui/react";
 
 import { nameRoutes } from "../../configs/constants";
 import { getDoctorsByBranchAndSpecialty, getSpecialtiesByBranch, bookAppointment } from "../../services/patientPortalService";
@@ -95,7 +96,7 @@ function Step2Specialty({ branchId, branchName, onSelect, onBack }: { readonly b
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Sede: <span className="font-semibold text-blue-600">{branchName}</span></p>
       {isLoading && <div className="flex justify-center py-10"><i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" /></div>}
       {isError && <div className="rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-400"><i className="bi bi-exclamation-triangle mr-2" />Error al cargar especialidades. Intente de nuevo.</div>}
-      {!isLoading && !isError && specialties.length === 0 && <p className="text-center text-gray-400">No hay especialidades disponibles en esta sede.</p>}
+      {!isLoading && !isError && specialties.length === 0 && <p className="text-center text-gray-400">No se encontraron especialidades disponibles en la sucursal {branchName}. Por favor, seleccione otra sede.</p>}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {specialties.map((s) => {
           const icon = SPECIALTY_ICONS[s.name] ?? "bi-hospital";
@@ -134,7 +135,7 @@ function Step3Doctor({ branchId, specialtyId, specialtyName, branchName, onSelec
       </p>
       {isLoading && <div className="flex justify-center py-10"><i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" /></div>}
       {isError && <div className="rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-400"><i className="bi bi-exclamation-triangle mr-2" />Error al cargar medicos. Intente de nuevo.</div>}
-      {!isLoading && !isError && doctors.length === 0 && <p className="text-center text-gray-400">No hay medicos disponibles para esta especialidad en esta sede.</p>}
+      {!isLoading && !isError && doctors.length === 0 && <p className="text-center text-gray-400">No se encontraron horarios disponibles para la especialidad {specialtyName} en la sucursal {branchName}. Por favor, seleccione otra especialidad o sede.</p>}
       <div className="flex flex-col gap-3">
         {doctors.map((d) => (
           <button key={d.id} className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500" type="button" onClick={() => onSelect(d)}>
@@ -261,6 +262,7 @@ export function BookAppointmentPage() {
     if (!wizard.branch || !wizard.specialty || !wizard.doctor || !wizard.appointmentDate) throw new Error("Datos incompletos. Por favor, complete todos los pasos.");
     const response = await bookAppointment({ patientId: userId, doctorId: wizard.doctor.id, specialtyId: wizard.specialty.id, branchId: wizard.branch.id, appointmentDate: wizard.appointmentDate.toISOString(), reason, amount: CONSULTATION_FEE });
     if (response.success && response.data) {
+      toast.success("Su cita ha sido registrada exitosamente. Será redirigido al proceso de pago para confirmar la reserva.");
       navigate(nameRoutes.portalPay, { state: { appointmentId: response.data.appointmentId, createdAt: response.data.createdAt, doctorName: wizard.doctor.name, specialtyName: wizard.specialty.name, branchName: wizard.branch.name, appointmentDate: wizard.appointmentDate.toISOString(), amount: CONSULTATION_FEE } });
     } else {
       const isConflict = response.message?.toLowerCase().includes("disponible") || response.message?.toLowerCase().includes("ocupado") || response.message?.toLowerCase().includes("409");

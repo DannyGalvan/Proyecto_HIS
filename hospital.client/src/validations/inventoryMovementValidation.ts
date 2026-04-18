@@ -9,23 +9,23 @@ import { handleOneLevelZodError } from "../utils/converted";
  */
 export const inventoryMovementSchema = z.object({
   movementType: z.union([
-    z.string({ error: invalid_type_error }).min(1, "El tipo de operación es obligatorio"),
-    z.number().min(0, "El tipo de operación es obligatorio").max(5, "Tipo de operación inválido"),
+    z.string({ error: invalid_type_error }).min(1, "Debe seleccionar el tipo de movimiento."),
+    z.number().min(0, "Debe seleccionar el tipo de movimiento.").max(5, "Tipo de operación inválido"),
   ]),
   medicineId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "El medicamento es obligatorio"),
-    z.number().min(1, "El medicamento es obligatorio"),
+    z.string({ error: invalid_type_error }).min(1, "Debe seleccionar un medicamento."),
+    z.number().min(1, "Debe seleccionar un medicamento."),
   ]),
   branchId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "La sucursal es obligatoria"),
-    z.number().min(1, "La sucursal es obligatoria"),
+    z.string({ error: invalid_type_error }).min(1, "Debe seleccionar una sucursal."),
+    z.number().min(1, "Debe seleccionar una sucursal."),
   ]),
   quantity: z.union([
     z
       .string({ error: invalid_type_error })
       .min(1, "La cantidad es obligatoria")
-      .refine((v) => Number.isInteger(Number(v)) && Number(v) > 0, "La cantidad debe ser un entero mayor a 0"),
-    z.number().int("La cantidad debe ser un entero").min(1, "La cantidad debe ser mayor a 0"),
+      .refine((v) => Number.isInteger(Number(v)) && Number(v) > 0, "La cantidad debe ser un número entero positivo."),
+    z.number().int("La cantidad debe ser un número entero positivo.").min(1, "La cantidad debe ser un número entero positivo."),
   ]),
 });
 
@@ -56,7 +56,7 @@ export const validateInventoryMovement = (data: unknown): ErrorObject => {
   if (movementType === 4 || movementType === 5) {
     const notes = String(record.notes ?? "").trim();
     if (notes.length < 10) {
-      errors.notes = "La justificación es obligatoria y debe tener al menos 10 caracteres";
+      errors.notes = "El motivo debe contener entre 10 y 1000 caracteres.";
     }
   }
 

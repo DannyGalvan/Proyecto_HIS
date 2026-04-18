@@ -62,7 +62,7 @@ export function CreateLabOrderPage() {
           Consulta no finalizada
         </h1>
         <p className="text-gray-500 dark:text-gray-400 max-w-md">
-          No se encontró una consulta médica completada para esta cita. Debes finalizar la consulta antes de crear una orden de laboratorio.
+          No se encontró una consulta médica finalizada para esta cita. Debe finalizar la consulta médica antes de poder generar una orden de laboratorio.
         </p>
         <button
           className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 transition-colors"

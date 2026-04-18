@@ -15,7 +15,10 @@ export function OutOfRangeAlert({ isOutOfRange, referenceRange }: OutOfRangeAler
   }
 
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700 border border-red-300">
+    <span
+      className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700 border border-red-300"
+      title={referenceRange ? `Los resultados del examen están fuera del rango de referencia (${referenceRange}). Se requiere revisión médica.` : "Los resultados del examen están fuera del rango de referencia. Se requiere revisión médica."}
+    >
       <span aria-hidden="true">🔴</span>
       Fuera de rango
       {referenceRange && (

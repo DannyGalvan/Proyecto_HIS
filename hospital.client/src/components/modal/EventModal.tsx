@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { toast } from "@heroui/react";
 
 import type { DoctorEventRequest, DoctorEventResponse } from "../../types/DoctorEventResponse";
 import { EventTypeLabels } from "../../types/DoctorEventResponse";
@@ -35,8 +36,8 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
     setError(null);
 
     // Validation
-    if (!title || title.length < 3 || title.length > 200) {
-      setError("El título debe tener entre 3 y 200 caracteres.");
+    if (!title || title.length < 5 || title.length > 200) {
+      setError("El título debe contener entre 5 y 200 caracteres.");
       return;
     }
     if (!startDate) {
@@ -48,7 +49,7 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
       return;
     }
     if (new Date(startDate) >= new Date(endDate)) {
-      setError("La fecha de inicio debe ser anterior a la fecha de fin.");
+      setError("La fecha de fin debe ser posterior a la fecha de inicio.");
       return;
     }
 
@@ -67,8 +68,10 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
       if (isEditing && event) {
         request.id = event.id;
         await updateDoctorEvent(request);
+        toast.success(`Evento actualizado exitosamente. ${title}`);
       } else {
         await createDoctorEvent(request);
+        toast.success(`Evento creado exitosamente. ${title} — ${new Date(startDate).toLocaleDateString("es-GT")} a ${new Date(endDate).toLocaleDateString("es-GT")}.`);
       }
 
       onSaved();
@@ -85,6 +88,7 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
     setSaving(true);
     try {
       await patchDoctorEvent({ id: event.id, state: 0 });
+      toast.success("Evento eliminado exitosamente.");
       onSaved();
       onClose();
     } catch {

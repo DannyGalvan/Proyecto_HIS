@@ -56,13 +56,19 @@ export function CashierPage() {
           ? Math.max(0, calculateChange(Number(amountReceived), selectedAppointment?.amount ?? 0))
           : 0;
         setPaymentSuccess({ payment, change });
-        toast.success("¡Pago registrado exitosamente!");
+        const patientName = selectedAppointment?.patient?.name ?? "Paciente";
+        toast.success(`¡Pago registrado exitosamente! Paciente: ${patientName}. La cita ha sido actualizada a estado "Pagada".`);
         queryClient.invalidateQueries({ queryKey: ["cashier-search"] });
       } else {
-        toast.danger(`Error al procesar el pago: ${response.message}`);
+        const msg = response.message ?? "";
+        if (msg.toLowerCase().includes("rechaz") || msg.toLowerCase().includes("declined")) {
+          toast.danger("La transacción con tarjeta fue rechazada por el banco. Solicite al paciente otro método de pago.");
+        } else {
+          toast.danger(`Error al procesar el pago: ${msg || "Intente nuevamente."}`);
+        }
       }
     },
-    onError: () => toast.danger("Error al procesar el pago. Intente nuevamente."),
+    onError: () => toast.danger("Error de comunicación con el sistema de pagos. Intente nuevamente."),
   });
 
   const handleSearch = useCallback((e: React.FormEvent) => {
@@ -175,7 +181,7 @@ export function CashierPage() {
       {!isLoading && searchQuery && appointments.length === 0 && (
         <div className="text-center py-8 text-gray-400">
           <i className="bi bi-cash-coin text-4xl block mb-3" />
-          <p>No hay citas pendientes de pago bajo los parámetros indicados.</p>
+          <p>No se encontraron citas pendientes de pago para los datos ingresados. Verifique el DPI o número de cita e intente de nuevo.</p>
         </div>
       )}
 

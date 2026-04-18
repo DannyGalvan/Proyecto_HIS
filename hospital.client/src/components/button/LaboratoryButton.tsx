@@ -26,7 +26,7 @@ export function LaboratoryButton({ data }: LaboratoryButtonProps) {
     try {
       const response = await deleteLaboratory(data.id);
       if (response.success) {
-        toast.success(`Laboratorio "${data.name}" eliminado correctamente`);
+        toast.success(`El registro ${data.name} ha sido eliminado correctamente.`);
         await queryClient.invalidateQueries({ queryKey: ["laboratories"] });
         setIsDeleteDialogOpen(false);
       } else {
@@ -55,7 +55,7 @@ export function LaboratoryButton({ data }: LaboratoryButtonProps) {
         </Dropdown.Popover>
       </Dropdown>
       <ConfirmDialog cancelText="Cancelar" confirmText="Eliminar" isLoading={isDeleting} isOpen={isDeleteDialogOpen}
-        message={`¿Está seguro que desea eliminar el laboratorio "${data.name}"?`} title="Confirmar eliminación"
+        message={`¿Está seguro que desea eliminar el registro ${data.name}? Esta acción no se puede deshacer.`} title="Confirmar eliminación"
         onClose={handleCloseDialog} onConfirm={handleDeleteConfirm} />
     </>
   );

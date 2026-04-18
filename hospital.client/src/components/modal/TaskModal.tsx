@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { toast } from "@heroui/react";
 
 import type { DoctorTaskRequest, DoctorTaskResponse } from "../../types/DoctorTaskResponse";
 import { PriorityLabels } from "../../types/DoctorTaskResponse";
@@ -31,8 +32,8 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
     setError(null);
 
     // Validation
-    if (!title || title.length < 3 || title.length > 200) {
-      setError("El título debe tener entre 3 y 200 caracteres.");
+    if (!title || title.length < 5 || title.length > 200) {
+      setError("El título debe contener entre 5 y 200 caracteres.");
       return;
     }
     if (!dueDate) {
@@ -53,8 +54,10 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
       if (isEditing && task) {
         request.id = task.id;
         await updateDoctorTask(request);
+        toast.success(`Tarea actualizada exitosamente.`);
       } else {
         await createDoctorTask(request);
+        toast.success(`Tarea creada exitosamente.`);
       }
 
       onSaved();
@@ -71,6 +74,7 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
     setSaving(true);
     try {
       await patchDoctorTask({ id: task.id, isCompleted: true });
+      toast.success("Tarea completada exitosamente.");
       onSaved();
       onClose();
     } catch {
@@ -85,6 +89,7 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
     setSaving(true);
     try {
       await patchDoctorTask({ id: task.id, state: 0 });
+      toast.success("Tarea eliminada exitosamente.");
       onSaved();
       onClose();
     } catch {

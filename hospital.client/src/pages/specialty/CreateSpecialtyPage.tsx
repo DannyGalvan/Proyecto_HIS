@@ -15,7 +15,7 @@ export function CreateSpecialtyPage() {
       const response = await createSpecialty(form);
       if (!response.success) { toast.danger(response.message); return response; }
       await client.invalidateQueries({ queryKey: ["specialties"] });
-      toast.success("Especialidad creada correctamente");
+      toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
     },
     [client],

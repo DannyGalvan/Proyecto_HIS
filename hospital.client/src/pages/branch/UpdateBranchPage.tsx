@@ -23,7 +23,7 @@ export function UpdateBranchPage() {
       if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
       await client.invalidateQueries({ queryKey: ["branches"] });
       await client.invalidateQueries({ queryKey: ["branchToUpdate", id] });
-      toast.success("Sucursal actualizada correctamente");
+      toast.success(`El registro ${form.name} ha sido actualizado correctamente.`);
       return response;
     },
     [client, id],

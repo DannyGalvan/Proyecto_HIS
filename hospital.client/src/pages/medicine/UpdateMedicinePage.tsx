@@ -23,7 +23,7 @@ export function UpdateMedicinePage() {
       if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
       await client.invalidateQueries({ queryKey: ["medicines"] });
       await client.invalidateQueries({ queryKey: ["medicineToUpdate", id] });
-      toast.success("Medicamento actualizado correctamente");
+      toast.success(`El registro ${form.name} ha sido actualizado correctamente.`);
       return response;
     },
     [client, id],

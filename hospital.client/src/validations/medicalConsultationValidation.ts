@@ -38,6 +38,17 @@ export const medicalConsultationSchema = z.object({
 
 export const validateMedicalConsultation = (data: unknown): ErrorObject => {
   const result = medicalConsultationSchema.safeParse(data);
-  if (!result.success) return handleOneLevelZodError(result.error);
-  return {};
+  const errors: ErrorObject = result.success ? {} : handleOneLevelZodError(result.error);
+
+  // CU-08: Diagnóstico obligatorio al finalizar consulta
+  const record = data as Record<string, unknown>;
+  const status = Number(record.consultationStatus ?? 0);
+  if (status === 1) {
+    const diagnosis = String(record.diagnosis ?? "").trim();
+    if (!diagnosis) {
+      errors.diagnosis = "No es posible finalizar la consulta sin registrar un diagnóstico. El campo Diagnóstico es obligatorio.";
+    }
+  }
+
+  return errors;
 };

@@ -105,7 +105,12 @@ function CreateVitalSignGuard({
       onSubmit={async (form) => {
         const response = await createVitalSign(form);
         if (response.success) {
-          toast.success("Signos vitales registrados. El paciente pasa a En Espera.");
+          const name = patientNameParam ?? "Paciente";
+          if (form.isEmergency) {
+            toast.success(`Signos vitales de emergencia registrados para paciente ${name}. El paciente debe pasar directamente a consulta médica.`);
+          } else {
+            toast.success(`Signos vitales del paciente ${name} registrados correctamente. El paciente puede regresar a la sala de espera.`);
+          }
           await queryClient.invalidateQueries({ queryKey: ["vital-signs"] });
           await queryClient.invalidateQueries({ queryKey: ["nurse-appointments"] });
           navigate(nameRoutes.nurseDashboard);

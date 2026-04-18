@@ -23,7 +23,7 @@ export function UpdateSpecialtyPage() {
       if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
       await client.invalidateQueries({ queryKey: ["specialties"] });
       await client.invalidateQueries({ queryKey: ["specialtyToUpdate", id] });
-      toast.success("Especialidad actualizada correctamente");
+      toast.success(`El registro ${form.name} ha sido actualizado correctamente.`);
       return response;
     },
     [client, id],

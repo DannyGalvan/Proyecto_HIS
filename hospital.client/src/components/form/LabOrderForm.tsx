@@ -184,7 +184,9 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
         }
       }
 
-      setSubmitSuccess("Orden de laboratorio creada exitosamente.");
+      const examCount = items.length;
+      const totalFormatted = formatCurrency(totalAmount);
+      setSubmitSuccess(`Orden de laboratorio creada exitosamente. ${examCount} examen(es) registrado(s). Costo total estimado: ${totalFormatted}.`);
       onSuccess?.(labOrderId);
     },
     [form, items, doCreateOrder, onSuccess],

@@ -18,7 +18,7 @@ export function CreateMedicinePage() {
       const response = await createMedicine(form);
       if (!response.success) { toast.danger(response.message); return response; }
       await client.invalidateQueries({ queryKey: ["medicines"] });
-      toast.success("Medicamento creado correctamente");
+      toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
     },
     [client],

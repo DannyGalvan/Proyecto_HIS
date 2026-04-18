@@ -48,8 +48,13 @@ export function ReceptionPage() {
         arrivalTime: new Date().toISOString(),
       });
     },
-    onSuccess: () => {
-      toast.success("Llegada del paciente registrada correctamente");
+    onSuccess: (_data, appointment) => {
+      const patientName = appointment.patient?.name ?? `Paciente #${appointment.patientId}`;
+      if (appointment.priority > 0) {
+        toast.success(`Paciente ${patientName} registrado con prioridad de EMERGENCIA. El paciente debe pasar directamente a toma de signos vitales.`);
+      } else {
+        toast.success(`La llegada del paciente ${patientName} ha sido registrada exitosamente. El paciente debe pasar a la sala de espera.`);
+      }
       queryClient.invalidateQueries({ queryKey: ["reception-search"] });
     },
     onError: () => toast.danger("Error al registrar la llegada"),
@@ -76,8 +81,8 @@ export function ReceptionPage() {
       {!isLoading && searchQuery && appointments.length === 0 && (
         <div className="text-center py-12 text-gray-400">
           <i className="bi bi-search text-4xl block mb-3" />
-          <p>No se encontró una cita asociada a los parámetros ingresados.</p>
-          <p className="text-sm mt-1">Verifique los datos e intente nuevamente.</p>
+          <p className="text-gray-600 dark:text-gray-300">No se encontraron citas activas para el paciente.</p>
+          <p className="text-sm mt-1">El paciente no se encuentra registrado en el sistema o no tiene citas activas. Verifique los datos e intente nuevamente.</p>
           <div className="flex gap-3 justify-center mt-4">
             <Button variant="primary" onPress={() => navigate("/appointment/create")}>
               <i className="bi bi-plus-circle mr-2" /> Nueva Cita (Walk-in)
@@ -155,19 +160,29 @@ export function ReceptionPage() {
                       </div>
                     )}
                     {isPending && (
-                      <Button
-                        variant="primary"
-                        onPress={() => navigate(`/payment/create?appointmentId=${appointment.id}`)}
-                      >
-                        <i className="bi bi-cash-coin mr-2" />
-                        Ir a Caja
-                      </Button>
+                      <>
+                        <div className="text-yellow-700 text-xs text-center p-2 bg-yellow-50 rounded-lg border border-yellow-200">
+                          La cita del paciente tiene estado &apos;Pendiente de pago&apos;. Debe realizar el pago en caja antes de ser atendido.
+                        </div>
+                        <Button
+                          variant="primary"
+                          onPress={() => navigate(`/payment/create?appointmentId=${appointment.id}`)}
+                        >
+                          <i className="bi bi-cash-coin mr-2" />
+                          Ir a Caja
+                        </Button>
+                      </>
                     )}
                     {isCancelled && (
-                      <Button variant="secondary" onPress={() => navigate("/appointment/create")}>
-                        <i className="bi bi-calendar-plus mr-2" />
-                        Nueva Cita
-                      </Button>
+                      <>
+                        <div className="text-red-700 text-xs text-center p-2 bg-red-50 rounded-lg border border-red-200">
+                          La cita fue cancelada. El paciente debe agendar una nueva cita.
+                        </div>
+                        <Button variant="secondary" onPress={() => navigate("/appointment/create")}>
+                          <i className="bi bi-calendar-plus mr-2" />
+                          Nueva Cita
+                        </Button>
+                      </>
                     )}
                     {appointment.priority > 0 && (
                       <Button

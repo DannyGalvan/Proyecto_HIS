@@ -170,10 +170,20 @@ export function PortalRegisterPage() {
 
         if (response.success) {
           navigate(nameRoutes.portalLogin, {
-            state: { successMessage: "¡Registro exitoso! Ahora puede iniciar sesión." },
+            state: { successMessage: "¡Registro exitoso! Su cuenta ha sido creada. Ahora puede iniciar sesión con sus credenciales." },
           });
         } else {
-          setApiError(response.message ?? "Error al registrar. Intente de nuevo.");
+          // Handle specific duplicate errors from backend
+          const msg = response.message ?? "";
+          if (msg.toLowerCase().includes("dpi") && msg.toLowerCase().includes("existe")) {
+            setApiError("Ya existe una cuenta registrada con este número de DPI. Si ya tiene cuenta, inicie sesión.");
+          } else if (msg.toLowerCase().includes("email") || msg.toLowerCase().includes("correo")) {
+            setApiError("Ya existe una cuenta registrada con este correo electrónico.");
+          } else if (msg.toLowerCase().includes("usuario") && msg.toLowerCase().includes("existe")) {
+            setApiError("El nombre de usuario ya está en uso. Por favor, elija otro.");
+          } else {
+            setApiError(msg || "Error al registrar. Intente de nuevo.");
+          }
         }
       } catch {
         setApiError("No se pudo conectar con el servidor. Intente de nuevo más tarde.");
