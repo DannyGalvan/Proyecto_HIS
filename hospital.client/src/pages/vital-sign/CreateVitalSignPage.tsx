@@ -105,7 +105,7 @@ function CreateVitalSignGuard({
       onSubmit={async (form) => {
         const response = await createVitalSign(form);
         if (response.success) {
-          const name = patientNameParam ?? "Paciente";
+          const name = patientName ?? "Paciente";
           if (form.isEmergency) {
             toast.success(`Signos vitales de emergencia registrados para paciente ${name}. El paciente debe pasar directamente a consulta médica.`);
           } else {
