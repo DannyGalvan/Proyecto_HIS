@@ -55,7 +55,7 @@ function AppointmentRow({
   const canCancel = CANCELLABLE_STATUSES.has(statusName);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800/90">
+    <div className="rounded-xl border border-gray-200 p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 bg-white dark:bg-gray-900/50">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Left: date + info */}
         <div className="flex items-center gap-4">

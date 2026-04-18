@@ -14,7 +14,15 @@ import { getAppTimezone } from "../utils/dateFormatter";
 export function PortalLayout() {
   const navigate = useNavigate();
   const { setTheme, resolvedTheme } = useTheme();
-  const { isLoggedIn, name, loading, logoutPatient, syncPatientAuth, signInPatient, ...patientState } = usePatientAuthStore();
+  const {
+    isLoggedIn,
+    name,
+    loading,
+    logoutPatient,
+    syncPatientAuth,
+    signInPatient,
+    ...patientState
+  } = usePatientAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -40,7 +48,8 @@ export function PortalLayout() {
   useEffect(() => {
     if (!tzOpen) return;
     const handler = (e: MouseEvent) => {
-      if (tzRef.current && !tzRef.current.contains(e.target as Node)) setTzOpen(false);
+      if (tzRef.current && !tzRef.current.contains(e.target as Node))
+        setTzOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -51,27 +60,47 @@ export function PortalLayout() {
     if (!tzLoaded) {
       setTzLoading(true);
       try {
-        const res = await getTimezones({ filters: "State:eq:1", include: null, includeTotal: false, pageNumber: 1, pageSize: 100 });
+        const res = await getTimezones({
+          filters: "State:eq:1",
+          include: null,
+          includeTotal: false,
+          pageNumber: 1,
+          pageSize: 100,
+        });
         if (res.success) setTimezones(res.data);
         setTzLoaded(true);
-      } catch { /* silent */ }
-      finally { setTzLoading(false); }
+      } catch {
+        /* silent */
+      } finally {
+        setTzLoading(false);
+      }
     }
   }, [tzLoaded]);
 
-  const handleTzSelect = useCallback(async (tz: TimezoneResponse) => {
-    setTzOpen(false);
-    try {
-      const res = await api.patch<unknown, ApiResponse<{ timezoneIanaId: string }>, { timezoneId: number }>(
-        "/Auth/Timezone",
-        { timezoneId: tz.id },
-      );
-      if (res.success) {
-        signInPatient({ ...patientState, isLoggedIn, name, timezoneIanaId: tz.ianaId });
-        window.location.reload();
+  const handleTzSelect = useCallback(
+    async (tz: TimezoneResponse) => {
+      setTzOpen(false);
+      try {
+        const res = await api.patch<
+          unknown,
+          ApiResponse<{ timezoneIanaId: string }>,
+          { timezoneId: number }
+        >("/Auth/Timezone", { timezoneId: tz.id });
+        if (res.success) {
+          signInPatient({
+            ...patientState,
+            isLoggedIn,
+            name,
+            timezoneIanaId: tz.ianaId,
+          });
+          window.location.reload();
+        }
+      } catch {
+        /* silent */
       }
-    } catch { /* silent */ }
-  }, [signInPatient, patientState, isLoggedIn]);
+    },
+    [signInPatient, patientState, isLoggedIn, name],
+  );
 
   const handleLogout = useCallback(() => {
     logoutPatient();
@@ -100,7 +129,9 @@ export function PortalLayout() {
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" />
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Cargando...</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Cargando...
+            </p>
           </div>
         </div>
       </div>
@@ -115,40 +146,52 @@ export function PortalLayout() {
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link
-              to={nameRoutes.portalHome}
               className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity"
+              to={nameRoutes.portalHome}
               onClick={closeMobile}
             >
-              <LogoHIS width="100px" height="auto" />
+              <LogoHIS height="auto" width="100px" />
             </Link>
 
             {/* Desktop nav links */}
             <div className="hidden lg:flex items-center gap-5 text-sm font-medium text-gray-600 dark:text-gray-300">
-              <Link to={nameRoutes.portalHome} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <Link
+                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                to={nameRoutes.portalHome}
+              >
                 Inicio
               </Link>
-              {isLoggedIn && (
+              {isLoggedIn ? (
                 <>
-                  <Link to={nameRoutes.portalDashboard} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  <Link
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    to={nameRoutes.portalDashboard}
+                  >
                     Dashboard
                   </Link>
-                  <Link to={nameRoutes.portalAppointments} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  <Link
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    to={nameRoutes.portalAppointments}
+                  >
                     Mis Citas
                   </Link>
-                  <Link to={nameRoutes.portalProfile} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  <Link
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    to={nameRoutes.portalProfile}
+                  >
                     Mi Perfil
                   </Link>
                 </>
-              )}
+              ) : null}
             </div>
 
             {/* Desktop actions */}
             <div className="hidden lg:flex items-center gap-2">
-              {mounted && (
+              {mounted ? (
                 <button
-                  type="button"
                   aria-label="Alternar tema"
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mr-2"
+                  type="button"
                   onClick={handleThemeChange}
                 >
                   {resolvedTheme === "dark" ? (
@@ -157,39 +200,45 @@ export function PortalLayout() {
                     <i className="bi bi-moon-stars-fill text-base" />
                   )}
                 </button>
-              )}
+              ) : null}
               {isLoggedIn ? (
                 <>
                   {/* Timezone selector */}
-                  <div className="relative" ref={tzRef}>
+                  <div ref={tzRef} className="relative">
                     <button
-                      type="button"
                       className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      onClick={handleTzToggle}
                       title={`Zona horaria: ${currentTz}`}
+                      type="button"
+                      onClick={handleTzToggle}
                     >
                       <i className="bi bi-globe text-sm text-blue-500" />
-                      <span className="max-w-[90px] truncate">{tzShort}</span>
-                      <i className={`bi bi-chevron-${tzOpen ? "up" : "down"} text-[10px]`} />
+                      <span className="max-w-22.5 truncate">{tzShort}</span>
+                      <i
+                        className={`bi bi-chevron-${tzOpen ? "up" : "down"} text-[10px]`}
+                      />
                     </button>
-                    {tzOpen && (
+                    {tzOpen ? (
                       <div className="absolute right-0 top-full mt-1 w-72 max-h-80 overflow-auto bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-xl z-50">
                         <div className="p-2 border-b border-gray-100 dark:border-zinc-700">
-                          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-2">Zona Horaria</p>
+                          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-2">
+                            Zona Horaria
+                          </p>
                         </div>
                         {tzLoading ? (
-                          <div className="p-4 text-center text-sm text-gray-400">Cargando...</div>
+                          <div className="p-4 text-center text-sm text-gray-400">
+                            Cargando...
+                          </div>
                         ) : (
                           <div className="py-1">
                             {timezones.map((tz) => (
                               <button
                                 key={tz.id}
-                                type="button"
                                 className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                                   tz.ianaId === currentTz
                                     ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium"
                                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700"
                                 }`}
+                                type="button"
                                 onClick={() => handleTzSelect(tz)}
                               >
                                 {tz.displayName}
@@ -198,28 +247,28 @@ export function PortalLayout() {
                           </div>
                         )}
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   <button
-                    type="button"
                     className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors max-w-[180px] truncate"
+                    type="button"
                     onClick={() => navigate(nameRoutes.portalDashboard)}
                   >
                     <i className="bi bi-person-circle text-blue-600 shrink-0" />
                     <span className="truncate">{name || "Mi cuenta"}</span>
                   </button>
                   <button
-                    type="button"
                     className="text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                    type="button"
                     onClick={() => navigate(nameRoutes.portalBook)}
                   >
                     <i className="bi bi-calendar-plus mr-1" />
                     Agendar Cita
                   </button>
                   <button
-                    type="button"
                     className="text-sm font-semibold text-red-600 dark:text-red-400 hover:text-red-700 px-2 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors whitespace-nowrap"
+                    type="button"
                     onClick={handleLogout}
                   >
                     <i className="bi bi-box-arrow-right mr-1" />
@@ -229,15 +278,15 @@ export function PortalLayout() {
               ) : (
                 <>
                   <button
-                    type="button"
                     className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    type="button"
                     onClick={() => navigate(nameRoutes.portalLogin)}
                   >
                     Iniciar Sesión
                   </button>
                   <button
-                    type="button"
                     className="text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors"
+                    type="button"
                     onClick={() => navigate(nameRoutes.portalRegister)}
                   >
                     Registrarse
@@ -248,11 +297,11 @@ export function PortalLayout() {
 
             {/* Mobile: CTA + hamburger */}
             <div className="flex lg:hidden items-center gap-2">
-              {mounted && (
+              {mounted ? (
                 <button
-                  type="button"
                   aria-label="Alternar tema"
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  type="button"
                   onClick={handleThemeChange}
                 >
                   {resolvedTheme === "dark" ? (
@@ -261,80 +310,86 @@ export function PortalLayout() {
                     <i className="bi bi-moon-stars-fill text-base" />
                   )}
                 </button>
-              )}
-              {isLoggedIn && (
+              ) : null}
+              {isLoggedIn ? (
                 <button
-                  type="button"
                   className="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                  type="button"
                   onClick={() => handleNavigate(nameRoutes.portalBook)}
                 >
                   <i className="bi bi-calendar-plus mr-1" />
                   Agendar
                 </button>
-              )}
+              ) : null}
               <button
-                type="button"
-                className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+                className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                type="button"
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
               >
-                <i className={`bi ${mobileMenuOpen ? "bi-x-lg" : "bi-list"} text-xl`} />
+                <i
+                  className={`bi ${mobileMenuOpen ? "bi-x-lg" : "bi-list"} text-xl`}
+                />
               </button>
             </div>
           </div>
         </div>
 
         {/* ── Mobile menu ── */}
-        {mobileMenuOpen && (
+        {mobileMenuOpen ? (
           <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <div className="px-4 py-3 space-y-1">
               {/* User info */}
-              {isLoggedIn && name && (
+              {isLoggedIn && name ? (
                 <div className="px-3 py-2 mb-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
-                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Sesión activa</p>
-                  <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{name}</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    Sesión activa
+                  </p>
+                  <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
+                    {name}
+                  </p>
                 </div>
-              )}
+              ) : null}
 
               {/* Nav links */}
               <Link
-                to={nameRoutes.portalHome}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                to={nameRoutes.portalHome}
                 onClick={closeMobile}
               >
                 <i className="bi bi-house text-gray-400 w-5 text-center" />
                 Inicio
               </Link>
 
-              {isLoggedIn && (
+              {isLoggedIn ? (
                 <>
                   <Link
-                    to={nameRoutes.portalDashboard}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    to={nameRoutes.portalDashboard}
                     onClick={closeMobile}
                   >
                     <i className="bi bi-speedometer2 text-gray-400 w-5 text-center" />
                     Dashboard
                   </Link>
                   <Link
-                    to={nameRoutes.portalAppointments}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    to={nameRoutes.portalAppointments}
                     onClick={closeMobile}
                   >
                     <i className="bi bi-calendar-check text-gray-400 w-5 text-center" />
                     Mis Citas
                   </Link>
                   <Link
-                    to={nameRoutes.portalProfile}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    to={nameRoutes.portalProfile}
                     onClick={closeMobile}
                   >
                     <i className="bi bi-person text-gray-400 w-5 text-center" />
                     Mi Perfil
                   </Link>
                   <button
-                    type="button"
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full"
+                    type="button"
                     onClick={() => handleNavigate(nameRoutes.portalBook)}
                   >
                     <i className="bi bi-calendar-plus text-gray-400 w-5 text-center" />
@@ -344,29 +399,29 @@ export function PortalLayout() {
                   <div className="border-t border-gray-200 dark:border-gray-700 my-2" />
 
                   <button
-                    type="button"
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full"
+                    type="button"
                     onClick={handleLogout}
                   >
                     <i className="bi bi-box-arrow-right w-5 text-center" />
                     Cerrar Sesión
                   </button>
                 </>
-              )}
+              ) : null}
 
               {!isLoggedIn && (
                 <>
                   <button
-                    type="button"
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full"
+                    type="button"
                     onClick={() => handleNavigate(nameRoutes.portalLogin)}
                   >
                     <i className="bi bi-box-arrow-in-right text-gray-400 w-5 text-center" />
                     Iniciar Sesión
                   </button>
                   <button
-                    type="button"
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors w-full"
+                    type="button"
                     onClick={() => handleNavigate(nameRoutes.portalRegister)}
                   >
                     <i className="bi bi-person-plus text-blue-500 w-5 text-center" />
@@ -376,28 +431,33 @@ export function PortalLayout() {
               )}
             </div>
           </div>
-        )}
+        ) : null}
       </nav>
 
       {/* Contenido principal */}
-      <main className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <main className="flex-1">
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 py-8 px-6 border-t border-gray-200 dark:border-gray-800">
+      <footer className="bg-white dark:bg-gray-900/50 text-gray-600 dark:text-gray-400 py-8 px-6 border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <i className="bi bi-hospital text-blue-400 text-xl" />
-              <span className="font-bold text-gray-900 dark:text-white text-lg">Hospital HIS</span>
+              <span className="font-bold text-gray-900 dark:text-white text-lg">
+                Hospital HIS
+              </span>
             </div>
             <p className="text-sm leading-relaxed">
-              Sistema Informático Hospitalario. Atención médica de calidad al alcance de todos.
+              Sistema Informático Hospitalario. Atención médica de calidad al
+              alcance de todos.
             </p>
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 dark:text-white mb-3">Contacto</h3>
+            <h3 className="font-bold text-gray-900 dark:text-white mb-3">
+              Contacto
+            </h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
                 <i className="bi bi-telephone text-blue-400" />
@@ -414,7 +474,9 @@ export function PortalLayout() {
             </ul>
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 dark:text-white mb-3">Horarios de Atención</h3>
+            <h3 className="font-bold text-gray-900 dark:text-white mb-3">
+              Horarios de Atención
+            </h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
                 <i className="bi bi-clock text-blue-400" />
@@ -432,7 +494,10 @@ export function PortalLayout() {
           </div>
         </div>
         <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center text-xs">
-          <p>© {new Date().getFullYear()} Hospital HIS — Todos los derechos reservados.</p>
+          <p>
+            © {new Date().getFullYear()} Hospital HIS — Todos los derechos
+            reservados.
+          </p>
         </div>
       </footer>
     </div>

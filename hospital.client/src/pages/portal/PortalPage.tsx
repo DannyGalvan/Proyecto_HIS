@@ -69,7 +69,7 @@ function SpecialtyCard({ specialty }: { readonly specialty: { id: number; name: 
   const icon = icons[specialty.name] ?? "bi-hospital";
 
   return (
-    <div className="bg-white dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
       <div className="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-4">
         <i className={`bi ${icon} text-2xl text-blue-600 dark:text-blue-400`} />
       </div>
@@ -82,7 +82,7 @@ function SpecialtyCard({ specialty }: { readonly specialty: { id: number; name: 
 // ── Tarjeta de sucursal ───────────────────────────────────────────────────────
 function BranchCard({ branch }: { readonly branch: { id: number; name: string; address?: string | null; phone?: string | null; description?: string | null } }) {
   return (
-    <div className="bg-white dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start gap-4">
         <div className="w-12 h-12 rounded-full bg-cyan-50 dark:bg-cyan-900/30 flex items-center justify-center shrink-0">
           <i className="bi bi-geo-alt-fill text-xl text-cyan-600 dark:text-cyan-400" />

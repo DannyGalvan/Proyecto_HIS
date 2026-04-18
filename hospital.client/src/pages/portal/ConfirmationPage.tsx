@@ -22,7 +22,7 @@ export function ConfirmationPage() {
   const patientEmail = confirmation.patientEmail || email;
 
   return (
-    <section className="min-h-[calc(100vh-140px)] px-4 py-10 bg-white dark:bg-gray-800">
+    <section className="min-h-[calc(100vh-140px)] px-4 py-10 bg-white dark:bg-gray-900/50">
       <div className="mx-auto max-w-2xl">
         {/* Success header */}
         <div className="mb-8 flex flex-col items-center text-center">
@@ -33,14 +33,15 @@ export function ConfirmationPage() {
             ¡Pago Exitoso!
           </h1>
           <p className="mt-2 text-gray-500 dark:text-gray-400">
-            ¡Pago realizado exitosamente! Número de transacción: {confirmation.transactionNumber}. Su cita ha sido confirmada.
+            ¡Pago realizado exitosamente! Número de transacción:{" "}
+            {confirmation.transactionNumber}. Su cita ha sido confirmada.
           </p>
         </div>
 
         {/* Receipt card */}
         <div className="mb-6 rounded-2xl border border-gray-100 shadow-sm dark:border-gray-700">
           {/* Receipt header */}
-          <div className="rounded-t-2xl bg-gradient-to-r from-blue-700 to-cyan-600 px-6 py-4 text-white">
+          <div className="rounded-t-2xl bg-linear-to-r from-blue-700 to-cyan-600 px-6 py-4 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wider text-blue-200">
@@ -120,7 +121,8 @@ export function ConfirmationPage() {
               <i className="bi bi-envelope-check-fill mt-0.5 shrink-0 text-xl text-blue-600 dark:text-blue-400" />
               <p className="text-sm text-blue-800 dark:text-blue-300">
                 Se ha enviado un correo de confirmación a{" "}
-                <span className="font-bold">{patientEmail}</span> con los detalles de su cita.
+                <span className="font-bold">{patientEmail}</span> con los
+                detalles de su cita.
               </p>
             </div>
           </div>

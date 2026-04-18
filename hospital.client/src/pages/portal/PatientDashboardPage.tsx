@@ -151,7 +151,7 @@ export function PatientDashboardPage() {
         </div>
 
         {/* ── Próximas Citas (Confirmadas) ─────────────────────────────────── */}
-        <div className="mb-6 rounded-2xl border border-gray-100 p-6 shadow-sm dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-900/50 mb-6 rounded-2xl border border-gray-100 p-6 shadow-sm dark:border-gray-700">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
               <i className="bi bi-calendar-check mr-2 text-blue-600" />
@@ -194,7 +194,7 @@ export function PatientDashboardPage() {
 
         {/* ── Citas Anteriores ─────────────────────────────────────────────── */}
         {!isLoading && pastAppointments.length > 0 && (
-          <div className="rounded-2xl border border-gray-100 p-6 shadow-sm dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 p-6 shadow-sm dark:border-gray-700">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
                 <i className="bi bi-clock-history mr-2 text-gray-500" />

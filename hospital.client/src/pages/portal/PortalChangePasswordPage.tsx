@@ -10,8 +10,8 @@ export function PortalChangePasswordPage() {
         {/* Back link */}
         <div className="mb-6">
           <Link
-            to={nameRoutes.portalProfile}
             className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+            to={nameRoutes.portalProfile}
           >
             <i className="bi bi-arrow-left" />
             Volver a Mi Perfil

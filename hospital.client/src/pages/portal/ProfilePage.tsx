@@ -282,7 +282,7 @@ export function ProfilePage() {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl shadow-lg border border-gray-100 p-8 ">
+        <div className="rounded-2xl shadow-lg border border-gray-100 p-8 bg-white dark:bg-gray-900/50">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30">
               <i className="bi bi-person-circle text-2xl text-blue-600" />
