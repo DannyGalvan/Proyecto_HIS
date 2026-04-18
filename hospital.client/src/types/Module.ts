@@ -2,6 +2,7 @@ import type { Catalogue } from "./Catalogue";
 import type { Operations } from "./Operations";
 
 export interface Module extends Catalogue {
+  displayName: string;
   image: string;
   path: string;
   isVisible: boolean;

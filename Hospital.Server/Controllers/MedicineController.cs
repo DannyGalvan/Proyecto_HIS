@@ -14,7 +14,7 @@ namespace Hospital.Server.Controllers
     [Route("api/v1/[controller]")]
     [Authorize]
     [ModuleInfo(
-        DisplayName = "Catálogo de Medicamentos",
+        DisplayName = "Medicamentos",
         Description = "Gestión del catálogo de medicamentos para farmacia",
         Icon = "bi-capsule",
         Path = "medicine",

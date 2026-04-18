@@ -55,7 +55,7 @@ export function SubMenu({
     >
       <button
         ref={buttonRef}
-        className={`relative flex w-full items-center rounded-lg py-2.5 text-[0.9rem] font-bold transition-all
+        className={`relative flex w-full items-center rounded-lg py-2.5 text-[0.8rem] font-semibold transition-all
             ${
               isActive || subMenuOpen
                 ? "sidebar-link-active"
@@ -75,7 +75,7 @@ export function SubMenu({
             className={`flex items-center transition-all duration-300 overflow-hidden ${isCollapsed ? "opacity-0 w-0" : "w-auto opacity-100 ml-3"}`}
           >
             <span className="tracking-wide whitespace-nowrap">
-              {data.module.name}
+              {data.module.displayName || data.module.name}
             </span>
           </div>
         </div>
@@ -112,7 +112,7 @@ export function SubMenu({
                 <div className="absolute top-[1.1rem] -left-[5.5px] w-2.5 h-2.5 rotate-45 border-b border-l border-[var(--color-border)] bg-[var(--color-surface-50)]" />
 
                 <div className="submenu-floating-header mb-2 border-b border-[var(--color-border)] pb-2 px-2">
-                  {data.module.name}
+                  {data.module.displayName || data.module.name}
                 </div>
                 <ul className="flex flex-col gap-0.5 w-full">
                   {data.operations

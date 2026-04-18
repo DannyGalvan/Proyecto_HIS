@@ -14,7 +14,7 @@ namespace Hospital.Server.Controllers
     [Route("api/v1/[controller]")]
     [Authorize]
     [ModuleInfo(
-        DisplayName = "Registro de Notificaciones",
+        DisplayName = "Notificaciones",
         Description = "Trazabilidad de notificaciones enviadas por el sistema",
         Icon = "bi-envelope",
         Path = "notification-log",

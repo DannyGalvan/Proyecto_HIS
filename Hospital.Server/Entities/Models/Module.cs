@@ -19,6 +19,11 @@ namespace Hospital.Server.Entities.Models
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the DisplayName (user-friendly name for the UI)
+        /// </summary>
+        public string DisplayName { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the Description
         /// </summary>
         public string Description { get; set; } = string.Empty;

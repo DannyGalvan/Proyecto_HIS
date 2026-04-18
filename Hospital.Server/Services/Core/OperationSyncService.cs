@@ -91,6 +91,7 @@ namespace Hospital.Server.Services.Core
                         module = new Module
                         {
                             Name = action.ControllerName,
+                            DisplayName = moduleInfo?.DisplayName ?? action.ControllerName,
                             Description = moduleInfo?.Description ?? $"Módulo {action.ControllerName}",
                             Image = moduleInfo?.Icon ?? "folder",
                             Path = moduleInfo?.Path ?? action.ControllerName,
@@ -115,6 +116,7 @@ namespace Hospital.Server.Services.Core
 
                         if (moduleInfo != null)
                         {
+                            module.DisplayName = moduleInfo.DisplayName ?? action.ControllerName;
                             module.Description = moduleInfo.Description;
                             module.Image = moduleInfo.Icon;
                             module.Path = moduleInfo.Path;

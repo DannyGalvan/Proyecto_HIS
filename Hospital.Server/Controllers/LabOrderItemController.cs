@@ -14,7 +14,7 @@ namespace Hospital.Server.Controllers
     [Route("api/v1/[controller]")]
     [Authorize]
     [ModuleInfo(
-        DisplayName = "Resultados de Laboratorio",
+        DisplayName = "Resultados Lab",
         Description = "Registro de resultados de exámenes de laboratorio",
         Icon = "bi-file-earmark-medical",
         Path = "lab-order-item",

@@ -947,6 +947,7 @@ namespace Hospital.Server.Mappers
             TypeAdapterConfig<Module, ModuleResponse>.NewConfig()
                 .Map(dest => dest.Id, src => src.Id)
                 .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.DisplayName, src => src.DisplayName)
                 .Map(dest => dest.Description, src => src.Description)
                 .Map(dest => dest.Image, src => src.Image)
                 .Map(dest => dest.Path, src => src.Path)
