@@ -69,7 +69,7 @@ export function TaskPanel({ tasks, selectedDate, onRefresh }: TaskPanelProps) {
   };
 
   return (
-    <div className="w-80 shrink-0 bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-4 flex flex-col overflow-hidden">
+    <div className="w-full bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-4 flex flex-col overflow-hidden max-h-[500px] lg:max-h-none">
       {/* Header */}
       <div className="mb-3">
         <h2 className="text-lg font-bold mb-1">Tareas del Día</h2>

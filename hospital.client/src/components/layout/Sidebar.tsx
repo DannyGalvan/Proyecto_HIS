@@ -109,6 +109,45 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
               </Tooltip>
             </div>
 
+            {/* Calendar link — visible for doctors */}
+            <div className="w-full px-3">
+              <Tooltip closeDelay={0} delay={0} isDisabled={isOpen}>
+                <Link
+                  className={`relative flex items-center rounded-lg py-2.5 text-[0.9rem] font-bold transition-all w-full
+                        ${
+                          pathname === nameRoutes.doctorCalendar
+                            ? "sidebar-link-active"
+                            : "text-gray-700 hover:bg-[var(--color-surface-100)] dark:text-gray-300"
+                        } 
+                        ${isOpen ? "justify-start px-3" : "justify-center px-0"}
+                      `}
+                  to={nameRoutes.doctorCalendar}
+                >
+                  <div className="flex items-center justify-center w-6 h-6 shrink-0">
+                    <i className="bi bi-calendar3 text-xl" />
+                  </div>
+                  <div
+                    className={`flex items-center overflow-hidden transition-all duration-300 ${isOpen ? "w-auto opacity-100 ml-3" : "w-0 opacity-0"}`}
+                  >
+                    <span>Mi Calendario</span>
+                  </div>
+                  {!isOpen && pathname === nameRoutes.doctorCalendar && (
+                    <span
+                      className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                      style={{ backgroundColor: "var(--color-primary)" }}
+                    />
+                  )}
+                </Link>
+                <Tooltip.Content
+                  className="bg-gray-900 text-white dark:bg-zinc-800 rounded-md px-2 py-1 text-sm"
+                  placement="right"
+                >
+                  <Tooltip.Arrow className="fill-gray-900 dark:fill-zinc-800" />
+                  Mi Calendario
+                </Tooltip.Content>
+              </Tooltip>
+            </div>
+
             <div className="sidebar-divider" />
 
             <div className="w-full space-y-1 px-3">

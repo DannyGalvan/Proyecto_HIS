@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -8,6 +8,7 @@ import type { EventClickArg, DatesSetArg } from "@fullcalendar/core";
 
 import { nameRoutes } from "../../configs/constants";
 import { useAuth } from "../../hooks/useAuth";
+import { getAppTimezone } from "../../utils/dateFormatter";
 import { getAppointments } from "../../services/appointmentService";
 import { getDoctorEvents } from "../../services/doctorEventService";
 import { getDoctorTasks } from "../../services/doctorTaskService";
@@ -44,6 +45,51 @@ function getAppointmentColor(statusId: number): string {
   return "#9ca3af"; // gray
 }
 
+/** Parse backend date strings (handles "dd/MM/yyyy HH:mm:ss" and ISO formats) */
+function parseCalendarDate(dateStr: string | null | undefined): Date | null {
+  if (!dateStr) return null;
+  // ISO format
+  if (dateStr.includes("T") || dateStr.endsWith("Z")) {
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  // Backend format: "dd/MM/yyyy HH:mm:ss"
+  const match = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/);
+  if (match) {
+    const [, day, month, year, hour, min, sec] = match;
+    return new Date(Date.UTC(+year, +month - 1, +day, +hour, +min, +sec));
+  }
+  // Date-only: "dd/MM/yyyy"
+  const dateOnly = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (dateOnly) {
+    const [, day, month, year] = dateOnly;
+    return new Date(Date.UTC(+year, +month - 1, +day));
+  }
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Convert a UTC Date to a local datetime string in the user's timezone.
+ * Returns format "YYYY-MM-DDTHH:mm:ss" (no Z suffix) so FullCalendar treats it as local.
+ */
+function toLocalCalendarString(utcDate: Date, tz: string): string {
+  // Use Intl.DateTimeFormat to get the date parts in the target timezone
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(utcDate);
+
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:${get("second")}`;
+}
+
 export function DoctorCalendarPage() {
   const { userId } = useAuth();
   const navigate = useNavigate();
@@ -75,21 +121,21 @@ export function DoctorCalendarPage() {
           getAppointments({
             pageNumber: 1,
             pageSize: 200,
-            filters: `DoctorId==${userId},AppointmentDate>=${start},AppointmentDate<=${end}`,
+            filters: `DoctorId:eq:${userId} AND AppointmentDate:gte:${start} AND AppointmentDate:lte:${end}`,
             include: "Patient,Specialty,AppointmentStatus",
             includeTotal: false,
           }),
           getDoctorEvents({
             pageNumber: 1,
             pageSize: 200,
-            filters: `DoctorId==${userId},StartDate<=${end},EndDate>=${start},State==1`,
+            filters: `DoctorId:eq:${userId} AND StartDate:lte:${end} AND EndDate:gte:${start} AND State:eq:1`,
             include: null,
             includeTotal: false,
           }),
           getDoctorTasks({
             pageNumber: 1,
             pageSize: 200,
-            filters: `DoctorId==${userId},DueDate>=${start},DueDate<=${end},State==1`,
+            filters: `DoctorId:eq:${userId} AND DueDate:gte:${start} AND DueDate:lte:${end} AND State:eq:1`,
             include: null,
             includeTotal: false,
           }),
@@ -120,16 +166,23 @@ export function DoctorCalendarPage() {
   // Map data to FullCalendar events
   const calendarEvents: CalendarEvent[] = useMemo(() => {
     const mapped: CalendarEvent[] = [];
+    const tz = getAppTimezone();
 
-    // Appointments
+    // Appointments — only confirmed and beyond (exclude pendiente=1, no asistió=10, cancelada=11)
+    const EXCLUDED_STATUSES = new Set([1, 10, 11]);
     appointments.forEach((appt) => {
+      if (EXCLUDED_STATUSES.has(appt.appointmentStatusId)) return;
       const color = getAppointmentColor(appt.appointmentStatusId);
       const patientName = appt.patient?.name ?? "Paciente";
       const specialtyName = appt.specialty?.name ?? "";
+      const startDate = parseCalendarDate(appt.appointmentDate);
+      if (!startDate) return;
+      const endDate = new Date(startDate.getTime() + 30 * 60 * 1000);
       mapped.push({
         id: `appt-${appt.id}`,
-        title: `${patientName}${specialtyName ? ` - ${specialtyName}` : ""}`,
-        start: appt.appointmentDate,
+        title: `Cita #${appt.id} — ${patientName}${specialtyName ? ` (${specialtyName})` : ""}`,
+        start: toLocalCalendarString(startDate, tz),
+        end: toLocalCalendarString(endDate, tz),
         backgroundColor: color,
         borderColor: color,
         textColor: "#ffffff",
@@ -139,13 +192,15 @@ export function DoctorCalendarPage() {
 
     // Events
     events.forEach((evt) => {
+      const evtStart = parseCalendarDate(evt.startDate);
+      const evtEnd = parseCalendarDate(evt.endDate);
       mapped.push({
         id: `event-${evt.id}`,
         title: evt.title,
-        start: evt.startDate,
-        end: evt.endDate,
+        start: evtStart ? toLocalCalendarString(evtStart, tz) : evt.startDate,
+        end: evtEnd ? toLocalCalendarString(evtEnd, tz) : evt.endDate,
         allDay: evt.isAllDay,
-        backgroundColor: "#8b5cf6", // purple
+        backgroundColor: "#8b5cf6",
         borderColor: "#7c3aed",
         textColor: "#ffffff",
         extendedProps: { type: "event", data: evt },
@@ -155,12 +210,13 @@ export function DoctorCalendarPage() {
     // Tasks
     tasks.forEach((task) => {
       const isCompleted = task.isCompleted;
+      const taskDate = parseCalendarDate(task.dueDate);
       mapped.push({
         id: `task-${task.id}`,
         title: task.title,
-        start: task.dueDate,
+        start: taskDate ? toLocalCalendarString(taskDate, tz) : task.dueDate,
         allDay: true,
-        backgroundColor: isCompleted ? "#9ca3af" : "#f97316", // gray or orange
+        backgroundColor: isCompleted ? "#9ca3af" : "#f97316",
         borderColor: isCompleted ? "#6b7280" : "#ea580c",
         textColor: "#ffffff",
         classNames: isCompleted ? ["line-through", "opacity-60"] : [],
@@ -201,6 +257,23 @@ export function DoctorCalendarPage() {
     setTaskModalOpen(true);
   }, []);
 
+  const [taskPanelOpen, setTaskPanelOpen] = useState(true);
+
+  // Resize calendar when task panel toggles or window resizes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      calendarRef.current?.getApi().updateSize();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [taskPanelOpen]);
+
+  // Also listen for window resize
+  useEffect(() => {
+    const handleResize = () => calendarRef.current?.getApi().updateSize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const refreshData = useCallback(() => {
     if (dateRange) {
       loadData(dateRange.start, dateRange.end);
@@ -208,32 +281,46 @@ export function DoctorCalendarPage() {
   }, [dateRange, loadData]);
 
   return (
-    <div className="flex flex-col h-full gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Mi Calendario</h1>
-        <div className="flex gap-2">
+    <div className="flex flex-col h-full gap-3 p-2 sm:p-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold">Mi Calendario</h1>
+        <div className="flex flex-wrap gap-2">
           <button
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 text-white text-xs sm:text-sm font-medium hover:bg-purple-700 transition-colors"
             onClick={handleCreateEvent}
             type="button"
           >
             <i className="bi bi-calendar-event" />
-            Nuevo Evento
+            <span className="hidden xs:inline">Nuevo</span> Evento
           </button>
           <button
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 text-white text-xs sm:text-sm font-medium hover:bg-orange-600 transition-colors"
             onClick={handleCreateTask}
             type="button"
           >
             <i className="bi bi-check2-square" />
-            Nueva Tarea
+            <span className="hidden xs:inline">Nueva</span> Tarea
+          </button>
+          <button
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+              taskPanelOpen
+                ? "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-gray-200"
+                : "bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400"
+            }`}
+            onClick={() => setTaskPanelOpen((prev) => !prev)}
+            type="button"
+          >
+            <i className={`bi ${taskPanelOpen ? "bi-layout-sidebar-reverse" : "bi-list-task"}`} />
+            <span className="hidden sm:inline">Tareas</span>
           </button>
         </div>
       </div>
 
-      <div className="flex flex-1 gap-4 min-h-0">
+      {/* Calendar + Task Panel */}
+      <div className="flex flex-col lg:flex-row flex-1 gap-3 min-h-0">
         {/* Calendar */}
-        <div className="flex-1 min-w-0 bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-4 overflow-auto">
+        <div className="flex-1 min-w-0 bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-2 sm:p-4 overflow-auto relative">
           {loading && (
             <div className="absolute inset-0 bg-white/50 dark:bg-zinc-900/50 z-10 flex items-center justify-center rounded-xl">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600" />
@@ -242,6 +329,7 @@ export function DoctorCalendarPage() {
           <FullCalendar
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            timeZone="local"
             initialView="timeGridWeek"
             headerToolbar={{
               left: "prev,next today",
@@ -270,12 +358,16 @@ export function DoctorCalendarPage() {
           />
         </div>
 
-        {/* Task Panel */}
-        <TaskPanel
-          tasks={tasks}
-          selectedDate={selectedDate}
-          onRefresh={refreshData}
-        />
+        {/* Task Panel — collapsible */}
+        {taskPanelOpen && (
+          <div className="lg:w-80 lg:shrink-0">
+            <TaskPanel
+              tasks={tasks}
+              selectedDate={selectedDate}
+              onRefresh={refreshData}
+            />
+          </div>
+        )}
       </div>
 
       {/* Event Modal */}

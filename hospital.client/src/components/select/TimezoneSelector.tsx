@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { api } from "../../configs/axios/interceptors";
 import { getTimezones } from "../../services/timezoneService";
-import { partialUpdateUser } from "../../services/userService";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
+import type { ApiResponse } from "../../types/ApiResponse";
 import type { TimezoneResponse } from "../../types/TimezoneResponse";
 
 interface TimezoneSelectorProps {
@@ -34,7 +35,7 @@ export function TimezoneSelector({
       setIsFetching(true);
       try {
         const response = await getTimezones({
-          filters: "State==1",
+          filters: "State:eq:1",
           include: null,
           includeTotal: false,
           pageNumber: 1,
@@ -55,7 +56,10 @@ export function TimezoneSelector({
       if (!newId || newId === selectedId) return;
       setIsLoading(true);
       try {
-        const response = await partialUpdateUser({ id: userId, timezoneId: newId });
+        const response = await api.patch<unknown, ApiResponse<{ timezoneIanaId: string }>, { timezoneId: number }>(
+          "/Auth/Timezone",
+          { timezoneId: newId },
+        );
         if (response.success) {
           setSelectedId(newId);
           const selectedTz = timezones.find((tz) => tz.id === newId);
@@ -74,6 +78,7 @@ export function TimezoneSelector({
             adminSignIn({ ...adminAuthState, timezoneIanaId: newIanaId });
           }
           onTimezoneChanged?.(newIanaId);
+          window.location.reload();
         }
       } catch { /* silent */ }
       finally { setIsLoading(false); }

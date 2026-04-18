@@ -1,5 +1,6 @@
 ﻿using FluentValidation.Results;
 using Hospital.Server.Attributes;
+using Hospital.Server.Context;
 using Hospital.Server.Controllers;
 using Hospital.Server.Entities.Models;
 using Hospital.Server.Entities.Request;
@@ -9,6 +10,7 @@ using Lombok.NET;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Project.Server.Controllers
 {
@@ -34,9 +36,14 @@ namespace Project.Server.Controllers
         private readonly IAuthService _authService;
 
         /// <summary>
-        /// Defines the _authService
+        /// Defines the _mapper
         /// </summary>
         private readonly IMapper _mapper;
+
+        /// <summary>
+        /// Defines the _db
+        /// </summary>
+        private readonly DataContext _db;
 
 
         /// <summary>
@@ -285,5 +292,65 @@ namespace Project.Server.Controllers
 
             return BadRequest(errorResponse);
         }
+
+        /// <summary>
+        /// Updates the authenticated user's timezone preference.
+        /// Any authenticated user can change their own timezone — no operation permission required.
+        /// PATCH /api/v1/Auth/Timezone
+        /// </summary>
+        [Authorize]
+        [ExcludeFromSync]
+        [HttpPatch("Timezone")]
+        public async Task<IActionResult> UpdateMyTimezone([FromBody] UpdateTimezoneRequest model)
+        {
+            long userId = GetUserId();
+
+            var user = await _db.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new Response<string> { Success = false, Message = "Usuario no encontrado." });
+            }
+
+            // Validate the timezone exists and is active
+            if (model.TimezoneId.HasValue)
+            {
+                var timezone = await _db.Set<Timezone>().FirstOrDefaultAsync(
+                    t => t.Id == model.TimezoneId.Value && t.State == 1);
+                if (timezone == null)
+                {
+                    return BadRequest(new Response<string>
+                    {
+                        Success = false,
+                        Message = "La zona horaria seleccionada no existe o no está activa."
+                    });
+                }
+
+                user.TimezoneId = model.TimezoneId.Value;
+            }
+
+            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedBy = userId;
+            await _db.SaveChangesAsync();
+
+            // Return the updated timezone IanaId
+            var updatedTz = user.TimezoneId.HasValue
+                ? await _db.Set<Timezone>().Where(t => t.Id == user.TimezoneId).Select(t => t.IanaId).FirstOrDefaultAsync()
+                : null;
+
+            return Ok(new Response<object>
+            {
+                Success = true,
+                Message = "Zona horaria actualizada correctamente.",
+                Data = new { timezoneIanaId = updatedTz ?? "America/Guatemala" }
+            });
+        }
     }
+}
+
+/// <summary>
+/// Request body for updating timezone preference.
+/// </summary>
+public class UpdateTimezoneRequest
+{
+    public long? TimezoneId { get; set; }
 }
