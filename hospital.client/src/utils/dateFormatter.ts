@@ -3,12 +3,49 @@
  * All dates from the backend are in UTC. This utility converts them
  * to the configured timezone for display.
  * 
+ * The timezone is read dynamically from the authenticated user's
+ * preference stored in localStorage.
  * Default timezone: America/Guatemala (UTC-6)
  */
 
-// Configurable timezone — change this to switch the display timezone
-export const APP_TIMEZONE = "America/Guatemala";
 export const APP_LOCALE = "es-GT";
+
+const DEFAULT_TIMEZONE = "America/Guatemala";
+
+/**
+ * Reads the user's preferred timezone from localStorage.
+ * Checks admin auth (@auth) first, then patient auth (@patient-auth).
+ * Falls back to "America/Guatemala" if nothing is found.
+ */
+export function getAppTimezone(): string {
+  try {
+    // Try admin auth store first
+    const adminAuth = window.localStorage.getItem("@auth");
+    if (adminAuth) {
+      const parsed = JSON.parse(adminAuth);
+      if (parsed.timezoneIanaId) {
+        return parsed.timezoneIanaId;
+      }
+    }
+  } catch {
+    // Fallback silently
+  }
+
+  try {
+    // Try patient auth store
+    const patientAuth = window.localStorage.getItem("@patient-auth");
+    if (patientAuth) {
+      const parsed = JSON.parse(patientAuth);
+      if (parsed.timezoneIanaId) {
+        return parsed.timezoneIanaId;
+      }
+    }
+  } catch {
+    // Fallback silently
+  }
+
+  return DEFAULT_TIMEZONE;
+}
 
 /**
  * Parses a date string from the backend.
@@ -58,7 +95,7 @@ export function formatDate(dateStr: string | null | undefined): string {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-    timeZone: APP_TIMEZONE,
+    timeZone: getAppTimezone(),
   });
 }
 
@@ -72,7 +109,7 @@ export function formatDateTime(dateStr: string | null | undefined): string {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: APP_TIMEZONE,
+    timeZone: getAppTimezone(),
   });
 }
 
@@ -87,7 +124,7 @@ export function formatDateTimeFull(dateStr: string | null | undefined): string {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    timeZone: APP_TIMEZONE,
+    timeZone: getAppTimezone(),
   });
 }
 
@@ -98,7 +135,7 @@ export function formatTime(dateStr: string | null | undefined): string {
   return d.toLocaleTimeString(APP_LOCALE, {
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: APP_TIMEZONE,
+    timeZone: getAppTimezone(),
   });
 }
 
@@ -111,7 +148,7 @@ export function formatDateLong(dateStr: string | null | undefined): string {
     year: "numeric",
     month: "long",
     day: "numeric",
-    timeZone: APP_TIMEZONE,
+    timeZone: getAppTimezone(),
   });
 }
 
@@ -123,7 +160,7 @@ export function formatDateShort(dateStr: string | null | undefined): string {
     year: "numeric",
     month: "short",
     day: "numeric",
-    timeZone: APP_TIMEZONE,
+    timeZone: getAppTimezone(),
   });
 }
 
@@ -134,6 +171,6 @@ export function formatDateTimeLong(dateStr: string | null | undefined): string {
   return d.toLocaleString(APP_LOCALE, {
     dateStyle: "long",
     timeStyle: "short",
-    timeZone: APP_TIMEZONE,
+    timeZone: getAppTimezone(),
   });
 }

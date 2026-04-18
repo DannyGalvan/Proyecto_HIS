@@ -81,5 +81,10 @@ namespace Hospital.Server.Entities.Request
         /// Gets or sets the SpecialtyId (nullable — solo para médicos)
         /// </summary>
         public long? SpecialtyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the TimezoneId (nullable — preferencia de zona horaria)
+        /// </summary>
+        public long? TimezoneId { get; set; }
     }
 }

@@ -35,6 +35,7 @@ export function Component() {
         redirect: false,
         isLoggedIn: true,
         userId: authentication.userId,
+        timezoneIanaId: authentication.timezoneIanaId || "America/Guatemala",
       });
       return response;
     },

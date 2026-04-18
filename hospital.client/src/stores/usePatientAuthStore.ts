@@ -13,6 +13,7 @@ interface PatientAuthStore {
   name: string;
   email: string;
   userName: string;
+  timezoneIanaId: string;
   /** Whether the store has finished loading from localStorage */
   loading: boolean;
   /** Read stored state from localStorage and apply it */
@@ -30,6 +31,7 @@ const initialState: PatientAuthState = {
   name: '',
   email: '',
   userName: '',
+  timezoneIanaId: 'America/Guatemala',
 };
 
 export const usePatientAuthStore = create<PatientAuthStore>((set) => ({

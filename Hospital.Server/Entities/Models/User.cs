@@ -144,6 +144,16 @@ namespace Hospital.Server.Entities.Models
         public virtual Specialty? Specialty { get; set; }
 
         /// <summary>
+        /// Gets or sets the TimezoneId (nullable — preferencia de zona horaria del usuario)
+        /// </summary>
+        public long? TimezoneId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Timezone navigation property
+        /// </summary>
+        public virtual Timezone? Timezone { get; set; }
+
+        /// <summary>
         /// Gets or sets the LoginAudits
         /// </summary>
         [JsonIgnore]

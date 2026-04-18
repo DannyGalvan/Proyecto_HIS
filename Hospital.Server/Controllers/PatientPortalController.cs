@@ -34,10 +34,6 @@ namespace Hospital.Server.Controllers
     public class PatientPortalController : CommonController
     {
         private readonly DataContext _bd;
-        private readonly IEntityService<User, UserRequest, long> _userService;
-        private readonly IEntityService<Appointment, AppointmentRequest, long> _appointmentService;
-        private readonly IEntityService<Payment, PaymentRequest, long> _paymentService;
-        private readonly IEntityService<NotificationLog, NotificationLogRequest, long> _notificationService;
         private readonly IPaymentGateway _paymentGateway;
         private readonly ISendMail _sendMail;
         private readonly IMapper _mapper;
@@ -46,10 +42,6 @@ namespace Hospital.Server.Controllers
 
         public PatientPortalController(
             DataContext bd,
-            IEntityService<User, UserRequest, long> userService,
-            IEntityService<Appointment, AppointmentRequest, long> appointmentService,
-            IEntityService<Payment, PaymentRequest, long> paymentService,
-            IEntityService<NotificationLog, NotificationLogRequest, long> notificationService,
             IPaymentGateway paymentGateway,
             ISendMail sendMail,
             IMapper mapper,
@@ -57,10 +49,6 @@ namespace Hospital.Server.Controllers
             IAppointmentStateMachine stateMachine)
         {
             _bd = bd;
-            _userService = userService;
-            _appointmentService = appointmentService;
-            _paymentService = paymentService;
-            _notificationService = notificationService;
             _paymentGateway = paymentGateway;
             _sendMail = sendMail;
             _mapper = mapper;
@@ -686,7 +674,7 @@ namespace Hospital.Server.Controllers
                 transactionNumber: gatewayResponse.TransactionNumber,
                 amount:            request.Amount);
 
-            int notificationStatus = 0; // Pending
+            int notificationStatus; // Pending
             string? notificationError = null;
 
             try
@@ -817,7 +805,7 @@ namespace Hospital.Server.Controllers
             Appointment? appointment = await _bd.Appointments
                 .Include(a => a.AppointmentStatus)
                 .Include(a => a.Specialty)
-                .Include(a => a.Patient)
+                .Include(a => a.Patient).Include(appointment => appointment.Branch)
                 .FirstOrDefaultAsync(a => a.Id == id && a.State == 1);
 
             if (appointment == null)

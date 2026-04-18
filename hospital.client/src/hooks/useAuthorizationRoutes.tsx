@@ -81,6 +81,7 @@ export const useAuthorizationRoutes = () => {
     nameRoutes.doctorManagement,
     nameRoutes.doctorTransfer,
     nameRoutes.appointmentReassign,
+    nameRoutes.doctorCalendar,
   ]);
 
   const routesFiltered = routes.routes[0].children?.filter((route) => {

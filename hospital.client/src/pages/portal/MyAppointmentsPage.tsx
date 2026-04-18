@@ -5,7 +5,7 @@ import { Button, Modal, toast } from "@heroui/react";
 
 import { nameRoutes } from "../../configs/constants";
 import { getMyAppointments, cancelAppointment } from "../../services/patientPortalService";
-import { formatDateShort, formatTime, APP_TIMEZONE, APP_LOCALE } from "../../utils/dateFormatter";
+import { formatDateShort, formatTime, getAppTimezone, APP_LOCALE } from "../../utils/dateFormatter";
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { readonly status: string }) {
@@ -61,10 +61,10 @@ function AppointmentRow({
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/30">
             <span className="text-xs font-bold text-blue-600 dark:text-blue-300">
-              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, { month: "short", timeZone: APP_TIMEZONE }).toUpperCase()}
+              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, { month: "short", timeZone: getAppTimezone() }).toUpperCase()}
             </span>
             <span className="text-xl font-bold text-blue-800 dark:text-blue-200">
-              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, { day: "numeric", timeZone: APP_TIMEZONE })}
+              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, { day: "numeric", timeZone: getAppTimezone() })}
             </span>
           </div>
           <div>

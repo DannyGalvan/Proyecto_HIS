@@ -38,6 +38,7 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
                 .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
+                .Map(dest => dest.TimezoneId, src => src.TimezoneId)
                 .Ignore(dest => dest.CreatedAt)
                 .Ignore(dest => dest.UpdatedAt!);
 
@@ -57,6 +58,9 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
                 .Map(dest => dest.SpecialtyId, src => src.SpecialtyId)
                 .Map(dest => dest.Specialty, src => src.Specialty)
+                .Map(dest => dest.TimezoneId, src => src.TimezoneId)
+                .Map(dest => dest.TimezoneIanaId, src => src.Timezone != null ? src.Timezone.IanaId : null)
+                .Map(dest => dest.TimezoneDisplayName, src => src.Timezone != null ? src.Timezone.DisplayName : null)
                 .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
                 .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy " +
                 "HH:mm:ss") : null);
@@ -69,7 +73,8 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.Rol, src => src.RolId)
                 .Map(dest => dest.Redirect, src => src.Reset ?? false)
                 .Ignore(dest => dest.Token)
-                .Ignore(dest => dest.Operations);
+                .Ignore(dest => dest.Operations)
+                .Ignore(dest => dest.TimezoneIanaId);
 
             TypeAdapterConfig<User, User>.NewConfig();
 
@@ -853,6 +858,90 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
 
             TypeAdapterConfig<InventoryMovement, InventoryMovement>.NewConfig();
+
+            //Mapper DoctorEvent
+            TypeAdapterConfig<DoctorEventRequest, DoctorEvent>.NewConfig()
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.Title, src => src.Title)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.StartDate, src => src.StartDate)
+                .Map(dest => dest.EndDate, src => src.EndDate)
+                .Map(dest => dest.EventType, src => src.EventType)
+                .Map(dest => dest.IsAllDay, src => src.IsAllDay)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<DoctorEvent, DoctorEventResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.Title, src => src.Title)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.StartDate, src => src.StartDate.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.EndDate, src => src.EndDate.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.EventType, src => src.EventType)
+                .Map(dest => dest.IsAllDay, src => src.IsAllDay)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
+                .Map(dest => dest.DoctorName, src => src.Doctor != null ? src.Doctor.Name : null);
+
+            TypeAdapterConfig<DoctorEvent, DoctorEvent>.NewConfig();
+
+            //Mapper DoctorTask
+            TypeAdapterConfig<DoctorTaskRequest, DoctorTask>.NewConfig()
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.Title, src => src.Title)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.DueDate, src => src.DueDate)
+                .Map(dest => dest.IsCompleted, src => src.IsCompleted)
+                .Map(dest => dest.Priority, src => src.Priority)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<DoctorTask, DoctorTaskResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.DoctorId, src => src.DoctorId)
+                .Map(dest => dest.Title, src => src.Title)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.DueDate, src => src.DueDate.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.IsCompleted, src => src.IsCompleted)
+                .Map(dest => dest.Priority, src => src.Priority)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
+                .Map(dest => dest.DoctorName, src => src.Doctor != null ? src.Doctor.Name : null);
+
+            TypeAdapterConfig<DoctorTask, DoctorTask>.NewConfig();
+
+            //Mapper Timezone
+            TypeAdapterConfig<TimezoneRequest, Timezone>.NewConfig()
+                .Map(dest => dest.IanaId, src => src.IanaId)
+                .Map(dest => dest.DisplayName, src => src.DisplayName)
+                .Map(dest => dest.UtcOffset, src => src.UtcOffset)
+                .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.CreatedBy, src => src.CreatedBy)
+                .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
+                .Ignore(dest => dest.CreatedAt)
+                .Ignore(dest => dest.UpdatedAt!);
+
+            TypeAdapterConfig<Timezone, TimezoneResponse>.NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.IanaId, src => src.IanaId)
+                .Map(dest => dest.DisplayName, src => src.DisplayName)
+                .Map(dest => dest.UtcOffset, src => src.UtcOffset)
+                .Map(dest => dest.State, src => src.State);
+
+            TypeAdapterConfig<Timezone, Timezone>.NewConfig();
 
             //Mapper Module
             TypeAdapterConfig<Module, ModuleResponse>.NewConfig()

@@ -113,6 +113,9 @@ import { DoctorTransferPage } from "../pages/admin/DoctorTransferPage";
 // Appointment Reassign
 import { AppointmentReassignPage } from "../pages/appointment/AppointmentReassignPage";
 
+// Doctor Calendar
+import { DoctorCalendarPage } from "../pages/doctor-calendar/DoctorCalendarPage";
+
 // Middlewares
 // PublicOnly is available for future use
 
@@ -418,5 +421,10 @@ export const PublicRoutes: RouteObject[] = [
   {
     path: nameRoutes.appointmentReassign,
     element: <ProtectedPublic><AppointmentReassignPage /></ProtectedPublic>,
+  },
+  // Doctor Calendar
+  {
+    path: nameRoutes.doctorCalendar,
+    element: <ProtectedPublic><DoctorCalendarPage /></ProtectedPublic>,
   },
 ];

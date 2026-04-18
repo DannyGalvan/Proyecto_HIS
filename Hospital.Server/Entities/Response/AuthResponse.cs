@@ -45,5 +45,9 @@
         /// </summary>
         public ICollection<Authorizations> Operations { get; set; } = new List<Authorizations>();
 
+        /// <summary>
+        /// Gets or sets the TimezoneIanaId (defaults to America/Guatemala)
+        /// </summary>
+        public string TimezoneIanaId { get; set; } = "America/Guatemala";
     }
 }

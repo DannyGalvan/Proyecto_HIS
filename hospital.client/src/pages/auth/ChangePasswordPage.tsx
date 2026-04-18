@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { Col } from "../../components/grid/Col";
 import { AsyncButton } from "../../components/button/AsyncButton";
 import { Response } from "../../components/messages/Response";
+import { TimezoneSelector } from "../../components/select/TimezoneSelector";
 import { useAuth } from "../../hooks/useAuth";
 import { useForm } from "../../hooks/useForm";
 import ProtectedPublic from "../../routes/middlewares/ProtectedPublic";
@@ -104,6 +105,11 @@ export function Component() {
             </AsyncButton>
           </Col>
         </form>
+        {/* Timezone preference */}
+        <Col className="mt-8" lg={8} md={10} sm={12} xl={6}>
+          <h2 className="text-center text-2xl font-bold mb-4">Preferencias</h2>
+          <TimezoneSelector userId={userId} />
+        </Col>
       </div>
     </ProtectedPublic>
   );

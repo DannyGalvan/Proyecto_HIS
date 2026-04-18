@@ -67,4 +67,5 @@ export interface PatientAuthState {
   name: string;
   email: string;
   userName: string;
+  timezoneIanaId: string;
 }

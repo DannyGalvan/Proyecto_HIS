@@ -91,5 +91,20 @@
         /// Gets or sets the Specialty
         /// </summary>
         public virtual SpecialtyResponse? Specialty { get; set; }
+
+        /// <summary>
+        /// Gets or sets the TimezoneId
+        /// </summary>
+        public long? TimezoneId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Timezone IANA identifier
+        /// </summary>
+        public string? TimezoneIanaId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Timezone display name
+        /// </summary>
+        public string? TimezoneDisplayName { get; set; }
     }
 }

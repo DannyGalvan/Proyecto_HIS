@@ -67,7 +67,7 @@ export function PortalLoginPage() {
         const response = await loginPatient({ userName: form.userName, password: form.password });
 
         if (response.success) {
-          const { token, userId: responseUserId, name: responseName, email: responseEmail } = response.data;
+          const { token, userId: responseUserId, name: responseName, email: responseEmail, timezoneIanaId: responseTz } = response.data;
 
           signInPatient({
             isLoggedIn: true,
@@ -76,6 +76,7 @@ export function PortalLoginPage() {
             name: responseName,
             email: responseEmail,
             userName: form.userName,
+            timezoneIanaId: responseTz || "America/Guatemala",
           });
 
           navigate(nameRoutes.portalDashboard);

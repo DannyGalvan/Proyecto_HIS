@@ -16,6 +16,7 @@ export interface UserRequest {
   state?: number | null;
   createdBy?: number | null;
   updatedBy?: number | null;
+  timezoneId?: number | null;
 
   rol?: RolResponse | null;
   specialtyId?: number | null;

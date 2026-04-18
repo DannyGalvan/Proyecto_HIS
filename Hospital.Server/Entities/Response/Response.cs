@@ -14,7 +14,7 @@
         /// <summary>
         /// Gets or sets the Message
         /// </summary>
-        public string Message { get; set; } = string.Empty;
+        public string? Message { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the Data

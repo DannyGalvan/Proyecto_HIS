@@ -4,6 +4,8 @@ using Hospital.Server.Interceptors.Interfaces;
 using Hospital.Server.Interceptors.userInterceptors;
 using Hospital.Server.Interceptors.AppointmentInterceptors;
 using Hospital.Server.Interceptors.InventoryInterceptors;
+using Hospital.Server.Interceptors.DoctorEventInterceptors;
+using Hospital.Server.Interceptors.DoctorTaskInterceptors;
 using Hospital.Server.Services.Background;
 using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
@@ -70,6 +72,13 @@ namespace Hospital.Server.Configs.Extensions
             // Notification CRUD services (CU-11)
             services.AddScoped<IEntityService<NotificationLog, NotificationLogRequest, long>, Services.Core.EntityService<NotificationLog, NotificationLogRequest, long>>();
 
+            // Doctor Calendar CRUD services
+            services.AddScoped<IEntityService<DoctorEvent, DoctorEventRequest, long>, Services.Core.EntityService<DoctorEvent, DoctorEventRequest, long>>();
+            services.AddScoped<IEntityService<DoctorTask, DoctorTaskRequest, long>, Services.Core.EntityService<DoctorTask, DoctorTaskRequest, long>>();
+
+            // Timezone CRUD service
+            services.AddScoped<IEntityService<Timezone, TimezoneRequest, long>, Services.Core.EntityService<Timezone, TimezoneRequest, long>>();
+
             // User interceptors
             services.AddScoped<IEntityBeforeCreateInterceptor<User, UserRequest>, UserBeforeCreateInterceptor>();
             services.AddScoped<IEntityBeforeUpdateInterceptor<User, UserRequest>, UserBeforeUpdateInterceptor>();
@@ -98,6 +107,25 @@ namespace Hospital.Server.Configs.Extensions
             // InventoryMovement interceptor — updates stock, validates sufficiency, calculates TotalCost
             services.AddScoped<IEntityBeforeCreateInterceptor<InventoryMovement, InventoryMovementRequest>, InventoryMovementBeforeCreateInterceptor>();
 
+            // DoctorEvent interceptor — validates dates, overlap, ownership
+            services.AddScoped<IEntityBeforeCreateInterceptor<DoctorEvent, DoctorEventRequest>, DoctorEventBeforeCreateInterceptor>();
+
+            // DoctorTask interceptor — validates ownership
+            services.AddScoped<IEntityBeforeCreateInterceptor<DoctorTask, DoctorTaskRequest>, DoctorTaskBeforeCreateInterceptor>();
+
+            // Appointment after-create interceptor — notifies doctor of new appointment
+            services.AddScoped<IEntityAfterCreateInterceptor<Appointment, AppointmentRequest>, AppointmentAfterCreateNotifyDoctorInterceptor>();
+
+            // DoctorEvent reminder recalculation interceptor — cancels obsolete reminders on create/update
+            services.AddScoped<IEntityAfterCreateInterceptor<DoctorEvent, DoctorEventRequest>, DoctorEventReminderRecalculationInterceptor>();
+            services.AddScoped<IEntityAfterUpdateInterceptor<DoctorEvent, DoctorEventRequest>, DoctorEventReminderRecalculationInterceptor>();
+            services.AddScoped<IEntityAfterPartialUpdateInterceptor<DoctorEvent, DoctorEventRequest>, DoctorEventReminderRecalculationInterceptor>();
+
+            // DoctorTask reminder recalculation interceptor — cancels obsolete reminders on create/update
+            services.AddScoped<IEntityAfterCreateInterceptor<DoctorTask, DoctorTaskRequest>, DoctorTaskReminderRecalculationInterceptor>();
+            services.AddScoped<IEntityAfterUpdateInterceptor<DoctorTask, DoctorTaskRequest>, DoctorTaskReminderRecalculationInterceptor>();
+            services.AddScoped<IEntityAfterPartialUpdateInterceptor<DoctorTask, DoctorTaskRequest>, DoctorTaskReminderRecalculationInterceptor>();
+
             // Dispense status change interceptor — auto-creates InventoryMovement (Despacho) when DispenseStatus changes to 2
             services.AddScoped<IEntityAfterUpdateInterceptor<Dispense, DispenseRequest>, DispenseAfterStatusChangeInterceptor>();
             services.AddScoped<IEntityAfterPartialUpdateInterceptor<Dispense, DispenseRequest>, DispenseAfterStatusChangeInterceptor>();
@@ -119,6 +147,9 @@ namespace Hospital.Server.Configs.Extensions
 
             // hosted service para recordatorios de cita por correo (24h y 4h antes)
             services.AddHostedService<AppointmentReminderService>();
+
+            // hosted service para recordatorios de agenda del doctor (resumen diario, 1h y 15m antes)
+            services.AddHostedService<DoctorAgendaReminderService>();
 
             // payment gateway (swap MockPaymentGateway for real implementation in production)
             services.AddScoped<IPaymentGateway, MockPaymentGateway>();

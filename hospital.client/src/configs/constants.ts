@@ -104,6 +104,8 @@ export const nameRoutes = {
   doctorTransfer: "/doctor-transfer",
   adminDashboard: "/admin-dashboard",
   appointmentReassign: "/appointment/reassign",
+  // Doctor Calendar
+  doctorCalendar: "/doctor-calendar",
   // Registro externo
   register: "/register",
   // Portal del paciente
@@ -130,6 +132,7 @@ export const authInitialState: InitialAuth = {
   name: "",
   userId: 0,
   operations: [],
+  timezoneIanaId: "America/Guatemala",
 };
 
 export const PAGINATION_OPTIONS = {
@@ -160,4 +163,5 @@ export const initialUser: UserRequest = {
   state: null,
   createdBy: null,
   updatedBy: null,
+  timezoneId: null,
 };

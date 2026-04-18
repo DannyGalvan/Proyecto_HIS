@@ -9,4 +9,5 @@ export interface InitialAuth {
   token: string;
   userId: number;
   operations: Authorizations[];
+  timezoneIanaId: string;
 }

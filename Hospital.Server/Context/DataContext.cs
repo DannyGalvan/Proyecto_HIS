@@ -101,6 +101,13 @@ namespace Hospital.Server.Context
         // Inventory movements (Bitácora de inventario)
         public DbSet<InventoryMovement> InventoryMovements { get; set; }
 
+        // Doctor calendar entities
+        public DbSet<DoctorEvent> DoctorEvents { get; set; }
+        public DbSet<DoctorTask> DoctorTasks { get; set; }
+
+        // Timezone catalog
+        public DbSet<Timezone> Timezones { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

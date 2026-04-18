@@ -14,4 +14,5 @@ export interface LoginResponse {
   userId: number;
   rol: number;
   operations: Authorizations[];
+  timezoneIanaId: string;
 }

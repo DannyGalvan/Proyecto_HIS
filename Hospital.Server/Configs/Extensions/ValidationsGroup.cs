@@ -29,6 +29,9 @@
     using Hospital.Server.Validations.NotificationLog;
     using Hospital.Server.Validations.PatientPortal;
     using Hospital.Server.Validations.InventoryMovement;
+    using Hospital.Server.Validations.DoctorEvent;
+    using Hospital.Server.Validations.DoctorTask;
+    using Hospital.Server.Validations.Timezone;
 
     /// <summary>
     /// Defines the <see cref="ValidationsGroup" />
@@ -174,6 +177,21 @@
             services.AddKeyedScoped<IValidator<InventoryMovementRequest>, CreateInventoryMovementValidation>("Create");
             services.AddKeyedScoped<IValidator<InventoryMovementRequest>, UpdateInventoryMovementValidation>("Update");
             services.AddKeyedScoped<IValidator<InventoryMovementRequest>, PartialInventoryMovementValidation>("Partial");
+
+            //doctorEvent validations
+            services.AddKeyedScoped<IValidator<DoctorEventRequest>, CreateDoctorEventValidation>("Create");
+            services.AddKeyedScoped<IValidator<DoctorEventRequest>, UpdateDoctorEventValidation>("Update");
+            services.AddKeyedScoped<IValidator<DoctorEventRequest>, PartialDoctorEventValidation>("Partial");
+
+            //doctorTask validations
+            services.AddKeyedScoped<IValidator<DoctorTaskRequest>, CreateDoctorTaskValidation>("Create");
+            services.AddKeyedScoped<IValidator<DoctorTaskRequest>, UpdateDoctorTaskValidation>("Update");
+            services.AddKeyedScoped<IValidator<DoctorTaskRequest>, PartialDoctorTaskValidation>("Partial");
+
+            //timezone validations
+            services.AddKeyedScoped<IValidator<TimezoneRequest>, CreateTimezoneValidation>("Create");
+            services.AddKeyedScoped<IValidator<TimezoneRequest>, UpdateTimezoneValidation>("Update");
+            services.AddKeyedScoped<IValidator<TimezoneRequest>, PartialTimezoneValidation>("Partial");
 
             //patientPortal validations
             services.AddScoped<IValidator<PatientRegisterRequest>, CreatePatientValidator>();

@@ -13,6 +13,7 @@ export const useAuth = () => {
     name,
     redirect,
     userId,
+    timezoneIanaId,
   } = authState;
 
   const allOperations = toAllOperations(operations);
@@ -31,5 +32,6 @@ export const useAuth = () => {
     userId,
     loading,
     syncAuth,
+    timezoneIanaId,
   };
 };

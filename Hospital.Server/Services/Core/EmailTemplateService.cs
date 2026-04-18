@@ -36,6 +36,10 @@ namespace Hospital.Server.Services.Core
                 EmailTemplateType.PasswordChangeConfirmation => GetPasswordChangeConfirmationBody(),
                 EmailTemplateType.AppointmentConfirmation => GetAppointmentConfirmationBody(),
                 EmailTemplateType.PaymentConfirmation => GetPaymentConfirmationBody(),
+                EmailTemplateType.DailyAgendaSummary => GetDailyAgendaSummaryBody(),
+                EmailTemplateType.AppointmentReminder => GetAppointmentReminderBody(),
+                EmailTemplateType.EventReminder => GetEventReminderBody(),
+                EmailTemplateType.NewAppointmentNotification => GetNewAppointmentNotificationBody(),
                 _ => GetGenericBody()
             };
 
@@ -309,6 +313,173 @@ namespace Hospital.Server.Services.Core
                 <tr>
                     <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{SuccessColor};line-height:22px;padding:16px;"">
                         &#9989; Pago registrado exitosamente. Conserve este correo como comprobante.
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>";
+        }
+
+        /// <summary>
+        /// Daily agenda summary template body for doctors.
+        /// Placeholders: {{NombreDoctor}}, {{Fecha}}, {{TablaCitas}}, {{TablaEventos}}, {{TablaTareas}}
+        /// </summary>
+        private static string GetDailyAgendaSummaryBody()
+        {
+            return $@"<table role=""presentation"" cellpadding=""0"" cellspacing=""0"" border=""0"" width=""100%"">
+    <tr>
+        <td style=""font-family:Arial,Helvetica,sans-serif;font-size:16px;color:{TextColor};line-height:26px;"">
+            <h2 style=""margin:0 0 16px 0;font-size:20px;color:{PrimaryDark};"">Resumen de Agenda del Día</h2>
+            <p style=""margin:0 0 16px 0;"">Hola Dr(a). <strong>{{{{NombreDoctor}}}}</strong>,</p>
+            <p style=""margin:0 0 24px 0;"">A continuación su agenda para el día <strong>{{{{Fecha}}}}</strong>:</p>
+        </td>
+    </tr>
+    <tr>
+        <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};"">
+            <h3 style=""margin:0 0 8px 0;font-size:16px;color:{PrimaryDark};"">&#128197; Citas</h3>
+            {{{{TablaCitas}}}}
+        </td>
+    </tr>
+    <tr>
+        <td style=""padding-top:16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};"">
+            <h3 style=""margin:0 0 8px 0;font-size:16px;color:{PrimaryDark};"">&#128338; Eventos</h3>
+            {{{{TablaEventos}}}}
+        </td>
+    </tr>
+    <tr>
+        <td style=""padding-top:16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};"">
+            <h3 style=""margin:0 0 8px 0;font-size:16px;color:{PrimaryDark};"">&#9745; Tareas</h3>
+            {{{{TablaTareas}}}}
+        </td>
+    </tr>
+</table>";
+        }
+
+        /// <summary>
+        /// Appointment reminder template body for doctors.
+        /// Placeholders: {{NombreDoctor}}, {{TiempoRestante}}, {{NombrePaciente}}, {{Especialidad}}, {{HoraCita}}, {{Sucursal}}
+        /// </summary>
+        private static string GetAppointmentReminderBody()
+        {
+            return $@"<table role=""presentation"" cellpadding=""0"" cellspacing=""0"" border=""0"" width=""100%"">
+    <tr>
+        <td style=""font-family:Arial,Helvetica,sans-serif;font-size:16px;color:{TextColor};line-height:26px;"">
+            <h2 style=""margin:0 0 16px 0;font-size:20px;color:{PrimaryDark};"">Recordatorio de Cita</h2>
+            <p style=""margin:0 0 16px 0;"">Hola Dr(a). <strong>{{{{NombreDoctor}}}}</strong>,</p>
+            <p style=""margin:0 0 24px 0;"">Le recordamos que tiene una cita en <strong>{{{{TiempoRestante}}}}</strong>.</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table role=""presentation"" cellpadding=""8"" cellspacing=""0"" border=""0"" width=""100%"" style=""border:1px solid {BorderColor};border-radius:4px;"">
+                <tr style=""background-color:#f9fafb;"">
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Paciente</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{NombrePaciente}}}}</td>
+                </tr>
+                <tr>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Especialidad</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{Especialidad}}}}</td>
+                </tr>
+                <tr style=""background-color:#f9fafb;"">
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Hora</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{HoraCita}}}}</td>
+                </tr>
+                <tr>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;"">Sucursal</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;"">{{{{Sucursal}}}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>";
+        }
+
+        /// <summary>
+        /// Event reminder template body for doctors.
+        /// Placeholders: {{NombreDoctor}}, {{TiempoRestante}}, {{TituloEvento}}, {{TipoEvento}}, {{HoraInicio}}, {{HoraFin}}
+        /// </summary>
+        private static string GetEventReminderBody()
+        {
+            return $@"<table role=""presentation"" cellpadding=""0"" cellspacing=""0"" border=""0"" width=""100%"">
+    <tr>
+        <td style=""font-family:Arial,Helvetica,sans-serif;font-size:16px;color:{TextColor};line-height:26px;"">
+            <h2 style=""margin:0 0 16px 0;font-size:20px;color:{PrimaryDark};"">Recordatorio de Evento</h2>
+            <p style=""margin:0 0 16px 0;"">Hola Dr(a). <strong>{{{{NombreDoctor}}}}</strong>,</p>
+            <p style=""margin:0 0 24px 0;"">Le recordamos que tiene un evento en <strong>{{{{TiempoRestante}}}}</strong>.</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table role=""presentation"" cellpadding=""8"" cellspacing=""0"" border=""0"" width=""100%"" style=""border:1px solid {BorderColor};border-radius:4px;"">
+                <tr style=""background-color:#f9fafb;"">
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Evento</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{TituloEvento}}}}</td>
+                </tr>
+                <tr>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Tipo</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{TipoEvento}}}}</td>
+                </tr>
+                <tr style=""background-color:#f9fafb;"">
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Hora Inicio</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{HoraInicio}}}}</td>
+                </tr>
+                <tr>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;"">Hora Fin</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;"">{{{{HoraFin}}}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>";
+        }
+
+        /// <summary>
+        /// New appointment notification template body for doctors.
+        /// Placeholders: {{NombreDoctor}}, {{NombrePaciente}}, {{FechaCita}}, {{HoraCita}}, {{Especialidad}}, {{MotivoCita}}
+        /// </summary>
+        private static string GetNewAppointmentNotificationBody()
+        {
+            return $@"<table role=""presentation"" cellpadding=""0"" cellspacing=""0"" border=""0"" width=""100%"">
+    <tr>
+        <td style=""font-family:Arial,Helvetica,sans-serif;font-size:16px;color:{TextColor};line-height:26px;"">
+            <h2 style=""margin:0 0 16px 0;font-size:20px;color:{PrimaryDark};"">Nueva Cita Agendada</h2>
+            <p style=""margin:0 0 16px 0;"">Hola Dr(a). <strong>{{{{NombreDoctor}}}}</strong>,</p>
+            <p style=""margin:0 0 24px 0;"">Se ha agendado una nueva cita con los siguientes detalles:</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table role=""presentation"" cellpadding=""8"" cellspacing=""0"" border=""0"" width=""100%"" style=""border:1px solid {BorderColor};border-radius:4px;"">
+                <tr style=""background-color:#f9fafb;"">
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Paciente</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{NombrePaciente}}}}</td>
+                </tr>
+                <tr>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Fecha</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{FechaCita}}}}</td>
+                </tr>
+                <tr style=""background-color:#f9fafb;"">
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Hora</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{HoraCita}}}}</td>
+                </tr>
+                <tr>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;border-bottom:1px solid {BorderColor};"">Especialidad</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;border-bottom:1px solid {BorderColor};"">{{{{Especialidad}}}}</td>
+                </tr>
+                <tr style=""background-color:#f9fafb;"">
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextMuted};font-weight:bold;padding:10px 16px;"">Motivo</td>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{TextColor};padding:10px 16px;"">{{{{MotivoCita}}}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style=""padding-top:24px;"">
+            <table role=""presentation"" cellpadding=""0"" cellspacing=""0"" border=""0"" width=""100%"" style=""background-color:{SuccessBg};border-left:4px solid {SuccessColor};padding:16px;border-radius:0 4px 4px 0;"">
+                <tr>
+                    <td style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:{SuccessColor};line-height:22px;padding:16px;"">
+                        &#9989; Esta cita ha sido registrada en su agenda. Recibirá recordatorios antes de la hora programada.
                     </td>
                 </tr>
             </table>

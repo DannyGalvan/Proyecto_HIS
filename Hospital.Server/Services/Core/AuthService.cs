@@ -105,7 +105,7 @@ namespace Hospital.Server.Services.Core
                     return userResponse;
                 }
 
-                User? oUser = _bd.Users.Include(user => user.Rol!).FirstOrDefault(u =>
+                User? oUser = _bd.Users.Include(user => user.Rol!).Include(user => user.Timezone).FirstOrDefault(u =>
                     u.UserName == model.UserName);
 
                 if (oUser == null)
@@ -165,6 +165,7 @@ namespace Hospital.Server.Services.Core
                 AuthResponse auth = _mapper.Map<User, AuthResponse>(oUser);
                 auth.Token = jwt;
                 auth.Operations = authorizations;
+                auth.TimezoneIanaId = oUser.Timezone?.IanaId ?? "America/Guatemala";
 
                 userResponse.Success = true;
                 userResponse.Message = "Inicio de sesión exitosa";

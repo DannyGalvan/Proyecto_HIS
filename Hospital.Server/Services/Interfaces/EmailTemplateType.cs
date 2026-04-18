@@ -23,6 +23,26 @@ namespace Hospital.Server.Services.Interfaces
         /// <summary>
         /// Template for payment confirmation emails.
         /// </summary>
-        PaymentConfirmation = 3
+        PaymentConfirmation = 3,
+
+        /// <summary>
+        /// Template for daily agenda summary sent to doctors at 06:00 local time.
+        /// </summary>
+        DailyAgendaSummary = 4,
+
+        /// <summary>
+        /// Template for appointment reminder sent to doctors (1h and 15m before).
+        /// </summary>
+        AppointmentReminder = 5,
+
+        /// <summary>
+        /// Template for event reminder sent to doctors (1h and 15m before).
+        /// </summary>
+        EventReminder = 6,
+
+        /// <summary>
+        /// Template for notifying doctors when a new appointment is created.
+        /// </summary>
+        NewAppointmentNotification = 7
     }
 }

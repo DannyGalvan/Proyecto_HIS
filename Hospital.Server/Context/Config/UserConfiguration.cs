@@ -46,6 +46,12 @@ namespace Hospital.Server.Context.Config
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
 
+            entity.HasOne(e => e.Timezone)
+                .WithMany()
+                .HasForeignKey(e => e.TimezoneId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
+
             //password: Guatemala1.
             entity.HasData(
                 new User

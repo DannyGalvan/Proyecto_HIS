@@ -14,6 +14,9 @@ export interface UserResponse {
   branchId?: number | null;
   specialtyId?: number | null;
   insuranceNumber?: string | null;
+  timezoneId?: number | null;
+  timezoneIanaId?: string | null;
+  timezoneDisplayName?: string | null;
   state: number;
   createdAt: string;
   updatedAt?: string | null;
