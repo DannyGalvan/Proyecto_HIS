@@ -90,6 +90,7 @@ export function DoctorManagementPage() {
       id: modal.doctor.id,
       branchId: modal.branchId,
       specialtyId: modal.specialtyId,
+      state: 1,
       updatedBy: userId,
     });
   }, [modal, userId, updateMutation]);

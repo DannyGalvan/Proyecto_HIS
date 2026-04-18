@@ -104,6 +104,7 @@ export function DoctorTransferPage() {
     if (!doctor || !newBranchId) return;
     transferMutation.mutate({
       id: doctor.id,
+      state: 1,
       branchId: newBranchId,
       updatedBy: userId,
     });
