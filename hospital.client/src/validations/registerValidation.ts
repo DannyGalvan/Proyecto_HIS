@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { ErrorObject } from "../hooks/useForm";
 import { handleOneLevelZodError } from "../utils/converted";
+import { isCuiValid } from "../utils/cuiValidator";
 
 export const registerSchema = z.object({
   name: z
@@ -9,7 +10,8 @@ export const registerSchema = z.object({
     .max(100, "El nombre debe tener entre 10 y 100 caracteres"),
   identificationDocument: z
     .string()
-    .regex(/^\d{13}$/, "El DPI debe tener exactamente 13 dígitos numéricos"),
+    .regex(/^\d{13}$/, "El DPI debe tener exactamente 13 dígitos numéricos")
+    .refine(isCuiValid, "El número de DPI/CUI no es válido. Verifique que los dígitos sean correctos."),
   userName: z
     .string()
     .min(8, "El usuario debe tener entre 8 y 9 caracteres")

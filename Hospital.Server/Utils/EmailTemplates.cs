@@ -200,6 +200,7 @@ namespace Hospital.Server.Utils
         public static string AppointmentCancellation(
             string patientName,
             string specialtyName,
+            string doctorName,
             string branchName,
             string appointmentDate,
             long appointmentId,
@@ -215,7 +216,7 @@ namespace Hospital.Server.Utils
 
               {Banner("❌ &nbsp;Cita cancelada. Los fondos serán reintegrados según los términos del servicio.", "#fef2f2", DangerColor, "#991b1b")}
 
-              {AppointmentCard(specialtyName, "—", branchName, appointmentDate, appointmentId, null, $"Q{amount:F2}")}
+              {AppointmentCard(specialtyName, doctorName, branchName, appointmentDate, appointmentId, null, $"Q{amount:F2}")}
 
               <p style='font-size:13px;color:{TextMuted};margin-bottom:0;'>
                 Si canceló por error o desea agendar una nueva cita, puede hacerlo desde el portal del paciente.<br/>

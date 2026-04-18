@@ -2,6 +2,7 @@ using Hospital.Server.Context;
 using Hospital.Server.Entities.Models;
 using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
+using Hospital.Server.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.Server.Services.Background
@@ -24,7 +25,7 @@ namespace Hospital.Server.Services.Background
         private const int NotificationTypeEventReminder1h = 11;
         private const int NotificationTypeEventReminder15m = 12;
 
-        private const string DefaultTimezone = "America/Guatemala";
+        private const string DefaultTimezone = TimeZoneHelper.DefaultTimezone;
         private static readonly TimeSpan JobInterval = TimeSpan.FromMinutes(5);
 
         private readonly IServiceScopeFactory _scopeFactory;
@@ -84,16 +85,8 @@ namespace Hospital.Server.Services.Background
             {
                 try
                 {
-                    var ianaId = doctor.Timezone?.IanaId ?? DefaultTimezone;
-                    TimeZoneInfo tzInfo;
-                    try
-                    {
-                        tzInfo = TimeZoneInfo.FindSystemTimeZoneById(ianaId);
-                    }
-                    catch
-                    {
-                        tzInfo = TimeZoneInfo.FindSystemTimeZoneById(DefaultTimezone);
-                    }
+                    var ianaId = doctor.Timezone?.IanaId;
+                    var tzInfo = TimeZoneHelper.Resolve(ianaId);
 
                     var localNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, tzInfo);
 

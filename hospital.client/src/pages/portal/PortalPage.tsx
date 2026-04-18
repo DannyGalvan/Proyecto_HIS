@@ -6,6 +6,7 @@ import { getPublicSpecialties, getPublicBranches, verifyDpi } from "../../servic
 import { nameRoutes } from "../../configs/constants";
 import { LogoHIS } from "../../components/brand/LogoHIS";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
+import { isCuiValid } from "../../utils/cuiValidator";
 
 // ── Sección Hero ──────────────────────────────────────────────────────────────
 function HeroSection({ onSchedule }: { readonly onSchedule: () => void }) {
@@ -40,9 +41,8 @@ function HeroSection({ onSchedule }: { readonly onSchedule: () => void }) {
             Agendar Cita
           </Button>
           <Button
-            className="px-8 py-3 text-lg font-bold border-2 border-white text-white hover:bg-white/10"
+            className="px-8 py-3 text-lg font-bold border-2 border-white text-white hover:bg-green-600/60"
             size="lg"
-            variant="secondary"
             onPress={() => document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth" })}
           >
             <i className="bi bi-info-circle mr-2" />
@@ -134,6 +134,10 @@ function DpiVerificationModal({
       }
       if (!/^\d{13}$/.test(dpi.trim())) {
         setDpiError(`El DPI debe contener exactamente 13 dígitos. Usted ingresó ${dpi.trim().length} dígitos.`);
+        return;
+      }
+      if (!isCuiValid(dpi.trim())) {
+        setDpiError("El número de DPI/CUI no es válido. Verifique que los dígitos sean correctos.");
         return;
       }
 

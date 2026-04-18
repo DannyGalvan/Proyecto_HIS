@@ -2,6 +2,7 @@ import { z } from "zod";
 import { invalid_type_error } from "../configs/constants";
 import type { ErrorObject } from "../hooks/useForm";
 import { handleOneLevelZodError } from "../utils/converted";
+import { isCuiValid } from "../utils/cuiValidator";
 
 export const userSchema = z.object({
   id: z.number().nullable().optional(),
@@ -35,6 +36,7 @@ export const userSchema = z.object({
   identificationDocument: z
     .string()
     .regex(/^\d{13}$/, "El DPI debe tener exactamente 13 dígitos numéricos")
+    .refine(isCuiValid, "El número de DPI/CUI no es válido. Verifique que los dígitos sean correctos.")
     .optional()
     .or(z.literal("")),
   number: z

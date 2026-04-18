@@ -1,24 +1,24 @@
-import { useState, useCallback } from "react";
-import { useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 import { toast } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
+import { useNavigate } from "react-router";
 
-import { nameRoutes } from "../../configs/constants";
-import { getBranches } from "../../services/branchService";
-import {
-  getSpecialtiesByBranch,
-  getDoctorsByBranchAndSpecialty,
-} from "../../services/patientPortalService";
-import { createAppointment } from "../../services/appointmentService";
-import { getUsers } from "../../services/userService";
 import { DynamicCalendar } from "../../components/portal/DynamicCalendar";
 import { CatalogueSelect } from "../../components/select/CatalogueSelect";
+import { nameRoutes } from "../../configs/constants";
 import { useAuth } from "../../hooks/useAuth";
-import { formatDateLong, formatTime } from "../../utils/dateFormatter";
-import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
+import { createAppointment } from "../../services/appointmentService";
+import { getBranches } from "../../services/branchService";
+import {
+  getDoctorsByBranchAndSpecialty,
+  getSpecialtiesByBranch,
+} from "../../services/patientPortalService";
+import { getUsers } from "../../services/userService";
 import type { BranchResponse } from "../../types/BranchResponse";
 import type { DoctorResponse } from "../../types/PatientPortalTypes";
+import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
 import type { UserResponse } from "../../types/UserResponse";
+import { formatDateLong, formatTime } from "../../utils/dateFormatter";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -107,11 +107,11 @@ function Step1Patient({
         Busque y seleccione el paciente para la cita.
       </p>
       <CatalogueSelect<UserResponse>
+        isRequired
+        deps="Rol.Name:eq:Paciente AND State:eq:1"
         fieldSearch="Name"
         label="Paciente"
         placeholder="Buscar paciente por nombre..."
-        deps="Rol.Name:eq:Paciente AND State:eq:1"
-        isRequired
         queryFn={getUsers}
         selectorFn={(user) => ({
           label: `${user.name} — ${user.identificationDocument}`,
@@ -161,17 +161,17 @@ function Step2Branch({
         Elija la sede donde se atenderá el paciente.
       </p>
 
-      {isLoading && (
+      {isLoading ? (
         <div className="flex justify-center py-10">
           <i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" />
         </div>
-      )}
-      {isError && (
+      ) : null}
+      {isError ? (
         <div className="rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-400">
           <i className="bi bi-exclamation-triangle mr-2" />
           Error al cargar sedes. Intente de nuevo.
         </div>
-      )}
+      ) : null}
       {!isLoading && !isError && branches.length === 0 && (
         <p className="text-center text-gray-400">No hay sedes disponibles.</p>
       )}
@@ -180,7 +180,7 @@ function Step2Branch({
         {branches.map((b) => (
           <button
             key={b.id}
-            className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500"
+            className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-900/50 dark:hover:border-blue-500"
             type="button"
             onClick={() => onSelect(b)}
           >
@@ -191,18 +191,18 @@ function Step2Branch({
               <p className="font-semibold text-gray-800 dark:text-gray-100">
                 {b.name}
               </p>
-              {b.address && (
+              {b.address ? (
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   <i className="bi bi-geo-alt mr-1" />
                   {b.address}
                 </p>
-              )}
-              {b.phone && (
+              ) : null}
+              {b.phone ? (
                 <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                   <i className="bi bi-telephone mr-1" />
                   {b.phone}
                 </p>
-              )}
+              ) : null}
             </div>
             <i className="bi bi-chevron-right ml-auto self-center text-gray-400" />
           </button>
@@ -249,21 +249,20 @@ function Step3Specialty({
         Seleccione una Especialidad
       </h2>
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-        Sede:{" "}
-        <span className="font-semibold text-blue-600">{branchName}</span>
+        Sede: <span className="font-semibold text-blue-600">{branchName}</span>
       </p>
 
-      {isLoading && (
+      {isLoading ? (
         <div className="flex justify-center py-10">
           <i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" />
         </div>
-      )}
-      {isError && (
+      ) : null}
+      {isError ? (
         <div className="rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-400">
           <i className="bi bi-exclamation-triangle mr-2" />
           Error al cargar especialidades. Intente de nuevo.
         </div>
-      )}
+      ) : null}
       {!isLoading && !isError && specialties.length === 0 && (
         <p className="text-center text-gray-400">
           No hay especialidades disponibles en esta sede.
@@ -276,7 +275,7 @@ function Step3Specialty({
           return (
             <button
               key={s.id}
-              className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500"
+              className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-900/50 dark:hover:border-blue-500"
               type="button"
               onClick={() => onSelect(s)}
             >
@@ -342,17 +341,17 @@ function Step4Doctor({
         <span className="font-semibold text-blue-600">{specialtyName}</span>
       </p>
 
-      {isLoading && (
+      {isLoading ? (
         <div className="flex justify-center py-10">
           <i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" />
         </div>
-      )}
-      {isError && (
+      ) : null}
+      {isError ? (
         <div className="rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-400">
           <i className="bi bi-exclamation-triangle mr-2" />
           Error al cargar médicos. Intente de nuevo.
         </div>
-      )}
+      ) : null}
       {!isLoading && !isError && doctors.length === 0 && (
         <p className="text-center text-gray-400">
           No hay médicos disponibles para esta especialidad en esta sede.
@@ -363,7 +362,7 @@ function Step4Doctor({
         {doctors.map((d) => (
           <button
             key={d.id}
-            className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500"
+            className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-900/50 dark:hover:border-blue-500"
             type="button"
             onClick={() => onSelect(d)}
           >
@@ -414,10 +413,7 @@ function Step5Slot({
   readonly onBack: () => void;
 }) {
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
-  const handleSlotSelected = useCallback(
-    (dt: Date) => setSelectedSlot(dt),
-    [],
-  );
+  const handleSlotSelected = useCallback((dt: Date) => setSelectedSlot(dt), []);
 
   return (
     <div>
@@ -432,20 +428,19 @@ function Step5Slot({
         <span className="font-semibold text-blue-600">{doctorName}</span>
       </p>
 
-      <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+      <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/50">
         <DynamicCalendar
           doctorId={doctorId}
           onSlotSelected={handleSlotSelected}
         />
       </div>
 
-      {selectedSlot && (
+      {selectedSlot ? (
         <p className="mb-4 text-sm font-medium text-green-600">
           <i className="bi bi-check-circle mr-1" />
-          Horario seleccionado:{" "}
-          {formatDateLong(selectedSlot.toISOString())}
+          Horario seleccionado: {formatDateLong(selectedSlot.toISOString())}
         </p>
-      )}
+      ) : null}
 
       <div className="flex items-center justify-between">
         <button
@@ -469,7 +464,6 @@ function Step5Slot({
     </div>
   );
 }
-
 
 // ---------------------------------------------------------------------------
 // Step 6 – Reason + Confirm
@@ -628,12 +622,12 @@ function Step6Confirm({
       </div>
 
       {/* API error */}
-      {apiError && (
+      {apiError ? (
         <div className="mb-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300">
           <i className="bi bi-exclamation-triangle-fill mr-2" />
           {apiError}
         </div>
-      )}
+      ) : null}
 
       {/* Actions */}
       <div className="flex items-center justify-between">
@@ -785,85 +779,81 @@ export function CreateAppointmentPage() {
         <StepIndicator current={wizard.step} total={TOTAL_STEPS} />
 
         {/* Slot conflict banner */}
-        {slotConflictError && (
+        {slotConflictError ? (
           <div className="mb-6 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300">
             <i className="bi bi-exclamation-triangle-fill mr-2" />
             El horario seleccionado ya no está disponible. Por favor, elija otro
             horario.
           </div>
-        )}
+        ) : null}
 
         {/* Wizard card */}
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          {wizard.step === 1 && (
-            <Step1Patient onSelect={handlePatientSelect} />
-          )}
+          {wizard.step === 1 && <Step1Patient onSelect={handlePatientSelect} />}
 
           {wizard.step === 2 && (
             <Step2Branch
-              onSelect={handleBranchSelect}
               onBack={() => setWizard((prev) => ({ ...prev, step: 1 }))}
+              onSelect={handleBranchSelect}
             />
           )}
 
-          {wizard.step === 3 && wizard.branch && (
+          {wizard.step === 3 && wizard.branch ? (
             <Step3Specialty
               branchId={wizard.branch.id}
               branchName={wizard.branch.name}
-              onSelect={handleSpecialtySelect}
               onBack={() => setWizard((prev) => ({ ...prev, step: 2 }))}
+              onSelect={handleSpecialtySelect}
             />
-          )}
+          ) : null}
 
-          {wizard.step === 4 && wizard.branch && wizard.specialty && (
+          {wizard.step === 4 && wizard.branch && wizard.specialty ? (
             <Step4Doctor
               branchId={wizard.branch.id}
               branchName={wizard.branch.name}
               specialtyId={wizard.specialty.id}
               specialtyName={wizard.specialty.name}
-              onSelect={handleDoctorSelect}
               onBack={() => setWizard((prev) => ({ ...prev, step: 3 }))}
+              onSelect={handleDoctorSelect}
             />
-          )}
+          ) : null}
 
           {wizard.step === 5 &&
-            wizard.doctor &&
-            wizard.specialty &&
-            wizard.branch && (
-              <Step5Slot
-                doctorId={wizard.doctor.id}
-                doctorName={wizard.doctor.name}
-                specialtyName={wizard.specialty.name}
-                branchName={wizard.branch.name}
-                onSelect={handleSlotSelect}
-                onBack={() => setWizard((prev) => ({ ...prev, step: 4 }))}
-              />
-            )}
+          wizard.doctor &&
+          wizard.specialty &&
+          wizard.branch ? (
+            <Step5Slot
+              branchName={wizard.branch.name}
+              doctorId={wizard.doctor.id}
+              doctorName={wizard.doctor.name}
+              specialtyName={wizard.specialty.name}
+              onBack={() => setWizard((prev) => ({ ...prev, step: 4 }))}
+              onSelect={handleSlotSelect}
+            />
+          ) : null}
 
           {wizard.step === 6 &&
-            wizard.patient &&
-            wizard.branch &&
-            wizard.specialty &&
-            wizard.doctor &&
-            wizard.appointmentDate && (
-              <Step6Confirm
-                summary={{
-                  patientId: wizard.patient.id,
-                  patientName: wizard.patient.name,
-                  branchId: wizard.branch.id,
-                  branchName: wizard.branch.name,
-                  specialtyId: wizard.specialty.id,
-                  specialtyName: wizard.specialty.name,
-                  doctorId: wizard.doctor.id,
-                  doctorName: wizard.doctor.name,
-                  appointmentDate: wizard.appointmentDate,
-                }}
-                onBack={() =>
-                  setWizard((prev) => ({ ...prev, step: 5 }))
-                }
-                onConfirm={handleConfirm}
-              />
-            )}
+          wizard.patient &&
+          wizard.branch &&
+          wizard.specialty &&
+          wizard.doctor &&
+          wizard.appointmentDate ? (
+            <Step6Confirm
+              summary={{
+                patientId: wizard.patient.id,
+                patientName: wizard.patient.name,
+                branchId: wizard.branch.id,
+                branchName: wizard.branch.name,
+                specialtyId: wizard.specialty.id,
+                specialtyName: wizard.specialty.name,
+                doctorId: wizard.doctor.id,
+                doctorName: wizard.doctor.name,
+                appointmentDate: wizard.appointmentDate,
+              }}
+              onBack={() => setWizard((prev) => ({ ...prev, step: 5 }))}
+              onConfirm={handleConfirm}
+            />
+          ) : null}
         </div>
       </div>
     </section>

@@ -263,7 +263,54 @@ namespace Hospital.Server.Controllers
             _bd.Users.Add(newUser);
             await _bd.SaveChangesAsync();
 
-            // 8. Return created user info (without password)
+            // 8. Send welcome email
+            try
+            {
+                string emailSubject = "¡Bienvenido a Hospital HIS! — Su cuenta fue creada";
+                string emailBody = EmailTemplates.PatientWelcome(
+                    patientName: newUser.Name,
+                    userName:    newUser.UserName,
+                    email:       newUser.Email);
+
+                int notificationStatus;
+                string? notificationError = null;
+
+                try
+                {
+                    bool emailSent = _sendMail.Send(newUser.Email, emailSubject, emailBody);
+                    notificationStatus = emailSent ? 1 : 2; // 1=Sent, 2=Failed
+                    if (!emailSent) notificationError = "El servicio de correo retornó false";
+                }
+                catch (Exception ex)
+                {
+                    notificationStatus = 2;
+                    notificationError = ex.Message;
+                }
+
+                _bd.NotificationLogs.Add(new NotificationLog
+                {
+                    RecipientEmail    = newUser.Email,
+                    Subject           = emailSubject,
+                    NotificationType  = 2, // PatientWelcome
+                    RelatedEntityType = "User",
+                    RelatedEntityId   = newUser.Id,
+                    SentAt            = notificationStatus == 1 ? DateTime.UtcNow : null,
+                    Status            = notificationStatus,
+                    RetryCount        = 0,
+                    ErrorMessage      = notificationError,
+                    State             = 1,
+                    CreatedAt         = DateTime.UtcNow,
+                    CreatedBy         = 0 // Public registration
+                });
+
+                await _bd.SaveChangesAsync();
+            }
+            catch
+            {
+                // Email failure should not block the registration response
+            }
+
+            // 9. Return created user info (without password)
             UserResponse userResponse = _mapper.Map<User, UserResponse>(newUser);
 
             return Ok(new Response<UserResponse>
@@ -613,13 +660,14 @@ namespace Hospital.Server.Controllers
         [HttpPost("pay")]
         public async Task<IActionResult> ProcessPayment([FromBody] PatientPaymentRequest request)
         {
-            // 1. Get appointment with related entities
+            // 1. Get appointment with related entities (include Patient.Timezone for email formatting)
             Appointment? appointment = await _bd.Appointments
                 .Include(a => a.Specialty)
                 .Include(a => a.Branch)
                 .Include(a => a.Doctor)
                 .Include(a => a.AppointmentStatus)
                 .Include(a => a.Patient)
+                    .ThenInclude(p => p!.Timezone)
                 .FirstOrDefaultAsync(a => a.Id == request.AppointmentId && a.State == 1);
 
             if (appointment == null)
@@ -733,7 +781,7 @@ namespace Hospital.Server.Controllers
                 specialtyName:     appointment.Specialty?.Name ?? "—",
                 doctorName:        appointment.Doctor?.Name ?? "Por asignar",
                 branchName:        appointment.Branch?.Name ?? "—",
-                appointmentDate:   appointment.AppointmentDate.ToLocalTime().ToString("dddd, dd 'de' MMMM 'de' yyyy — HH:mm 'hrs'"),
+                appointmentDate:   TimeZoneHelper.FormatForEmail(appointment.AppointmentDate, appointment.Patient?.Timezone?.IanaId),
                 appointmentId:     appointment.Id,
                 transactionNumber: gatewayResponse.TransactionNumber,
                 amount:            request.Amount);
@@ -869,7 +917,10 @@ namespace Hospital.Server.Controllers
             Appointment? appointment = await _bd.Appointments
                 .Include(a => a.AppointmentStatus)
                 .Include(a => a.Specialty)
-                .Include(a => a.Patient).Include(appointment => appointment.Branch)
+                .Include(a => a.Doctor)
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p!.Timezone)
+                .Include(a => a.Branch)
                 .FirstOrDefaultAsync(a => a.Id == id && a.State == 1);
 
             if (appointment == null)
@@ -884,19 +935,53 @@ namespace Hospital.Server.Controllers
             if (!success)
                 return BadRequest(new Response<string> { Success = false, Message = error });
 
-            // Send cancellation email
+            // Send cancellation email and log the notification
             try
             {
                 string patientEmail = appointment.Patient?.Email ?? string.Empty;
+                string emailSubject = "Cita Cancelada — Hospital HIS";
                 string emailBody = EmailTemplates.AppointmentCancellation(
                     patientName:     appointment.Patient?.Name ?? "Paciente",
                     specialtyName:   appointment.Specialty?.Name ?? "—",
+                    doctorName:      appointment.Doctor?.Name ?? "Por asignar",
                     branchName:      appointment.Branch?.Name ?? "—",
-                    appointmentDate: appointment.AppointmentDate.ToLocalTime().ToString("dddd, dd 'de' MMMM 'de' yyyy — HH:mm 'hrs'"),
+                    appointmentDate: TimeZoneHelper.FormatForEmail(appointment.AppointmentDate, appointment.Patient?.Timezone?.IanaId),
                     appointmentId:   appointment.Id,
                     amount:          appointment.Amount);
 
-                _sendMail.Send(patientEmail, "Cita Cancelada — Hospital HIS", emailBody);
+                int notificationStatus;
+                string? notificationError = null;
+
+                try
+                {
+                    bool emailSent = _sendMail.Send(patientEmail, emailSubject, emailBody);
+                    notificationStatus = emailSent ? 1 : 2; // 1=Sent, 2=Failed
+                    if (!emailSent) notificationError = "El servicio de correo retornó false";
+                }
+                catch (Exception ex)
+                {
+                    notificationStatus = 2;
+                    notificationError = ex.Message;
+                }
+
+                // Record the notification in the log
+                _bd.NotificationLogs.Add(new NotificationLog
+                {
+                    RecipientEmail    = patientEmail,
+                    Subject           = emailSubject,
+                    NotificationType  = 1, // AppointmentCancellation
+                    RelatedEntityType = "Appointment",
+                    RelatedEntityId   = appointment.Id,
+                    SentAt            = notificationStatus == 1 ? DateTime.UtcNow : null,
+                    Status            = notificationStatus,
+                    RetryCount        = 0,
+                    ErrorMessage      = notificationError,
+                    State             = 1,
+                    CreatedAt         = DateTime.UtcNow,
+                    CreatedBy         = userId
+                });
+
+                await _bd.SaveChangesAsync();
             }
             catch
             {

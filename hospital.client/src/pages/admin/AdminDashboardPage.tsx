@@ -2,10 +2,10 @@ import { Button } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
-import { getAppointments } from "../../services/appointmentService";
 import { nameRoutes } from "../../configs/constants";
-import { formatDateLong } from "../../utils/dateFormatter";
+import { getAppointments } from "../../services/appointmentService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
+import { formatDateLong } from "../../utils/dateFormatter";
 
 const statusColors: Record<string, string> = {
   Pagada: "bg-green-100 text-green-800 border-green-200",
@@ -39,7 +39,9 @@ function StatCard({
   readonly color: string;
 }) {
   return (
-    <div className={`rounded-xl border p-5 shadow-sm flex items-center gap-4 ${color}`}>
+    <div
+      className={`rounded-xl border p-5 shadow-sm flex items-center gap-4 ${color}`}
+    >
       <div className="text-3xl">
         <i className={`bi ${icon}`} />
       </div>
@@ -63,11 +65,13 @@ function QuickActionButton({
   const navigate = useNavigate();
   return (
     <button
-      className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-gray-800 border rounded-xl shadow-sm hover:border-primary/60 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full"
+      className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-gray-900/50 border rounded-xl shadow-sm hover:border-primary/60 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full"
       onClick={() => navigate(to)}
     >
       <i className={`bi ${icon} text-2xl text-primary`} />
-      <span className="text-xs font-semibold text-center text-gray-700 dark:text-gray-300">{label}</span>
+      <span className="text-xs font-semibold text-center text-gray-700 dark:text-gray-300">
+        {label}
+      </span>
     </button>
   );
 }
@@ -99,11 +103,15 @@ export function AdminDashboardPage() {
 
   // KPI calculations
   const total = appointments.length;
-  const pagadas = appointments.filter((a) => a.appointmentStatus?.name === "Pagada").length;
+  const pagadas = appointments.filter(
+    (a) => a.appointmentStatus?.name === "Pagada",
+  ).length;
   const enEspera = appointments.filter(
     (a) => a.arrivalTime && a.appointmentStatus?.name !== "Completada",
   ).length;
-  const completadas = appointments.filter((a) => a.appointmentStatus?.name === "Completada").length;
+  const completadas = appointments.filter(
+    (a) => a.appointmentStatus?.name === "Completada",
+  ).length;
 
   // Group by status
   const byStatus = appointments.reduce<Record<string, number>>((acc, a) => {
@@ -113,7 +121,10 @@ export function AdminDashboardPage() {
   }, {});
 
   // Active doctors today (with paid/in-progress/present appointments)
-  const activeDoctorMap = new Map<number, { name: string; branch: string; specialty: string; count: number }>();
+  const activeDoctorMap = new Map<
+    number,
+    { name: string; branch: string; specialty: string; count: number }
+  >();
   appointments.forEach((a) => {
     if (!a.doctorId) return;
     const statusName = a.appointmentStatus?.name ?? "";
@@ -129,7 +140,9 @@ export function AdminDashboardPage() {
     const entry = activeDoctorMap.get(a.doctorId)!;
     entry.count += 1;
   });
-  const activeDoctors = Array.from(activeDoctorMap.values()).sort((a, b) => b.count - a.count);
+  const activeDoctors = Array.from(activeDoctorMap.values()).sort(
+    (a, b) => b.count - a.count,
+  );
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
@@ -141,10 +154,11 @@ export function AdminDashboardPage() {
         </span>
       </div>
       <p className="text-gray-500 text-sm mb-6">
-        Resumen de operaciones del día — {formatDateLong(todayStart.toISOString())}
+        Resumen de operaciones del día —{" "}
+        {formatDateLong(todayStart.toISOString())}
       </p>
 
-      {isLoading && <LoadingComponent />}
+      {isLoading ? <LoadingComponent /> : null}
 
       {!isLoading && (
         <>
@@ -181,11 +195,15 @@ export function AdminDashboardPage() {
             <div className="bg-white dark:bg-gray-800 rounded-xl border shadow-sm p-5">
               <h2 className="font-bold mb-4 text-base">Citas por estado</h2>
               {Object.keys(byStatus).length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-6">Sin citas registradas hoy</p>
+                <p className="text-sm text-gray-400 text-center py-6">
+                  Sin citas registradas hoy
+                </p>
               ) : (
                 <div className="space-y-2">
                   {Object.entries(byStatus).map(([status, count]) => {
-                    const colorClass = statusColors[status] ?? "bg-gray-100 text-gray-800 border-gray-200";
+                    const colorClass =
+                      statusColors[status] ??
+                      "bg-gray-100 text-gray-800 border-gray-200";
                     const dotClass = statusDots[status] ?? "bg-gray-400";
                     return (
                       <div
@@ -193,7 +211,9 @@ export function AdminDashboardPage() {
                         className={`flex items-center justify-between rounded-lg px-3 py-2 border ${colorClass}`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={`w-2.5 h-2.5 rounded-full ${dotClass}`} />
+                          <span
+                            className={`w-2.5 h-2.5 rounded-full ${dotClass}`}
+                          />
                           <span className="text-sm font-medium">{status}</span>
                         </div>
                         <span className="text-lg font-bold">{count}</span>
@@ -208,7 +228,9 @@ export function AdminDashboardPage() {
             <div className="bg-white dark:bg-gray-800 rounded-xl border shadow-sm p-5">
               <h2 className="font-bold mb-4 text-base">Médicos activos hoy</h2>
               {activeDoctors.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-6">Sin médicos con citas hoy</p>
+                <p className="text-sm text-gray-400 text-center py-6">
+                  Sin médicos con citas hoy
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -222,11 +244,18 @@ export function AdminDashboardPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                       {activeDoctors.map((doc, idx) => (
-                        <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                        <tr
+                          key={idx}
+                          className="hover:bg-gray-50 dark:hover:bg-gray-700/30"
+                        >
                           <td className="py-2 font-medium">{doc.name}</td>
                           <td className="py-2 text-gray-500">{doc.branch}</td>
-                          <td className="py-2 text-gray-500">{doc.specialty}</td>
-                          <td className="py-2 text-right font-bold">{doc.count}</td>
+                          <td className="py-2 text-gray-500">
+                            {doc.specialty}
+                          </td>
+                          <td className="py-2 text-right font-bold">
+                            {doc.count}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -240,19 +269,50 @@ export function AdminDashboardPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl border shadow-sm p-5">
             <h2 className="font-bold mb-4 text-base">Acciones rápidas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
-              <QuickActionButton icon="bi-calendar-plus" label="Nueva Cita" to={nameRoutes.appointmentCreate} />
-              <QuickActionButton icon="bi-door-open" label="Recepción" to={nameRoutes.reception} />
-              <QuickActionButton icon="bi-cash-coin" label="Caja" to={nameRoutes.cashier} />
-              <QuickActionButton icon="bi-heart-pulse" label="Signos Vitales" to={nameRoutes.nurseDashboard} />
-              <QuickActionButton icon="bi-person-badge" label="Gestión Médicos" to={nameRoutes.doctorManagement} />
-              <QuickActionButton icon="bi-arrow-left-right" label="Traslados" to={nameRoutes.doctorTransfer} />
-              <QuickActionButton icon="bi-diagram-3" label="Especialidades por Sede" to={nameRoutes.branchSpecialty} />
+              <QuickActionButton
+                icon="bi-calendar-plus"
+                label="Nueva Cita"
+                to={nameRoutes.appointmentCreate}
+              />
+              <QuickActionButton
+                icon="bi-door-open"
+                label="Recepción"
+                to={nameRoutes.reception}
+              />
+              <QuickActionButton
+                icon="bi-cash-coin"
+                label="Caja"
+                to={nameRoutes.cashier}
+              />
+              <QuickActionButton
+                icon="bi-heart-pulse"
+                label="Signos Vitales"
+                to={nameRoutes.nurseDashboard}
+              />
+              <QuickActionButton
+                icon="bi-person-badge"
+                label="Gestión Médicos"
+                to={nameRoutes.doctorManagement}
+              />
+              <QuickActionButton
+                icon="bi-arrow-left-right"
+                label="Traslados"
+                to={nameRoutes.doctorTransfer}
+              />
+              <QuickActionButton
+                icon="bi-diagram-3"
+                label="Especialidades por Sede"
+                to={nameRoutes.branchSpecialty}
+              />
             </div>
           </div>
 
           {/* Navigate to appointments */}
           <div className="mt-4 flex justify-end">
-            <Button variant="secondary" onPress={() => navigate(nameRoutes.appointment)}>
+            <Button
+              variant="secondary"
+              onPress={() => navigate(nameRoutes.appointment)}
+            >
               <i className="bi bi-list-ul mr-2" />
               Ver todas las citas
             </Button>

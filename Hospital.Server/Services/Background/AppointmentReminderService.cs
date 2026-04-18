@@ -18,6 +18,9 @@ namespace Hospital.Server.Services.Background
     ///
     /// Each reminder is sent at most once, tracked via NotificationLog.
     /// The job runs every 30 minutes.
+    ///
+    /// Timezone-aware: converts UTC dates to each patient's configured timezone
+    /// (falls back to America/Guatemala).
     /// </summary>
     public class AppointmentReminderService : BackgroundService
     {
@@ -75,6 +78,7 @@ namespace Hospital.Server.Services.Background
 
             var appointments = await db.Appointments
                 .Include(a => a.Patient)
+                    .ThenInclude(p => p!.Timezone)
                 .Include(a => a.Doctor)
                 .Include(a => a.Specialty)
                 .Include(a => a.Branch)
@@ -154,6 +158,9 @@ namespace Hospital.Server.Services.Background
             if (string.IsNullOrWhiteSpace(patientEmail))
                 return (false, "Paciente sin correo electrónico");
 
+            // Use the patient's configured timezone, falling back to America/Guatemala
+            var patientIanaId = appt.Patient?.Timezone?.IanaId;
+
             var subject = $"Recordatorio: Su cita es en {timeLabel} — Hospital HIS";
 
             var body = EmailTemplates.AppointmentReminder(
@@ -162,7 +169,7 @@ namespace Hospital.Server.Services.Background
                 specialtyName:   appt.Specialty?.Name ?? "—",
                 doctorName:      appt.Doctor?.Name ?? "Por asignar",
                 branchName:      appt.Branch?.Name ?? "—",
-                appointmentDate: appt.AppointmentDate.ToLocalTime().ToString("dddd, dd 'de' MMMM 'de' yyyy — HH:mm 'hrs'"),
+                appointmentDate: TimeZoneHelper.FormatForEmail(appt.AppointmentDate, patientIanaId),
                 appointmentId:   appt.Id);
 
             bool emailSent;
