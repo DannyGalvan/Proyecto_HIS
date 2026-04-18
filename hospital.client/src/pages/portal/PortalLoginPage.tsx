@@ -91,7 +91,8 @@ export function PortalLoginPage() {
               `Cuenta bloqueada temporalmente. Intente de nuevo en ${LOCKOUT_MINUTES} minutos.`,
             );
           } else {
-            setApiError("Usuario o contraseña incorrectos.");
+            const remaining = MAX_ATTEMPTS - newAttempts;
+            setApiError(`Usuario o contraseña incorrectos. Intentos restantes: ${remaining}.`);
           }
         }
       } catch {

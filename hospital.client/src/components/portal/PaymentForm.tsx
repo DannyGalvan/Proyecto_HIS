@@ -173,12 +173,17 @@ export function PaymentForm({
       if (response.success && response.data) {
         onPaymentSuccess(response.data);
       } else {
-        const msg =
-          response.message ?? 'El pago no pudo procesarse. Intente nuevamente.';
+        const rawMsg = response.message ?? '';
+        let msg: string;
+        if (rawMsg.toLowerCase().includes('rechaz') || rawMsg.toLowerCase().includes('declined')) {
+          msg = 'La transacción con tarjeta fue rechazada por el banco. Verifique los datos de su tarjeta o utilice otro método de pago.';
+        } else {
+          msg = rawMsg || 'El pago no pudo ser procesado. Por favor, intente nuevamente o utilice otro método de pago.';
+        }
         onPaymentError(msg);
       }
     } catch {
-      onPaymentError('Ocurrió un error al procesar el pago. Intente nuevamente.');
+      onPaymentError('Error de comunicación con la pasarela de pago. Por favor, verifique su conexión e intente nuevamente.');
     } finally {
       setIsSubmitting(false);
     }

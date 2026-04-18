@@ -15,7 +15,7 @@ export function CreateBranchPage() {
       const response = await createBranch(form);
       if (!response.success) { toast.danger(response.message); return response; }
       await client.invalidateQueries({ queryKey: ["branches"] });
-      toast.success("Sucursal creada correctamente");
+      toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
     },
     [client],

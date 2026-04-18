@@ -23,7 +23,7 @@ export function UpdateAppointmentStatusPage() {
       if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
       await client.invalidateQueries({ queryKey: ["appointment-statuses"] });
       await client.invalidateQueries({ queryKey: ["appointmentStatusToUpdate", id] });
-      toast.success("Estado de cita actualizado correctamente");
+      toast.success(`El registro ${form.name} ha sido actualizado correctamente.`);
       return response;
     },
     [client, id],

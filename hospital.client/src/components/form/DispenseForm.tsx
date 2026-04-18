@@ -133,6 +133,16 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
         }
       }
 
+      // Validate stock sufficiency
+      for (const row of rows) {
+        if (row.inventory && row.quantity > row.inventory.currentStock) {
+          setSubmitError(
+            `Stock insuficiente para "${row.prescriptionItem.medicineName}". Stock actual: ${row.inventory.currentStock}. Cantidad solicitada: ${row.quantity}.`,
+          );
+          return;
+        }
+      }
+
       // 1. Create dispense header
       const dispenseRes = await doCreateDispense({
         prescriptionId,
@@ -180,7 +190,9 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
         }
       }
 
-      setSubmitSuccess("Despacho registrado exitosamente.");
+      const totalFormatted = formatCurrency(Math.round(total * 100) / 100);
+      const itemCount = rows.length;
+      setSubmitSuccess(`Despacho registrado exitosamente. ${itemCount} medicamento(s) despachado(s). Total: ${totalFormatted}.`);
       onSuccess?.(dispenseId);
     },
     [rows, total, prescriptionId, doCreateDispense, onSuccess],

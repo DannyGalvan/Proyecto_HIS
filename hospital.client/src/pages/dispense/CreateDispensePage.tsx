@@ -58,6 +58,7 @@ export function CreateDispensePage() {
           <p className="text-red-700">
             La receta #{prescriptionId} fue emitida hace{" "}
             <strong>{daysOld} días</strong> y ya no es válida para despacho.
+            El paciente debe solicitar una nueva receta al médico tratante.
           </p>
           <p className="text-sm text-red-600">
             Las recetas son válidas por un máximo de 7 días desde su fecha de emisión.

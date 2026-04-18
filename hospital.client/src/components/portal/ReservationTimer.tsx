@@ -97,7 +97,7 @@ export function ReservationTimer({ appointmentId, createdAt, onExpired }: Reserv
       role="timer"
     >
       <span className="text-sm font-medium text-gray-600">
-        Tiempo restante para completar el pago
+        Tiene 5 minutos para confirmar su cita. El horario seleccionado está reservado temporalmente.
       </span>
       <span className={`text-3xl font-bold tabular-nums ${colorClass}`}>
         {formatTime(remaining)}

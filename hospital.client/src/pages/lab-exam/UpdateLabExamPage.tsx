@@ -23,7 +23,7 @@ export function UpdateLabExamPage() {
       if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
       await client.invalidateQueries({ queryKey: ["lab-exams"] });
       await client.invalidateQueries({ queryKey: ["labExamToUpdate", id] });
-      toast.success("Examen actualizado correctamente");
+      toast.success(`El registro ${form.name} ha sido actualizado correctamente.`);
       return response;
     },
     [client, id],

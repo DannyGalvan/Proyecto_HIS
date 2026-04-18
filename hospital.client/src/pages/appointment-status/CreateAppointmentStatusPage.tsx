@@ -15,7 +15,7 @@ export function CreateAppointmentStatusPage() {
       const response = await createAppointmentStatus(form);
       if (!response.success) { toast.danger(response.message); return response; }
       await client.invalidateQueries({ queryKey: ["appointment-statuses"] });
-      toast.success("Estado de cita creado correctamente");
+      toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
     },
     [client],

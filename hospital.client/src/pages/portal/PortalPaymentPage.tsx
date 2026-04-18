@@ -113,8 +113,8 @@ function PortalPaymentContent({
         {timerExpired && (
           <div className="mb-6 rounded-xl border border-red-300 bg-red-50 p-5 text-center text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300">
             <i className="bi bi-clock-history text-3xl block mb-2" />
-            <p className="font-bold">El tiempo para completar el pago ha expirado.</p>
-            <p className="text-sm mt-1">La reserva fue cancelada. Será redirigido en unos segundos...</p>
+            <p className="font-bold">El tiempo para confirmar su cita ha expirado. El horario seleccionado ha sido liberado.</p>
+            <p className="text-sm mt-1">Por favor, seleccione un nuevo horario. Será redirigido en unos segundos...</p>
           </div>
         )}
 

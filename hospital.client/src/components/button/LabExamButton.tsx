@@ -26,7 +26,7 @@ export function LabExamButton({ data }: LabExamButtonProps) {
     try {
       const response = await deleteLabExam(data.id);
       if (response.success) {
-        toast.success(`Examen "${data.name}" eliminado correctamente`);
+        toast.success(`El registro ${data.name} ha sido eliminado correctamente.`);
         await queryClient.invalidateQueries({ queryKey: ["lab-exams"] });
         setIsDeleteDialogOpen(false);
       } else {
@@ -55,7 +55,7 @@ export function LabExamButton({ data }: LabExamButtonProps) {
         </Dropdown.Popover>
       </Dropdown>
       <ConfirmDialog cancelText="Cancelar" confirmText="Eliminar" isLoading={isDeleting} isOpen={isDeleteDialogOpen}
-        message={`¿Está seguro que desea eliminar el examen "${data.name}"?`} title="Confirmar eliminación"
+        message={`¿Está seguro que desea eliminar el registro ${data.name}? Esta acción no se puede deshacer.`} title="Confirmar eliminación"
         onClose={handleCloseDialog} onConfirm={handleDeleteConfirm} />
     </>
   );

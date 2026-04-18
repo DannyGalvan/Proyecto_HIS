@@ -226,6 +226,12 @@ export function InventoryMovementForm() {
         return;
       }
 
+      // CU-13 FA03: Stock insuficiente para salidas
+      if (EXIT_TYPES.has(movementType!) && Number(quantity) > inventory.currentStock) {
+        setSubmitError(`Stock insuficiente. Stock actual: ${inventory.currentStock}. No se puede registrar una salida de ${quantity} unidades.`);
+        return;
+      }
+
       const request: InventoryMovementRequest = {
         medicineInventoryId: inventory.id,
         medicineId: medicineId!,
@@ -247,7 +253,10 @@ export function InventoryMovementForm() {
         return;
       }
 
-      setSubmitSuccess("Movimiento de inventario registrado exitosamente.");
+      const medicineName = selectedMedicine?.name ?? "Medicamento";
+      const typeLabel = MovementTypeLabels[movementType!]?.label ?? "";
+      const newStock = isEntryType(movementType!) ? (inventory.currentStock + Number(quantity)) : (inventory.currentStock - Number(quantity));
+      setSubmitSuccess(`Movimiento registrado exitosamente. Medicamento: ${medicineName}. Tipo: ${typeLabel}. Cantidad: ${quantity}. Stock actualizado: ${newStock}.`);
       // Reset form
       setMovementType(null);
       setMedicineId(null);

@@ -26,7 +26,7 @@ export function BranchButton({ data }: BranchButtonProps) {
     try {
       const response = await deleteBranch(data.id);
       if (response.success) {
-        toast.success(`Sucursal "${data.name}" eliminada correctamente`);
+        toast.success(`El registro ${data.name} ha sido eliminado correctamente.`);
         await queryClient.invalidateQueries({ queryKey: ["branches"] });
         setIsDeleteDialogOpen(false);
       } else {
@@ -55,7 +55,7 @@ export function BranchButton({ data }: BranchButtonProps) {
         </Dropdown.Popover>
       </Dropdown>
       <ConfirmDialog cancelText="Cancelar" confirmText="Eliminar" isLoading={isDeleting} isOpen={isDeleteDialogOpen}
-        message={`¿Está seguro que desea eliminar la sucursal "${data.name}"?`} title="Confirmar eliminación"
+        message={`¿Está seguro que desea eliminar el registro ${data.name}? Esta acción no se puede deshacer.`} title="Confirmar eliminación"
         onClose={handleCloseDialog} onConfirm={handleDeleteConfirm} />
     </>
   );

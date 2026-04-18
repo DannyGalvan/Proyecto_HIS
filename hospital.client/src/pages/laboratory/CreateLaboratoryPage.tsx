@@ -15,7 +15,7 @@ export function CreateLaboratoryPage() {
       const response = await createLaboratory(form);
       if (!response.success) { toast.danger(response.message); return response; }
       await client.invalidateQueries({ queryKey: ["laboratories"] });
-      toast.success("Laboratorio creado correctamente");
+      toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
     },
     [client],

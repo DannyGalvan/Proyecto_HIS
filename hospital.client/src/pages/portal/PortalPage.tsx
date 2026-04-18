@@ -146,8 +146,13 @@ function DpiVerificationModal({
             onClose();
             navigate(nameRoutes.portalLogin);
           } else if (!exists) {
-            onClose();
-            navigate(nameRoutes.portalRegister);
+            setDpiError(
+              "No se encontró un registro asociado a este DPI. Será redirigido al formulario de registro.",
+            );
+            setTimeout(() => {
+              onClose();
+              navigate(nameRoutes.portalRegister);
+            }, 5000);
           } else {
             // exists=true but hasPatientRole=false → internal user
             setInternalUserMsg(

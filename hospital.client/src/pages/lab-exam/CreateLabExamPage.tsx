@@ -18,7 +18,7 @@ export function CreateLabExamPage() {
       const response = await createLabExam(form);
       if (!response.success) { toast.danger(response.message); return response; }
       await client.invalidateQueries({ queryKey: ["lab-exams"] });
-      toast.success("Examen creado correctamente");
+      toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
     },
     [client],

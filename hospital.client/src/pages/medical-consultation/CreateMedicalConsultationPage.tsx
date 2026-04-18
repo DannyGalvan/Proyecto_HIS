@@ -176,7 +176,11 @@ function CreateMedicalConsultationGuard({
       onSubmit={async (form) => {
         const response = await createMedicalConsultation(form);
         if (response.success) {
-          toast.success("Consulta médica guardada correctamente");
+          if (form.consultationStatus === 1) {
+            toast.success("La consulta ha sido finalizada exitosamente. El paciente puede proceder a las siguientes indicaciones médicas.");
+          } else {
+            toast.success("Consulta médica registrada exitosamente. Puede continuar editándola desde el panel del médico.");
+          }
           onSubmitSuccess();
         } else {
           toast.danger(response.message);

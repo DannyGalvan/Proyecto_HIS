@@ -26,7 +26,11 @@ export function UpdateMedicalConsultationPage() {
       await client.invalidateQueries({ queryKey: ["medical-consultations"] });
       await client.invalidateQueries({ queryKey: ["consultationToUpdate", id] });
       await client.invalidateQueries({ queryKey: ["doctor-appointments"] });
-      toast.success("Consulta médica actualizada correctamente");
+      if (form.consultationStatus === 1) {
+        toast.success("La consulta ha sido finalizada exitosamente. El paciente puede proceder a las siguientes indicaciones médicas.");
+      } else {
+        toast.success("Consulta médica actualizada correctamente. Los cambios han sido guardados.");
+      }
       return response;
     },
     [client, id],

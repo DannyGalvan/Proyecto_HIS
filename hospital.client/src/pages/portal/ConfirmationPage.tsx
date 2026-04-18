@@ -33,7 +33,7 @@ export function ConfirmationPage() {
             ¡Pago Exitoso!
           </h1>
           <p className="mt-2 text-gray-500 dark:text-gray-400">
-            Su cita ha sido confirmada y el pago procesado correctamente.
+            ¡Pago realizado exitosamente! Número de transacción: {confirmation.transactionNumber}. Su cita ha sido confirmada.
           </p>
         </div>
 
