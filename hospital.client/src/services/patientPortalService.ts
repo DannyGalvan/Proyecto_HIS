@@ -204,3 +204,29 @@ export const updateMyProfile = (data: {
   api.patch('PatientPortal/my-profile', data, {
     headers: getPatientAuthHeader(),
   });
+
+/**
+ * Get all active specialties (public, no auth required).
+ * GET /api/v1/PatientPortal/specialties
+ */
+export const getPublicSpecialties = (): Promise<ApiResponse<Array<{
+  id: number;
+  name: string;
+  description: string | null;
+  state: number;
+}>>> =>
+  api.get('PatientPortal/specialties');
+
+/**
+ * Get all active branches (public, no auth required).
+ * GET /api/v1/PatientPortal/branches
+ */
+export const getPublicBranches = (): Promise<ApiResponse<Array<{
+  id: number;
+  name: string;
+  address: string | null;
+  phone: string | null;
+  description: string | null;
+  state: number;
+}>>> =>
+  api.get('PatientPortal/branches');

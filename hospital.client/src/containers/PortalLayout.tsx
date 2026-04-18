@@ -1,19 +1,70 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router";
 
 import { LogoHIS } from "../components/brand/LogoHIS";
+import { api } from "../configs/axios/interceptors";
 import { nameRoutes } from "../configs/constants";
+import { getTimezones } from "../services/timezoneService";
 import { usePatientAuthStore } from "../stores/usePatientAuthStore";
+import type { ApiResponse } from "../types/ApiResponse";
+import type { TimezoneResponse } from "../types/TimezoneResponse";
+import { getAppTimezone } from "../utils/dateFormatter";
 
 export function PortalLayout() {
   const navigate = useNavigate();
-  const { isLoggedIn, name, loading, logoutPatient, syncPatientAuth } = usePatientAuthStore();
+  const { isLoggedIn, name, loading, logoutPatient, syncPatientAuth, signInPatient, ...patientState } = usePatientAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Timezone dropdown state
+  const [tzOpen, setTzOpen] = useState(false);
+  const [timezones, setTimezones] = useState<TimezoneResponse[]>([]);
+  const [tzLoaded, setTzLoaded] = useState(false);
+  const [tzLoading, setTzLoading] = useState(false);
+  const tzRef = useRef<HTMLDivElement>(null);
+  const currentTz = getAppTimezone();
+  const tzShort = currentTz.split("/").pop()?.replace(/_/g, " ") ?? currentTz;
 
   // Sync patient auth from localStorage on mount (handles page reload)
   useEffect(() => {
     syncPatientAuth();
   }, [syncPatientAuth]);
+
+  // Close tz dropdown on outside click
+  useEffect(() => {
+    if (!tzOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (tzRef.current && !tzRef.current.contains(e.target as Node)) setTzOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [tzOpen]);
+
+  const handleTzToggle = useCallback(async () => {
+    setTzOpen((prev) => !prev);
+    if (!tzLoaded) {
+      setTzLoading(true);
+      try {
+        const res = await getTimezones({ filters: "State:eq:1", include: null, includeTotal: false, pageNumber: 1, pageSize: 100 });
+        if (res.success) setTimezones(res.data);
+        setTzLoaded(true);
+      } catch { /* silent */ }
+      finally { setTzLoading(false); }
+    }
+  }, [tzLoaded]);
+
+  const handleTzSelect = useCallback(async (tz: TimezoneResponse) => {
+    setTzOpen(false);
+    try {
+      const res = await api.patch<unknown, ApiResponse<{ timezoneIanaId: string }>, { timezoneId: number }>(
+        "/Auth/Timezone",
+        { timezoneId: tz.id },
+      );
+      if (res.success) {
+        signInPatient({ ...patientState, isLoggedIn, name, timezoneIanaId: tz.ianaId });
+        window.location.reload();
+      }
+    } catch { /* silent */ }
+  }, [signInPatient, patientState, isLoggedIn]);
 
   const handleLogout = useCallback(() => {
     logoutPatient();
@@ -84,6 +135,47 @@ export function PortalLayout() {
             <div className="hidden lg:flex items-center gap-2">
               {isLoggedIn ? (
                 <>
+                  {/* Timezone selector */}
+                  <div className="relative" ref={tzRef}>
+                    <button
+                      type="button"
+                      className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      onClick={handleTzToggle}
+                      title={`Zona horaria: ${currentTz}`}
+                    >
+                      <i className="bi bi-globe text-sm text-blue-500" />
+                      <span className="max-w-[90px] truncate">{tzShort}</span>
+                      <i className={`bi bi-chevron-${tzOpen ? "up" : "down"} text-[10px]`} />
+                    </button>
+                    {tzOpen && (
+                      <div className="absolute right-0 top-full mt-1 w-72 max-h-80 overflow-auto bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-xl z-50">
+                        <div className="p-2 border-b border-gray-100 dark:border-zinc-700">
+                          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-2">Zona Horaria</p>
+                        </div>
+                        {tzLoading ? (
+                          <div className="p-4 text-center text-sm text-gray-400">Cargando...</div>
+                        ) : (
+                          <div className="py-1">
+                            {timezones.map((tz) => (
+                              <button
+                                key={tz.id}
+                                type="button"
+                                className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                                  tz.ianaId === currentTz
+                                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium"
+                                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700"
+                                }`}
+                                onClick={() => handleTzSelect(tz)}
+                              >
+                                {tz.displayName}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     type="button"
                     className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors max-w-[180px] truncate"

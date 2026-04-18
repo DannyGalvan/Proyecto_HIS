@@ -12,6 +12,8 @@ interface TimezoneSelectorProps {
   readonly onTimezoneChanged?: (timezoneIanaId: string) => void;
   readonly userId: number;
   readonly isPatientPortal?: boolean;
+  /** If true, reloads the page after changing timezone. Default: false */
+  readonly reloadOnChange?: boolean;
 }
 
 export function TimezoneSelector({
@@ -19,6 +21,7 @@ export function TimezoneSelector({
   onTimezoneChanged,
   userId,
   isPatientPortal = false,
+  reloadOnChange = false,
 }: TimezoneSelectorProps) {
   const [timezones, setTimezones] = useState<TimezoneResponse[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(currentTimezoneId ?? null);
@@ -78,12 +81,12 @@ export function TimezoneSelector({
             adminSignIn({ ...adminAuthState, timezoneIanaId: newIanaId });
           }
           onTimezoneChanged?.(newIanaId);
-          window.location.reload();
+          if (reloadOnChange) window.location.reload();
         }
       } catch { /* silent */ }
       finally { setIsLoading(false); }
     },
-    [selectedId, userId, timezones, isPatientPortal, adminSignIn, adminAuthState, patientStore, onTimezoneChanged],
+    [selectedId, userId, timezones, isPatientPortal, reloadOnChange, adminSignIn, adminAuthState, patientStore, onTimezoneChanged],
   );
 
   if (isFetching) {

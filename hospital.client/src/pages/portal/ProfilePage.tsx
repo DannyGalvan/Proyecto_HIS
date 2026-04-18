@@ -5,7 +5,6 @@ import { z } from "zod";
 import { nameRoutes } from "../../configs/constants";
 import { getMyProfile, updateMyProfile } from "../../services/patientPortalService";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
-import { TimezoneSelector } from "../../components/select/TimezoneSelector";
 
 // ── Zod schema ────────────────────────────────────────────────────────────────
 const profileSchema = z.object({
@@ -375,13 +374,6 @@ export function ProfilePage() {
                 onChange={handleChange("insuranceNumber")}
               />
             </div>
-
-            {/* Timezone selector */}
-            <TimezoneSelector
-              currentTimezoneId={null}
-              isPatientPortal
-              userId={userId}
-            />
 
             <button
               className="w-full py-3 mt-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"

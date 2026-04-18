@@ -111,6 +111,70 @@ namespace Hospital.Server.Controllers
         }
 
         /// <summary>
+        /// Returns all active specialties for the public portal.
+        /// GET /api/v1/PatientPortal/specialties
+        /// </summary>
+        [AllowAnonymous]
+        [ExcludeFromSync]
+        [HttpGet("specialties")]
+        public async Task<IActionResult> GetPublicSpecialties()
+        {
+            var specialties = await _bd.Specialties
+                .Where(s => s.State == 1)
+                .OrderBy(s => s.Name)
+                .ToListAsync();
+
+            var result = specialties.Select(s => new
+            {
+                s.Id,
+                s.Name,
+                s.Description,
+                s.State,
+            }).ToList();
+
+            return Ok(new Response<object>
+            {
+                Success = true,
+                Message = "Especialidades obtenidas correctamente",
+                Data = result,
+                TotalResults = result.Count
+            });
+        }
+
+        /// <summary>
+        /// Returns all active branches for the public portal.
+        /// GET /api/v1/PatientPortal/branches
+        /// </summary>
+        [AllowAnonymous]
+        [ExcludeFromSync]
+        [HttpGet("branches")]
+        public async Task<IActionResult> GetPublicBranches()
+        {
+            var branches = await _bd.Branches
+                .Where(b => b.State == 1)
+                .OrderBy(b => b.Name)
+                .ToListAsync();
+
+            var result = branches.Select(b => new
+            {
+                b.Id,
+                b.Name,
+                b.Address,
+                b.Phone,
+                b.Description,
+                b.State,
+            }).ToList();
+
+            return Ok(new Response<object>
+            {
+                Success = true,
+                Message = "Sedes obtenidas correctamente",
+                Data = result,
+                TotalResults = result.Count
+            });
+        }
+
+        /// <summary>
         /// Registra un nuevo paciente externo en el sistema.
         /// POST /api/v1/PatientPortal/register
         /// </summary>

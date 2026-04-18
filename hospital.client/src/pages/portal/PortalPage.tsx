@@ -2,14 +2,10 @@ import { Button } from "@heroui/react";
 import { useState, useCallback, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getSpecialties } from "../../services/specialtyService";
-import { getBranches } from "../../services/branchService";
-import { verifyDpi } from "../../services/patientPortalService";
+import { getPublicSpecialties, getPublicBranches, verifyDpi } from "../../services/patientPortalService";
 import { nameRoutes } from "../../configs/constants";
 import { LogoHIS } from "../../components/brand/LogoHIS";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
-import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
-import type { BranchResponse } from "../../types/BranchResponse";
 
 // ── Sección Hero ──────────────────────────────────────────────────────────────
 function HeroSection({ onSchedule }: { readonly onSchedule: () => void }) {
@@ -59,7 +55,7 @@ function HeroSection({ onSchedule }: { readonly onSchedule: () => void }) {
 }
 
 // ── Tarjeta de especialidad ───────────────────────────────────────────────────
-function SpecialtyCard({ specialty }: { readonly specialty: SpecialtyResponse }) {
+function SpecialtyCard({ specialty }: { readonly specialty: { id: number; name: string; description?: string | null } }) {
   const icons: Record<string, string> = {
     "Cardiología": "bi-heart-pulse",
     "Pediatría": "bi-person-hearts",
@@ -84,7 +80,7 @@ function SpecialtyCard({ specialty }: { readonly specialty: SpecialtyResponse })
 }
 
 // ── Tarjeta de sucursal ───────────────────────────────────────────────────────
-function BranchCard({ branch }: { readonly branch: BranchResponse }) {
+function BranchCard({ branch }: { readonly branch: { id: number; name: string; address?: string | null; phone?: string | null; description?: string | null } }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start gap-4">
@@ -271,28 +267,14 @@ export function PortalPage() {
   // Cargar especialidades activas
   const { data: specialtiesData, isLoading: loadingSpecialties } = useQuery({
     queryKey: ["portal-specialties"],
-    queryFn: () =>
-      getSpecialties({
-        pageNumber: 1,
-        pageSize: 20,
-        filters: "State:eq:1",
-        include: null,
-        includeTotal: false,
-      }),
-    staleTime: 1000 * 60 * 10, // 10 minutos de caché
+    queryFn: () => getPublicSpecialties(),
+    staleTime: 1000 * 60 * 10,
   });
 
   // Cargar sucursales activas
   const { data: branchesData, isLoading: loadingBranches } = useQuery({
     queryKey: ["portal-branches"],
-    queryFn: () =>
-      getBranches({
-        pageNumber: 1,
-        pageSize: 10,
-        filters: "State:eq:1",
-        include: null,
-        includeTotal: false,
-      }),
+    queryFn: () => getPublicBranches(),
     staleTime: 1000 * 60 * 10,
   });
 
