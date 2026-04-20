@@ -1,10 +1,11 @@
 import { toast } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { DynamicCalendar } from "../../components/portal/DynamicCalendar";
 import { nameRoutes } from "../../configs/constants";
+import { useAppointmentHub } from "../../hooks/useAppointmentHub";
 import { getBranches } from "../../services/branchService";
 import {
   bookAppointment,
@@ -15,7 +16,7 @@ import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
 import type { BranchResponse } from "../../types/BranchResponse";
 import type { DoctorResponse } from "../../types/PatientPortalTypes";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
-import { formatDateLong, formatTime } from "../../utils/dateFormatter";
+import { formatDateLong, formatLocalDateTime, formatTime } from "../../utils/dateFormatter";
 
 // Constants
 const CONSULTATION_FEE = 150.0;
@@ -309,6 +310,8 @@ function Step4Slot({
   doctorName,
   specialtyName,
   branchName,
+  hub,
+  onDateChange,
   onSelect,
   onBack,
 }: {
@@ -316,6 +319,8 @@ function Step4Slot({
   readonly doctorName: string;
   readonly specialtyName: string;
   readonly branchName: string;
+  readonly hub: ReturnType<typeof useAppointmentHub>;
+  readonly onDateChange: (date: string | null) => void;
   readonly onSelect: (dateTime: Date) => void;
   readonly onBack: () => void;
 }) {
@@ -336,6 +341,8 @@ function Step4Slot({
       <div className="rounded-xl border border-gray-200  p-4 dark:border-gray-700  mb-4">
         <DynamicCalendar
           doctorId={doctorId}
+          hub={hub}
+          onDateChange={onDateChange}
           onSlotSelected={handleSlotSelected}
         />
       </div>
@@ -381,10 +388,14 @@ interface SummaryData {
 
 function Step5Confirm({
   summary,
+  remaining,
+  isExpired,
   onBack,
   onConfirm,
 }: {
   readonly summary: SummaryData;
+  readonly remaining: number;
+  readonly isExpired: boolean;
   readonly onBack: () => void;
   readonly onConfirm: (reason: string) => Promise<void>;
 }) {
@@ -392,6 +403,11 @@ function Step5Confirm({
   const [reasonError, setReasonError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
+
+  const timerMinutes = Math.floor(remaining / 60);
+  const timerSeconds = remaining % 60;
+  const timerDisplay = `${String(timerMinutes).padStart(2, "0")}:${String(timerSeconds).padStart(2, "0")}`;
+  const isUrgent = remaining <= 60; // last minute = red
   const handleSubmit = useCallback(async () => {
     setReasonError("");
     setApiError("");
@@ -424,6 +440,29 @@ function Step5Confirm({
       <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
         Revise los detalles y proporcione el motivo de su consulta.
       </p>
+
+      {/* Reservation timer */}
+      <div className={`mb-4 flex items-center gap-2 rounded-xl border p-3 ${
+        isExpired
+          ? "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/20"
+          : isUrgent
+            ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/10"
+            : "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/10"
+      }`}>
+        <i className={`bi ${isExpired ? "bi-exclamation-triangle-fill" : "bi-clock-history"} text-lg ${
+          isExpired || isUrgent ? "text-red-600" : "text-amber-600"
+        }`} />
+        {isExpired ? (
+          <span className="text-sm font-medium text-red-700 dark:text-red-300">
+            El tiempo de reserva ha expirado. Debe seleccionar un nuevo horario.
+          </span>
+        ) : (
+          <span className={`text-sm font-medium ${isUrgent ? "text-red-700 dark:text-red-300" : "text-amber-700 dark:text-amber-300"}`}>
+            Tiempo restante para confirmar: <span className="font-bold tabular-nums">{timerDisplay}</span>
+          </span>
+        )}
+      </div>
+
       <div className="mb-6 rounded-xl border border-blue-100 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-900/20">
         <h3 className="mb-3 font-bold text-blue-800 dark:text-blue-300">
           <i className="bi bi-clipboard2-check mr-2" />
@@ -518,7 +557,7 @@ function Step5Confirm({
         </button>
         <button
           className="flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 font-bold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isExpired}
           type="button"
           onClick={() => void handleSubmit()}
         >
@@ -560,6 +599,50 @@ export function BookAppointmentPage() {
     appointmentDate: null,
   });
   const [slotConflictError, setSlotConflictError] = useState(false);
+  const [hubDate, setHubDate] = useState<string | null>(null);
+
+  // SignalR hub lives at the page level so the lock persists across wizard steps
+  const hub = useAppointmentHub(
+    wizard.doctor?.id ?? null,
+    hubDate,
+  );
+
+  // 5-minute reservation timer — tracks when step 5 was entered
+  const [step5StartedAt, setStep5StartedAt] = useState<number | null>(null);
+  const [timerRemaining, setTimerRemaining] = useState(300);
+  const [timerExpired, setTimerExpired] = useState(false);
+
+  // Start timer when entering step 5
+  useEffect(() => {
+    if (wizard.step === 5 && step5StartedAt === null) {
+      setStep5StartedAt(Date.now());
+      setTimerExpired(false);
+      setTimerRemaining(300);
+    } else if (wizard.step !== 5) {
+      setStep5StartedAt(null);
+      setTimerExpired(false);
+    }
+  }, [wizard.step, step5StartedAt]);
+
+  // Countdown interval
+  useEffect(() => {
+    if (step5StartedAt === null) return;
+
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - step5StartedAt) / 1000);
+      const left = Math.max(0, 300 - elapsed);
+      setTimerRemaining(left);
+      if (left <= 0) {
+        setTimerExpired(true);
+        clearInterval(interval);
+        toast.error("El tiempo de reserva ha expirado. Seleccione un nuevo horario.");
+        setWizard((prev) => ({ ...prev, step: 4, appointmentDate: null }));
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [step5StartedAt]);
+
   const handleBranchSelect = useCallback(
     (branch: BranchResponse) =>
       setWizard((prev) => ({ ...prev, step: 2, branch })),
@@ -595,7 +678,7 @@ export function BookAppointmentPage() {
         doctorId: wizard.doctor.id,
         specialtyId: wizard.specialty.id,
         branchId: wizard.branch.id,
-        appointmentDate: wizard.appointmentDate.toISOString(),
+        appointmentDate: formatLocalDateTime(wizard.appointmentDate),
         reason,
         amount: CONSULTATION_FEE,
       });
@@ -610,7 +693,7 @@ export function BookAppointmentPage() {
             doctorName: wizard.doctor.name,
             specialtyName: wizard.specialty.name,
             branchName: wizard.branch.name,
-            appointmentDate: wizard.appointmentDate.toISOString(),
+            appointmentDate: formatLocalDateTime(wizard.appointmentDate),
             amount: CONSULTATION_FEE,
           },
         });
@@ -679,6 +762,8 @@ export function BookAppointmentPage() {
               branchName={wizard.branch.name}
               doctorId={wizard.doctor.id}
               doctorName={wizard.doctor.name}
+              hub={hub}
+              onDateChange={setHubDate}
               specialtyName={wizard.specialty.name}
               onBack={() => setWizard((prev) => ({ ...prev, step: 3 }))}
               onSelect={handleSlotSelect}
@@ -699,6 +784,8 @@ export function BookAppointmentPage() {
                 doctorName: wizard.doctor.name,
                 appointmentDate: wizard.appointmentDate,
               }}
+              remaining={timerRemaining}
+              isExpired={timerExpired}
               onBack={() => setWizard((prev) => ({ ...prev, step: 4 }))}
               onConfirm={handleConfirm}
             />

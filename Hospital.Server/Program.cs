@@ -41,6 +41,7 @@ namespace Hospital.Server
             builder.Services.AddValidationsGroup();
             builder.Services.AddServiceGroup();
             builder.Services.AddControllersConfiguration();
+            builder.Services.AddSignalR();
 
             // Configure Serilog logging (multi-database support: SQL Server, PostgreSQL, MySQL)
             builder.AddLoggingConfiguration();
@@ -80,6 +81,7 @@ namespace Hospital.Server
 
             // 5. MAPEO DE RUTAS
             app.MapControllers();
+            app.MapHub<Hospital.Server.Hubs.AppointmentBookingHub>("/hubs/appointment-booking");
 
             // 6. FALLBACK (Último recurso)
             // Solo si ninguna ruta de controlador o archivo estático coincidió,

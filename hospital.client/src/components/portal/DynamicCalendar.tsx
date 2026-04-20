@@ -1,12 +1,17 @@
 import { useCallback, useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import type { UseAppointmentHubReturn } from '../../hooks/useAppointmentHub';
 import { getDoctorAvailability } from '../../services/patientPortalService';
 import { formatDateLong } from '../../utils/dateFormatter';
 
 interface DynamicCalendarProps {
   doctorId: number;
   onSlotSelected: (dateTime: Date) => void;
+  /** Optional SignalR hub state — when provided, enables real-time slot blocking */
+  hub?: UseAppointmentHubReturn;
+  /** The currently selected date (controlled from parent for hub group management) */
+  onDateChange?: (date: string | null) => void;
 }
 
 /**
@@ -53,16 +58,25 @@ const formatTime = (date: Date): string => {
   return `${hours}:${minutes}`;
 };
 
-export function DynamicCalendar({ doctorId, onSlotSelected }: DynamicCalendarProps) {
+export function DynamicCalendar({ doctorId, onSlotSelected, hub, onDateChange }: DynamicCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
 
+  // Use hub state from props (or fallback to empty defaults if not provided)
+  const connectionState = hub?.connectionState ?? 'disconnected';
+  const lockedSlots = hub?.lockedSlots ?? new Map();
+  const confirmedSlots = hub?.confirmedSlots ?? new Set();
+  const myLockedSlot = hub?.myLockedSlot ?? null;
+  const lockSlot = hub?.lockSlot;
+  const hubError = hub?.error ?? null;
+
   const handleDateChange = useCallback(
     async (value: Date) => {
       setSelectedDate(value);
       setSelectedSlot(null);
+      onDateChange?.(formatDateForApi(value));
       setLoading(true);
       try {
         const formattedDate = formatDateForApi(value);
@@ -78,15 +92,19 @@ export function DynamicCalendar({ doctorId, onSlotSelected }: DynamicCalendarPro
         setLoading(false);
       }
     },
-    [doctorId],
+    [doctorId, onDateChange],
   );
 
   const handleSlotClick = useCallback(
-    (slot: Date) => {
+    async (slot: Date) => {
+      const time = formatTime(slot);
+      if (lockSlot) {
+        await lockSlot(time);
+      }
       setSelectedSlot(slot);
       onSlotSelected(slot);
     },
-    [onSlotSelected],
+    [onSlotSelected, lockSlot],
   );
 
   const now = new Date();
@@ -115,6 +133,21 @@ export function DynamicCalendar({ doctorId, onSlotSelected }: DynamicCalendarPro
             {formatDateLong(selectedDate.toISOString())}
           </h3>
 
+          {/* Connection state indicator */}
+          {connectionState === 'reconnecting' && (
+            <div className="text-sm text-amber-600">Reconectando...</div>
+          )}
+          {connectionState === 'disconnected' && selectedDate && (
+            <div className="text-sm text-red-500">
+              Desconectado — los horarios pueden no estar actualizados
+            </div>
+          )}
+
+          {/* Hub error */}
+          {hubError && (
+            <div className="text-sm text-red-500">{hubError}</div>
+          )}
+
           {loading ? (
             <div className="flex items-center justify-center py-6">
               <span className="text-sm text-gray-500">Cargando disponibilidad...</span>
@@ -122,18 +155,24 @@ export function DynamicCalendar({ doctorId, onSlotSelected }: DynamicCalendarPro
           ) : (
             <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
               {allSlots.map((slot) => {
+                const time = formatTime(slot);
                 const isPast = slot <= now;
                 const occupied = isSlotOccupied(slot, occupiedSlots);
-                const isSelected =
-                  selectedSlot !== null && slot.getTime() === selectedSlot.getTime();
-                const disabled = isPast || occupied;
+                const isConfirmed = confirmedSlots.has(time);
+                const isLockedByOther = lockedSlots.has(time);
+                const isSelected = myLockedSlot === time;
+                const disabled =
+                  isPast || occupied || isLockedByOther || isConfirmed;
 
                 let buttonClass =
                   'rounded px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ';
 
                 if (isSelected) {
                   buttonClass += 'bg-blue-600 text-white focus:ring-blue-500';
-                } else if (disabled) {
+                } else if (isLockedByOther) {
+                  buttonClass +=
+                    'cursor-not-allowed bg-amber-100 text-amber-600';
+                } else if (isPast || occupied || isConfirmed) {
                   buttonClass +=
                     'cursor-not-allowed bg-gray-100 text-gray-400';
                 } else {
@@ -144,14 +183,32 @@ export function DynamicCalendar({ doctorId, onSlotSelected }: DynamicCalendarPro
                 return (
                   <button
                     key={slot.toISOString()}
-                    aria-label={`Slot ${formatTime(slot)}${occupied ? ' - ocupado' : isPast ? ' - pasado' : ' - disponible'}`}
+                    aria-label={`Slot ${time}${
+                      isLockedByOther
+                        ? ' - reservado temporalmente por otro paciente'
+                        : occupied || isConfirmed
+                          ? ' - ocupado'
+                          : isPast
+                            ? ' - pasado'
+                            : ' - disponible'
+                    }`}
                     aria-pressed={isSelected}
                     className={buttonClass}
                     disabled={disabled}
+                    title={
+                      isLockedByOther
+                        ? 'Reservado temporalmente por otro paciente'
+                        : undefined
+                    }
                     type="button"
-                    onClick={() => handleSlotClick(slot)}
+                    onClick={() => void handleSlotClick(slot)}
                   >
-                    {formatTime(slot)}
+                    {time}
+                    {isLockedByOther && (
+                      <span className="sr-only">
+                        Reservado temporalmente por otro paciente
+                      </span>
+                    )}
                   </button>
                 );
               })}

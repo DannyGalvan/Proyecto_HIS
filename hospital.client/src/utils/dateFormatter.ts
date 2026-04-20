@@ -174,3 +174,22 @@ export function formatDateTimeLong(dateStr: string | null | undefined): string {
     timeZone: getAppTimezone(),
   });
 }
+
+/**
+ * Format a Date as a local ISO-like string "yyyy-MM-ddTHH:mm:ss"
+ * WITHOUT converting to UTC. This preserves the local hour/minute
+ * values which is critical when the backend needs to match the same
+ * hour that was displayed to the user (e.g., slot lock keys).
+ *
+ * Use this instead of Date.toISOString() when sending appointment
+ * dates to the backend where the local time must be preserved.
+ */
+export function formatLocalDateTime(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  const ss = String(date.getSeconds()).padStart(2, '0');
+  return `${y}-${m}-${d}T${hh}:${mm}:${ss}`;
+}

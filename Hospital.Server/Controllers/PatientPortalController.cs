@@ -2,15 +2,18 @@ using FluentValidation;
 using FluentValidation.Results;
 using Hospital.Server.Attributes;
 using Hospital.Server.Context;
+using Hospital.Server.Entities.Dtos;
 using Hospital.Server.Entities.Models;
 using Hospital.Server.Entities.Request;
 using Hospital.Server.Entities.Response;
+using Hospital.Server.Hubs;
 using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
 using Hospital.Server.Utils;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using BC = BCrypt.Net;
@@ -39,6 +42,8 @@ namespace Hospital.Server.Controllers
         private readonly IMapper _mapper;
         private readonly IValidator<PatientRegisterRequest> _registerValidator;
         private readonly IAppointmentStateMachine _stateMachine;
+        private readonly ISlotLockService _slotLockService;
+        private readonly IHubContext<AppointmentBookingHub> _hubContext;
 
         public PatientPortalController(
             DataContext bd,
@@ -46,7 +51,9 @@ namespace Hospital.Server.Controllers
             ISendMail sendMail,
             IMapper mapper,
             IValidator<PatientRegisterRequest> registerValidator,
-            IAppointmentStateMachine stateMachine)
+            IAppointmentStateMachine stateMachine,
+            ISlotLockService slotLockService,
+            IHubContext<AppointmentBookingHub> hubContext)
         {
             _bd = bd;
             _paymentGateway = paymentGateway;
@@ -54,6 +61,8 @@ namespace Hospital.Server.Controllers
             _mapper = mapper;
             _registerValidator = registerValidator;
             _stateMachine = stateMachine;
+            _slotLockService = slotLockService;
+            _hubContext = hubContext;
         }
 
         /// <summary>
@@ -488,6 +497,23 @@ namespace Hospital.Server.Controllers
         [HttpPost("book")]
         public async Task<IActionResult> BookAppointment([FromBody] BookAppointmentRequest request)
         {
+            // 0. Verify lock ownership before proceeding
+            long patientId = GetUserId();
+            var appointmentDateOnly = DateOnly.FromDateTime(request.AppointmentDate);
+            var appointmentTimeOnly = TimeOnly.FromDateTime(request.AppointmentDate);
+
+            bool ownsLock = _slotLockService.VerifyLockOwnership(
+                request.DoctorId, appointmentDateOnly, appointmentTimeOnly, patientId);
+
+            if (!ownsLock)
+            {
+                return Conflict(new Response<string>
+                {
+                    Success = false,
+                    Message = "Debe seleccionar un horario antes de reservar. El bloqueo temporal ha expirado o no existe."
+                });
+            }
+
             // 1. Validate appointmentDate is in the future
             if (request.AppointmentDate <= DateTime.UtcNow)
             {
@@ -608,7 +634,7 @@ namespace Hospital.Server.Controllers
             }
 
             // 6. Create appointment directly via DbContext
-            long userId = GetUserId();
+            long userId = patientId;
 
             // Always use the authenticated user's ID as PatientId — never trust
             // the value sent from the client, which could be stale or spoofed.
@@ -630,7 +656,14 @@ namespace Hospital.Server.Controllers
             _bd.Appointments.Add(newAppointment);
             await _bd.SaveChangesAsync();
 
-            // 7. Return created appointment (Id and CreatedAt are needed for the timer)
+            // 7. Release the temporary lock and notify the group via SignalR
+            _slotLockService.ReleaseSlot(request.DoctorId, appointmentDateOnly, appointmentTimeOnly, patientId);
+
+            var groupName = $"doctor_{request.DoctorId}_date_{appointmentDateOnly:yyyy-MM-dd}";
+            var slotInfo = new SlotLockInfo(request.DoctorId, appointmentDateOnly.ToString("yyyy-MM-dd"), appointmentTimeOnly.ToString("HH:mm"), DateTime.MinValue);
+            await _hubContext.Clients.Group(groupName).SendAsync("SlotConfirmed", slotInfo);
+
+            // 8. Return created appointment (Id and CreatedAt are needed for the timer)
             return Ok(new Response<object>
             {
                 Success = true,

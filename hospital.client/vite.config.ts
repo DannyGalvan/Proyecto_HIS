@@ -66,7 +66,13 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
-    },
+      "/hubs": {
+        target: "https://localhost:7266",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
+    },    
     port: 60263,
     https: {
       key: readFileSync(keyFilePath),

@@ -151,6 +151,12 @@ namespace Hospital.Server.Configs.Extensions
             // hosted service para recordatorios de agenda del doctor (resumen diario, 1h y 15m antes)
             services.AddHostedService<DoctorAgendaReminderService>();
 
+            // Real-time slot lock service (Singleton — static ConcurrentDictionary shared across consumers)
+            services.AddSingleton<ISlotLockService, SlotLockService>();
+
+            // hosted service para limpieza periódica de slot locks expirados
+            services.AddHostedService<SlotLockCleanupService>();
+
             // payment gateway (swap MockPaymentGateway for real implementation in production)
             services.AddScoped<IPaymentGateway, MockPaymentGateway>();
 
