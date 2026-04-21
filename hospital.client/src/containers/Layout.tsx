@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div className="flex h-screen w-full bg-[var(--color-surface-50)] transition-colors duration-300">
+    <div className="flex h-screen w-full bg-(--color-surface-50) transition-colors duration-300">
       <Sidebar closeSidebar={closeSidebar} isOpen={sidebarOpen} />
 
       <div className="flex flex-1 flex-col overflow-hidden max-h-screen relative">
@@ -44,11 +44,11 @@ export function Layout({ children }: LayoutProps) {
           <AnimatePresence mode="wait">
             <motion.main
               key={location.pathname}
-              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
               className="h-full w-full"
+              exit={{ opacity: 0, y: -15 }}
+              initial={{ opacity: 0, y: 15 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
             >
               {children}
             </motion.main>

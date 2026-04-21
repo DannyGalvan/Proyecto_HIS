@@ -1,7 +1,13 @@
 import { api } from "../configs/axios/interceptors";
 import type { ApiResponse } from "../types/ApiResponse";
-import type { DispenseRequest, DispenseResponse } from "../types/DispenseResponse";
-import type { DispenseItemRequest, DispenseItemResponse } from "../types/DispenseItemResponse";
+import type {
+  DispenseItemRequest,
+  DispenseItemResponse,
+} from "../types/DispenseItemResponse";
+import type {
+  DispenseRequest,
+  DispenseResponse,
+} from "../types/DispenseResponse";
 import type { filterOptions } from "../types/FilterTypes";
 
 export const getDispenses = async ({
@@ -18,19 +24,40 @@ export const getDispenses = async ({
   return api.get<unknown, ApiResponse<DispenseResponse[]>>(baseQuery);
 };
 
-export const getDispenseById = async (id: number): Promise<ApiResponse<DispenseResponse>> =>
-  api.get<unknown, ApiResponse<DispenseResponse>>(`Dispense/${id}?Include=Prescription,Patient,Pharmacist,Items,Payments`);
+export const getDispenseById = async (
+  id: number,
+): Promise<ApiResponse<DispenseResponse>> =>
+  api.get<unknown, ApiResponse<DispenseResponse>>(
+    `Dispense/${id}?Include=Prescription,Patient,Pharmacist,Items,Payments`,
+  );
 
-export const createDispense = async (data: DispenseRequest): Promise<ApiResponse<DispenseResponse>> =>
-  api.post<unknown, ApiResponse<DispenseResponse>, DispenseRequest>("Dispense", data);
+export const createDispense = async (
+  data: DispenseRequest,
+): Promise<ApiResponse<DispenseResponse>> =>
+  api.post<unknown, ApiResponse<DispenseResponse>, DispenseRequest>(
+    "Dispense",
+    data,
+  );
 
-export const updateDispense = async (data: DispenseRequest): Promise<ApiResponse<DispenseResponse>> =>
-  api.put<unknown, ApiResponse<DispenseResponse>, DispenseRequest>("Dispense", data);
+export const updateDispense = async (
+  data: DispenseRequest,
+): Promise<ApiResponse<DispenseResponse>> =>
+  api.put<unknown, ApiResponse<DispenseResponse>, DispenseRequest>(
+    "Dispense",
+    data,
+  );
 
-export const partialUpdateDispense = async (data: DispenseRequest): Promise<ApiResponse<DispenseResponse>> =>
-  api.patch<unknown, ApiResponse<DispenseResponse>, DispenseRequest>("Dispense", data);
+export const partialUpdateDispense = async (
+  data: DispenseRequest,
+): Promise<ApiResponse<DispenseResponse>> =>
+  api.patch<unknown, ApiResponse<DispenseResponse>, DispenseRequest>(
+    "Dispense",
+    data,
+  );
 
-export const deleteDispense = async (id: number): Promise<ApiResponse<DispenseResponse>> =>
+export const deleteDispense = async (
+  id: number,
+): Promise<ApiResponse<DispenseResponse>> =>
   api.delete<unknown, ApiResponse<DispenseResponse>>(`Dispense/${id}`);
 
 // Dispense Items
@@ -48,11 +75,23 @@ export const getDispenseItems = async ({
   return api.get<unknown, ApiResponse<DispenseItemResponse[]>>(baseQuery);
 };
 
-export const createDispenseItem = async (data: DispenseItemRequest): Promise<ApiResponse<DispenseItemResponse>> =>
-  api.post<unknown, ApiResponse<DispenseItemResponse>, DispenseItemRequest>("DispenseItem", data);
+export const createDispenseItem = async (
+  data: DispenseItemRequest,
+): Promise<ApiResponse<DispenseItemResponse>> =>
+  api.post<unknown, ApiResponse<DispenseItemResponse>, DispenseItemRequest>(
+    "DispenseItem",
+    data,
+  );
 
-export const updateDispenseItem = async (data: DispenseItemRequest): Promise<ApiResponse<DispenseItemResponse>> =>
-  api.put<unknown, ApiResponse<DispenseItemResponse>, DispenseItemRequest>("DispenseItem", data);
+export const updateDispenseItem = async (
+  data: DispenseItemRequest,
+): Promise<ApiResponse<DispenseItemResponse>> =>
+  api.put<unknown, ApiResponse<DispenseItemResponse>, DispenseItemRequest>(
+    "DispenseItem",
+    data,
+  );
 
-export const deleteDispenseItem = async (id: number): Promise<ApiResponse<DispenseItemResponse>> =>
+export const deleteDispenseItem = async (
+  id: number,
+): Promise<ApiResponse<DispenseItemResponse>> =>
   api.delete<unknown, ApiResponse<DispenseItemResponse>>(`DispenseItem/${id}`);

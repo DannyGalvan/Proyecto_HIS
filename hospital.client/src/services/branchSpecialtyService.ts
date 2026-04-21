@@ -1,6 +1,9 @@
 import { api } from "../configs/axios/interceptors";
 import type { ApiResponse } from "../types/ApiResponse";
-import type { BranchSpecialtyRequest, BranchSpecialtyResponse } from "../types/BranchSpecialtyResponse";
+import type {
+  BranchSpecialtyRequest,
+  BranchSpecialtyResponse,
+} from "../types/BranchSpecialtyResponse";
 import type { filterOptions } from "../types/FilterTypes";
 
 export const getBranchSpecialties = async ({
@@ -20,25 +23,31 @@ export const getBranchSpecialties = async ({
 export const getBranchSpecialtyById = async (
   id: number,
 ): Promise<ApiResponse<BranchSpecialtyResponse>> =>
-  api.get<unknown, ApiResponse<BranchSpecialtyResponse>>(`BranchSpecialty/${id}`);
+  api.get<unknown, ApiResponse<BranchSpecialtyResponse>>(
+    `BranchSpecialty/${id}`,
+  );
 
 export const createBranchSpecialty = async (
   data: BranchSpecialtyRequest,
 ): Promise<ApiResponse<BranchSpecialtyResponse>> =>
-  api.post<unknown, ApiResponse<BranchSpecialtyResponse>, BranchSpecialtyRequest>(
-    "BranchSpecialty",
-    data,
-  );
+  api.post<
+    unknown,
+    ApiResponse<BranchSpecialtyResponse>,
+    BranchSpecialtyRequest
+  >("BranchSpecialty", data);
 
 export const updateBranchSpecialty = async (
   data: BranchSpecialtyRequest,
 ): Promise<ApiResponse<BranchSpecialtyResponse>> =>
-  api.put<unknown, ApiResponse<BranchSpecialtyResponse>, BranchSpecialtyRequest>(
-    "BranchSpecialty",
-    data,
-  );
+  api.put<
+    unknown,
+    ApiResponse<BranchSpecialtyResponse>,
+    BranchSpecialtyRequest
+  >("BranchSpecialty", data);
 
 export const deleteBranchSpecialty = async (
   id: number,
 ): Promise<ApiResponse<BranchSpecialtyResponse>> =>
-  api.delete<unknown, ApiResponse<BranchSpecialtyResponse>>(`BranchSpecialty/${id}`);
+  api.delete<unknown, ApiResponse<BranchSpecialtyResponse>>(
+    `BranchSpecialty/${id}`,
+  );

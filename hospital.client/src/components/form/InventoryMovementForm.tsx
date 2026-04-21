@@ -1,24 +1,32 @@
 import { FieldError, Form, Input, Label, TextField } from "@heroui/react";
-import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
-import { useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+} from "react";
+import { useNavigate } from "react-router";
 import type { MultiValue, SingleValue } from "react-select";
 
 import { AsyncButton } from "../button/AsyncButton";
-import { CatalogueSelect } from "../select/CatalogueSelect";
 import { Response } from "../messages/Response";
+import { CatalogueSelect } from "../select/CatalogueSelect";
 import { LowStockAlert } from "../shared/LowStockAlert";
 
-import { createInventoryMovement } from "../../services/inventoryMovementService";
-import { getMedicines } from "../../services/medicineService";
-import { getMedicineInventory } from "../../services/medicineService";
 import { getBranches } from "../../services/branchService";
+import { createInventoryMovement } from "../../services/inventoryMovementService";
+import {
+  getMedicineInventory,
+  getMedicines,
+} from "../../services/medicineService";
 
+import type { BranchResponse } from "../../types/BranchResponse";
 import type { InventoryMovementRequest } from "../../types/InventoryMovementResponse";
 import { MovementTypeLabels } from "../../types/InventoryMovementResponse";
-import type { MedicineResponse } from "../../types/MedicineResponse";
 import type { MedicineInventoryResponse } from "../../types/MedicineInventoryResponse";
-import type { BranchResponse } from "../../types/BranchResponse";
+import type { MedicineResponse } from "../../types/MedicineResponse";
 
 import { useAuth } from "../../hooks/useAuth";
 import { validateInventoryMovement } from "../../validations/inventoryMovementValidation";
@@ -35,13 +43,58 @@ const EXIT_TYPES = new Set([2, 3, 5]);
 const isEntryType = (type: number): boolean => [0, 1, 4].includes(type);
 
 /** Field visibility configuration per movement type */
-const FIELD_CONFIG: Record<number, { unitCost: boolean; referenceNumber: boolean; notes: boolean; notesLabel: string; referenceLabel: string }> = {
-  0: { unitCost: true, referenceNumber: true, notes: true, notesLabel: "Notas (opcional)", referenceLabel: "Número de Factura" },
-  1: { unitCost: false, referenceNumber: true, notes: true, notesLabel: "Motivo de Devolución", referenceLabel: "Referencia de Devolución" },
-  2: { unitCost: false, referenceNumber: true, notes: false, notesLabel: "", referenceLabel: "Referencia de Venta" },
-  3: { unitCost: false, referenceNumber: true, notes: true, notesLabel: "Motivo del Reclamo", referenceLabel: "Referencia del Reclamo" },
-  4: { unitCost: false, referenceNumber: false, notes: true, notesLabel: "Justificación (mín. 10 caracteres) *", referenceLabel: "" },
-  5: { unitCost: false, referenceNumber: false, notes: true, notesLabel: "Justificación (mín. 10 caracteres) *", referenceLabel: "" },
+const FIELD_CONFIG: Record<
+  number,
+  {
+    unitCost: boolean;
+    referenceNumber: boolean;
+    notes: boolean;
+    notesLabel: string;
+    referenceLabel: string;
+  }
+> = {
+  0: {
+    unitCost: true,
+    referenceNumber: true,
+    notes: true,
+    notesLabel: "Notas (opcional)",
+    referenceLabel: "Número de Factura",
+  },
+  1: {
+    unitCost: false,
+    referenceNumber: true,
+    notes: true,
+    notesLabel: "Motivo de Devolución",
+    referenceLabel: "Referencia de Devolución",
+  },
+  2: {
+    unitCost: false,
+    referenceNumber: true,
+    notes: false,
+    notesLabel: "",
+    referenceLabel: "Referencia de Venta",
+  },
+  3: {
+    unitCost: false,
+    referenceNumber: true,
+    notes: true,
+    notesLabel: "Motivo del Reclamo",
+    referenceLabel: "Referencia del Reclamo",
+  },
+  4: {
+    unitCost: false,
+    referenceNumber: false,
+    notes: true,
+    notesLabel: "Justificación (mín. 10 caracteres) *",
+    referenceLabel: "",
+  },
+  5: {
+    unitCost: false,
+    referenceNumber: false,
+    notes: true,
+    notesLabel: "Justificación (mín. 10 caracteres) *",
+    referenceLabel: "",
+  },
 };
 
 // ── Reference type mapping ─────────────────────────────────────────────────
@@ -70,8 +123,11 @@ export function InventoryMovementForm() {
   const [notes, setNotes] = useState<string>("");
 
   // ── Lookup state ───────────────────────────────────────────────────────
-  const [selectedMedicine, setSelectedMedicine] = useState<MedicineResponse | null>(null);
-  const [inventory, setInventory] = useState<MedicineInventoryResponse | null>(null);
+  const [selectedMedicine, setSelectedMedicine] =
+    useState<MedicineResponse | null>(null);
+  const [inventory, setInventory] = useState<MedicineInventoryResponse | null>(
+    null,
+  );
   const [inventoryLoading, setInventoryLoading] = useState(false);
 
   // ── UI state ───────────────────────────────────────────────────────────
@@ -80,7 +136,9 @@ export function InventoryMovementForm() {
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
   // ── Medicine cache ─────────────────────────────────────────────────────
-  const medicineCacheRef = useState<Map<number, MedicineResponse>>(() => new Map())[0];
+  const medicineCacheRef = useState<Map<number, MedicineResponse>>(
+    () => new Map(),
+  )[0];
 
   // ── Field config for current type ──────────────────────────────────────
   const fieldConfig = movementType !== null ? FIELD_CONFIG[movementType] : null;
@@ -154,7 +212,12 @@ export function InventoryMovementForm() {
 
   // ── Handlers ───────────────────────────────────────────────────────────
   const handleMedicineChange = useCallback(
-    (opt: SingleValue<{ label: string; value: string }> | MultiValue<{ label: string; value: string }> | null) => {
+    (
+      opt:
+        | SingleValue<{ label: string; value: string }>
+        | MultiValue<{ label: string; value: string }>
+        | null,
+    ) => {
       if (opt && !Array.isArray(opt) && "value" in opt) {
         const id = Number(opt.value);
         setMedicineId(id);
@@ -169,7 +232,12 @@ export function InventoryMovementForm() {
   );
 
   const handleBranchChange = useCallback(
-    (opt: SingleValue<{ label: string; value: string }> | MultiValue<{ label: string; value: string }> | null) => {
+    (
+      opt:
+        | SingleValue<{ label: string; value: string }>
+        | MultiValue<{ label: string; value: string }>
+        | null,
+    ) => {
       if (opt && !Array.isArray(opt) && "value" in opt) {
         setBranchId(Number(opt.value));
       } else {
@@ -179,16 +247,19 @@ export function InventoryMovementForm() {
     [],
   );
 
-  const handleMovementTypeChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    setMovementType(val === "" ? null : Number(val));
-    // Reset type-specific fields
-    setUnitCost("");
-    setReferenceNumber("");
-    setNotes("");
-    setErrors({});
-    setSubmitError(null);
-  }, []);
+  const handleMovementTypeChange = useCallback(
+    (e: ChangeEvent<HTMLSelectElement>) => {
+      const val = e.target.value;
+      setMovementType(val === "" ? null : Number(val));
+      // Reset type-specific fields
+      setUnitCost("");
+      setReferenceNumber("");
+      setNotes("");
+      setErrors({});
+      setSubmitError(null);
+    },
+    [],
+  );
 
   // ── Mutation ───────────────────────────────────────────────────────────
   const { mutateAsync: doCreate, isPending } = useMutation({
@@ -222,13 +293,20 @@ export function InventoryMovementForm() {
 
       // Ensure inventory record exists
       if (!inventory) {
-        setSubmitError("No se encontró registro de inventario para el medicamento y sucursal seleccionados. Verifique que exista un registro de inventario.");
+        setSubmitError(
+          "No se encontró registro de inventario para el medicamento y sucursal seleccionados. Verifique que exista un registro de inventario.",
+        );
         return;
       }
 
       // CU-13 FA03: Stock insuficiente para salidas
-      if (EXIT_TYPES.has(movementType!) && Number(quantity) > inventory.currentStock) {
-        setSubmitError(`Stock insuficiente. Stock actual: ${inventory.currentStock}. No se puede registrar una salida de ${quantity} unidades.`);
+      if (
+        EXIT_TYPES.has(movementType!) &&
+        Number(quantity) > inventory.currentStock
+      ) {
+        setSubmitError(
+          `Stock insuficiente. Stock actual: ${inventory.currentStock}. No se puede registrar una salida de ${quantity} unidades.`,
+        );
         return;
       }
 
@@ -255,8 +333,12 @@ export function InventoryMovementForm() {
 
       const medicineName = selectedMedicine?.name ?? "Medicamento";
       const typeLabel = MovementTypeLabels[movementType!]?.label ?? "";
-      const newStock = isEntryType(movementType!) ? (inventory.currentStock + Number(quantity)) : (inventory.currentStock - Number(quantity));
-      setSubmitSuccess(`Movimiento registrado exitosamente. Medicamento: ${medicineName}. Tipo: ${typeLabel}. Cantidad: ${quantity}. Stock actualizado: ${newStock}.`);
+      const newStock = isEntryType(movementType!)
+        ? inventory.currentStock + Number(quantity)
+        : inventory.currentStock - Number(quantity);
+      setSubmitSuccess(
+        `Movimiento registrado exitosamente. Medicamento: ${medicineName}. Tipo: ${typeLabel}. Cantidad: ${quantity}. Stock actualizado: ${newStock}.`,
+      );
       // Reset form
       setMovementType(null);
       setMedicineId(null);
@@ -269,7 +351,18 @@ export function InventoryMovementForm() {
       setNotes("");
       setErrors({});
     },
-    [movementType, medicineId, branchId, quantity, unitCost, referenceNumber, notes, inventory, userId, doCreate],
+    [
+      movementType,
+      medicineId,
+      branchId,
+      quantity,
+      unitCost,
+      referenceNumber,
+      notes,
+      inventory,
+      userId,
+      doCreate,
+    ],
   );
 
   return (
@@ -279,11 +372,11 @@ export function InventoryMovementForm() {
         Registrar Movimiento de Inventario
       </h1>
 
-      {submitError && <Response message={submitError} type={false} />}
-      {submitSuccess && <Response message={submitSuccess} type={true} />}
+      {submitError ? <Response message={submitError} type={false} /> : null}
+      {submitSuccess ? <Response type message={submitSuccess} /> : null}
 
       {/* Low stock alert */}
-      {showLowStockAlert && selectedMedicine && projectedStock !== null && (
+      {showLowStockAlert && selectedMedicine && projectedStock !== null ? (
         <div className="mb-4">
           <LowStockAlert
             currentStock={projectedStock}
@@ -291,7 +384,7 @@ export function InventoryMovementForm() {
             minimumStock={selectedMedicine.minimumStock}
           />
         </div>
-      )}
+      ) : null}
 
       <Form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         {/* ── Operation type selector ── */}
@@ -307,7 +400,8 @@ export function InventoryMovementForm() {
               className={`${errors.movementType ? "text-danger" : "text-default-500"} text-xs ms-3 pt-2 block`}
               htmlFor="movementType"
             >
-              Tipo de Operación <span className="text-danger font-bold ml-1">*</span>
+              Tipo de Operación{" "}
+              <span className="text-danger font-bold ml-1">*</span>
             </label>
             <select
               className="w-full bg-transparent px-3 py-2 text-sm outline-none cursor-pointer"
@@ -324,9 +418,11 @@ export function InventoryMovementForm() {
               ))}
             </select>
           </div>
-          {errors.movementType && (
-            <p className="text-danger text-sm ms-1 mt-1">{errors.movementType}</p>
-          )}
+          {errors.movementType ? (
+            <p className="text-danger text-sm ms-1 mt-1">
+              {errors.movementType}
+            </p>
+          ) : null}
         </div>
 
         {/* ── Dynamic fields (only shown when type is selected) ── */}
@@ -379,11 +475,13 @@ export function InventoryMovementForm() {
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                 />
-                {errors.quantity ? <FieldError>{errors.quantity}</FieldError> : null}
+                {errors.quantity ? (
+                  <FieldError>{errors.quantity}</FieldError>
+                ) : null}
               </TextField>
 
               {/* Unit Cost (only for Compra) */}
-              {fieldConfig?.unitCost && (
+              {fieldConfig?.unitCost ? (
                 <TextField
                   isRequired
                   className="w-full flex flex-col gap-1"
@@ -399,17 +497,21 @@ export function InventoryMovementForm() {
                     value={unitCost}
                     onChange={(e) => setUnitCost(e.target.value)}
                   />
-                  {errors.unitCost ? <FieldError>{errors.unitCost}</FieldError> : null}
+                  {errors.unitCost ? (
+                    <FieldError>{errors.unitCost}</FieldError>
+                  ) : null}
                 </TextField>
-              )}
+              ) : null}
 
               {/* Reference Number */}
-              {fieldConfig?.referenceNumber && (
+              {fieldConfig?.referenceNumber ? (
                 <TextField
                   className="w-full flex flex-col gap-1"
                   name="referenceNumber"
                 >
-                  <Label className="font-bold">{fieldConfig.referenceLabel}</Label>
+                  <Label className="font-bold">
+                    {fieldConfig.referenceLabel}
+                  </Label>
                   <Input
                     className="w-full px-3 py-2 border rounded-md"
                     maxLength={100}
@@ -418,11 +520,11 @@ export function InventoryMovementForm() {
                     onChange={(e) => setReferenceNumber(e.target.value)}
                   />
                 </TextField>
-              )}
+              ) : null}
             </div>
 
             {/* Notes / Justification */}
-            {fieldConfig?.notes && (
+            {fieldConfig?.notes ? (
               <div className="flex flex-col gap-1">
                 <label
                   className={`font-bold text-sm ${errors.notes ? "text-danger" : ""}`}
@@ -441,41 +543,51 @@ export function InventoryMovementForm() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                 />
-                {errors.notes && (
+                {errors.notes ? (
                   <p className="text-danger text-sm">{errors.notes}</p>
-                )}
+                ) : null}
                 {(movementType === 4 || movementType === 5) && (
                   <p className="text-xs text-default-400">
                     {notes.trim().length}/10 caracteres mínimos
                   </p>
                 )}
               </div>
-            )}
+            ) : null}
 
             {/* ── Inventory info panel ── */}
-            {medicineId && branchId && (
+            {medicineId && branchId ? (
               <div className="p-4 rounded-lg border bg-default-50">
                 <h3 className="text-sm font-bold mb-2">
                   <i className="bi bi-info-circle mr-1" />
                   Información de Inventario
                 </h3>
                 {inventoryLoading ? (
-                  <p className="text-sm text-default-400">Consultando inventario...</p>
+                  <p className="text-sm text-default-400">
+                    Consultando inventario...
+                  </p>
                 ) : inventory ? (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                     <div>
-                      <span className="text-default-500 block">Stock Actual</span>
-                      <span className="font-bold text-lg">{inventory.currentStock}</span>
+                      <span className="text-default-500 block">
+                        Stock Actual
+                      </span>
+                      <span className="font-bold text-lg">
+                        {inventory.currentStock}
+                      </span>
                     </div>
                     <div>
-                      <span className="text-default-500 block">Stock Mínimo</span>
+                      <span className="text-default-500 block">
+                        Stock Mínimo
+                      </span>
                       <span className="font-bold text-lg">
                         {selectedMedicine?.minimumStock ?? "—"}
                       </span>
                     </div>
                     {projectedStock !== null && (
                       <div>
-                        <span className="text-default-500 block">Stock Proyectado</span>
+                        <span className="text-default-500 block">
+                          Stock Proyectado
+                        </span>
                         <span
                           className={`font-bold text-lg ${
                             projectedStock < 0
@@ -502,11 +614,12 @@ export function InventoryMovementForm() {
                   </div>
                 ) : (
                   <p className="text-sm text-warning">
-                    ⚠️ No se encontró registro de inventario para esta combinación de medicamento y sucursal.
+                    ⚠️ No se encontró registro de inventario para esta
+                    combinación de medicamento y sucursal.
                   </p>
                 )}
               </div>
-            )}
+            ) : null}
 
             {/* ── Actions ── */}
             <div className="flex gap-4 justify-end mt-4">

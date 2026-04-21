@@ -1,89 +1,92 @@
-import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { MedicineResponse } from "../../types/MedicineResponse";
-import { MedicineButton } from "../button/MedicineButton";
-import { MedicineControlledBadge } from "../badge/MedicineControlledBadge";
+import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import { formatDateTime } from "../../utils/dateFormatter";
+import { MedicineControlledBadge } from "../badge/MedicineControlledBadge";
+import { MedicineButton } from "../button/MedicineButton";
 
-export const MedicineResponseColumns: TableColumnWithFilters<MedicineResponse>[] = [
-  {
-    id: "id",
-    name: "ID",
-    selector: (data) => data.id ?? "",
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: true,
-    filterField: (value) => (value ? `Id:eq:${value}` : ""),
-  },
-  {
-    id: "name",
-    name: "Nombre",
-    selector: (data) => data.name ?? "",
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: true,
-    filterField: (value) => (value ? `Name:like:${value}` : ""),
-  },
-  {
-    id: "unit",
-    name: "Unidad",
-    selector: (data) => data.unit ?? "",
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "defaultPrice",
-    name: "Precio",
-    selector: (data) => `Q${data.defaultPrice?.toFixed(2) ?? "0.00"}`,
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "isControlled",
-    name: "Controlado",
-    cell: (data) => <MedicineControlledBadge isControlled={data.isControlled ?? false} />,
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "minimumStock",
-    name: "Stock Mínimo",
-    selector: (data) => data.minimumStock ?? 0,
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "state",
-    name: "Estado",
-    selector: (data) => (data.state === 1 ? "Activo" : "Inactivo"),
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "actions",
-    name: "Acciones",
-    maxWidth: "100px",
-    center: true,
-    button: true,
-    cell: (data) => <MedicineButton data={data} />,
-  },
-  {
-    id: "createdAt",
-    name: "Creado",
-    selector: (data) => formatDateTime(data.createdAt),
-    sortable: true,
-    maxWidth: "160px",
-    omit: true,
-  },
-];
+export const MedicineResponseColumns: TableColumnWithFilters<MedicineResponse>[] =
+  [
+    {
+      id: "id",
+      name: "ID",
+      selector: (data) => data.id ?? "",
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: true,
+      filterField: (value) => (value ? `Id:eq:${value}` : ""),
+    },
+    {
+      id: "name",
+      name: "Nombre",
+      selector: (data) => data.name ?? "",
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: true,
+      filterField: (value) => (value ? `Name:like:${value}` : ""),
+    },
+    {
+      id: "unit",
+      name: "Unidad",
+      selector: (data) => data.unit ?? "",
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "defaultPrice",
+      name: "Precio",
+      selector: (data) => `Q${data.defaultPrice?.toFixed(2) ?? "0.00"}`,
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "isControlled",
+      name: "Controlado",
+      cell: (data) => (
+        <MedicineControlledBadge isControlled={data.isControlled ?? false} />
+      ),
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "minimumStock",
+      name: "Stock Mínimo",
+      selector: (data) => data.minimumStock ?? 0,
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "state",
+      name: "Estado",
+      selector: (data) => (data.state === 1 ? "Activo" : "Inactivo"),
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "actions",
+      name: "Acciones",
+      maxWidth: "100px",
+      center: true,
+      button: true,
+      cell: (data) => <MedicineButton data={data} />,
+    },
+    {
+      id: "createdAt",
+      name: "Creado",
+      selector: (data) => formatDateTime(data.createdAt),
+      sortable: true,
+      maxWidth: "160px",
+      omit: true,
+    },
+  ];

@@ -59,7 +59,7 @@ export function SubMenu({
             ${
               isActive || subMenuOpen
                 ? "sidebar-link-active"
-                : "text-gray-700 hover:bg-[var(--color-surface-100)] dark:text-gray-300"
+                : "text-gray-700 hover:bg-(--color-surface-100) dark:text-gray-300"
             }
             ${isCollapsed ? "justify-center px-0" : "justify-between px-3"}
           `}

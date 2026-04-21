@@ -2,10 +2,10 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router";
 import { BranchSpecialtyResponseColumns } from "../../components/column/BranchSpecialtyResponseColumns";
 import { TableServer } from "../../components/table/TableServer";
+import { nameRoutes } from "../../configs/constants";
 import { getBranchSpecialties } from "../../services/branchSpecialtyService";
 import { useBranchSpecialtyStore } from "../../stores/useBranchSpecialtyStore";
 import { customStyles } from "../../theme/tableTheme";
-import { nameRoutes } from "../../configs/constants";
 
 export function BranchSpecialtyPage() {
   const { filters, setFilters } = useBranchSpecialtyStore();

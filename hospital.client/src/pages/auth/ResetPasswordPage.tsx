@@ -1,20 +1,25 @@
-import { useState, useCallback, useEffect, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router";
 import { z } from "zod";
 
-import { nameRoutes } from "../../configs/constants";
-import { validateRecoveryToken, resetPasswordWithToken } from "../../services/authService";
 import { PasswordVisibilityToggle } from "../../components/input/PasswordVisibilityToggle";
+import { nameRoutes } from "../../configs/constants";
+import {
+  resetPasswordWithToken,
+  validateRecoveryToken,
+} from "../../services/authService";
 
-const passwordSchema = z.object({
-  password: z
-    .string()
-    .min(12, "La contraseña debe tener al menos 12 caracteres"),
-  confirmPassword: z.string().min(1, "La confirmación es requerida"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Las contraseñas no coinciden",
-  path: ["confirmPassword"],
-});
+const passwordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(12, "La contraseña debe tener al menos 12 caracteres"),
+    confirmPassword: z.string().min(1, "La confirmación es requerida"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Las contraseñas no coinciden",
+    path: ["confirmPassword"],
+  });
 
 type ResetState = "validating" | "valid" | "expired" | "success" | "error";
 
@@ -35,7 +40,10 @@ export function ResetPasswordPage({
   const [state, setState] = useState<ResetState>("validating");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<{ password?: string; confirmPassword?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{
+    password?: string;
+    confirmPassword?: string;
+  }>({});
   const [apiError, setApiError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,7 +66,9 @@ export function ResetPasswordPage({
       }
     })();
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
 
   const handleSubmit = useCallback(
@@ -92,7 +102,9 @@ export function ResetPasswordPage({
           setApiError(response.message ?? "Error al cambiar la contraseña.");
         }
       } catch {
-        setApiError("No se pudo conectar con el servidor. Intente de nuevo más tarde.");
+        setApiError(
+          "No se pudo conectar con el servidor. Intente de nuevo más tarde.",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -104,12 +116,13 @@ export function ResetPasswordPage({
     <section className="flex items-center justify-center min-h-[calc(100vh-140px)] px-4 py-12">
       <div className="w-full max-w-md">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
-
           {/* Validating token */}
           {state === "validating" && (
             <div className="text-center py-8">
               <i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" />
-              <p className="text-gray-500 dark:text-gray-400 mt-3">Verificando enlace de recuperación...</p>
+              <p className="text-gray-500 dark:text-gray-400 mt-3">
+                Verificando enlace de recuperación...
+              </p>
             </div>
           )}
 
@@ -125,19 +138,20 @@ export function ResetPasswordPage({
                 Enlace Expirado
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                El enlace de recuperación ha expirado o no es válido. Los enlaces son válidos por 15 minutos.
+                El enlace de recuperación ha expirado o no es válido. Los
+                enlaces son válidos por 15 minutos.
               </p>
               <div className="flex flex-col gap-3">
                 <Link
-                  to={forgotRoute}
                   className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                  to={forgotRoute}
                 >
                   <i className="bi bi-envelope-at" />
                   Solicitar Nuevo Enlace
                 </Link>
                 <Link
-                  to={loginRoute}
                   className="text-sm text-gray-500 hover:text-blue-600 dark:text-gray-400"
+                  to={loginRoute}
                 >
                   <i className="bi bi-arrow-left mr-1" />
                   Volver al inicio de sesión
@@ -161,8 +175,8 @@ export function ResetPasswordPage({
                 No se pudo verificar el enlace. Intente de nuevo más tarde.
               </p>
               <Link
-                to={loginRoute}
                 className="text-sm text-gray-500 hover:text-blue-600 dark:text-gray-400"
+                to={loginRoute}
               >
                 <i className="bi bi-arrow-left mr-1" />
                 Volver al inicio de sesión
@@ -185,14 +199,18 @@ export function ResetPasswordPage({
                 Ingrese su nueva contraseña. Debe tener al menos 12 caracteres.
               </p>
 
-              {apiError && (
+              {apiError ? (
                 <div className="mb-4 p-4 bg-red-50 border border-red-300 rounded-xl text-red-800 text-sm flex items-start gap-2 dark:bg-red-900/20 dark:border-red-700 dark:text-red-300">
                   <i className="bi bi-exclamation-triangle-fill mt-0.5 shrink-0" />
                   <span>{apiError}</span>
                 </div>
-              )}
+              ) : null}
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+              <form
+                noValidate
+                className="flex flex-col gap-4"
+                onSubmit={handleSubmit}
+              >
                 <PasswordVisibilityToggle
                   isRequired
                   errorMessage={fieldErrors.password}
@@ -248,11 +266,12 @@ export function ResetPasswordPage({
                 Contraseña Actualizada
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                Su contraseña ha sido cambiada exitosamente. Ya puede iniciar sesión con su nueva contraseña.
+                Su contraseña ha sido cambiada exitosamente. Ya puede iniciar
+                sesión con su nueva contraseña.
               </p>
               <Link
-                to={loginRoute}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 inline-flex"
+                to={loginRoute}
               >
                 <i className="bi bi-box-arrow-in-right" />
                 Iniciar Sesión
@@ -267,12 +286,22 @@ export function ResetPasswordPage({
 
 /** Admin reset password wrapper */
 export function AdminResetPasswordPage() {
-  return <ResetPasswordPage loginRoute={nameRoutes.login} forgotRoute={nameRoutes.forgotPassword} />;
+  return (
+    <ResetPasswordPage
+      forgotRoute={nameRoutes.forgotPassword}
+      loginRoute={nameRoutes.login}
+    />
+  );
 }
 
 /** Portal reset password wrapper */
 export function PortalResetPasswordPage() {
-  return <ResetPasswordPage loginRoute={nameRoutes.portalLogin} forgotRoute={nameRoutes.portalForgotPassword} />;
+  return (
+    <ResetPasswordPage
+      forgotRoute={nameRoutes.portalForgotPassword}
+      loginRoute={nameRoutes.portalLogin}
+    />
+  );
 }
 
 export default ResetPasswordPage;

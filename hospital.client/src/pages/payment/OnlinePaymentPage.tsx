@@ -1,12 +1,15 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
-import { useSearchParams } from 'react-router';
-import { CardPaymentForm } from '../../components/payment/CardPaymentForm';
-import { PaymentReceipt } from '../../components/shared/PaymentReceipt';
-import { LoadingComponent } from '../../components/spinner/LoadingComponent';
-import { partialUpdateAppointment, getAppointmentById } from '../../services/appointmentService';
-import type { PaymentResponse } from '../../types/PaymentResponse';
-import { formatDateLong } from '../../utils/dateFormatter';
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useSearchParams } from "react-router";
+import { CardPaymentForm } from "../../components/payment/CardPaymentForm";
+import { PaymentReceipt } from "../../components/shared/PaymentReceipt";
+import { LoadingComponent } from "../../components/spinner/LoadingComponent";
+import {
+  getAppointmentById,
+  partialUpdateAppointment,
+} from "../../services/appointmentService";
+import type { PaymentResponse } from "../../types/PaymentResponse";
+import { formatDateLong } from "../../utils/dateFormatter";
 
 /** appointmentStatusId that corresponds to "Pagada" */
 const PAID_STATUS_ID = 1;
@@ -19,13 +22,16 @@ const PAID_STATUS_ID = 1;
  */
 export function OnlinePaymentPage() {
   const [searchParams] = useSearchParams();
-  const appointmentIdParam = searchParams.get('appointmentId');
-  const appointmentId = appointmentIdParam ? parseInt(appointmentIdParam, 10) : NaN;
+  const appointmentIdParam = searchParams.get("appointmentId");
+  const appointmentId = appointmentIdParam
+    ? parseInt(appointmentIdParam, 10)
+    : NaN;
 
-  const [completedPayment, setCompletedPayment] = useState<PaymentResponse | null>(null);
+  const [completedPayment, setCompletedPayment] =
+    useState<PaymentResponse | null>(null);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['appointment', appointmentId],
+    queryKey: ["appointment", appointmentId],
     queryFn: () => getAppointmentById(appointmentId),
     enabled: !isNaN(appointmentId),
   });
@@ -69,13 +75,14 @@ export function OnlinePaymentPage() {
   }
 
   const appointment = data.data;
-  const patientName = appointment.patient?.name ?? `Paciente #${appointment.patientId}`;
-  const specialtyName = appointment.specialty?.name ?? 'Consulta';
-  const branchName = appointment.branch?.name ?? '—';
+  const patientName =
+    appointment.patient?.name ?? `Paciente #${appointment.patientId}`;
+  const specialtyName = appointment.specialty?.name ?? "Consulta";
+  const branchName = appointment.branch?.name ?? "—";
 
   const formattedDate = appointment.appointmentDate
     ? formatDateLong(appointment.appointmentDate)
-    : '—';
+    : "—";
 
   // Show receipt after successful payment
   if (completedPayment) {
@@ -90,10 +97,10 @@ export function OnlinePaymentPage() {
               viewBox="0 0 24 24"
             >
               <path
+                d="M5 13l4 4L19 7"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M5 13l4 4L19 7"
               />
             </svg>
           </div>
@@ -104,10 +111,10 @@ export function OnlinePaymentPage() {
         </div>
 
         <PaymentReceipt
-          payment={completedPayment}
-          patientName={patientName}
-          serviceDetail={`${specialtyName} — ${formattedDate}`}
           branchName={branchName}
+          patientName={patientName}
+          payment={completedPayment}
+          serviceDetail={`${specialtyName} — ${formattedDate}`}
         />
       </div>
     );
@@ -119,7 +126,9 @@ export function OnlinePaymentPage() {
 
       {/* Payment summary */}
       <div className="rounded-lg border border-gray-200 bg-white p-5 mb-6 shadow-sm">
-        <h2 className="text-base font-semibold text-gray-700 mb-3">Resumen de la cita</h2>
+        <h2 className="text-base font-semibold text-gray-700 mb-3">
+          Resumen de la cita
+        </h2>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
             <dt className="font-medium text-gray-500">Paciente</dt>

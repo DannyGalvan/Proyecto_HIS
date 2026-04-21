@@ -16,11 +16,15 @@ interface AppointmentStatusBadgeProps {
  * Renders a colored badge for an appointment status.
  * Defaults to gray styling when the status is not in the color map.
  */
-export function AppointmentStatusBadge({ statusName }: AppointmentStatusBadgeProps) {
+export function AppointmentStatusBadge({
+  statusName,
+}: AppointmentStatusBadgeProps) {
   const colorClass = STATUS_COLORS[statusName] ?? "bg-gray-100 text-gray-800";
 
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}>
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}
+    >
       {statusName || "—"}
     </span>
   );

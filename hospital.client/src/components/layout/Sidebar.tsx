@@ -2,9 +2,9 @@
 import { Button, Tooltip } from "@heroui/react";
 import { useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { LogoHIS } from "../brand/LogoHIS";
 import { nameRoutes } from "../../configs/constants";
 import { useAuth } from "../../hooks/useAuth";
+import { LogoHIS } from "../brand/LogoHIS";
 import { SubMenu } from "../links/SubMenu";
 
 interface SidebarProps {

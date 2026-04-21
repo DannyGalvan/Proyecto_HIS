@@ -23,7 +23,9 @@ export function LabOrderPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-center mb-4">Órdenes de Laboratorio</h1>
+      <h1 className="text-2xl font-bold text-center mb-4">
+        Órdenes de Laboratorio
+      </h1>
       <TableServer
         hasFilters
         columns={LabOrderResponseColumns}

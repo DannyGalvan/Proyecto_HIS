@@ -10,7 +10,13 @@ export function LaboratoryPage() {
 
   const queryFn = useCallback(
     async (filters: string, page: number, pageSize: number) => {
-      return getLaboratories({ pageNumber: page, pageSize, filters, include: "", includeTotal: false });
+      return getLaboratories({
+        pageNumber: page,
+        pageSize,
+        filters,
+        include: "",
+        includeTotal: false,
+      });
     },
     [],
   );

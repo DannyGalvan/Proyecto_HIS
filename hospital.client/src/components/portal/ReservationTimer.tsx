@@ -1,19 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
-import { api } from '../../configs/axios/interceptors';
-import type { AppointmentRequest } from '../../types/AppointmentResponse';
-import type { ApiResponse } from '../../types/ApiResponse';
+import { useEffect, useRef, useState } from "react";
+import { api } from "../../configs/axios/interceptors";
+import type { ApiResponse } from "../../types/ApiResponse";
+import type { AppointmentRequest } from "../../types/AppointmentResponse";
 
 interface ReservationTimerProps {
-  appointmentId: number;
-  createdAt: string; // ISO string
-  onExpired: () => void;
+  readonly appointmentId: number;
+  readonly createdAt: string; // ISO string
+  readonly onExpired: () => void;
 }
 
 const RESERVATION_SECONDS = 300; // 5 minutes
 
 /** Calculate remaining seconds based on createdAt timestamp. */
 const calcRemaining = (createdAt: string): number => {
-  const elapsed = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
+  const elapsed = Math.floor(
+    (Date.now() - new Date(createdAt).getTime()) / 1000,
+  );
   return Math.max(0, RESERVATION_SECONDS - elapsed);
 };
 
@@ -21,25 +23,34 @@ const calcRemaining = (createdAt: string): number => {
 const formatTime = (seconds: number): string => {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
 /** Cancel the appointment via PATCH /api/v1/Appointment */
 const cancelAppointment = async (appointmentId: number): Promise<void> => {
   try {
-    await api.patch<unknown, ApiResponse<unknown>, AppointmentRequest>('Appointment', {
-      id: appointmentId,
-      // appointmentStatusId will be resolved by the backend to "Cancelada"
-      // We send state=0 to mark it as inactive / cancelled
-      state: 0,
-    });
+    await api.patch<unknown, ApiResponse<unknown>, AppointmentRequest>(
+      "Appointment",
+      {
+        id: appointmentId,
+        // appointmentStatusId will be resolved by the backend to "Cancelada"
+        // We send state=0 to mark it as inactive / cancelled
+        state: 0,
+      },
+    );
   } catch {
     // Best-effort cancellation — the backend also enforces the 5-minute window
   }
 };
 
-export function ReservationTimer({ appointmentId, createdAt, onExpired }: ReservationTimerProps) {
-  const [remaining, setRemaining] = useState<number>(() => calcRemaining(createdAt));
+export function ReservationTimer({
+  appointmentId,
+  createdAt,
+  onExpired,
+}: ReservationTimerProps) {
+  const [remaining, setRemaining] = useState<number>(() =>
+    calcRemaining(createdAt),
+  );
   const expiredRef = useRef(false);
   const onExpiredRef = useRef(onExpired);
 
@@ -55,12 +66,12 @@ export function ReservationTimer({ appointmentId, createdAt, onExpired }: Reserv
         e.preventDefault();
         // Modern browsers show a generic message; setting returnValue is required for legacy support
         e.returnValue =
-          'Tienes una reserva activa. Si sales ahora, tu cita será cancelada. ¿Deseas continuar?';
+          "Tienes una reserva activa. Si sales ahora, tu cita será cancelada. ¿Deseas continuar?";
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
   // Countdown interval
@@ -87,7 +98,7 @@ export function ReservationTimer({ appointmentId, createdAt, onExpired }: Reserv
   }, [appointmentId, createdAt]);
 
   const isUrgent = remaining < 60;
-  const colorClass = isUrgent ? 'text-red-600' : 'text-yellow-600';
+  const colorClass = isUrgent ? "text-red-600" : "text-yellow-600";
 
   return (
     <div
@@ -97,16 +108,17 @@ export function ReservationTimer({ appointmentId, createdAt, onExpired }: Reserv
       role="timer"
     >
       <span className="text-sm font-medium text-gray-600">
-        Tiene 5 minutos para confirmar su cita. El horario seleccionado está reservado temporalmente.
+        Tiene 5 minutos para confirmar su cita. El horario seleccionado está
+        reservado temporalmente.
       </span>
       <span className={`text-3xl font-bold tabular-nums ${colorClass}`}>
         {formatTime(remaining)}
       </span>
-      {isUrgent && remaining > 0 && (
+      {isUrgent && remaining > 0 ? (
         <span className="text-xs font-medium text-red-500">
           ¡Menos de 1 minuto! Completa el pago ahora.
         </span>
-      )}
+      ) : null}
       {remaining <= 0 && (
         <span className="text-sm font-medium text-red-600">
           La reserva ha expirado.

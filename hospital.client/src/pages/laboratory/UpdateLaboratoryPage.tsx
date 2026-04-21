@@ -4,7 +4,10 @@ import { useCallback } from "react";
 import { useParams } from "react-router";
 import { LaboratoryForm } from "../../components/form/LaboratoryForm";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
-import { getLaboratoryById, updateLaboratory } from "../../services/laboratoryService";
+import {
+  getLaboratoryById,
+  updateLaboratory,
+} from "../../services/laboratoryService";
 import type { LaboratoryRequest } from "../../types/LaboratoryResponse";
 import { validationFailureToString } from "../../utils/converted";
 
@@ -20,10 +23,17 @@ export function UpdateLaboratoryPage() {
   const onSubmit = useCallback(
     async (form: LaboratoryRequest) => {
       const response = await updateLaboratory(form);
-      if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
+      if (!response.success) {
+        toast.danger(
+          `${response.message} ${validationFailureToString(response.data)}`,
+        );
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["laboratories"] });
       await client.invalidateQueries({ queryKey: ["laboratoryToUpdate", id] });
-      toast.success(`El registro ${form.name} ha sido actualizado correctamente.`);
+      toast.success(
+        `El registro ${form.name} ha sido actualizado correctamente.`,
+      );
       return response;
     },
     [client, id],
@@ -34,9 +44,15 @@ export function UpdateLaboratoryPage() {
   return (
     <div>
       {data?.success ? (
-        <LaboratoryForm initialForm={data.data} type="edit" onSubmit={onSubmit} />
+        <LaboratoryForm
+          initialForm={data.data}
+          type="edit"
+          onSubmit={onSubmit}
+        />
       ) : (
-        <div>Error: {error instanceof Error ? error.message : "Error desconocido"}</div>
+        <div>
+          Error: {error instanceof Error ? error.message : "Error desconocido"}
+        </div>
       )}
     </div>
   );

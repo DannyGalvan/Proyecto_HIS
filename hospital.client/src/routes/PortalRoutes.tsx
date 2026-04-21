@@ -1,26 +1,30 @@
 import type { RouteObject } from "react-router";
 import { Navigate } from "react-router";
 
-import ProtectedPatient from "./middlewares/ProtectedPatient";
-import { PortalPage } from "../pages/portal/PortalPage";
-import { PortalLoginPage } from "../pages/portal/PortalLoginPage";
-import { PortalRegisterPage } from "../pages/portal/PortalRegisterPage";
-import { PatientDashboardPage } from "../pages/portal/PatientDashboardPage";
-import { BookAppointmentPage } from "../pages/portal/BookAppointmentPage";
-import { PortalPaymentPage } from "../pages/portal/PortalPaymentPage";
-import { ConfirmationPage } from "../pages/portal/ConfirmationPage";
-import { MyAppointmentsPage } from "../pages/portal/MyAppointmentsPage";
-import { ProfilePage } from "../pages/portal/ProfilePage";
-import { PortalChangePasswordPage } from "../pages/portal/PortalChangePasswordPage";
+import { nameRoutes } from "../configs/constants";
 import { PortalForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { PortalResetPasswordPage } from "../pages/auth/ResetPasswordPage";
+import { BookAppointmentPage } from "../pages/portal/BookAppointmentPage";
+import { ConfirmationPage } from "../pages/portal/ConfirmationPage";
+import { MyAppointmentsPage } from "../pages/portal/MyAppointmentsPage";
+import { PatientDashboardPage } from "../pages/portal/PatientDashboardPage";
+import { PortalChangePasswordPage } from "../pages/portal/PortalChangePasswordPage";
+import { PortalLoginPage } from "../pages/portal/PortalLoginPage";
+import { PortalPage } from "../pages/portal/PortalPage";
+import { PortalPaymentPage } from "../pages/portal/PortalPaymentPage";
+import { PortalRegisterPage } from "../pages/portal/PortalRegisterPage";
+import { ProfilePage } from "../pages/portal/ProfilePage";
 import { usePatientAuthStore } from "../stores/usePatientAuthStore";
-import { nameRoutes } from "../configs/constants";
+import ProtectedPatient from "./middlewares/ProtectedPatient";
 
 // Redirect already-logged-in patients away from login/register
 function GuestOnlyRoute({ children }: { readonly children: React.ReactNode }) {
   const { isLoggedIn } = usePatientAuthStore();
-  return isLoggedIn ? <Navigate to={nameRoutes.portalDashboard} replace /> : <>{children}</>;
+  return isLoggedIn ? (
+    <Navigate replace to={nameRoutes.portalDashboard} />
+  ) : (
+    <>{children}</>
+  );
 }
 
 export const PortalRoutes: RouteObject[] = [

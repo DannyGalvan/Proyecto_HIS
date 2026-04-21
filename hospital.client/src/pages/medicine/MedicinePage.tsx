@@ -10,7 +10,13 @@ export function MedicinePage() {
 
   const queryFn = useCallback(
     async (filters: string, page: number, pageSize: number) => {
-      return getMedicines({ pageNumber: page, pageSize, filters, include: "", includeTotal: false });
+      return getMedicines({
+        pageNumber: page,
+        pageSize,
+        filters,
+        include: "",
+        includeTotal: false,
+      });
     },
     [],
   );

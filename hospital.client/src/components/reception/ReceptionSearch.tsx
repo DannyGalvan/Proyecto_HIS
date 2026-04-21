@@ -1,9 +1,8 @@
+import { Button, toast } from "@heroui/react";
 import { useState } from "react";
-import { Button } from "@heroui/react";
-import { toast } from "@heroui/react";
 
 interface ReceptionSearchProps {
-  onSearch: (query: string, type: "dpi" | "id") => void;
+  readonly onSearch: (query: string, type: "dpi" | "id") => void;
 }
 
 export function ReceptionSearch({ onSearch }: ReceptionSearchProps) {
@@ -24,23 +23,23 @@ export function ReceptionSearch({ onSearch }: ReceptionSearchProps) {
       <form className="flex flex-col md:flex-row gap-3" onSubmit={handleSubmit}>
         <div className="flex gap-2">
           <button
-            type="button"
             className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-colors ${
               searchType === "dpi"
                 ? "bg-blue-600 text-white border-blue-600"
                 : "bg-white text-gray-600 border-gray-300"
             }`}
+            type="button"
             onClick={() => setSearchType("dpi")}
           >
             Por DPI
           </button>
           <button
-            type="button"
             className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-colors ${
               searchType === "id"
                 ? "bg-blue-600 text-white border-blue-600"
                 : "bg-white text-gray-600 border-gray-300"
             }`}
+            type="button"
             onClick={() => setSearchType("id")}
           >
             Por No. Cita
@@ -57,7 +56,7 @@ export function ReceptionSearch({ onSearch }: ReceptionSearchProps) {
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
         />
-        <Button type="submit" variant="primary" className="px-6">
+        <Button className="px-6" type="submit" variant="primary">
           <i className="bi bi-search mr-2" /> Buscar
         </Button>
       </form>

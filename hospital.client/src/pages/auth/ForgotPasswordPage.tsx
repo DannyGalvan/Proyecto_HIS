@@ -1,4 +1,4 @@
-import { useState, useCallback, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { z } from "zod";
 
@@ -6,7 +6,10 @@ import { nameRoutes } from "../../configs/constants";
 import { recoveryPassword } from "../../services/authService";
 
 const emailSchema = z.object({
-  email: z.string().min(1, "El correo es requerido").email("Ingrese un correo válido"),
+  email: z
+    .string()
+    .min(1, "El correo es requerido")
+    .email("Ingrese un correo válido"),
 });
 
 interface ForgotPasswordPageProps {
@@ -14,7 +17,9 @@ interface ForgotPasswordPageProps {
   readonly loginRoute?: string;
 }
 
-export function ForgotPasswordPage({ loginRoute = nameRoutes.login }: ForgotPasswordPageProps) {
+export function ForgotPasswordPage({
+  loginRoute = nameRoutes.login,
+}: ForgotPasswordPageProps) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +46,9 @@ export function ForgotPasswordPage({ loginRoute = nameRoutes.login }: ForgotPass
           setSent(true);
         }
       } catch {
-        setError("No se pudo conectar con el servidor. Intente de nuevo más tarde.");
+        setError(
+          "No se pudo conectar con el servidor. Intente de nuevo más tarde.",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -63,21 +70,23 @@ export function ForgotPasswordPage({ loginRoute = nameRoutes.login }: ForgotPass
             Recuperar Contraseña
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
-            Ingrese su correo electrónico y le enviaremos un enlace para restablecer su contraseña.
+            Ingrese su correo electrónico y le enviaremos un enlace para
+            restablecer su contraseña.
           </p>
 
           {sent ? (
             <div className="text-center">
               <div className="mb-4 p-4 bg-green-50 border border-green-300 rounded-xl text-green-800 text-sm dark:bg-green-900/20 dark:border-green-700 dark:text-green-300">
                 <i className="bi bi-check-circle-fill mr-2" />
-                Si el correo está registrado, recibirá un enlace de recuperación. Revise su bandeja de entrada y la carpeta de spam.
+                Si el correo está registrado, recibirá un enlace de
+                recuperación. Revise su bandeja de entrada y la carpeta de spam.
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 El enlace es válido por 15 minutos.
               </p>
               <Link
-                to={loginRoute}
                 className="text-sm font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 underline"
+                to={loginRoute}
               >
                 <i className="bi bi-arrow-left mr-1" />
                 Volver al inicio de sesión
@@ -85,26 +94,36 @@ export function ForgotPasswordPage({ loginRoute = nameRoutes.login }: ForgotPass
             </div>
           ) : (
             <>
-              {error && (
+              {error ? (
                 <div className="mb-4 p-4 bg-red-50 border border-red-300 rounded-xl text-red-800 text-sm flex items-start gap-2 dark:bg-red-900/20 dark:border-red-700 dark:text-red-300">
                   <i className="bi bi-exclamation-triangle-fill mt-0.5 shrink-0" />
                   <span>{error}</span>
                 </div>
-              )}
+              ) : null}
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+              <form
+                noValidate
+                className="flex flex-col gap-4"
+                onSubmit={handleSubmit}
+              >
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="recovery-email" className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                  <label
+                    className="text-sm font-bold text-gray-700 dark:text-gray-300"
+                    htmlFor="recovery-email"
+                  >
                     Correo Electrónico *
                   </label>
                   <input
-                    id="recovery-email"
                     autoComplete="email"
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+                    id="recovery-email"
                     placeholder="usuario@dominio.com"
                     type="email"
                     value={email}
-                    onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError("");
+                    }}
                   />
                 </div>
 
@@ -129,8 +148,8 @@ export function ForgotPasswordPage({ loginRoute = nameRoutes.login }: ForgotPass
 
               <div className="text-center mt-6">
                 <Link
-                  to={loginRoute}
                   className="text-sm text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+                  to={loginRoute}
                 >
                   <i className="bi bi-arrow-left mr-1" />
                   Volver al inicio de sesión

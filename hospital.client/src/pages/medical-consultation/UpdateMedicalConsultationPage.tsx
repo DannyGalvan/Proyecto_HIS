@@ -4,7 +4,10 @@ import { useCallback } from "react";
 import { useParams } from "react-router";
 import { MedicalConsultationForm } from "../../components/form/MedicalConsultationForm";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
-import { getMedicalConsultationById, updateMedicalConsultation } from "../../services/medicalConsultationService";
+import {
+  getMedicalConsultationById,
+  updateMedicalConsultation,
+} from "../../services/medicalConsultationService";
 import type { MedicalConsultationRequest } from "../../types/MedicalConsultationResponse";
 import { validationFailureToString } from "../../utils/converted";
 
@@ -22,14 +25,25 @@ export function UpdateMedicalConsultationPage() {
       form.updatedBy = null;
       form.createdBy = null;
       const response = await updateMedicalConsultation(form);
-      if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
+      if (!response.success) {
+        toast.danger(
+          `${response.message} ${validationFailureToString(response.data)}`,
+        );
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["medical-consultations"] });
-      await client.invalidateQueries({ queryKey: ["consultationToUpdate", id] });
+      await client.invalidateQueries({
+        queryKey: ["consultationToUpdate", id],
+      });
       await client.invalidateQueries({ queryKey: ["doctor-appointments"] });
       if (form.consultationStatus === 1) {
-        toast.success("La consulta ha sido finalizada exitosamente. El paciente puede proceder a las siguientes indicaciones médicas.");
+        toast.success(
+          "La consulta ha sido finalizada exitosamente. El paciente puede proceder a las siguientes indicaciones médicas.",
+        );
       } else {
-        toast.success("Consulta médica actualizada correctamente. Los cambios han sido guardados.");
+        toast.success(
+          "Consulta médica actualizada correctamente. Los cambios han sido guardados.",
+        );
       }
       return response;
     },
@@ -43,14 +57,16 @@ export function UpdateMedicalConsultationPage() {
       {data?.success ? (
         <MedicalConsultationForm
           fromDoctorDashboard
+          doctorName={data.data.doctor?.name}
           initialForm={data.data}
           patientName={undefined}
-          doctorName={data.data.doctor?.name}
           type="edit"
           onSubmit={onSubmit}
         />
       ) : (
-        <div>Error: {error instanceof Error ? error.message : "Error desconocido"}</div>
+        <div>
+          Error: {error instanceof Error ? error.message : "Error desconocido"}
+        </div>
       )}
     </div>
   );

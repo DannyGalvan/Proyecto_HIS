@@ -1,14 +1,23 @@
 import { Form, Input, Label, TextField } from "@heroui/react";
 import { useMutation } from "@tanstack/react-query";
-import { useCallback, useMemo, useRef, useState, type ChangeEvent } from "react";
-import { AsyncButton } from "../button/AsyncButton";
-import { CatalogueSelect } from "../select/CatalogueSelect";
-import { Response } from "../messages/Response";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from "react";
+import type { MultiValue, SingleValue } from "react-select";
 import { getLabExams } from "../../services/labExamService";
-import { createLabOrder, createLabOrderItem } from "../../services/labOrderService";
+import {
+  createLabOrder,
+  createLabOrderItem,
+} from "../../services/labOrderService";
 import type { LabExamResponse } from "../../types/LabExamResponse";
 import type { LabOrderRequest } from "../../types/LabOrderResponse";
-import type { MultiValue, SingleValue } from "react-select";
+import { AsyncButton } from "../button/AsyncButton";
+import { Response } from "../messages/Response";
+import { CatalogueSelect } from "../select/CatalogueSelect";
 
 interface LabOrderFormProps {
   readonly initialConsultationId?: number | null;
@@ -43,7 +52,14 @@ const newItemRow = (): LabOrderItemRow => ({
   defaultAmount: null,
 });
 
-export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPatientId, fromDoctorDashboard = false, patientName, onSuccess }: LabOrderFormProps) {
+export function LabOrderForm({
+  initialConsultationId,
+  initialDoctorId,
+  initialPatientId,
+  fromDoctorDashboard = false,
+  patientName,
+  onSuccess,
+}: LabOrderFormProps) {
   const [form, setForm] = useState<LabOrderFormState>({
     consultationId: initialConsultationId ?? null,
     doctorId: initialDoctorId ?? null,
@@ -66,17 +82,23 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
   );
 
   // ── Field handlers ──────────────────────────────────────────────────────────
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : type === "number"
-          ? value === "" ? null : Number(value)
-          : value,
-    }));
-  }, []);
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value, type } = e.target as HTMLInputElement;
+      setForm((prev) => ({
+        ...prev,
+        [name]:
+          type === "checkbox"
+            ? (e.target as HTMLInputElement).checked
+            : type === "number"
+              ? value === ""
+                ? null
+                : Number(value)
+              : value,
+      }));
+    },
+    [],
+  );
 
   // ── Item handlers ───────────────────────────────────────────────────────────
   const addItem = useCallback(() => {
@@ -88,40 +110,48 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
   }, []);
 
   const updateItemExam = useCallback(
-    (id: string) => (opt: SingleValue<{ label: string; value: string }> | MultiValue<{ label: string; value: string }> | null) => {
-      if (opt && !Array.isArray(opt) && "value" in opt) {
-        const examId = Number(opt.value);
-        const cachedExam = examCacheRef.current.get(examId);
-        const defaultAmount = cachedExam?.defaultAmount ?? null;
-        const examName = cachedExam?.name ?? opt.label;
-        setItems((prev) =>
-          prev.map((item) =>
-            item.id === id
-              ? { ...item, labExamId: examId, examName, defaultAmount }
-              : item,
-          ),
-        );
-      } else {
-        setItems((prev) =>
-          prev.map((item) =>
-            item.id === id
-              ? { ...item, labExamId: null, examName: "", defaultAmount: null }
-              : item,
-          ),
-        );
-      }
-    },
+    (id: string) =>
+      (
+        opt:
+          | SingleValue<{ label: string; value: string }>
+          | MultiValue<{ label: string; value: string }>
+          | null,
+      ) => {
+        if (opt && !Array.isArray(opt) && "value" in opt) {
+          const examId = Number(opt.value);
+          const cachedExam = examCacheRef.current.get(examId);
+          const defaultAmount = cachedExam?.defaultAmount ?? null;
+          const examName = cachedExam?.name ?? opt.label;
+          setItems((prev) =>
+            prev.map((item) =>
+              item.id === id
+                ? { ...item, labExamId: examId, examName, defaultAmount }
+                : item,
+            ),
+          );
+        } else {
+          setItems((prev) =>
+            prev.map((item) =>
+              item.id === id
+                ? {
+                    ...item,
+                    labExamId: null,
+                    examName: "",
+                    defaultAmount: null,
+                  }
+                : item,
+            ),
+          );
+        }
+      },
     [],
   );
 
-  const selectorLabExam = useCallback(
-    (item: LabExamResponse) => {
-      // Cache the full exam data for price lookup
-      examCacheRef.current.set(item.id, item);
-      return { label: item.name, value: String(item.id) };
-    },
-    [],
-  );
+  const selectorLabExam = useCallback((item: LabExamResponse) => {
+    // Cache the full exam data for price lookup
+    examCacheRef.current.set(item.id, item);
+    return { label: item.name, value: String(item.id) };
+  }, []);
 
   // ── Mutations ───────────────────────────────────────────────────────────────
   const { mutateAsync: doCreateOrder, isPending } = useMutation({
@@ -186,7 +216,9 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
 
       const examCount = items.length;
       const totalFormatted = formatCurrency(totalAmount);
-      setSubmitSuccess(`Orden de laboratorio creada exitosamente. ${examCount} examen(es) registrado(s). Costo total estimado: ${totalFormatted}.`);
+      setSubmitSuccess(
+        `Orden de laboratorio creada exitosamente. ${examCount} examen(es) registrado(s). Costo total estimado: ${totalFormatted}.`,
+      );
       onSuccess?.(labOrderId);
     },
     [form, items, doCreateOrder, onSuccess],
@@ -194,19 +226,21 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-2">Nueva Orden de Laboratorio</h1>
+      <h1 className="text-2xl font-bold text-center mb-2">
+        Nueva Orden de Laboratorio
+      </h1>
 
-      {fromDoctorDashboard && patientName && (
+      {fromDoctorDashboard && patientName ? (
         <div className="mb-4 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-center dark:bg-blue-900/20 dark:border-blue-700">
           <p className="text-sm text-blue-700 dark:text-blue-300">
             <i className="bi bi-flask mr-2" />
             Orden para: <strong>{patientName}</strong>
           </p>
         </div>
-      )}
+      ) : null}
 
-      {submitError && <Response message={submitError} type={false} />}
-      {submitSuccess && <Response message={submitSuccess} type={true} />}
+      {submitError ? <Response message={submitError} type={false} /> : null}
+      {submitSuccess ? <Response type message={submitSuccess} /> : null}
 
       <Form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         {/* ── Header fields ── */}
@@ -215,16 +249,44 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
           {!fromDoctorDashboard && (
             <>
               <TextField className="flex flex-col gap-1" name="consultationId">
-                <Label className="font-bold text-sm">ID de Consulta (opcional)</Label>
-                <Input className="px-3 py-2 border rounded-md" name="consultationId" type="number" value={form.consultationId?.toString() ?? ""} onChange={handleChange} />
+                <Label className="font-bold text-sm">
+                  ID de Consulta (opcional)
+                </Label>
+                <Input
+                  className="px-3 py-2 border rounded-md"
+                  name="consultationId"
+                  type="number"
+                  value={form.consultationId?.toString() ?? ""}
+                  onChange={handleChange}
+                />
               </TextField>
-              <TextField isRequired className="flex flex-col gap-1" name="doctorId">
+              <TextField
+                isRequired
+                className="flex flex-col gap-1"
+                name="doctorId"
+              >
                 <Label className="font-bold text-sm">ID del Médico *</Label>
-                <Input className="px-3 py-2 border rounded-md" name="doctorId" type="number" value={form.doctorId?.toString() ?? ""} onChange={handleChange} />
+                <Input
+                  className="px-3 py-2 border rounded-md"
+                  name="doctorId"
+                  type="number"
+                  value={form.doctorId?.toString() ?? ""}
+                  onChange={handleChange}
+                />
               </TextField>
-              <TextField isRequired className="flex flex-col gap-1" name="patientId">
+              <TextField
+                isRequired
+                className="flex flex-col gap-1"
+                name="patientId"
+              >
                 <Label className="font-bold text-sm">ID del Paciente *</Label>
-                <Input className="px-3 py-2 border rounded-md" name="patientId" type="number" value={form.patientId?.toString() ?? ""} onChange={handleChange} />
+                <Input
+                  className="px-3 py-2 border rounded-md"
+                  name="patientId"
+                  type="number"
+                  value={form.patientId?.toString() ?? ""}
+                  onChange={handleChange}
+                />
               </TextField>
             </>
           )}
@@ -247,7 +309,10 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
               type="checkbox"
               onChange={handleChange}
             />
-            <label className="font-bold text-sm cursor-pointer" htmlFor="isExternal">
+            <label
+              className="font-bold text-sm cursor-pointer"
+              htmlFor="isExternal"
+            >
               Orden Externa
             </label>
           </div>
@@ -315,7 +380,8 @@ export function LabOrderForm({ initialConsultationId, initialDoctorId, initialPa
                     <span className="px-3 py-2 text-sm text-gray-400">—</span>
                   ) : !item.defaultAmount ? (
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-yellow-100 text-yellow-800">
-                      <i className="bi bi-exclamation-triangle" /> Precio no configurado
+                      <i className="bi bi-exclamation-triangle" /> Precio no
+                      configurado
                     </span>
                   ) : (
                     <span className="px-3 py-2 text-sm font-semibold text-green-700 dark:text-green-400">

@@ -7,7 +7,9 @@ interface MedicineControlledBadgeProps {
  * Renders a warning badge when a medicine is classified as controlled.
  * Returns null when isControlled is false.
  */
-export function MedicineControlledBadge({ isControlled }: MedicineControlledBadgeProps) {
+export function MedicineControlledBadge({
+  isControlled,
+}: MedicineControlledBadgeProps) {
   if (!isControlled) {
     return null;
   }

@@ -4,22 +4,26 @@ interface LogoHISProps {
   readonly className?: string;
 }
 
-export function LogoHIS({ width = "200px", height = "auto", className }: LogoHISProps) {
+export function LogoHIS({
+  width = "200px",
+  height = "auto",
+  className,
+}: LogoHISProps) {
   return (
     <svg
       className={className}
       height={height}
-      width={width}
-      viewBox="0 0 320 100" // Espacio justo para que no flote
-      xmlns="http://www.w3.org/2000/svg"
       preserveAspectRatio="xMidYMid meet"
+      viewBox="0 0 320 100" // Espacio justo para que no flote
+      width={width}
+      xmlns="http://www.w3.org/2000/svg"
     >
       {/* Icono: Usamos currentColor para que herede el color del texto del tema */}
       <g transform="translate(10, 15)">
         <path
+          className="text-blue-600 dark:text-blue-400"
           d="M30 0H40V70H30V0Z M0 30H70V40H0V30Z"
           fill="currentColor"
-          className="text-blue-600 dark:text-blue-400"
         />
         <circle cx="35" cy="5" fill="#00D4FF" r="6" />
         <circle cx="35" cy="65" fill="#00D4FF" r="6" />
@@ -29,13 +33,13 @@ export function LogoHIS({ width = "200px", height = "auto", className }: LogoHIS
 
       {/* Texto: Hereda la fuente y color del sistema */}
       <text
+        className="text-gray-800 dark:text-gray-100"
         fill="currentColor"
         fontFamily="inherit"
         fontSize="48"
         fontWeight="bold"
         x="100"
         y="70"
-        className="text-gray-800 dark:text-gray-100"
       >
         HIS
         <tspan dy="-18" fill="#00D4FF" fontSize="24">

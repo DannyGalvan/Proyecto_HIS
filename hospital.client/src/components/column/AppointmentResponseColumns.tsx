@@ -1,89 +1,95 @@
-import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
-import { AppointmentButton } from "../button/AppointmentButton";
-import { AppointmentStatusBadge } from "../badge/AppointmentStatusBadge";
+import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import { formatDateTime } from "../../utils/dateFormatter";
+import { AppointmentStatusBadge } from "../badge/AppointmentStatusBadge";
+import { AppointmentButton } from "../button/AppointmentButton";
 
-export const AppointmentResponseColumns: TableColumnWithFilters<AppointmentResponse>[] = [
-  {
-    id: "id",
-    name: "ID",
-    selector: (data) => data.id ?? "",
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: true,
-    filterField: (value) => (value ? `Id:eq:${value}` : ""),
-  },
-  {
-    id: "patient",
-    name: "Paciente",
-    selector: (data) => data.patient?.name ?? String(data.patientId),
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: true,
-    filterField: (value) => (value ? `Patient.Name:like:${value}` : ""),
-  },
-  {
-    id: "doctor",
-    name: "Médico",
-    selector: (data) => data.doctor?.name ?? (data.doctorId ? String(data.doctorId) : "—"),
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "specialty",
-    name: "Especialidad",
-    selector: (data) => data.specialty?.name ?? String(data.specialtyId),
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "appointmentDate",
-    name: "Fecha",
-    selector: (data) => formatDateTime(data.appointmentDate),
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "appointmentStatus",
-    name: "Estado",
-    cell: (data) => <AppointmentStatusBadge statusName={data.appointmentStatus?.name ?? ""} />,
-    sortable: false,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "amount",
-    name: "Monto",
-    selector: (data) => `Q${data.amount?.toFixed(2) ?? "0.00"}`,
-    sortable: true,
-    wrap: true,
-    omit: false,
-    hasFilter: false,
-  },
-  {
-    id: "actions",
-    name: "Acciones",
-    maxWidth: "100px",
-    center: true,
-    button: true,
-    cell: (data) => <AppointmentButton data={data} />,
-  },
-  {
-    id: "createdAt",
-    name: "Creado",
-    selector: (data) => formatDateTime(data.createdAt),
-    sortable: true,
-    maxWidth: "160px",
-    omit: true,
-  },
-];
+export const AppointmentResponseColumns: TableColumnWithFilters<AppointmentResponse>[] =
+  [
+    {
+      id: "id",
+      name: "ID",
+      selector: (data) => data.id ?? "",
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: true,
+      filterField: (value) => (value ? `Id:eq:${value}` : ""),
+    },
+    {
+      id: "patient",
+      name: "Paciente",
+      selector: (data) => data.patient?.name ?? String(data.patientId),
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: true,
+      filterField: (value) => (value ? `Patient.Name:like:${value}` : ""),
+    },
+    {
+      id: "doctor",
+      name: "Médico",
+      selector: (data) =>
+        data.doctor?.name ?? (data.doctorId ? String(data.doctorId) : "—"),
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "specialty",
+      name: "Especialidad",
+      selector: (data) => data.specialty?.name ?? String(data.specialtyId),
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "appointmentDate",
+      name: "Fecha",
+      selector: (data) => formatDateTime(data.appointmentDate),
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "appointmentStatus",
+      name: "Estado",
+      cell: (data) => (
+        <AppointmentStatusBadge
+          statusName={data.appointmentStatus?.name ?? ""}
+        />
+      ),
+      sortable: false,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "amount",
+      name: "Monto",
+      selector: (data) => `Q${data.amount?.toFixed(2) ?? "0.00"}`,
+      sortable: true,
+      wrap: true,
+      omit: false,
+      hasFilter: false,
+    },
+    {
+      id: "actions",
+      name: "Acciones",
+      maxWidth: "100px",
+      center: true,
+      button: true,
+      cell: (data) => <AppointmentButton data={data} />,
+    },
+    {
+      id: "createdAt",
+      name: "Creado",
+      selector: (data) => formatDateTime(data.createdAt),
+      sortable: true,
+      maxWidth: "160px",
+      omit: true,
+    },
+  ];

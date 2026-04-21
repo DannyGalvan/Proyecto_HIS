@@ -16,7 +16,11 @@ import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
 import type { BranchResponse } from "../../types/BranchResponse";
 import type { DoctorResponse } from "../../types/PatientPortalTypes";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
-import { formatDateLong, formatLocalDateTime, formatTime } from "../../utils/dateFormatter";
+import {
+  formatDateLong,
+  formatLocalDateTime,
+  formatTime,
+} from "../../utils/dateFormatter";
 
 // Constants
 const CONSULTATION_FEE = 150.0;
@@ -442,23 +446,30 @@ function Step5Confirm({
       </p>
 
       {/* Reservation timer */}
-      <div className={`mb-4 flex items-center gap-2 rounded-xl border p-3 ${
-        isExpired
-          ? "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/20"
-          : isUrgent
-            ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/10"
-            : "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/10"
-      }`}>
-        <i className={`bi ${isExpired ? "bi-exclamation-triangle-fill" : "bi-clock-history"} text-lg ${
-          isExpired || isUrgent ? "text-red-600" : "text-amber-600"
-        }`} />
+      <div
+        className={`mb-4 flex items-center gap-2 rounded-xl border p-3 ${
+          isExpired
+            ? "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/20"
+            : isUrgent
+              ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/10"
+              : "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/10"
+        }`}
+      >
+        <i
+          className={`bi ${isExpired ? "bi-exclamation-triangle-fill" : "bi-clock-history"} text-lg ${
+            isExpired || isUrgent ? "text-red-600" : "text-amber-600"
+          }`}
+        />
         {isExpired ? (
           <span className="text-sm font-medium text-red-700 dark:text-red-300">
             El tiempo de reserva ha expirado. Debe seleccionar un nuevo horario.
           </span>
         ) : (
-          <span className={`text-sm font-medium ${isUrgent ? "text-red-700 dark:text-red-300" : "text-amber-700 dark:text-amber-300"}`}>
-            Tiempo restante para confirmar: <span className="font-bold tabular-nums">{timerDisplay}</span>
+          <span
+            className={`text-sm font-medium ${isUrgent ? "text-red-700 dark:text-red-300" : "text-amber-700 dark:text-amber-300"}`}
+          >
+            Tiempo restante para confirmar:{" "}
+            <span className="font-bold tabular-nums">{timerDisplay}</span>
           </span>
         )}
       </div>
@@ -602,10 +613,7 @@ export function BookAppointmentPage() {
   const [hubDate, setHubDate] = useState<string | null>(null);
 
   // SignalR hub lives at the page level so the lock persists across wizard steps
-  const hub = useAppointmentHub(
-    wizard.doctor?.id ?? null,
-    hubDate,
-  );
+  const hub = useAppointmentHub(wizard.doctor?.id ?? null, hubDate);
 
   // 5-minute reservation timer — tracks when step 5 was entered
   const [step5StartedAt, setStep5StartedAt] = useState<number | null>(null);
@@ -635,7 +643,9 @@ export function BookAppointmentPage() {
       if (left <= 0) {
         setTimerExpired(true);
         clearInterval(interval);
-        toast.error("El tiempo de reserva ha expirado. Seleccione un nuevo horario.");
+        toast.error(
+          "El tiempo de reserva ha expirado. Seleccione un nuevo horario.",
+        );
         setWizard((prev) => ({ ...prev, step: 4, appointmentDate: null }));
       }
     }, 1000);
@@ -763,9 +773,9 @@ export function BookAppointmentPage() {
               doctorId={wizard.doctor.id}
               doctorName={wizard.doctor.name}
               hub={hub}
-              onDateChange={setHubDate}
               specialtyName={wizard.specialty.name}
               onBack={() => setWizard((prev) => ({ ...prev, step: 3 }))}
+              onDateChange={setHubDate}
               onSelect={handleSlotSelect}
             />
           ) : null}
@@ -775,6 +785,8 @@ export function BookAppointmentPage() {
           wizard.doctor &&
           wizard.appointmentDate ? (
             <Step5Confirm
+              isExpired={timerExpired}
+              remaining={timerRemaining}
               summary={{
                 branchId: wizard.branch.id,
                 branchName: wizard.branch.name,
@@ -784,8 +796,6 @@ export function BookAppointmentPage() {
                 doctorName: wizard.doctor.name,
                 appointmentDate: wizard.appointmentDate,
               }}
-              remaining={timerRemaining}
-              isExpired={timerExpired}
               onBack={() => setWizard((prev) => ({ ...prev, step: 4 }))}
               onConfirm={handleConfirm}
             />

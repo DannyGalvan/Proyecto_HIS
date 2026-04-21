@@ -20,10 +20,17 @@ export function UpdateBranchPage() {
   const onSubmit = useCallback(
     async (form: BranchRequest) => {
       const response = await updateBranch(form);
-      if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
+      if (!response.success) {
+        toast.danger(
+          `${response.message} ${validationFailureToString(response.data)}`,
+        );
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["branches"] });
       await client.invalidateQueries({ queryKey: ["branchToUpdate", id] });
-      toast.success(`El registro ${form.name} ha sido actualizado correctamente.`);
+      toast.success(
+        `El registro ${form.name} ha sido actualizado correctamente.`,
+      );
       return response;
     },
     [client, id],
@@ -36,7 +43,9 @@ export function UpdateBranchPage() {
       {data?.success ? (
         <BranchForm initialForm={data.data} type="edit" onSubmit={onSubmit} />
       ) : (
-        <div>Error: {error instanceof Error ? error.message : "Error desconocido"}</div>
+        <div>
+          Error: {error instanceof Error ? error.message : "Error desconocido"}
+        </div>
       )}
     </div>
   );

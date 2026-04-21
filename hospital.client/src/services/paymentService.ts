@@ -18,27 +18,41 @@ export const getPayments = async ({
   return api.get<unknown, ApiResponse<PaymentResponse[]>>(baseQuery);
 };
 
-export const getPaymentById = async (id: number): Promise<ApiResponse<PaymentResponse>> =>
+export const getPaymentById = async (
+  id: number,
+): Promise<ApiResponse<PaymentResponse>> =>
   api.get<unknown, ApiResponse<PaymentResponse>>(`Payment/${id}`);
 
-export const createPayment = async (data: PaymentRequest): Promise<ApiResponse<PaymentResponse>> =>
-  api.post<unknown, ApiResponse<PaymentResponse>, PaymentRequest>("Payment", data);
+export const createPayment = async (
+  data: PaymentRequest,
+): Promise<ApiResponse<PaymentResponse>> =>
+  api.post<unknown, ApiResponse<PaymentResponse>, PaymentRequest>(
+    "Payment",
+    data,
+  );
 
-export const updatePayment = async (data: PaymentRequest): Promise<ApiResponse<PaymentResponse>> =>
-  api.put<unknown, ApiResponse<PaymentResponse>, PaymentRequest>("Payment", data);
+export const updatePayment = async (
+  data: PaymentRequest,
+): Promise<ApiResponse<PaymentResponse>> =>
+  api.put<unknown, ApiResponse<PaymentResponse>, PaymentRequest>(
+    "Payment",
+    data,
+  );
 
-export const deletePayment = async (id: number): Promise<ApiResponse<PaymentResponse>> =>
+export const deletePayment = async (
+  id: number,
+): Promise<ApiResponse<PaymentResponse>> =>
   api.delete<unknown, ApiResponse<PaymentResponse>>(`Payment/${id}`);
 
 export const getPendingOrders = async (
   dpi?: string,
-  orderNumber?: string
+  orderNumber?: string,
 ): Promise<ApiResponse<PendingOrderResponse[]>> => {
   const params = new URLSearchParams();
   if (dpi) params.append("dpi", dpi);
   if (orderNumber) params.append("orderNumber", orderNumber);
   const query = params.toString();
   return api.get<unknown, ApiResponse<PendingOrderResponse[]>>(
-    `Payment/PendingOrders${query ? `?${query}` : ""}`
+    `Payment/PendingOrders${query ? `?${query}` : ""}`,
   );
 };

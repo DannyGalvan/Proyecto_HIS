@@ -10,7 +10,13 @@ export function SpecialtyPage() {
 
   const queryFn = useCallback(
     async (filters: string, page: number, pageSize: number) => {
-      return getSpecialties({ pageNumber: page, pageSize, filters, include: "", includeTotal: false });
+      return getSpecialties({
+        pageNumber: page,
+        pageSize,
+        filters,
+        include: "",
+        includeTotal: false,
+      });
     },
     [],
   );

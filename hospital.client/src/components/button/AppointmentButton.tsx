@@ -33,10 +33,14 @@ export function AppointmentButton({ data }: AppointmentButtonProps) {
         await queryClient.invalidateQueries({ queryKey: ["appointments"] });
         setIsDeleteDialogOpen(false);
       } else {
-        toast.danger(`No se pudo eliminar: ${response.message} ${validationFailureToString(response.data)}`);
+        toast.danger(
+          `No se pudo eliminar: ${response.message} ${validationFailureToString(response.data)}`,
+        );
       }
     } catch (error) {
-      toast.danger(`Error: ${error instanceof Error ? error.message : "Error desconocido"}`);
+      toast.danger(
+        `Error: ${error instanceof Error ? error.message : "Error desconocido"}`,
+      );
     } finally {
       setIsDeleting(false);
     }
@@ -56,10 +60,18 @@ export function AppointmentButton({ data }: AppointmentButtonProps) {
         </Dropdown.Trigger>
         <Dropdown.Popover>
           <Dropdown.Menu aria-label="Acciones de cita">
-            <Dropdown.Item key="view" className="text-primary hover:text-white" onClick={handleView}>
+            <Dropdown.Item
+              key="view"
+              className="text-primary hover:text-white"
+              onClick={handleView}
+            >
               Ver Detalle
             </Dropdown.Item>
-            <Dropdown.Item key="delete" className="text-danger hover:text-white" onClick={handleDeleteClick}>
+            <Dropdown.Item
+              key="delete"
+              className="text-danger hover:text-white"
+              onClick={handleDeleteClick}
+            >
               Eliminar
             </Dropdown.Item>
           </Dropdown.Menu>

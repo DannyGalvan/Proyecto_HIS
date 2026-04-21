@@ -1,23 +1,26 @@
 import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router";
 import type { SingleValue } from "react-select";
-import { AsyncButton } from "../button/AsyncButton";
-import { CountdownTimer } from "../shared/CountdownTimer";
-import { StepForm } from "../shared/StepForm";
 import { useReservationTimer } from "../../hooks/useReservationTimer";
 import { getBranches } from "../../services/branchService";
 import { getSpecialties } from "../../services/specialtyService";
 import { getUsers } from "../../services/userService";
-import { formatDateTimeLong } from "../../utils/dateFormatter";
 import type { ApiResponse } from "../../types/ApiResponse";
-import type { AppointmentRequest, AppointmentResponse } from "../../types/AppointmentResponse";
+import type {
+  AppointmentRequest,
+  AppointmentResponse,
+} from "../../types/AppointmentResponse";
 import type { BranchResponse } from "../../types/BranchResponse";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
 import type { UserResponse } from "../../types/UserResponse";
 import type { ValidationFailure } from "../../types/ValidationFailure";
+import { formatDateTimeLong } from "../../utils/dateFormatter";
+import { AsyncButton } from "../button/AsyncButton";
 import { Response } from "../messages/Response";
-import { CatalogueSelect } from "../select/CatalogueSelect";
 import { DynamicCalendar } from "../portal/DynamicCalendar";
+import { CatalogueSelect } from "../select/CatalogueSelect";
+import { CountdownTimer } from "../shared/CountdownTimer";
+import { StepForm } from "../shared/StepForm";
 
 // ─── Edit-mode imports (kept for the simple single-step edit flow) ───────────
 import { FieldError, Form, Input, Label, TextField } from "@heroui/react";
@@ -34,7 +37,9 @@ import { OptionsSelect, type OptionValue } from "../select/OptionsSelect";
 interface AppointmentFormProps {
   readonly type: "create" | "edit";
   readonly initialForm: AppointmentRequest;
-  readonly onSubmit: (form: AppointmentRequest) => Promise<ApiResponse<unknown | ValidationFailure[]>>;
+  readonly onSubmit: (
+    form: AppointmentRequest,
+  ) => Promise<ApiResponse<unknown | ValidationFailure[]>>;
   readonly onSuccess?: (appointmentId: number) => void;
 }
 
@@ -86,14 +91,20 @@ const initialCreateState: CreateFormState = {
 // ─── Confirmation step (step 4) ──────────────────────────────────────────────
 
 interface ConfirmationStepProps {
-  state: CreateFormState;
-  onExpiry: () => void;
-  onSubmit: () => Promise<void>;
-  loading: boolean;
-  submitError: string | null;
+  readonly state: CreateFormState;
+  readonly onExpiry: () => void;
+  readonly onSubmit: () => Promise<void>;
+  readonly loading: boolean;
+  readonly submitError: string | null;
 }
 
-function ConfirmationStep({ state, onExpiry, onSubmit, loading, submitError }: ConfirmationStepProps) {
+function ConfirmationStep({
+  state,
+  onExpiry,
+  onSubmit,
+  loading,
+  submitError,
+}: ConfirmationStepProps) {
   const { remaining, isExpired } = useReservationTimer(5, onExpiry);
 
   if (isExpired) {
@@ -121,19 +132,21 @@ function ConfirmationStep({ state, onExpiry, onSubmit, loading, submitError }: C
         <SummaryRow label="Médico" value={state.doctorLabel} />
         <SummaryRow
           label="Fecha y hora"
-          value={state.appointmentDate
-            ? formatDateTimeLong(state.appointmentDate)
-            : "—"}
+          value={
+            state.appointmentDate
+              ? formatDateTimeLong(state.appointmentDate)
+              : "—"
+          }
         />
         <SummaryRow label="Motivo" value={state.reason} />
-        {state.document && (
+        {state.document ? (
           <SummaryRow label="Documento" value={state.document.name} />
-        )}
+        ) : null}
       </div>
 
-      {submitError && (
+      {submitError ? (
         <p className="text-red-600 text-sm text-center">{submitError}</p>
-      )}
+      ) : null}
 
       <div className="flex justify-end">
         <AsyncButton
@@ -152,7 +165,13 @@ function ConfirmationStep({ state, onExpiry, onSubmit, loading, submitError }: C
   );
 }
 
-function SummaryRow({ label, value }: { label: string; value: string }) {
+function SummaryRow({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: string;
+}) {
   return (
     <div className="flex gap-2 text-sm">
       <span className="font-medium text-gray-600 min-w-[120px]">{label}:</span>
@@ -164,18 +183,25 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 // ─── Multi-step create form ───────────────────────────────────────────────────
 
 interface MultiStepCreateFormProps {
-  initialForm: AppointmentRequest;
-  onSubmit: (form: AppointmentRequest) => Promise<ApiResponse<unknown | ValidationFailure[]>>;
-  onSuccess?: (appointmentId: number) => void;
+  readonly initialForm: AppointmentRequest;
+  readonly onSubmit: (
+    form: AppointmentRequest,
+  ) => Promise<ApiResponse<unknown | ValidationFailure[]>>;
+  readonly onSuccess?: (appointmentId: number) => void;
 }
 
-function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCreateFormProps) {
+function MultiStepCreateForm({
+  initialForm,
+  onSubmit,
+  onSuccess,
+}: MultiStepCreateFormProps) {
   const [searchParams] = useSearchParams();
   const followUp = searchParams.get("followUp") === "true";
   const parentConsultationId = searchParams.get("parentConsultationId");
 
   const [step, setStep] = useState(0);
-  const [formState, setFormState] = useState<CreateFormState>(initialCreateState);
+  const [formState, setFormState] =
+    useState<CreateFormState>(initialCreateState);
   const [stepErrors, setStepErrors] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -195,7 +221,10 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
   );
 
   const selectorUser = useCallback(
-    (item: UserResponse) => ({ label: `${item.name} (${item.userName})`, value: String(item.id) }),
+    (item: UserResponse) => ({
+      label: `${item.name} (${item.userName})`,
+      value: String(item.id),
+    }),
     [],
   );
 
@@ -208,14 +237,17 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
     }
     if (currentStep === 1) {
       if (!formState.doctorId) return "Debe seleccionar un médico.";
-      if (!formState.appointmentDate) return "Debe seleccionar una fecha y hora.";
+      if (!formState.appointmentDate)
+        return "Debe seleccionar una fecha y hora.";
       if (new Date(formState.appointmentDate) <= new Date()) {
         return "La fecha de la cita debe ser en el futuro.";
       }
     }
     if (currentStep === 2) {
-      if (formState.reason.length < 10) return "El motivo debe tener al menos 10 caracteres.";
-      if (formState.reason.length > 2000) return "El motivo no debe exceder 2000 caracteres.";
+      if (formState.reason.length < 10)
+        return "El motivo debe tener al menos 10 caracteres.";
+      if (formState.reason.length > 2000)
+        return "El motivo no debe exceder 2000 caracteres.";
       if (formState.documentError) return formState.documentError;
     }
     return null;
@@ -259,7 +291,9 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
       reason: formState.reason,
       ...(followUp && {
         followUpType: 1,
-        parentConsultationId: parentConsultationId ? Number(parentConsultationId) : null,
+        parentConsultationId: parentConsultationId
+          ? Number(parentConsultationId)
+          : null,
       }),
     };
 
@@ -375,7 +409,8 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
             {formState.doctorId ? (
               <div className="flex flex-col gap-2">
                 <label className="text-default-500 text-xs ms-1 font-medium">
-                  Fecha y Hora de la Cita <span className="text-danger font-bold ml-1">*</span>
+                  Fecha y Hora de la Cita{" "}
+                  <span className="text-danger font-bold ml-1">*</span>
                 </label>
                 <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                   <DynamicCalendar
@@ -388,13 +423,13 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
                     }}
                   />
                 </div>
-                {formState.appointmentDate && (
+                {formState.appointmentDate ? (
                   <p className="text-sm text-green-600 font-medium ms-1">
                     <i className="bi bi-check-circle mr-1" />
                     Horario seleccionado:{" "}
                     {formatDateTimeLong(formState.appointmentDate)}
                   </p>
-                )}
+                ) : null}
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-400 dark:border-gray-600 dark:bg-gray-800/50">
@@ -409,7 +444,10 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
         {step === 2 && (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-default-500 text-xs ms-1 font-medium" htmlFor="reason">
+              <label
+                className="text-default-500 text-xs ms-1 font-medium"
+                htmlFor="reason"
+              >
                 Motivo de Consulta (10–2000 caracteres){" "}
                 <span className="text-danger font-bold ml-1">*</span>
               </label>
@@ -430,7 +468,10 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-default-500 text-xs ms-1 font-medium" htmlFor="document">
+              <label
+                className="text-default-500 text-xs ms-1 font-medium"
+                htmlFor="document"
+              >
                 Documento de referencia (PDF, máx. 2MB — opcional)
               </label>
               <input
@@ -457,9 +498,11 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
                   }
                 }}
               />
-              {formState.documentError && (
-                <p className="text-danger text-sm ms-1">{formState.documentError}</p>
-              )}
+              {formState.documentError ? (
+                <p className="text-danger text-sm ms-1">
+                  {formState.documentError}
+                </p>
+              ) : null}
             </div>
           </div>
         )}
@@ -477,9 +520,9 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
       </StepForm>
 
       {/* Per-step validation error */}
-      {stepErrors && step < 3 && (
+      {stepErrors && step < 3 ? (
         <p className="mt-3 text-center text-sm text-red-600">{stepErrors}</p>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -487,19 +530,35 @@ function MultiStepCreateForm({ initialForm, onSubmit, onSuccess }: MultiStepCrea
 // ─── Edit-mode form (unchanged single-step) ───────────────────────────────────
 
 interface EditFormProps {
-  initialForm: AppointmentRequest;
-  onSubmit: (form: AppointmentRequest) => Promise<ApiResponse<unknown | ValidationFailure[]>>;
+  readonly initialForm: AppointmentRequest;
+  readonly onSubmit: (
+    form: AppointmentRequest,
+  ) => Promise<ApiResponse<unknown | ValidationFailure[]>>;
 }
 
 function EditForm({ initialForm, onSubmit }: EditFormProps) {
   const navigate = useNavigate();
 
-  const { form, errors, handleChange, handleSubmit, success, message, loading } =
-    useForm<AppointmentRequest, unknown>(initialForm, validateAppointment, onSubmit, true);
+  const {
+    form,
+    errors,
+    handleChange,
+    handleSubmit,
+    success,
+    message,
+    loading,
+  } = useForm<AppointmentRequest, unknown>(
+    initialForm,
+    validateAppointment,
+    onSubmit,
+    true,
+  );
 
   const handleTextChange = useCallbackEdit(
     (name: string) => (val: string) => {
-      handleChange({ target: { name, value: val } } as unknown as ChangeEvent<HTMLInputElement>);
+      handleChange({
+        target: { name, value: val },
+      } as unknown as ChangeEvent<HTMLInputElement>);
     },
     [handleChange],
   );
@@ -507,7 +566,9 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
   const handleSelectChange = useCallbackEdit(
     (name: string) => (opt: OptionValue) => {
       const option = opt as SingleValue<{ label: string; value: string }>;
-      handleChange({ target: { name, value: option?.value || "" } } as React.ChangeEvent<HTMLInputElement>);
+      handleChange({
+        target: { name, value: option?.value || "" },
+      } as React.ChangeEvent<HTMLInputElement>);
     },
     [handleChange],
   );
@@ -518,13 +579,18 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
         newValue && !Array.isArray(newValue) && "value" in newValue
           ? Number((newValue as { value: string }).value)
           : null;
-      handleChange({ target: { name: "state", value } } as unknown as ChangeEvent<HTMLInputElement>);
+      handleChange({
+        target: { name: "state", value },
+      } as unknown as ChangeEvent<HTMLInputElement>);
     },
     [handleChange],
   );
 
   const selectorUser = useCallbackEdit(
-    (item: UserResponse) => ({ label: `${item.name} (${item.userName})`, value: String(item.id) }),
+    (item: UserResponse) => ({
+      label: `${item.name} (${item.userName})`,
+      value: String(item.id),
+    }),
     [],
   );
 
@@ -539,7 +605,10 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
   );
 
   const selectorStatus = useCallbackEdit(
-    (item: AppointmentStatusResponse) => ({ label: item.name, value: String(item.id) }),
+    (item: AppointmentStatusResponse) => ({
+      label: item.name,
+      value: String(item.id),
+    }),
     [],
   );
 
@@ -547,13 +616,20 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold text-center mb-6">Editar Cita</h1>
       {success != null && <Response message={message} type={success} />}
-      <Form className="flex flex-col gap-4" validationErrors={errors} onSubmit={handleSubmit}>
+      <Form
+        className="flex flex-col gap-4"
+        validationErrors={errors}
+        onSubmit={handleSubmit}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <CatalogueSelect
             isRequired
             defaultValue={
               form.patientId
-                ? { label: String(form.patientId), value: String(form.patientId) }
+                ? {
+                    label: String(form.patientId),
+                    value: String(form.patientId),
+                  }
                 : null
             }
             deps="State:eq:1"
@@ -589,7 +665,10 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
             isRequired
             defaultValue={
               form.specialtyId
-                ? { label: String(form.specialtyId), value: String(form.specialtyId) }
+                ? {
+                    label: String(form.specialtyId),
+                    value: String(form.specialtyId),
+                  }
                 : null
             }
             deps="State:eq:1"
@@ -666,13 +745,17 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
             name="reason"
             onChange={handleTextChange("reason")}
           >
-            <Label className="font-bold">Motivo de Consulta (10–2000 caracteres)</Label>
+            <Label className="font-bold">
+              Motivo de Consulta (10–2000 caracteres)
+            </Label>
             <Input
               className="w-full px-3 py-2 border rounded-md"
               type="text"
               value={form.reason || ""}
             />
-            {errors?.reason ? <FieldError>{errors.reason as string}</FieldError> : null}
+            {errors?.reason ? (
+              <FieldError>{errors.reason as string}</FieldError>
+            ) : null}
           </TextField>
           <TextField
             className="w-full flex flex-col gap-1 md:col-span-2"
@@ -686,13 +769,18 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
               type="text"
               value={form.notes || ""}
             />
-            {errors?.notes ? <FieldError>{errors.notes as string}</FieldError> : null}
+            {errors?.notes ? (
+              <FieldError>{errors.notes as string}</FieldError>
+            ) : null}
           </TextField>
           <OptionsSelect
             isRequired
             defaultValue={
               form.state !== null && form.state !== undefined
-                ? { label: form.state === 1 ? "Activo" : "Inactivo", value: String(form.state) }
+                ? {
+                    label: form.state === 1 ? "Activo" : "Inactivo",
+                    value: String(form.state),
+                  }
                 : { label: "Activo", value: "1" }
             }
             errorMessage={errors?.state as string}
@@ -736,9 +824,20 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
 
 // ─── Public export ────────────────────────────────────────────────────────────
 
-export function AppointmentForm({ type, initialForm, onSubmit, onSuccess }: AppointmentFormProps) {
+export function AppointmentForm({
+  type,
+  initialForm,
+  onSubmit,
+  onSuccess,
+}: AppointmentFormProps) {
   if (type === "edit") {
     return <EditForm initialForm={initialForm} onSubmit={onSubmit} />;
   }
-  return <MultiStepCreateForm initialForm={initialForm} onSubmit={onSubmit} onSuccess={onSuccess} />;
+  return (
+    <MultiStepCreateForm
+      initialForm={initialForm}
+      onSubmit={onSubmit}
+      onSuccess={onSuccess}
+    />
+  );
 }

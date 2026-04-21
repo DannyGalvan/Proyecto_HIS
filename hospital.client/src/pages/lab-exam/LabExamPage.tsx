@@ -10,14 +10,22 @@ export function LabExamPage() {
 
   const queryFn = useCallback(
     async (filters: string, page: number, pageSize: number) => {
-      return getLabExams({ pageNumber: page, pageSize, filters, include: "Laboratory", includeTotal: false });
+      return getLabExams({
+        pageNumber: page,
+        pageSize,
+        filters,
+        include: "Laboratory",
+        includeTotal: false,
+      });
     },
     [],
   );
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-center mb-4">Exámenes de Laboratorio</h1>
+      <h1 className="text-2xl font-bold text-center mb-4">
+        Exámenes de Laboratorio
+      </h1>
       <TableServer
         hasFilters
         columns={LabExamResponseColumns}

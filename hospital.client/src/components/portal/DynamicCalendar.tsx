@@ -1,17 +1,17 @@
-import { useCallback, useState } from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
-import type { UseAppointmentHubReturn } from '../../hooks/useAppointmentHub';
-import { getDoctorAvailability } from '../../services/patientPortalService';
-import { formatDateLong } from '../../utils/dateFormatter';
+import { useCallback, useState } from "react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import type { UseAppointmentHubReturn } from "../../hooks/useAppointmentHub";
+import { getDoctorAvailability } from "../../services/patientPortalService";
+import { formatDateLong } from "../../utils/dateFormatter";
 
 interface DynamicCalendarProps {
-  doctorId: number;
-  onSlotSelected: (dateTime: Date) => void;
+  readonly doctorId: number;
+  readonly onSlotSelected: (dateTime: Date) => void;
   /** Optional SignalR hub state — when provided, enables real-time slot blocking */
-  hub?: UseAppointmentHubReturn;
+  readonly hub?: UseAppointmentHubReturn;
   /** The currently selected date (controlled from parent for hub group management) */
-  onDateChange?: (date: string | null) => void;
+  readonly onDateChange?: (date: string | null) => void;
 }
 
 /**
@@ -46,26 +46,31 @@ const generateSlots = (date: Date): Date[] => {
 /** Format a Date as "yyyy-MM-dd" for the API call. */
 const formatDateForApi = (date: Date): string => {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
 /** Format a Date as "HH:MM" for display. */
 const formatTime = (date: Date): string => {
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
   return `${hours}:${minutes}`;
 };
 
-export function DynamicCalendar({ doctorId, onSlotSelected, hub, onDateChange }: DynamicCalendarProps) {
+export function DynamicCalendar({
+  doctorId,
+  onSlotSelected,
+  hub,
+  onDateChange,
+}: DynamicCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
 
   // Use hub state from props (or fallback to empty defaults if not provided)
-  const connectionState = hub?.connectionState ?? 'disconnected';
+  const connectionState = hub?.connectionState ?? "disconnected";
   const lockedSlots = hub?.lockedSlots ?? new Map();
   const confirmedSlots = hub?.confirmedSlots ?? new Set();
   const myLockedSlot = hub?.myLockedSlot ?? null;
@@ -126,31 +131,33 @@ export function DynamicCalendar({ doctorId, onSlotSelected, hub, onDateChange }:
       </div>
 
       {/* Slot grid */}
-      {selectedDate && (
+      {selectedDate ? (
         <div className="mt-2">
           <h3 className="mb-2 font-semibold text-gray-700">
-            Horarios disponibles para el{' '}
+            Horarios disponibles para el{" "}
             {formatDateLong(selectedDate.toISOString())}
           </h3>
 
           {/* Connection state indicator */}
-          {connectionState === 'reconnecting' && (
+          {connectionState === "reconnecting" && (
             <div className="text-sm text-amber-600">Reconectando...</div>
           )}
-          {connectionState === 'disconnected' && selectedDate && (
+          {connectionState === "disconnected" && selectedDate ? (
             <div className="text-sm text-red-500">
               Desconectado — los horarios pueden no estar actualizados
             </div>
-          )}
+          ) : null}
 
           {/* Hub error */}
-          {hubError && (
+          {hubError ? (
             <div className="text-sm text-red-500">{hubError}</div>
-          )}
+          ) : null}
 
           {loading ? (
             <div className="flex items-center justify-center py-6">
-              <span className="text-sm text-gray-500">Cargando disponibilidad...</span>
+              <span className="text-sm text-gray-500">
+                Cargando disponibilidad...
+              </span>
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
@@ -165,19 +172,18 @@ export function DynamicCalendar({ doctorId, onSlotSelected, hub, onDateChange }:
                   isPast || occupied || isLockedByOther || isConfirmed;
 
                 let buttonClass =
-                  'rounded px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ';
+                  "rounded px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ";
 
                 if (isSelected) {
-                  buttonClass += 'bg-blue-600 text-white focus:ring-blue-500';
+                  buttonClass += "bg-blue-600 text-white focus:ring-blue-500";
                 } else if (isLockedByOther) {
                   buttonClass +=
-                    'cursor-not-allowed bg-amber-100 text-amber-600';
+                    "cursor-not-allowed bg-amber-100 text-amber-600";
                 } else if (isPast || occupied || isConfirmed) {
-                  buttonClass +=
-                    'cursor-not-allowed bg-gray-100 text-gray-400';
+                  buttonClass += "cursor-not-allowed bg-gray-100 text-gray-400";
                 } else {
                   buttonClass +=
-                    'bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500';
+                    "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500";
                 }
 
                 return (
@@ -185,37 +191,37 @@ export function DynamicCalendar({ doctorId, onSlotSelected, hub, onDateChange }:
                     key={slot.toISOString()}
                     aria-label={`Slot ${time}${
                       isLockedByOther
-                        ? ' - reservado temporalmente por otro paciente'
+                        ? " - reservado temporalmente por otro paciente"
                         : occupied || isConfirmed
-                          ? ' - ocupado'
+                          ? " - ocupado"
                           : isPast
-                            ? ' - pasado'
-                            : ' - disponible'
+                            ? " - pasado"
+                            : " - disponible"
                     }`}
                     aria-pressed={isSelected}
                     className={buttonClass}
                     disabled={disabled}
                     title={
                       isLockedByOther
-                        ? 'Reservado temporalmente por otro paciente'
+                        ? "Reservado temporalmente por otro paciente"
                         : undefined
                     }
                     type="button"
                     onClick={() => void handleSlotClick(slot)}
                   >
                     {time}
-                    {isLockedByOther && (
+                    {isLockedByOther ? (
                       <span className="sr-only">
                         Reservado temporalmente por otro paciente
                       </span>
-                    )}
+                    ) : null}
                   </button>
                 );
               })}
             </div>
           )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 
 import { LogoHIS } from "../../components/brand/LogoHIS";
@@ -40,7 +40,9 @@ export function Component() {
         // Block patients from admin panel
         const roleName = getRoleFromToken(auth.token);
         if (roleName === "Paciente") {
-          setApiError("Este acceso es exclusivo para personal del hospital. Si es paciente, use el portal de pacientes.");
+          setApiError(
+            "Este acceso es exclusivo para personal del hospital. Si es paciente, use el portal de pacientes.",
+          );
           return;
         }
 
@@ -56,7 +58,9 @@ export function Component() {
           timezoneIanaId: auth.timezoneIanaId || "America/Guatemala",
         });
       } catch {
-        setApiError("No se pudo conectar con el servidor. Intente de nuevo más tarde.");
+        setApiError(
+          "No se pudo conectar con el servidor. Intente de nuevo más tarde.",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -98,53 +102,76 @@ export function Component() {
               Acceso exclusivo para personal del hospital
             </p>
 
-            {apiError && (
+            {apiError ? (
               <div className="mb-4 p-4 rounded-xl text-sm flex items-start gap-2 bg-amber-50 border border-amber-300 text-amber-800 dark:bg-amber-900/20 dark:border-amber-700 dark:text-amber-300">
                 <i className="bi bi-exclamation-triangle-fill mt-0.5 shrink-0" />
                 <span>{apiError}</span>
               </div>
-            )}
+            ) : null}
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+            <form
+              noValidate
+              className="flex flex-col gap-4"
+              onSubmit={handleSubmit}
+            >
               {/* Username */}
               <div className="flex flex-col gap-1">
-                <label htmlFor="admin-username" className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                <label
+                  className="text-sm font-bold text-gray-700 dark:text-gray-300"
+                  htmlFor="admin-username"
+                >
                   Nombre de usuario *
                 </label>
                 <input
-                  id="admin-username"
                   autoComplete="username"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+                  id="admin-username"
                   placeholder="Ingrese su usuario"
                   type="text"
                   value={form.userName}
-                  onChange={(e) => { setForm((prev) => ({ ...prev, userName: e.target.value })); setApiError(""); }}
+                  onChange={(e) => {
+                    setForm((prev) => ({ ...prev, userName: e.target.value }));
+                    setApiError("");
+                  }}
                 />
               </div>
 
               {/* Password */}
               <div className="flex flex-col gap-1">
-                <label htmlFor="admin-password" className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                <label
+                  className="text-sm font-bold text-gray-700 dark:text-gray-300"
+                  htmlFor="admin-password"
+                >
                   Contraseña *
                 </label>
                 <div className="relative">
                   <input
-                    id="admin-password"
                     autoComplete="current-password"
                     className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+                    id="admin-password"
                     placeholder="Ingrese su contraseña"
                     type={showPassword ? "text" : "password"}
                     value={form.password}
-                    onChange={(e) => { setForm((prev) => ({ ...prev, password: e.target.value })); setApiError(""); }}
+                    onChange={(e) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        password: e.target.value,
+                      }));
+                      setApiError("");
+                    }}
                   />
                   <button
-                    type="button"
-                    tabIndex={-1}
+                    aria-label={
+                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    tabIndex={-1}
+                    type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                   >
-                    <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-lg`} />
+                    <i
+                      className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-lg`}
+                    />
                   </button>
                 </div>
               </div>

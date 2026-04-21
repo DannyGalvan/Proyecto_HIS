@@ -1,8 +1,8 @@
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { UserResponse } from "../../types/UserResponse";
+import { formatDateTime } from "../../utils/dateFormatter";
 import { maskCardNumber } from "../../utils/maskCardNumber";
 import { UserButton } from "../button/UserButton";
-import { formatDateTime } from "../../utils/dateFormatter";
 
 export const UserResponseColumns: TableColumnWithFilters<UserResponse>[] = [
   {
@@ -63,7 +63,8 @@ export const UserResponseColumns: TableColumnWithFilters<UserResponse>[] = [
     wrap: true,
     omit: true,
     hasFilter: true,
-    filterField: (value) => (value ? `IdentificationDocument:like:${value}` : ""),
+    filterField: (value) =>
+      value ? `IdentificationDocument:like:${value}` : "",
   },
   {
     id: "number",

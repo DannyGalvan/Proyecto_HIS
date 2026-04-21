@@ -1,5 +1,5 @@
-import type { PaymentResponse } from '../../types/PaymentResponse';
-import { formatDateTimeLong } from '../../utils/dateFormatter';
+import type { PaymentResponse } from "../../types/PaymentResponse";
+import { formatDateTimeLong } from "../../utils/dateFormatter";
 
 interface PaymentReceiptProps {
   readonly payment: PaymentResponse;
@@ -20,11 +20,11 @@ export function PaymentReceipt({
 }: PaymentReceiptProps) {
   const formattedDate = payment.paymentDate
     ? formatDateTimeLong(payment.paymentDate)
-    : '—';
+    : "—";
 
-  const formattedAmount = new Intl.NumberFormat('es-GT', {
-    style: 'currency',
-    currency: 'GTQ',
+  const formattedAmount = new Intl.NumberFormat("es-GT", {
+    style: "currency",
+    currency: "GTQ",
   }).format(payment.amount);
 
   return (
@@ -41,7 +41,9 @@ export function PaymentReceipt({
       <dl className="space-y-2 text-sm">
         <div className="flex justify-between">
           <dt className="font-medium text-gray-600">N° Transacción</dt>
-          <dd className="font-mono text-gray-800">{payment.transactionNumber}</dd>
+          <dd className="font-mono text-gray-800">
+            {payment.transactionNumber}
+          </dd>
         </div>
 
         <div className="flex justify-between">
@@ -51,7 +53,9 @@ export function PaymentReceipt({
 
         <div className="flex justify-between">
           <dt className="font-medium text-gray-600">Servicio</dt>
-          <dd className="text-gray-800 text-right max-w-[60%]">{serviceDetail}</dd>
+          <dd className="text-gray-800 text-right max-w-[60%]">
+            {serviceDetail}
+          </dd>
         </div>
 
         <div className="flex justify-between">
@@ -77,9 +81,9 @@ export function PaymentReceipt({
       {/* Print button — hidden when printing */}
       <div className="flex justify-center print:hidden">
         <button
+          className="flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
           type="button"
           onClick={() => window.print()}
-          className="flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
         >
           🖨️ Imprimir recibo
         </button>

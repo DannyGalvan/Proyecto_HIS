@@ -35,7 +35,8 @@ function validate(form: ChangePasswordFormData): FieldErrors {
   if (!form.newPassword) {
     errors.newPassword = "La nueva contraseña es requerida";
   } else if (form.newPassword.length < 12) {
-    errors.newPassword = "La nueva contraseña debe tener al menos 12 caracteres";
+    errors.newPassword =
+      "La nueva contraseña debe tener al menos 12 caracteres";
   } else if (form.newPassword === form.currentPassword) {
     errors.newPassword = "La nueva contraseña debe ser diferente a la actual";
   }
@@ -112,12 +113,17 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps) {
           // Map backend validation failures to field errors if present
           if (Array.isArray(response.data)) {
             const backendErrors: FieldErrors = {};
-            for (const failure of (response.data as Array<{ propertyName: string; errorMessage: string }>)) {
+            for (const failure of response.data as Array<{
+              propertyName: string;
+              errorMessage: string;
+            }>) {
               const key = toCamelCase(
                 (failure as { propertyName: string }).propertyName,
               ) as keyof FieldErrors;
               if (key in initialForm) {
-                backendErrors[key] = (failure as { errorMessage: string }).errorMessage;
+                backendErrors[key] = (
+                  failure as { errorMessage: string }
+                ).errorMessage;
               }
             }
             if (Object.keys(backendErrors).length > 0) {
@@ -127,7 +133,9 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps) {
         }
       } catch {
         setSuccess(false);
-        setMessage("No se pudo conectar con el servidor. Intente de nuevo más tarde.");
+        setMessage(
+          "No se pudo conectar con el servidor. Intente de nuevo más tarde.",
+        );
       } finally {
         setLoading(false);
       }

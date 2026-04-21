@@ -29,7 +29,9 @@ export function InventoryMovementPage() {
         Bitácora de Movimientos de Inventario
       </h1>
       <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300">
-        📋 Registro de todas las entradas y salidas de medicamentos. Use los filtros para buscar por medicamento, sucursal, tipo de movimiento o usuario.
+        📋 Registro de todas las entradas y salidas de medicamentos. Use los
+        filtros para buscar por medicamento, sucursal, tipo de movimiento o
+        usuario.
       </div>
       <div className="flex justify-end mb-4">
         <Link

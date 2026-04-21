@@ -1,10 +1,10 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 
+import { PaymentForm } from "../../components/portal/PaymentForm";
+import { ReservationTimer } from "../../components/portal/ReservationTimer";
 import { nameRoutes } from "../../configs/constants";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
-import { ReservationTimer } from "../../components/portal/ReservationTimer";
-import { PaymentForm } from "../../components/portal/PaymentForm";
 import type { PaymentConfirmationResponse } from "../../types/PatientPortalTypes";
 import { formatDateLong, formatTime } from "../../utils/dateFormatter";
 
@@ -34,8 +34,15 @@ export function PortalPaymentPage() {
     return null;
   }
 
-  const { appointmentId, createdAt, doctorName, specialtyName, branchName, appointmentDate, amount } =
-    state;
+  const {
+    appointmentId,
+    createdAt,
+    doctorName,
+    specialtyName,
+    branchName,
+    appointmentDate,
+    amount,
+  } = state;
 
   return (
     <PortalPaymentContent
@@ -52,14 +59,14 @@ export function PortalPaymentPage() {
 }
 
 interface PortalPaymentContentProps {
-  appointmentId: number;
-  createdAt: string;
-  doctorName: string;
-  specialtyName: string;
-  branchName: string;
-  appointmentDate: string;
-  amount: number;
-  patientEmail: string;
+  readonly appointmentId: number;
+  readonly createdAt: string;
+  readonly doctorName: string;
+  readonly specialtyName: string;
+  readonly branchName: string;
+  readonly appointmentDate: string;
+  readonly amount: number;
+  readonly patientEmail: string;
 }
 
 function PortalPaymentContent({
@@ -110,13 +117,19 @@ function PortalPaymentContent({
         </div>
 
         {/* Timer expired banner */}
-        {timerExpired && (
+        {timerExpired ? (
           <div className="mb-6 rounded-xl border border-red-300 bg-red-50 p-5 text-center text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300">
             <i className="bi bi-clock-history text-3xl block mb-2" />
-            <p className="font-bold">El tiempo para confirmar su cita ha expirado. El horario seleccionado ha sido liberado.</p>
-            <p className="text-sm mt-1">Por favor, seleccione un nuevo horario. Será redirigido en unos segundos...</p>
+            <p className="font-bold">
+              El tiempo para confirmar su cita ha expirado. El horario
+              seleccionado ha sido liberado.
+            </p>
+            <p className="text-sm mt-1">
+              Por favor, seleccione un nuevo horario. Será redirigido en unos
+              segundos...
+            </p>
           </div>
-        )}
+        ) : null}
 
         {!timerExpired && (
           <div className="flex flex-col gap-6">
@@ -138,15 +151,23 @@ function PortalPaymentContent({
               <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                 <div>
                   <dt className="text-gray-500 dark:text-gray-400">Médico</dt>
-                  <dd className="font-semibold text-gray-800 dark:text-gray-100">{doctorName}</dd>
+                  <dd className="font-semibold text-gray-800 dark:text-gray-100">
+                    {doctorName}
+                  </dd>
                 </div>
                 <div>
-                  <dt className="text-gray-500 dark:text-gray-400">Especialidad</dt>
-                  <dd className="font-semibold text-gray-800 dark:text-gray-100">{specialtyName}</dd>
+                  <dt className="text-gray-500 dark:text-gray-400">
+                    Especialidad
+                  </dt>
+                  <dd className="font-semibold text-gray-800 dark:text-gray-100">
+                    {specialtyName}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-gray-500 dark:text-gray-400">Sucursal</dt>
-                  <dd className="font-semibold text-gray-800 dark:text-gray-100">{branchName}</dd>
+                  <dd className="font-semibold text-gray-800 dark:text-gray-100">
+                    {branchName}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-gray-500 dark:text-gray-400">Fecha</dt>
@@ -161,7 +182,9 @@ function PortalPaymentContent({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-gray-500 dark:text-gray-400">Total a Pagar</dt>
+                  <dt className="text-gray-500 dark:text-gray-400">
+                    Total a Pagar
+                  </dt>
                   <dd className="text-lg font-bold text-blue-700 dark:text-blue-300">
                     Q{amount.toFixed(2)}
                   </dd>
@@ -170,12 +193,12 @@ function PortalPaymentContent({
             </div>
 
             {/* Payment error */}
-            {paymentError && (
+            {paymentError ? (
               <div className="rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300">
                 <i className="bi bi-exclamation-triangle-fill mr-2" />
                 {paymentError}
               </div>
-            )}
+            ) : null}
 
             {/* Payment form */}
             <div className="rounded-2xl border border-gray-100  p-6 shadow-sm dark:border-gray-700 ">

@@ -4,7 +4,10 @@ import { useCallback } from "react";
 import { useParams } from "react-router";
 import { MedicineInventoryForm } from "../../components/form/MedicineInventoryForm";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
-import { getMedicineInventoryById, updateMedicineInventory } from "../../services/medicineService";
+import {
+  getMedicineInventoryById,
+  updateMedicineInventory,
+} from "../../services/medicineService";
 import type { MedicineInventoryRequest } from "../../types/MedicineInventoryResponse";
 import { validationFailureToString } from "../../utils/converted";
 
@@ -20,7 +23,12 @@ export function UpdateMedicineInventoryPage() {
   const onSubmit = useCallback(
     async (form: MedicineInventoryRequest) => {
       const response = await updateMedicineInventory(form);
-      if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
+      if (!response.success) {
+        toast.danger(
+          `${response.message} ${validationFailureToString(response.data)}`,
+        );
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["medicine-inventory"] });
       await client.invalidateQueries({ queryKey: ["inventoryToUpdate", id] });
       toast.success("Inventario actualizado correctamente");
@@ -28,8 +36,14 @@ export function UpdateMedicineInventoryPage() {
       // Alerta de stock bajo
       if (data?.success && data.data.medicine) {
         const minStock = data.data.medicine.minimumStock ?? 0;
-        if (form.currentStock !== null && form.currentStock !== undefined && Number(form.currentStock) <= minStock) {
-          toast.danger(`⚠️ Stock bajo: El medicamento "${data.data.medicine.name}" ha alcanzado el nivel mínimo (${minStock}). Se requiere reorden.`);
+        if (
+          form.currentStock !== null &&
+          form.currentStock !== undefined &&
+          Number(form.currentStock) <= minStock
+        ) {
+          toast.danger(
+            `⚠️ Stock bajo: El medicamento "${data.data.medicine.name}" ha alcanzado el nivel mínimo (${minStock}). Se requiere reorden.`,
+          );
         }
       }
 
@@ -44,13 +58,15 @@ export function UpdateMedicineInventoryPage() {
     <div>
       {data?.success ? (
         <MedicineInventoryForm
+          currentMinimumStock={data.data.medicine?.minimumStock}
           initialForm={data.data}
           type="edit"
-          currentMinimumStock={data.data.medicine?.minimumStock}
           onSubmit={onSubmit}
         />
       ) : (
-        <div>Error: {error instanceof Error ? error.message : "Error desconocido"}</div>
+        <div>
+          Error: {error instanceof Error ? error.message : "Error desconocido"}
+        </div>
       )}
     </div>
   );

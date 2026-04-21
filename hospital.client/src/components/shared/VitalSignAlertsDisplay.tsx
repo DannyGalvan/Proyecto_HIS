@@ -8,7 +8,9 @@ interface VitalSignAlertsDisplayProps {
  * Returns null when there are no alerts.
  * Does NOT prevent form submission.
  */
-export function VitalSignAlertsDisplay({ alerts }: VitalSignAlertsDisplayProps) {
+export function VitalSignAlertsDisplay({
+  alerts,
+}: VitalSignAlertsDisplayProps) {
   if (alerts.length === 0) {
     return null;
   }
@@ -16,7 +18,9 @@ export function VitalSignAlertsDisplay({ alerts }: VitalSignAlertsDisplayProps) 
   return (
     <div className="rounded-md border border-orange-300 bg-orange-50 p-3">
       <div className="flex items-start gap-2">
-        <span className="mt-0.5 text-orange-500" aria-hidden="true">⚠️</span>
+        <span aria-hidden="true" className="mt-0.5 text-orange-500">
+          ⚠️
+        </span>
         <div className="flex-1">
           <p className="text-sm font-semibold text-orange-800 mb-1">
             Alertas de signos vitales

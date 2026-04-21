@@ -1,7 +1,10 @@
 import { api } from "../configs/axios/interceptors";
 import type { ApiResponse } from "../types/ApiResponse";
 import type { filterOptions } from "../types/FilterTypes";
-import type { VitalSignRequest, VitalSignResponse } from "../types/VitalSignResponse";
+import type {
+  VitalSignRequest,
+  VitalSignResponse,
+} from "../types/VitalSignResponse";
 
 export const getVitalSigns = async ({
   pageNumber = 1,
@@ -17,19 +20,35 @@ export const getVitalSigns = async ({
   return api.get<unknown, ApiResponse<VitalSignResponse[]>>(baseQuery);
 };
 
-export const getVitalSignById = async (id: number): Promise<ApiResponse<VitalSignResponse>> =>
+export const getVitalSignById = async (
+  id: number,
+): Promise<ApiResponse<VitalSignResponse>> =>
   api.get<unknown, ApiResponse<VitalSignResponse>>(`VitalSign/${id}`);
 
-export const getVitalSignByAppointment = async (appointmentId: number): Promise<ApiResponse<VitalSignResponse[]>> =>
+export const getVitalSignByAppointment = async (
+  appointmentId: number,
+): Promise<ApiResponse<VitalSignResponse[]>> =>
   api.get<unknown, ApiResponse<VitalSignResponse[]>>(
     `VitalSign?filters=${encodeURIComponent(`AppointmentId:eq:${appointmentId}`)}`,
   );
 
-export const createVitalSign = async (data: VitalSignRequest): Promise<ApiResponse<VitalSignResponse>> =>
-  api.post<unknown, ApiResponse<VitalSignResponse>, VitalSignRequest>("VitalSign", data);
+export const createVitalSign = async (
+  data: VitalSignRequest,
+): Promise<ApiResponse<VitalSignResponse>> =>
+  api.post<unknown, ApiResponse<VitalSignResponse>, VitalSignRequest>(
+    "VitalSign",
+    data,
+  );
 
-export const updateVitalSign = async (data: VitalSignRequest): Promise<ApiResponse<VitalSignResponse>> =>
-  api.put<unknown, ApiResponse<VitalSignResponse>, VitalSignRequest>("VitalSign", data);
+export const updateVitalSign = async (
+  data: VitalSignRequest,
+): Promise<ApiResponse<VitalSignResponse>> =>
+  api.put<unknown, ApiResponse<VitalSignResponse>, VitalSignRequest>(
+    "VitalSign",
+    data,
+  );
 
-export const deleteVitalSign = async (id: number): Promise<ApiResponse<VitalSignResponse>> =>
+export const deleteVitalSign = async (
+  id: number,
+): Promise<ApiResponse<VitalSignResponse>> =>
   api.delete<unknown, ApiResponse<VitalSignResponse>>(`VitalSign/${id}`);

@@ -64,7 +64,10 @@ api.interceptors.request.use((config) => {
       const storedPatient = window.localStorage.getItem("@patient-auth");
       if (storedPatient) {
         try {
-          const parsed = JSON.parse(storedPatient) as { state?: { token?: string }; token?: string };
+          const parsed = JSON.parse(storedPatient) as {
+            state?: { token?: string };
+            token?: string;
+          };
           const token = parsed?.state?.token ?? parsed?.token;
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -95,7 +98,10 @@ api.interceptors.request.use((config) => {
       const storedPatient = window.localStorage.getItem("@patient-auth");
       if (storedPatient) {
         try {
-          const parsed = JSON.parse(storedPatient) as { state?: { token?: string }; token?: string };
+          const parsed = JSON.parse(storedPatient) as {
+            state?: { token?: string };
+            token?: string;
+          };
           const token = parsed?.state?.token ?? parsed?.token;
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;

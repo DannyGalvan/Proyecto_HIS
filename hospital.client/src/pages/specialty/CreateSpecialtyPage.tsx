@@ -13,7 +13,10 @@ export function CreateSpecialtyPage() {
   const onSubmit = useCallback(
     async (form: SpecialtyRequest) => {
       const response = await createSpecialty(form);
-      if (!response.success) { toast.danger(response.message); return response; }
+      if (!response.success) {
+        toast.danger(response.message);
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["specialties"] });
       toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
@@ -21,5 +24,11 @@ export function CreateSpecialtyPage() {
     [client],
   );
 
-  return <SpecialtyForm initialForm={initialData} type="create" onSubmit={onSubmit} />;
+  return (
+    <SpecialtyForm
+      initialForm={initialData}
+      type="create"
+      onSubmit={onSubmit}
+    />
+  );
 }

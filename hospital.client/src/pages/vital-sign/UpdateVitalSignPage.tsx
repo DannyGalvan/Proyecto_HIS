@@ -4,7 +4,10 @@ import { useCallback } from "react";
 import { useParams } from "react-router";
 import { VitalSignForm } from "../../components/form/VitalSignForm";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
-import { getVitalSignById, updateVitalSign } from "../../services/vitalSignService";
+import {
+  getVitalSignById,
+  updateVitalSign,
+} from "../../services/vitalSignService";
 import type { VitalSignRequest } from "../../types/VitalSignResponse";
 import { validationFailureToString } from "../../utils/converted";
 
@@ -20,7 +23,12 @@ export function UpdateVitalSignPage() {
   const onSubmit = useCallback(
     async (form: VitalSignRequest) => {
       const response = await updateVitalSign(form);
-      if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
+      if (!response.success) {
+        toast.danger(
+          `${response.message} ${validationFailureToString(response.data)}`,
+        );
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["vital-signs"] });
       await client.invalidateQueries({ queryKey: ["vitalSignToUpdate", id] });
       toast.success("Signos vitales actualizados correctamente");
@@ -34,9 +42,15 @@ export function UpdateVitalSignPage() {
   return (
     <div>
       {data?.success ? (
-        <VitalSignForm initialForm={data.data} type="edit" onSubmit={onSubmit} />
+        <VitalSignForm
+          initialForm={data.data}
+          type="edit"
+          onSubmit={onSubmit}
+        />
       ) : (
-        <div>Error: {error instanceof Error ? error.message : "Error desconocido"}</div>
+        <div>
+          Error: {error instanceof Error ? error.message : "Error desconocido"}
+        </div>
       )}
     </div>
   );

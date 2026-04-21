@@ -1,7 +1,7 @@
 import type { RolResponse } from "../../types/RolResponse";
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
-import { RolButton } from "../button/RolButton";
 import { formatDateTime } from "../../utils/dateFormatter";
+import { RolButton } from "../button/RolButton";
 
 export const RolResponseColumns: TableColumnWithFilters<RolResponse>[] = [
   {

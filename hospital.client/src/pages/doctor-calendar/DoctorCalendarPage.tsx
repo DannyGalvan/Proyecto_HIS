@@ -1,20 +1,20 @@
+import type { DatesSetArg, EventClickArg } from "@fullcalendar/core";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import FullCalendar from "@fullcalendar/react";
+import timeGridPlugin from "@fullcalendar/timegrid";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import type { EventClickArg, DatesSetArg } from "@fullcalendar/core";
 
 import { nameRoutes } from "../../configs/constants";
 import { useAuth } from "../../hooks/useAuth";
-import { getAppTimezone } from "../../utils/dateFormatter";
 import { getAppointments } from "../../services/appointmentService";
 import { getDoctorEvents } from "../../services/doctorEventService";
 import { getDoctorTasks } from "../../services/doctorTaskService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 import type { DoctorEventResponse } from "../../types/DoctorEventResponse";
 import type { DoctorTaskResponse } from "../../types/DoctorTaskResponse";
+import { getAppTimezone } from "../../utils/dateFormatter";
 
 import { EventModal } from "../../components/modal/EventModal";
 import { TaskModal } from "../../components/modal/TaskModal";
@@ -54,7 +54,9 @@ function parseCalendarDate(dateStr: string | null | undefined): Date | null {
     return isNaN(d.getTime()) ? null : d;
   }
   // Backend format: "dd/MM/yyyy HH:mm:ss"
-  const match = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/);
+  const match = dateStr.match(
+    /^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/,
+  );
   if (match) {
     const [, day, month, year, hour, min, sec] = match;
     return new Date(Date.UTC(+year, +month - 1, +day, +hour, +min, +sec));
@@ -86,7 +88,8 @@ function toLocalCalendarString(utcDate: Date, tz: string): string {
     hour12: false,
   }).formatToParts(utcDate);
 
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  const get = (type: string) =>
+    parts.find((p) => p.type === type)?.value ?? "00";
   return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:${get("second")}`;
 }
 
@@ -106,11 +109,18 @@ export function DoctorCalendarPage() {
   // Modal states
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<DoctorEventResponse | null>(null);
-  const [editingTask, setEditingTask] = useState<DoctorTaskResponse | null>(null);
+  const [editingEvent, setEditingEvent] = useState<DoctorEventResponse | null>(
+    null,
+  );
+  const [editingTask, setEditingTask] = useState<DoctorTaskResponse | null>(
+    null,
+  );
 
   // Date range for current view
-  const [dateRange, setDateRange] = useState<{ start: string; end: string } | null>(null);
+  const [dateRange, setDateRange] = useState<{
+    start: string;
+    end: string;
+  } | null>(null);
 
   const loadData = useCallback(
     async (start: string, end: string) => {
@@ -288,16 +298,16 @@ export function DoctorCalendarPage() {
         <div className="flex flex-wrap gap-2">
           <button
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 text-white text-xs sm:text-sm font-medium hover:bg-purple-700 transition-colors"
-            onClick={handleCreateEvent}
             type="button"
+            onClick={handleCreateEvent}
           >
             <i className="bi bi-calendar-event" />
             <span className="hidden xs:inline">Nuevo</span> Evento
           </button>
           <button
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 text-white text-xs sm:text-sm font-medium hover:bg-orange-600 transition-colors"
-            onClick={handleCreateTask}
             type="button"
+            onClick={handleCreateTask}
           >
             <i className="bi bi-check2-square" />
             <span className="hidden xs:inline">Nueva</span> Tarea
@@ -308,10 +318,12 @@ export function DoctorCalendarPage() {
                 ? "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-gray-200"
                 : "bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400"
             }`}
-            onClick={() => setTaskPanelOpen((prev) => !prev)}
             type="button"
+            onClick={() => setTaskPanelOpen((prev) => !prev)}
           >
-            <i className={`bi ${taskPanelOpen ? "bi-layout-sidebar-reverse" : "bi-list-task"}`} />
+            <i
+              className={`bi ${taskPanelOpen ? "bi-layout-sidebar-reverse" : "bi-list-task"}`}
+            />
             <span className="hidden sm:inline">Tareas</span>
           </button>
         </div>
@@ -321,57 +333,57 @@ export function DoctorCalendarPage() {
       <div className="flex flex-col lg:flex-row flex-1 gap-3 min-h-0">
         {/* Calendar */}
         <div className="flex-1 min-w-0 bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-2 sm:p-4 overflow-auto relative">
-          {loading && (
+          {loading ? (
             <div className="absolute inset-0 bg-white/50 dark:bg-zinc-900/50 z-10 flex items-center justify-center rounded-xl">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600" />
             </div>
-          )}
+          ) : null}
           <FullCalendar
             ref={calendarRef}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            timeZone="local"
-            initialView="timeGridWeek"
-            headerToolbar={{
-              left: "prev,next today",
-              center: "title",
-              right: "timeGridDay,timeGridWeek,dayGridMonth",
-            }}
-            locale="es"
-            firstDay={1}
-            slotMinTime="06:00:00"
-            slotMaxTime="22:00:00"
-            allDaySlot={true}
-            nowIndicator={true}
-            selectable={false}
-            editable={false}
-            events={calendarEvents}
-            datesSet={handleDatesSet}
-            eventClick={handleEventClick}
-            dateClick={handleDateClick}
-            height="auto"
+            allDaySlot
+            nowIndicator
             buttonText={{
               today: "Hoy",
               month: "Mes",
               week: "Semana",
               day: "Día",
             }}
+            dateClick={handleDateClick}
+            datesSet={handleDatesSet}
+            editable={false}
+            eventClick={handleEventClick}
+            events={calendarEvents}
+            firstDay={1}
+            headerToolbar={{
+              left: "prev,next today",
+              center: "title",
+              right: "timeGridDay,timeGridWeek,dayGridMonth",
+            }}
+            height="auto"
+            initialView="timeGridWeek"
+            locale="es"
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            selectable={false}
+            slotMaxTime="22:00:00"
+            slotMinTime="06:00:00"
+            timeZone="local"
           />
         </div>
 
         {/* Task Panel — collapsible */}
-        {taskPanelOpen && (
+        {taskPanelOpen ? (
           <div className="lg:w-80 lg:shrink-0">
             <TaskPanel
-              tasks={tasks}
               selectedDate={selectedDate}
+              tasks={tasks}
               onRefresh={refreshData}
             />
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Event Modal */}
-      {eventModalOpen && (
+      {eventModalOpen ? (
         <EventModal
           event={editingEvent}
           userId={userId}
@@ -381,10 +393,10 @@ export function DoctorCalendarPage() {
           }}
           onSaved={refreshData}
         />
-      )}
+      ) : null}
 
       {/* Task Modal */}
-      {taskModalOpen && (
+      {taskModalOpen ? (
         <TaskModal
           task={editingTask}
           userId={userId}
@@ -394,7 +406,7 @@ export function DoctorCalendarPage() {
           }}
           onSaved={refreshData}
         />
-      )}
+      ) : null}
     </div>
   );
 }

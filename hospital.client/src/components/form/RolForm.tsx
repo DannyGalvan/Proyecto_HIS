@@ -1,18 +1,12 @@
-import {
-  FieldError,
-  Form,
-  Input,
-  Label,
-  TextField,
-} from "@heroui/react";
+import { FieldError, Form, Input, Label, TextField } from "@heroui/react";
 import { useCallback, type ChangeEvent } from "react";
 import { useNavigate } from "react-router";
-import { AsyncButton } from "../button/AsyncButton";
 import { useForm } from "../../hooks/useForm";
 import type { ApiResponse } from "../../types/ApiResponse";
 import type { RolRequest } from "../../types/RolRequest";
 import type { ValidationFailure } from "../../types/ValidationFailure";
 import { validateRol } from "../../validations/rolValidation";
+import { AsyncButton } from "../button/AsyncButton";
 import { Response } from "../messages/Response";
 import { OptionsSelect, type OptionValue } from "../select/OptionsSelect";
 
@@ -38,8 +32,15 @@ export function RolForm({ type, initialForm, onSubmit }: RolFormProps) {
   const isEditing = type === "edit";
   const navigate = useNavigate();
 
-  const { form, errors, handleChange, handleSubmit, success, message, loading } =
-    useForm<RolRequest, unknown>(initialForm, validateRol, onSubmit, true);
+  const {
+    form,
+    errors,
+    handleChange,
+    handleSubmit,
+    success,
+    message,
+    loading,
+  } = useForm<RolRequest, unknown>(initialForm, validateRol, onSubmit, true);
 
   const handleTextChange = useCallback(
     (name: string) => (val: string) => {

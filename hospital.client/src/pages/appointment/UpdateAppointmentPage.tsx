@@ -4,9 +4,12 @@ import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
 import { AppointmentForm } from "../../components/form/AppointmentForm";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
-import { getAppointmentById, updateAppointment } from "../../services/appointmentService";
-import type { AppointmentRequest } from "../../types/AppointmentResponse";
 import { nameRoutes } from "../../configs/constants";
+import {
+  getAppointmentById,
+  updateAppointment,
+} from "../../services/appointmentService";
+import type { AppointmentRequest } from "../../types/AppointmentResponse";
 import { validationFailureToString } from "../../utils/converted";
 
 export function UpdateAppointmentPage() {
@@ -22,7 +25,12 @@ export function UpdateAppointmentPage() {
   const onSubmit = useCallback(
     async (form: AppointmentRequest) => {
       const response = await updateAppointment(form);
-      if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
+      if (!response.success) {
+        toast.danger(
+          `${response.message} ${validationFailureToString(response.data)}`,
+        );
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["appointments"] });
       await client.invalidateQueries({ queryKey: ["appointmentToUpdate", id] });
       toast.success("Cita actualizada correctamente");
@@ -42,17 +50,27 @@ export function UpdateAppointmentPage() {
               <Button
                 size="sm"
                 variant="secondary"
-                onPress={() => navigate(`${nameRoutes.appointmentReassign}?appointmentId=${id}`)}
+                onPress={() =>
+                  navigate(
+                    `${nameRoutes.appointmentReassign}?appointmentId=${id}`,
+                  )
+                }
               >
                 <i className="bi bi-person-check mr-2" />
                 Reasignar Médico
               </Button>
             </div>
           )}
-          <AppointmentForm initialForm={data.data} type="edit" onSubmit={onSubmit} />
+          <AppointmentForm
+            initialForm={data.data}
+            type="edit"
+            onSubmit={onSubmit}
+          />
         </>
       ) : (
-        <div>Error: {error instanceof Error ? error.message : "Error desconocido"}</div>
+        <div>
+          Error: {error instanceof Error ? error.message : "Error desconocido"}
+        </div>
       )}
     </div>
   );

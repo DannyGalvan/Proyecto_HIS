@@ -10,7 +10,13 @@ export function AppointmentStatusPage() {
 
   const queryFn = useCallback(
     async (filters: string, page: number, pageSize: number) => {
-      return getAppointmentStatuses({ pageNumber: page, pageSize, filters, include: "", includeTotal: false });
+      return getAppointmentStatuses({
+        pageNumber: page,
+        pageSize,
+        filters,
+        include: "",
+        includeTotal: false,
+      });
     },
     [],
   );

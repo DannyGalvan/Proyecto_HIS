@@ -9,7 +9,10 @@ interface OutOfRangeAlertProps {
  * Renders a red alert badge when a lab result is out of range.
  * Returns null when the value is within range.
  */
-export function OutOfRangeAlert({ isOutOfRange, referenceRange }: OutOfRangeAlertProps) {
+export function OutOfRangeAlert({
+  isOutOfRange,
+  referenceRange,
+}: OutOfRangeAlertProps) {
   if (!isOutOfRange) {
     return null;
   }
@@ -17,13 +20,17 @@ export function OutOfRangeAlert({ isOutOfRange, referenceRange }: OutOfRangeAler
   return (
     <span
       className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700 border border-red-300"
-      title={referenceRange ? `Los resultados del examen están fuera del rango de referencia (${referenceRange}). Se requiere revisión médica.` : "Los resultados del examen están fuera del rango de referencia. Se requiere revisión médica."}
+      title={
+        referenceRange
+          ? `Los resultados del examen están fuera del rango de referencia (${referenceRange}). Se requiere revisión médica.`
+          : "Los resultados del examen están fuera del rango de referencia. Se requiere revisión médica."
+      }
     >
       <span aria-hidden="true">🔴</span>
       Fuera de rango
-      {referenceRange && (
+      {referenceRange ? (
         <span className="font-normal text-red-600">({referenceRange})</span>
-      )}
+      ) : null}
     </span>
   );
 }

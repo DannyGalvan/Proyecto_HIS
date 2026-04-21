@@ -25,7 +25,9 @@ export function BlockedWithoutContext({
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 p-8 text-center">
       <i className={`bi ${icon} text-6xl text-red-400`} />
-      <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+        {title}
+      </h1>
       <p className="text-gray-500 dark:text-gray-400 max-w-md">{message}</p>
       <button
         className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 transition-colors"

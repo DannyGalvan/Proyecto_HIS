@@ -2,10 +2,11 @@ import { Button, Modal, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import type { SingleValue } from "react-select";
-import { CatalogueSelect } from "../../components/select/CatalogueSelect";
 import { AsyncButton } from "../../components/button/AsyncButton";
+import { CatalogueSelect } from "../../components/select/CatalogueSelect";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { api } from "../../configs/axios/interceptors";
+import { useAuth } from "../../hooks/useAuth";
 import { getBranches } from "../../services/branchService";
 import { getSpecialties } from "../../services/specialtyService";
 import { getUsers } from "../../services/userService";
@@ -14,7 +15,6 @@ import type { BranchResponse } from "../../types/BranchResponse";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
 import type { UserRequest } from "../../types/UserRequest";
 import type { UserResponse } from "../../types/UserResponse";
-import { useAuth } from "../../hooks/useAuth";
 
 interface EditModalState {
   open: boolean;
@@ -28,7 +28,9 @@ export function DoctorManagementPage() {
   const queryClient = useQueryClient();
 
   const [filterBranchId, setFilterBranchId] = useState<number | null>(null);
-  const [filterSpecialtyId, setFilterSpecialtyId] = useState<number | null>(null);
+  const [filterSpecialtyId, setFilterSpecialtyId] = useState<number | null>(
+    null,
+  );
   const [modal, setModal] = useState<EditModalState>({
     open: false,
     doctor: null,
@@ -58,12 +60,20 @@ export function DoctorManagementPage() {
 
   const updateMutation = useMutation({
     mutationFn: (payload: UserRequest) =>
-      api.patch<unknown, ApiResponse<UserResponse>, UserRequest>("User", payload),
+      api.patch<unknown, ApiResponse<UserResponse>, UserRequest>(
+        "User",
+        payload,
+      ),
     onSuccess: (res) => {
       if (res.success) {
         toast.success("Sede/Especialidad actualizada correctamente");
         queryClient.invalidateQueries({ queryKey: ["doctors"] });
-        setModal({ open: false, doctor: null, branchId: null, specialtyId: null });
+        setModal({
+          open: false,
+          doctor: null,
+          branchId: null,
+          specialtyId: null,
+        });
       } else {
         toast.danger(res.message ?? "Error al actualizar");
       }
@@ -147,7 +157,7 @@ export function DoctorManagementPage() {
       </div>
 
       {/* Tabla de médicos */}
-      {isLoading && <LoadingComponent />}
+      {isLoading ? <LoadingComponent /> : null}
 
       {!isLoading && doctors.length === 0 && (
         <div className="text-center py-16 text-gray-400">
@@ -162,23 +172,42 @@ export function DoctorManagementPage() {
             <thead className="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold">Nombre</th>
-                <th className="text-left px-4 py-3 font-semibold">Sede actual</th>
-                <th className="text-left px-4 py-3 font-semibold">Especialidad actual</th>
+                <th className="text-left px-4 py-3 font-semibold">
+                  Sede actual
+                </th>
+                <th className="text-left px-4 py-3 font-semibold">
+                  Especialidad actual
+                </th>
                 <th className="text-left px-4 py-3 font-semibold">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {doctors.map((doctor) => (
-                <tr key={doctor.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                <tr
+                  key={doctor.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700/40"
+                >
                   <td className="px-4 py-3 font-medium">{doctor.name}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                    {doctor.branch?.name ?? <span className="text-orange-500 italic">Sin asignar</span>}
+                    {doctor.branch?.name ?? (
+                      <span className="text-orange-500 italic">
+                        Sin asignar
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                    {doctor.specialty?.name ?? <span className="text-orange-500 italic">Sin asignar</span>}
+                    {doctor.specialty?.name ?? (
+                      <span className="text-orange-500 italic">
+                        Sin asignar
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
-                    <Button size="sm" variant="secondary" onPress={() => openModal(doctor)}>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onPress={() => openModal(doctor)}
+                    >
                       <i className="bi bi-pencil mr-1" />
                       Editar Sede/Especialidad
                     </Button>
@@ -206,7 +235,10 @@ export function DoctorManagementPage() {
                   <CatalogueSelect<BranchResponse>
                     defaultValue={
                       modal.doctor?.branch
-                        ? { label: modal.doctor.branch.name, value: String(modal.doctor.branchId) }
+                        ? {
+                            label: modal.doctor.branch.name,
+                            value: String(modal.doctor.branchId),
+                          }
                         : null
                     }
                     deps="State:eq:1"
@@ -217,14 +249,23 @@ export function DoctorManagementPage() {
                     queryFn={getBranches}
                     selectorFn={selectorBranch}
                     onChange={(opt) => {
-                      const o = opt as SingleValue<{ label: string; value: string }>;
-                      setModal((prev) => ({ ...prev, branchId: o?.value ? Number(o.value) : null }));
+                      const o = opt as SingleValue<{
+                        label: string;
+                        value: string;
+                      }>;
+                      setModal((prev) => ({
+                        ...prev,
+                        branchId: o?.value ? Number(o.value) : null,
+                      }));
                     }}
                   />
                   <CatalogueSelect<SpecialtyResponse>
                     defaultValue={
                       modal.doctor?.specialty
-                        ? { label: modal.doctor.specialty.name, value: String(modal.doctor.specialtyId) }
+                        ? {
+                            label: modal.doctor.specialty.name,
+                            value: String(modal.doctor.specialtyId),
+                          }
                         : null
                     }
                     deps="State:eq:1"
@@ -235,8 +276,14 @@ export function DoctorManagementPage() {
                     queryFn={getSpecialties}
                     selectorFn={selectorSpecialty}
                     onChange={(opt) => {
-                      const o = opt as SingleValue<{ label: string; value: string }>;
-                      setModal((prev) => ({ ...prev, specialtyId: o?.value ? Number(o.value) : null }));
+                      const o = opt as SingleValue<{
+                        label: string;
+                        value: string;
+                      }>;
+                      setModal((prev) => ({
+                        ...prev,
+                        specialtyId: o?.value ? Number(o.value) : null,
+                      }));
                     }}
                   />
                 </div>

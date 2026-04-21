@@ -10,7 +10,13 @@ export function VitalSignPage() {
 
   const queryFn = useCallback(
     async (filters: string, page: number, pageSize: number) => {
-      return getVitalSigns({ pageNumber: page, pageSize, filters, include: "", includeTotal: false });
+      return getVitalSigns({
+        pageNumber: page,
+        pageSize,
+        filters,
+        include: "",
+        includeTotal: false,
+      });
     },
     [],
   );

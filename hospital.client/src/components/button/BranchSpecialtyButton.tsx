@@ -25,7 +25,9 @@ export function BranchSpecialtyButton({ data }: BranchSpecialtyButtonProps) {
       if (response.success) {
         const label = `${data.branch?.name ?? data.branchId} — ${data.specialty?.name ?? data.specialtyId}`;
         toast.success(`Asignación "${label}" eliminada correctamente`);
-        await queryClient.invalidateQueries({ queryKey: ["branch-specialties"] });
+        await queryClient.invalidateQueries({
+          queryKey: ["branch-specialties"],
+        });
         setIsDeleteDialogOpen(false);
       } else {
         toast.danger(
@@ -33,7 +35,9 @@ export function BranchSpecialtyButton({ data }: BranchSpecialtyButtonProps) {
         );
       }
     } catch (error) {
-      toast.danger(`Error: ${error instanceof Error ? error.message : "Error desconocido"}`);
+      toast.danger(
+        `Error: ${error instanceof Error ? error.message : "Error desconocido"}`,
+      );
     } finally {
       setIsDeleting(false);
     }

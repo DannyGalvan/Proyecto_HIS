@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { Link, useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 
 import { nameRoutes } from "../../configs/constants";
 import { getMyAppointments } from "../../services/patientPortalService";
@@ -24,7 +24,9 @@ function StatusBadge({ status }: { readonly status: string }) {
   };
   const cls = map[status] ?? "bg-gray-100 text-gray-700";
   return (
-    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>
+    <span
+      className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}
+    >
       {status}
     </span>
   );
@@ -37,7 +39,7 @@ interface AppointmentItem {
   doctorName?: string;
   specialtyName?: string;
   branchName?: string;
-  appointmentStatusName?: string;  // matches API response field
+  appointmentStatusName?: string; // matches API response field
   amount?: number;
 }
 
@@ -66,11 +68,12 @@ function AppointmentCard({ appt }: { readonly appt: AppointmentItem }) {
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-300">
             <i className="bi bi-calendar3 mr-1" />
-            {formatDateShort(appt.appointmentDate)} — {formatTime(appt.appointmentDate)}
+            {formatDateShort(appt.appointmentDate)} —{" "}
+            {formatTime(appt.appointmentDate)}
           </p>
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">
-          {statusName && <StatusBadge status={statusName} />}
+          {statusName ? <StatusBadge status={statusName} /> : null}
           {appt.amount !== undefined && (
             <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               Q{appt.amount.toFixed(2)}
@@ -93,7 +96,8 @@ export function PatientDashboardPage() {
     staleTime: 1000 * 60 * 2,
   });
 
-  const allAppointments = (data?.success ? (data.data as AppointmentItem[]) : []) ?? [];
+  const allAppointments =
+    (data?.success ? (data.data as AppointmentItem[]) : []) ?? [];
 
   // "Próximas": only "Confirmada" — paid and scheduled, haven't entered clinical flow yet
   const upcomingAppointments = allAppointments.filter(
@@ -102,7 +106,8 @@ export function PatientDashboardPage() {
 
   // "Historial": finished, cancelled, no-show, or currently in clinical flow
   const pastAppointments = allAppointments.filter(
-    (a) => a.appointmentStatusName && PAST_STATUSES.has(a.appointmentStatusName),
+    (a) =>
+      a.appointmentStatusName && PAST_STATUSES.has(a.appointmentStatusName),
   );
 
   const handleLogout = useCallback(() => {
@@ -136,7 +141,9 @@ export function PatientDashboardPage() {
 
         {/* Main CTA */}
         <div className="mb-8 rounded-2xl bg-gradient-to-r from-blue-700 to-cyan-600 p-8 text-white shadow-md">
-          <h2 className="mb-2 text-xl font-bold">¿Necesita una consulta médica?</h2>
+          <h2 className="mb-2 text-xl font-bold">
+            ¿Necesita una consulta médica?
+          </h2>
           <p className="mb-5 text-blue-100">
             Agende su cita en línea de forma rápida y segura.
           </p>

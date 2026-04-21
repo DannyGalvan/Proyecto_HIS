@@ -8,12 +8,19 @@ import type { AppointmentStatusRequest } from "../../types/AppointmentStatusResp
 export function CreateAppointmentStatusPage() {
   const client = useQueryClient();
 
-  const initialData: AppointmentStatusRequest = { name: "", description: "", state: 1 };
+  const initialData: AppointmentStatusRequest = {
+    name: "",
+    description: "",
+    state: 1,
+  };
 
   const onSubmit = useCallback(
     async (form: AppointmentStatusRequest) => {
       const response = await createAppointmentStatus(form);
-      if (!response.success) { toast.danger(response.message); return response; }
+      if (!response.success) {
+        toast.danger(response.message);
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["appointment-statuses"] });
       toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
@@ -21,5 +28,11 @@ export function CreateAppointmentStatusPage() {
     [client],
   );
 
-  return <AppointmentStatusForm initialForm={initialData} type="create" onSubmit={onSubmit} />;
+  return (
+    <AppointmentStatusForm
+      initialForm={initialData}
+      type="create"
+      onSubmit={onSubmit}
+    />
+  );
 }

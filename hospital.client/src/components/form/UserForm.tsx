@@ -1,14 +1,7 @@
-import {
-  FieldError,
-  Form,
-  Input,
-  Label,
-  TextField,
-} from "@heroui/react";
+import { FieldError, Form, Input, Label, TextField } from "@heroui/react";
 import { useCallback, type ChangeEvent } from "react";
 import { useNavigate } from "react-router";
 import type { SingleValue } from "react-select";
-import { AsyncButton } from "../button/AsyncButton";
 import { useForm } from "../../hooks/useForm";
 import { getBranches } from "../../services/branchService";
 import { getRoles } from "../../services/rolService";
@@ -20,6 +13,7 @@ import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
 import type { UserRequest } from "../../types/UserRequest";
 import type { ValidationFailure } from "../../types/ValidationFailure";
 import { validateUser } from "../../validations/userValidation";
+import { AsyncButton } from "../button/AsyncButton";
 import { Response } from "../messages/Response";
 import { CatalogueSelect } from "../select/CatalogueSelect";
 import { OptionsSelect, type OptionValue } from "../select/OptionsSelect";
@@ -46,8 +40,15 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
   const isEditing = type === "edit";
   const navigate = useNavigate();
 
-  const { form, errors, handleChange, handleSubmit, success, message, loading } =
-    useForm<UserRequest, unknown>(initialForm, validateUser, onSubmit, true);
+  const {
+    form,
+    errors,
+    handleChange,
+    handleSubmit,
+    success,
+    message,
+    loading,
+  } = useForm<UserRequest, unknown>(initialForm, validateUser, onSubmit, true);
 
   const handleTextChange = useCallback(
     (name: string) => (val: string) => {

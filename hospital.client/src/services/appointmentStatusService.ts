@@ -1,6 +1,9 @@
 import { api } from "../configs/axios/interceptors";
-import type { AppointmentStatusRequest, AppointmentStatusResponse } from "../types/AppointmentStatusResponse";
 import type { ApiResponse } from "../types/ApiResponse";
+import type {
+  AppointmentStatusRequest,
+  AppointmentStatusResponse,
+} from "../types/AppointmentStatusResponse";
 import type { filterOptions } from "../types/FilterTypes";
 
 export const getAppointmentStatuses = async ({
@@ -17,14 +20,34 @@ export const getAppointmentStatuses = async ({
   return api.get<unknown, ApiResponse<AppointmentStatusResponse[]>>(baseQuery);
 };
 
-export const getAppointmentStatusById = async (id: number): Promise<ApiResponse<AppointmentStatusResponse>> =>
-  api.get<unknown, ApiResponse<AppointmentStatusResponse>>(`AppointmentStatus/${id}`);
+export const getAppointmentStatusById = async (
+  id: number,
+): Promise<ApiResponse<AppointmentStatusResponse>> =>
+  api.get<unknown, ApiResponse<AppointmentStatusResponse>>(
+    `AppointmentStatus/${id}`,
+  );
 
-export const createAppointmentStatus = async (data: AppointmentStatusRequest): Promise<ApiResponse<AppointmentStatusResponse>> =>
-  api.post<unknown, ApiResponse<AppointmentStatusResponse>, AppointmentStatusRequest>("AppointmentStatus", data);
+export const createAppointmentStatus = async (
+  data: AppointmentStatusRequest,
+): Promise<ApiResponse<AppointmentStatusResponse>> =>
+  api.post<
+    unknown,
+    ApiResponse<AppointmentStatusResponse>,
+    AppointmentStatusRequest
+  >("AppointmentStatus", data);
 
-export const updateAppointmentStatus = async (data: AppointmentStatusRequest): Promise<ApiResponse<AppointmentStatusResponse>> =>
-  api.put<unknown, ApiResponse<AppointmentStatusResponse>, AppointmentStatusRequest>("AppointmentStatus", data);
+export const updateAppointmentStatus = async (
+  data: AppointmentStatusRequest,
+): Promise<ApiResponse<AppointmentStatusResponse>> =>
+  api.put<
+    unknown,
+    ApiResponse<AppointmentStatusResponse>,
+    AppointmentStatusRequest
+  >("AppointmentStatus", data);
 
-export const deleteAppointmentStatus = async (id: number): Promise<ApiResponse<AppointmentStatusResponse>> =>
-  api.delete<unknown, ApiResponse<AppointmentStatusResponse>>(`AppointmentStatus/${id}`);
+export const deleteAppointmentStatus = async (
+  id: number,
+): Promise<ApiResponse<AppointmentStatusResponse>> =>
+  api.delete<unknown, ApiResponse<AppointmentStatusResponse>>(
+    `AppointmentStatus/${id}`,
+  );

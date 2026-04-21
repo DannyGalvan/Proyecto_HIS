@@ -1,4 +1,4 @@
-import { useState, useCallback, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
@@ -20,14 +20,22 @@ const registerSchema = z.object({
     .string()
     .min(8, "El nombre de usuario debe tener entre 8 y 9 caracteres")
     .max(9, "El nombre de usuario debe tener entre 8 y 9 caracteres"),
-  password: z.string().min(12, "La contraseña debe tener al menos 12 caracteres"),
+  password: z
+    .string()
+    .min(12, "La contraseña debe tener al menos 12 caracteres"),
   email: z.string().email("Ingrese un correo electrónico válido"),
   number: z
     .string()
-    .regex(/^\d{8}$/, "El teléfono debe contener exactamente 8 dígitos numéricos"),
+    .regex(
+      /^\d{8}$/,
+      "El teléfono debe contener exactamente 8 dígitos numéricos",
+    ),
   nit: z
     .string()
-    .regex(/^[a-zA-Z0-9]{8,9}$/, "El NIT debe tener entre 8 y 9 caracteres alfanuméricos")
+    .regex(
+      /^[a-zA-Z0-9]{8,9}$/,
+      "El NIT debe tener entre 8 y 9 caracteres alfanuméricos",
+    )
     .optional()
     .or(z.literal("")),
   insuranceNumber: z
@@ -54,17 +62,17 @@ const initialForm: RegisterForm = {
 
 // ── Reusable field component ──────────────────────────────────────────────────
 interface FieldProps {
-  id: string;
-  label: string;
-  required?: boolean;
-  type?: string;
-  placeholder?: string;
-  maxLength?: number;
-  minLength?: number;
-  value: string;
-  error?: string;
-  disabled?: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  readonly id: string;
+  readonly label: string;
+  readonly required?: boolean;
+  readonly type?: string;
+  readonly placeholder?: string;
+  readonly maxLength?: number;
+  readonly minLength?: number;
+  readonly value: string;
+  readonly error?: string;
+  readonly disabled?: boolean;
+  readonly onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 function Field({
@@ -82,17 +90,20 @@ function Field({
 }: FieldProps) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-bold text-gray-700 dark:text-gray-300">
-        {label} {required && <span className="text-red-500">*</span>}
+      <label
+        className="text-sm font-bold text-gray-700 dark:text-gray-300"
+        htmlFor={id}
+      >
+        {label} {required ? <span className="text-red-500">*</span> : null}
       </label>
       <input
-        id={id}
         className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
           error
             ? "border-red-400 bg-red-50 dark:bg-red-900/20"
             : "border-gray-300 dark:border-gray-600"
         }`}
         disabled={disabled}
+        id={id}
         maxLength={maxLength}
         minLength={minLength}
         placeholder={placeholder}
@@ -100,12 +111,12 @@ function Field({
         value={value}
         onChange={onChange}
       />
-      {error && (
+      {error ? (
         <p className="text-red-500 text-xs mt-0.5">
           <i className="bi bi-exclamation-circle mr-1" />
           {error}
         </p>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -170,23 +181,43 @@ export function PortalRegisterPage() {
 
         if (response.success) {
           navigate(nameRoutes.portalLogin, {
-            state: { successMessage: "¡Registro exitoso! Su cuenta ha sido creada. Ahora puede iniciar sesión con sus credenciales." },
+            state: {
+              successMessage:
+                "¡Registro exitoso! Su cuenta ha sido creada. Ahora puede iniciar sesión con sus credenciales.",
+            },
           });
         } else {
           // Handle specific duplicate errors from backend
           const msg = response.message ?? "";
-          if (msg.toLowerCase().includes("dpi") && msg.toLowerCase().includes("existe")) {
-            setApiError("Ya existe una cuenta registrada con este número de DPI. Si ya tiene cuenta, inicie sesión.");
-          } else if (msg.toLowerCase().includes("email") || msg.toLowerCase().includes("correo")) {
-            setApiError("Ya existe una cuenta registrada con este correo electrónico.");
-          } else if (msg.toLowerCase().includes("usuario") && msg.toLowerCase().includes("existe")) {
-            setApiError("El nombre de usuario ya está en uso. Por favor, elija otro.");
+          if (
+            msg.toLowerCase().includes("dpi") &&
+            msg.toLowerCase().includes("existe")
+          ) {
+            setApiError(
+              "Ya existe una cuenta registrada con este número de DPI. Si ya tiene cuenta, inicie sesión.",
+            );
+          } else if (
+            msg.toLowerCase().includes("email") ||
+            msg.toLowerCase().includes("correo")
+          ) {
+            setApiError(
+              "Ya existe una cuenta registrada con este correo electrónico.",
+            );
+          } else if (
+            msg.toLowerCase().includes("usuario") &&
+            msg.toLowerCase().includes("existe")
+          ) {
+            setApiError(
+              "El nombre de usuario ya está en uso. Por favor, elija otro.",
+            );
           } else {
             setApiError(msg || "Error al registrar. Intente de nuevo.");
           }
         }
       } catch {
-        setApiError("No se pudo conectar con el servidor. Intente de nuevo más tarde.");
+        setApiError(
+          "No se pudo conectar con el servidor. Intente de nuevo más tarde.",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -212,14 +243,18 @@ export function PortalRegisterPage() {
           </p>
 
           {/* Error banner */}
-          {apiError && (
+          {apiError ? (
             <div className="mb-4 p-4 bg-red-50 border border-red-300 rounded-xl text-red-800 text-sm flex items-start gap-2 dark:bg-red-900/20 dark:border-red-700 dark:text-red-300">
               <i className="bi bi-exclamation-triangle-fill mt-0.5 shrink-0" />
               <span>{apiError}</span>
             </div>
-          )}
+          ) : null}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+          <form
+            noValidate
+            className="flex flex-col gap-4"
+            onSubmit={handleSubmit}
+          >
             {/* Grid layout */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Name — full width */}
@@ -346,7 +381,9 @@ export function PortalRegisterPage() {
 
           {/* Links */}
           <div className="flex flex-col items-center mt-6 gap-2 text-sm">
-            <span className="text-gray-500 dark:text-gray-400">¿Ya tiene cuenta?</span>
+            <span className="text-gray-500 dark:text-gray-400">
+              ¿Ya tiene cuenta?
+            </span>
             <Link
               className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 underline"
               to={nameRoutes.portalLogin}

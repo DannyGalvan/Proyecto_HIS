@@ -1,17 +1,17 @@
 import { toast } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import type { SingleValue } from "react-select";
 import { useNavigate } from "react-router";
-import { createBranchSpecialty } from "../../services/branchSpecialtyService";
+import type { SingleValue } from "react-select";
+import { AsyncButton } from "../../components/button/AsyncButton";
+import { CatalogueSelect } from "../../components/select/CatalogueSelect";
+import { nameRoutes } from "../../configs/constants";
+import { useAuth } from "../../hooks/useAuth";
 import { getBranches } from "../../services/branchService";
+import { createBranchSpecialty } from "../../services/branchSpecialtyService";
 import { getSpecialties } from "../../services/specialtyService";
 import type { BranchResponse } from "../../types/BranchResponse";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
-import { nameRoutes } from "../../configs/constants";
-import { CatalogueSelect } from "../../components/select/CatalogueSelect";
-import { AsyncButton } from "../../components/button/AsyncButton";
-import { useAuth } from "../../hooks/useAuth";
 
 export function CreateBranchSpecialtyPage() {
   const navigate = useNavigate();
@@ -35,8 +35,14 @@ export function CreateBranchSpecialtyPage() {
 
   const handleSubmit = useCallback(async () => {
     setError(null);
-    if (!branchId) { setError("Debe seleccionar una sede."); return; }
-    if (!specialtyId) { setError("Debe seleccionar una especialidad."); return; }
+    if (!branchId) {
+      setError("Debe seleccionar una sede.");
+      return;
+    }
+    if (!specialtyId) {
+      setError("Debe seleccionar una especialidad.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -49,7 +55,9 @@ export function CreateBranchSpecialtyPage() {
 
       if (response.success) {
         toast.success("Especialidad asignada a la sede correctamente");
-        await queryClient.invalidateQueries({ queryKey: ["branch-specialties"] });
+        await queryClient.invalidateQueries({
+          queryKey: ["branch-specialties"],
+        });
         navigate(nameRoutes.branchSpecialty);
       } else {
         setError(response.message ?? "Error al crear la asignación");
@@ -63,7 +71,9 @@ export function CreateBranchSpecialtyPage() {
 
   return (
     <div className="max-w-lg mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">Asignar Especialidad a Sede</h1>
+      <h1 className="text-2xl font-bold text-center mb-6">
+        Asignar Especialidad a Sede
+      </h1>
 
       <div className="flex flex-col gap-5">
         <CatalogueSelect<BranchResponse>
@@ -98,12 +108,12 @@ export function CreateBranchSpecialtyPage() {
           }}
         />
 
-        {error && (
+        {error ? (
           <p className="text-sm text-red-600 flex items-center gap-1">
             <i className="bi bi-exclamation-circle" />
             {error}
           </p>
-        )}
+        ) : null}
 
         <div className="flex gap-3 justify-end mt-2">
           <AsyncButton

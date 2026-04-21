@@ -1,8 +1,14 @@
 import { api } from "../configs/axios/interceptors";
 import type { ApiResponse } from "../types/ApiResponse";
 import type { filterOptions } from "../types/FilterTypes";
-import type { PrescriptionRequest, PrescriptionResponse } from "../types/PrescriptionResponse";
-import type { PrescriptionItemRequest, PrescriptionItemResponse } from "../types/PrescriptionItemResponse";
+import type {
+  PrescriptionItemRequest,
+  PrescriptionItemResponse,
+} from "../types/PrescriptionItemResponse";
+import type {
+  PrescriptionRequest,
+  PrescriptionResponse,
+} from "../types/PrescriptionResponse";
 
 export const getPrescriptions = async ({
   pageNumber = 1,
@@ -18,24 +24,49 @@ export const getPrescriptions = async ({
   return api.get<unknown, ApiResponse<PrescriptionResponse[]>>(baseQuery);
 };
 
-export const getPrescriptionById = async (id: number): Promise<ApiResponse<PrescriptionResponse>> =>
-  api.get<unknown, ApiResponse<PrescriptionResponse>>(`Prescription/${id}?Include=Consultation,Doctor,Items`);
+export const getPrescriptionById = async (
+  id: number,
+): Promise<ApiResponse<PrescriptionResponse>> =>
+  api.get<unknown, ApiResponse<PrescriptionResponse>>(
+    `Prescription/${id}?Include=Consultation,Doctor,Items`,
+  );
 
 /** Get the prescription for a specific consultation (includes items). Returns null data if none exists. */
-export const getPrescriptionByConsultation = async (consultationId: number): Promise<ApiResponse<PrescriptionResponse>> =>
-  api.get<unknown, ApiResponse<PrescriptionResponse>>(`Prescription/by-consultation/${consultationId}`);
+export const getPrescriptionByConsultation = async (
+  consultationId: number,
+): Promise<ApiResponse<PrescriptionResponse>> =>
+  api.get<unknown, ApiResponse<PrescriptionResponse>>(
+    `Prescription/by-consultation/${consultationId}`,
+  );
 
-export const createPrescription = async (data: PrescriptionRequest): Promise<ApiResponse<PrescriptionResponse>> =>
-  api.post<unknown, ApiResponse<PrescriptionResponse>, PrescriptionRequest>("Prescription", data);
+export const createPrescription = async (
+  data: PrescriptionRequest,
+): Promise<ApiResponse<PrescriptionResponse>> =>
+  api.post<unknown, ApiResponse<PrescriptionResponse>, PrescriptionRequest>(
+    "Prescription",
+    data,
+  );
 
 /** Create prescription + all items in a single transaction. */
-export const createPrescriptionWithItems = async (data: PrescriptionRequest): Promise<ApiResponse<PrescriptionResponse>> =>
-  api.post<unknown, ApiResponse<PrescriptionResponse>, PrescriptionRequest>("Prescription/with-items", data);
+export const createPrescriptionWithItems = async (
+  data: PrescriptionRequest,
+): Promise<ApiResponse<PrescriptionResponse>> =>
+  api.post<unknown, ApiResponse<PrescriptionResponse>, PrescriptionRequest>(
+    "Prescription/with-items",
+    data,
+  );
 
-export const updatePrescription = async (data: PrescriptionRequest): Promise<ApiResponse<PrescriptionResponse>> =>
-  api.put<unknown, ApiResponse<PrescriptionResponse>, PrescriptionRequest>("Prescription", data);
+export const updatePrescription = async (
+  data: PrescriptionRequest,
+): Promise<ApiResponse<PrescriptionResponse>> =>
+  api.put<unknown, ApiResponse<PrescriptionResponse>, PrescriptionRequest>(
+    "Prescription",
+    data,
+  );
 
-export const deletePrescription = async (id: number): Promise<ApiResponse<PrescriptionResponse>> =>
+export const deletePrescription = async (
+  id: number,
+): Promise<ApiResponse<PrescriptionResponse>> =>
   api.delete<unknown, ApiResponse<PrescriptionResponse>>(`Prescription/${id}`);
 
 // Prescription Items
@@ -53,11 +84,27 @@ export const getPrescriptionItems = async ({
   return api.get<unknown, ApiResponse<PrescriptionItemResponse[]>>(baseQuery);
 };
 
-export const createPrescriptionItem = async (data: PrescriptionItemRequest): Promise<ApiResponse<PrescriptionItemResponse>> =>
-  api.post<unknown, ApiResponse<PrescriptionItemResponse>, PrescriptionItemRequest>("PrescriptionItem", data);
+export const createPrescriptionItem = async (
+  data: PrescriptionItemRequest,
+): Promise<ApiResponse<PrescriptionItemResponse>> =>
+  api.post<
+    unknown,
+    ApiResponse<PrescriptionItemResponse>,
+    PrescriptionItemRequest
+  >("PrescriptionItem", data);
 
-export const updatePrescriptionItem = async (data: PrescriptionItemRequest): Promise<ApiResponse<PrescriptionItemResponse>> =>
-  api.put<unknown, ApiResponse<PrescriptionItemResponse>, PrescriptionItemRequest>("PrescriptionItem", data);
+export const updatePrescriptionItem = async (
+  data: PrescriptionItemRequest,
+): Promise<ApiResponse<PrescriptionItemResponse>> =>
+  api.put<
+    unknown,
+    ApiResponse<PrescriptionItemResponse>,
+    PrescriptionItemRequest
+  >("PrescriptionItem", data);
 
-export const deletePrescriptionItem = async (id: number): Promise<ApiResponse<PrescriptionItemResponse>> =>
-  api.delete<unknown, ApiResponse<PrescriptionItemResponse>>(`PrescriptionItem/${id}`);
+export const deletePrescriptionItem = async (
+  id: number,
+): Promise<ApiResponse<PrescriptionItemResponse>> =>
+  api.delete<unknown, ApiResponse<PrescriptionItemResponse>>(
+    `PrescriptionItem/${id}`,
+  );

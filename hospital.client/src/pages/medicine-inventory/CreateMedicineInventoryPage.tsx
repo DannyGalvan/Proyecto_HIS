@@ -9,13 +9,19 @@ export function CreateMedicineInventoryPage() {
   const client = useQueryClient();
 
   const initialData: MedicineInventoryRequest = {
-    medicineId: null, branchId: null, currentStock: null, state: 1,
+    medicineId: null,
+    branchId: null,
+    currentStock: null,
+    state: 1,
   };
 
   const onSubmit = useCallback(
     async (form: MedicineInventoryRequest) => {
       const response = await createMedicineInventory(form);
-      if (!response.success) { toast.danger(response.message); return response; }
+      if (!response.success) {
+        toast.danger(response.message);
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["medicine-inventory"] });
       toast.success("Inventario registrado correctamente");
       return response;
@@ -23,5 +29,11 @@ export function CreateMedicineInventoryPage() {
     [client],
   );
 
-  return <MedicineInventoryForm initialForm={initialData} type="create" onSubmit={onSubmit} />;
+  return (
+    <MedicineInventoryForm
+      initialForm={initialData}
+      type="create"
+      onSubmit={onSubmit}
+    />
+  );
 }

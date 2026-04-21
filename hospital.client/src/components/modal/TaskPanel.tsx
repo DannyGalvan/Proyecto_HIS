@@ -1,14 +1,14 @@
 import { useCallback, useMemo, useState } from "react";
 
+import { patchDoctorTask } from "../../services/doctorTaskService";
 import type { DoctorTaskResponse } from "../../types/DoctorTaskResponse";
 import { PriorityLabels } from "../../types/DoctorTaskResponse";
-import { patchDoctorTask } from "../../services/doctorTaskService";
 import { formatTime } from "../../utils/dateFormatter";
 
 interface TaskPanelProps {
-  tasks: DoctorTaskResponse[];
-  selectedDate: string;
-  onRefresh: () => void;
+  readonly tasks: DoctorTaskResponse[];
+  readonly selectedDate: string;
+  readonly onRefresh: () => void;
 }
 
 type TaskFilter = "all" | "pending" | "completed";
@@ -115,8 +115,8 @@ export function TaskPanel({ tasks, selectedDate, onRefresh }: TaskPanelProps) {
             <TaskItem
               key={task.id}
               completing={completingId === task.id}
-              onComplete={handleComplete}
               task={task}
+              onComplete={handleComplete}
             />
           ))
         )}
@@ -126,27 +126,33 @@ export function TaskPanel({ tasks, selectedDate, onRefresh }: TaskPanelProps) {
       <div className="mt-3 pt-3 border-t border-gray-200 dark:border-zinc-700">
         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
           <span>
-            {tasks.filter((t) => {
-              const taskDate = t.dueDate.split("T")[0];
-              let normalizedDate = taskDate;
-              if (t.dueDate.includes("/")) {
-                const match = t.dueDate.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
-                if (match) normalizedDate = `${match[3]}-${match[2]}-${match[1]}`;
-              }
-              return normalizedDate === selectedDate && !t.isCompleted;
-            }).length}{" "}
+            {
+              tasks.filter((t) => {
+                const taskDate = t.dueDate.split("T")[0];
+                let normalizedDate = taskDate;
+                if (t.dueDate.includes("/")) {
+                  const match = t.dueDate.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+                  if (match)
+                    normalizedDate = `${match[3]}-${match[2]}-${match[1]}`;
+                }
+                return normalizedDate === selectedDate && !t.isCompleted;
+              }).length
+            }{" "}
             pendientes
           </span>
           <span>
-            {tasks.filter((t) => {
-              const taskDate = t.dueDate.split("T")[0];
-              let normalizedDate = taskDate;
-              if (t.dueDate.includes("/")) {
-                const match = t.dueDate.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
-                if (match) normalizedDate = `${match[3]}-${match[2]}-${match[1]}`;
-              }
-              return normalizedDate === selectedDate && t.isCompleted;
-            }).length}{" "}
+            {
+              tasks.filter((t) => {
+                const taskDate = t.dueDate.split("T")[0];
+                let normalizedDate = taskDate;
+                if (t.dueDate.includes("/")) {
+                  const match = t.dueDate.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+                  if (match)
+                    normalizedDate = `${match[3]}-${match[2]}-${match[1]}`;
+                }
+                return normalizedDate === selectedDate && t.isCompleted;
+              }).length
+            }{" "}
             completadas
           </span>
         </div>
@@ -160,9 +166,9 @@ function FilterButton({
   label,
   onClick,
 }: {
-  active: boolean;
-  label: string;
-  onClick: () => void;
+  readonly active: boolean;
+  readonly label: string;
+  readonly onClick: () => void;
 }) {
   return (
     <button
@@ -171,8 +177,8 @@ function FilterButton({
           ? "bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm"
           : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
       }`}
-      onClick={onClick}
       type="button"
+      onClick={onClick}
     >
       {label}
     </button>
@@ -184,9 +190,9 @@ function TaskItem({
   completing,
   onComplete,
 }: {
-  task: DoctorTaskResponse;
-  completing: boolean;
-  onComplete: (id: number) => void;
+  readonly task: DoctorTaskResponse;
+  readonly completing: boolean;
+  readonly onComplete: (id: number) => void;
 }) {
   const priorityInfo = PriorityLabels[task.priority] ?? PriorityLabels[1];
 
@@ -204,35 +210,37 @@ function TaskItem({
           <button
             className="mt-0.5 shrink-0 w-5 h-5 rounded border-2 border-gray-300 dark:border-zinc-600 hover:border-orange-500 dark:hover:border-orange-400 flex items-center justify-center transition-colors disabled:opacity-50"
             disabled={completing}
-            onClick={() => onComplete(task.id)}
             title="Marcar como completada"
             type="button"
+            onClick={() => onComplete(task.id)}
           >
-            {completing && (
+            {completing ? (
               <div className="w-3 h-3 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-            )}
+            ) : null}
           </button>
         )}
-        {task.isCompleted && (
+        {task.isCompleted ? (
           <div className="mt-0.5 shrink-0 w-5 h-5 rounded bg-green-500 flex items-center justify-center">
             <i className="bi bi-check text-white text-xs" />
           </div>
-        )}
+        ) : null}
 
         {/* Content */}
         <div className="flex-1 min-w-0">
           <p
             className={`text-sm font-medium truncate ${
-              task.isCompleted ? "line-through text-gray-400 dark:text-gray-500" : ""
+              task.isCompleted
+                ? "line-through text-gray-400 dark:text-gray-500"
+                : ""
             }`}
           >
             {task.title}
           </p>
-          {task.description && (
+          {task.description ? (
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
               {task.description}
             </p>
-          )}
+          ) : null}
           <div className="flex items-center gap-2 mt-1">
             <span
               className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${priorityInfo.color}`}

@@ -1,8 +1,8 @@
 import { Label, TextField } from "@heroui/react";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
-import { Col } from "../../components/grid/Col";
 import { AsyncButton } from "../../components/button/AsyncButton";
+import { Col } from "../../components/grid/Col";
 import { Response } from "../../components/messages/Response";
 import { TimezoneSelector } from "../../components/select/TimezoneSelector";
 import { useAuth } from "../../hooks/useAuth";
@@ -35,11 +35,8 @@ export function Component() {
     return response;
   };
 
-  const { form, handleChange, handleSubmit, success, message, loading } = useForm(
-    initialForm,
-    validateChangePassword,
-    sendForm,
-  );
+  const { form, handleChange, handleSubmit, success, message, loading } =
+    useForm(initialForm, validateChangePassword, sendForm);
 
   const handlePasswordChange = useCallback(
     (val: string) => {

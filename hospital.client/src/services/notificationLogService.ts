@@ -17,5 +17,9 @@ export const getNotificationLogs = async ({
   return api.get<unknown, ApiResponse<NotificationLogResponse[]>>(baseQuery);
 };
 
-export const getNotificationLogById = async (id: number): Promise<ApiResponse<NotificationLogResponse>> =>
-  api.get<unknown, ApiResponse<NotificationLogResponse>>(`NotificationLog/${id}`);
+export const getNotificationLogById = async (
+  id: number,
+): Promise<ApiResponse<NotificationLogResponse>> =>
+  api.get<unknown, ApiResponse<NotificationLogResponse>>(
+    `NotificationLog/${id}`,
+  );

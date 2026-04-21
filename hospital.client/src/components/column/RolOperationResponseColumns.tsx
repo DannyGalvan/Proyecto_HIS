@@ -38,7 +38,9 @@ export function getRolOperationColumns(
     {
       id: "httpMethod",
       name: "Método HTTP",
-      selector: (data) => (data as OperationWithAssignment & { httpMethod?: string }).httpMethod ?? "",
+      selector: (data) =>
+        (data as OperationWithAssignment & { httpMethod?: string })
+          .httpMethod ?? "",
       sortable: true,
       wrap: true,
       omit: false,

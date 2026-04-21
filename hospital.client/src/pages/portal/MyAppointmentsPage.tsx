@@ -1,11 +1,19 @@
-import { useState, useCallback } from "react";
-import { useNavigate } from "react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Modal, toast } from "@heroui/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { nameRoutes } from "../../configs/constants";
-import { getMyAppointments, cancelAppointment } from "../../services/patientPortalService";
-import { formatDateShort, formatTime, getAppTimezone, APP_LOCALE } from "../../utils/dateFormatter";
+import {
+  cancelAppointment,
+  getMyAppointments,
+} from "../../services/patientPortalService";
+import {
+  APP_LOCALE,
+  formatDateShort,
+  formatTime,
+  getAppTimezone,
+} from "../../utils/dateFormatter";
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { readonly status: string }) {
@@ -24,7 +32,9 @@ function StatusBadge({ status }: { readonly status: string }) {
   };
   const cls = map[status] ?? "bg-gray-100 text-gray-700";
   return (
-    <span className={`inline-block rounded-full px-3 py-0.5 text-xs font-semibold ${cls}`}>
+    <span
+      className={`inline-block rounded-full px-3 py-0.5 text-xs font-semibold ${cls}`}
+    >
       {status}
     </span>
   );
@@ -40,7 +50,7 @@ interface AppointmentItem {
   doctorName?: string;
   specialtyName?: string;
   branchName?: string;
-  appointmentStatusName?: string;  // matches the API response field
+  appointmentStatusName?: string; // matches the API response field
   amount?: number;
 }
 
@@ -61,10 +71,18 @@ function AppointmentRow({
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/30">
             <span className="text-xs font-bold text-blue-600 dark:text-blue-300">
-              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, { month: "short", timeZone: getAppTimezone() }).toUpperCase()}
+              {new Date(appt.appointmentDate)
+                .toLocaleDateString(APP_LOCALE, {
+                  month: "short",
+                  timeZone: getAppTimezone(),
+                })
+                .toUpperCase()}
             </span>
             <span className="text-xl font-bold text-blue-800 dark:text-blue-200">
-              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, { day: "numeric", timeZone: getAppTimezone() })}
+              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, {
+                day: "numeric",
+                timeZone: getAppTimezone(),
+              })}
             </span>
           </div>
           <div>
@@ -87,22 +105,24 @@ function AppointmentRow({
             <i className="bi bi-clock mr-1" />
             {formatTime(appt.appointmentDate)}
           </span>
-          {statusName && <StatusBadge status={statusName} />}
+          {statusName ? <StatusBadge status={statusName} /> : null}
           {appt.amount !== undefined && (
             <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
               Q{appt.amount.toFixed(2)}
             </span>
           )}
-          {canCancel && (
+          {canCancel ? (
             <button
               className="mt-1 flex items-center gap-1 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400"
               type="button"
-              onClick={() => onCancel(appt.id, appt.doctorName ?? `cita #${appt.id}`)}
+              onClick={() =>
+                onCancel(appt.id, appt.doctorName ?? `cita #${appt.id}`)
+              }
             >
               <i className="bi bi-x-circle" />
               Cancelar cita
             </button>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -121,7 +141,10 @@ export function MyAppointmentsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const [cancelTarget, setCancelTarget] = useState<{ id: number; label: string } | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<{
+    id: number;
+    label: string;
+  } | null>(null);
 
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ["portal-my-appointments", page],
@@ -134,7 +157,9 @@ export function MyAppointmentsPage() {
     mutationFn: (id: number) => cancelAppointment(id),
     onSuccess: (res) => {
       if (res.success) {
-        toast.success("Cita cancelada correctamente. Recibirá un correo de confirmación.");
+        toast.success(
+          "Cita cancelada correctamente. Recibirá un correo de confirmación.",
+        );
         queryClient.invalidateQueries({ queryKey: ["portal-my-appointments"] });
       } else {
         toast.danger(res.message ?? "No se pudo cancelar la cita");
@@ -155,7 +180,8 @@ export function MyAppointmentsPage() {
     if (cancelTarget) cancelMutation.mutate(cancelTarget.id);
   }, [cancelTarget, cancelMutation]);
 
-  const appointments = (data?.success ? (data.data as AppointmentItem[]) : []) ?? [];
+  const appointments =
+    (data?.success ? (data.data as AppointmentItem[]) : []) ?? [];
   const hasMore = appointments.length === PAGE_SIZE;
   const hasPrev = page > 1;
 
@@ -184,19 +210,19 @@ export function MyAppointmentsPage() {
         </div>
 
         {/* Loading */}
-        {isLoading && (
+        {isLoading ? (
           <div className="flex justify-center py-16">
             <i className="bi bi-hourglass-split animate-spin text-4xl text-blue-500" />
           </div>
-        )}
+        ) : null}
 
         {/* Error */}
-        {isError && (
+        {isError ? (
           <div className="rounded-xl border border-red-300 bg-red-50 p-5 text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300">
             <i className="bi bi-exclamation-triangle-fill mr-2" />
             Error al cargar sus citas. Intente de nuevo.
           </div>
-        )}
+        ) : null}
 
         {/* Empty state */}
         {!isLoading && !isError && appointments.length === 0 && (
@@ -218,9 +244,15 @@ export function MyAppointmentsPage() {
         {/* Appointments list */}
         {!isLoading && appointments.length > 0 && (
           <>
-            <div className={`flex flex-col gap-3 transition-opacity ${isFetching ? "opacity-60" : "opacity-100"}`}>
+            <div
+              className={`flex flex-col gap-3 transition-opacity ${isFetching ? "opacity-60" : "opacity-100"}`}
+            >
               {appointments.map((appt) => (
-                <AppointmentRow key={appt.id} appt={appt} onCancel={handleCancelRequest} />
+                <AppointmentRow
+                  key={appt.id}
+                  appt={appt}
+                  onCancel={handleCancelRequest}
+                />
               ))}
             </div>
 
@@ -271,7 +303,8 @@ export function MyAppointmentsPage() {
                       ¿Está seguro que desea cancelar esta cita?
                     </p>
                     <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                      Recibirá un correo de confirmación y los fondos serán reintegrados según los términos del servicio.
+                      Recibirá un correo de confirmación y los fondos serán
+                      reintegrados según los términos del servicio.
                     </p>
                   </div>
                 </div>

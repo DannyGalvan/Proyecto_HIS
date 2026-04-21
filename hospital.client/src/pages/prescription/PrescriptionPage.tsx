@@ -1,9 +1,9 @@
 import { useCallback } from "react";
+import { PrescriptionResponseColumns } from "../../components/column/PrescriptionResponseColumns";
 import { TableServer } from "../../components/table/TableServer";
 import { getPrescriptions } from "../../services/prescriptionService";
 import { usePrescriptionStore } from "../../stores/usePrescriptionStore";
 import { customStyles } from "../../theme/tableTheme";
-import { PrescriptionResponseColumns } from "../../components/column/PrescriptionResponseColumns";
 
 export function PrescriptionPage() {
   const { filters, setFilters } = usePrescriptionStore();

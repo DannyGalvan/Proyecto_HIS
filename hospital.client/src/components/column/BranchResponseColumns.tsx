@@ -1,7 +1,7 @@
-import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import type { BranchResponse } from "../../types/BranchResponse";
-import { BranchButton } from "../button/BranchButton";
+import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import { formatDateTime } from "../../utils/dateFormatter";
+import { BranchButton } from "../button/BranchButton";
 
 export const BranchResponseColumns: TableColumnWithFilters<BranchResponse>[] = [
   {

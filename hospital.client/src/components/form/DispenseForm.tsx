@@ -1,14 +1,20 @@
 import { Form } from "@heroui/react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  createDispense,
+  createDispenseItem,
+} from "../../services/dispenseService";
+import {
+  getMedicineInventory,
+  partialUpdateMedicineInventory,
+} from "../../services/medicineService";
+import { getPrescriptionItems } from "../../services/prescriptionService";
+import type { MedicineInventoryResponse } from "../../types/MedicineInventoryResponse";
+import type { PrescriptionItemResponse } from "../../types/PrescriptionItemResponse";
 import { AsyncButton } from "../button/AsyncButton";
 import { Response } from "../messages/Response";
 import { LowStockAlert } from "../shared/LowStockAlert";
-import { getPrescriptionItems } from "../../services/prescriptionService";
-import { getMedicineInventory, partialUpdateMedicineInventory } from "../../services/medicineService";
-import { createDispense, createDispenseItem } from "../../services/dispenseService";
-import type { PrescriptionItemResponse } from "../../types/PrescriptionItemResponse";
-import type { MedicineInventoryResponse } from "../../types/MedicineInventoryResponse";
 
 export interface DispenseFormProps {
   readonly prescriptionId: number;
@@ -97,7 +103,10 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
 
   // ── Row field handlers ───────────────────────────────────────────────────
   const updateRow = useCallback(
-    (idx: number, patch: Partial<Omit<DispenseItemRow, "prescriptionItem" | "inventory">>) => {
+    (
+      idx: number,
+      patch: Partial<Omit<DispenseItemRow, "prescriptionItem" | "inventory">>,
+    ) => {
       setRows((prev) =>
         prev.map((row, i) => (i === idx ? { ...row, ...patch } : row)),
       );
@@ -167,7 +176,9 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
           quantity: row.quantity,
           unitPrice: row.unitPrice,
           wasSubstituted: row.wasSubstituted,
-          substitutionReason: row.wasSubstituted ? row.substitutionReason : null,
+          substitutionReason: row.wasSubstituted
+            ? row.substitutionReason
+            : null,
           originalMedicineName: medicineName,
           dispensedMedicineName: row.wasSubstituted
             ? row.substitutionReason.split(":")[0]?.trim() || medicineName
@@ -176,7 +187,9 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
         });
 
         if (!itemRes.success) {
-          setSubmitError(`Error al registrar ítem "${medicineName}": ${itemRes.message}`);
+          setSubmitError(
+            `Error al registrar ítem "${medicineName}": ${itemRes.message}`,
+          );
           return;
         }
 
@@ -192,7 +205,9 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
 
       const totalFormatted = formatCurrency(Math.round(total * 100) / 100);
       const itemCount = rows.length;
-      setSubmitSuccess(`Despacho registrado exitosamente. ${itemCount} medicamento(s) despachado(s). Total: ${totalFormatted}.`);
+      setSubmitSuccess(
+        `Despacho registrado exitosamente. ${itemCount} medicamento(s) despachado(s). Total: ${totalFormatted}.`,
+      );
       onSuccess?.(dispenseId);
     },
     [rows, total, prescriptionId, doCreateDispense, onSuccess],
@@ -218,16 +233,19 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">Despachar Receta #{prescriptionId}</h1>
+      <h1 className="text-2xl font-bold text-center mb-6">
+        Despachar Receta #{prescriptionId}
+      </h1>
 
-      {submitError && <Response message={submitError} type={false} />}
-      {submitSuccess && <Response message={submitSuccess} type={true} />}
+      {submitError ? <Response message={submitError} type={false} /> : null}
+      {submitSuccess ? <Response type message={submitSuccess} /> : null}
 
       {/* Low-stock alerts */}
       <div className="flex flex-col gap-2 mb-4">
         {rows.map((row) =>
           row.inventory &&
-          row.inventory.currentStock <= (row.inventory.medicine?.minimumStock ?? 0) ? (
+          row.inventory.currentStock <=
+            (row.inventory.medicine?.minimumStock ?? 0) ? (
             <LowStockAlert
               key={row.prescriptionItem.id}
               currentStock={row.inventory.currentStock}
@@ -244,25 +262,40 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">Medicamento</th>
-                <th className="px-4 py-3 text-center font-semibold w-28">Cantidad</th>
-                <th className="px-4 py-3 text-center font-semibold w-32">Precio Unit.</th>
-                <th className="px-4 py-3 text-center font-semibold w-28">Subtotal</th>
-                <th className="px-4 py-3 text-center font-semibold w-28">Sustitución</th>
-                <th className="px-4 py-3 text-left font-semibold">Razón de Sustitución</th>
+                <th className="px-4 py-3 text-left font-semibold">
+                  Medicamento
+                </th>
+                <th className="px-4 py-3 text-center font-semibold w-28">
+                  Cantidad
+                </th>
+                <th className="px-4 py-3 text-center font-semibold w-32">
+                  Precio Unit.
+                </th>
+                <th className="px-4 py-3 text-center font-semibold w-28">
+                  Subtotal
+                </th>
+                <th className="px-4 py-3 text-center font-semibold w-28">
+                  Sustitución
+                </th>
+                <th className="px-4 py-3 text-left font-semibold">
+                  Razón de Sustitución
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {rows.map((row, idx) => (
-                <tr key={row.prescriptionItem.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                <tr
+                  key={row.prescriptionItem.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                >
                   {/* Medicine name */}
                   <td className="px-4 py-3 font-medium">
                     {row.prescriptionItem.medicineName}
-                    {row.prescriptionItem.dosage && (
+                    {row.prescriptionItem.dosage ? (
                       <span className="block text-xs text-gray-500">
                         Dosis: {row.prescriptionItem.dosage}
                       </span>
-                    )}
+                    ) : null}
                     {row.inventory === null && (
                       <span className="block text-xs text-orange-500">
                         ⚠️ Sin inventario registrado
@@ -289,7 +322,8 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
                   <td className="px-4 py-3 text-center">
                     {!row.unitPrice ? (
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-yellow-100 text-yellow-800">
-                        <i className="bi bi-exclamation-triangle" /> Precio no configurado
+                        <i className="bi bi-exclamation-triangle" /> Precio no
+                        configurado
                       </span>
                     ) : (
                       <span className="text-sm font-semibold text-green-700 dark:text-green-400">
@@ -313,7 +347,9 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
                       onChange={(e) =>
                         updateRow(idx, {
                           wasSubstituted: e.target.checked,
-                          substitutionReason: e.target.checked ? row.substitutionReason : "",
+                          substitutionReason: e.target.checked
+                            ? row.substitutionReason
+                            : "",
                         })
                       }
                     />
@@ -323,9 +359,9 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
                   <td className="px-4 py-3">
                     {row.wasSubstituted ? (
                       <input
+                        required
                         className="w-full px-2 py-1 border rounded-md"
                         placeholder="Razón de sustitución *"
-                        required
                         type="text"
                         value={row.substitutionReason}
                         onChange={(e) =>

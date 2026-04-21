@@ -8,12 +8,21 @@ import type { BranchRequest } from "../../types/BranchResponse";
 export function CreateBranchPage() {
   const client = useQueryClient();
 
-  const initialData: BranchRequest = { name: "", phone: "", address: "", description: "", state: 1 };
+  const initialData: BranchRequest = {
+    name: "",
+    phone: "",
+    address: "",
+    description: "",
+    state: 1,
+  };
 
   const onSubmit = useCallback(
     async (form: BranchRequest) => {
       const response = await createBranch(form);
-      if (!response.success) { toast.danger(response.message); return response; }
+      if (!response.success) {
+        toast.danger(response.message);
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["branches"] });
       toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
@@ -21,5 +30,7 @@ export function CreateBranchPage() {
     [client],
   );
 
-  return <BranchForm initialForm={initialData} type="create" onSubmit={onSubmit} />;
+  return (
+    <BranchForm initialForm={initialData} type="create" onSubmit={onSubmit} />
+  );
 }

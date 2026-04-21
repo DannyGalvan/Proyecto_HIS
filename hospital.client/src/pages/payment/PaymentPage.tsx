@@ -1,18 +1,30 @@
-import { Button, Input, Label, Modal, Spinner, TextField, toast } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Label,
+  Modal,
+  Spinner,
+  TextField,
+  toast,
+} from "@heroui/react";
 import { useCallback, useMemo, useState } from "react";
-import { PaymentResponseColumns } from "../../components/column/PaymentResponseColumns";
 import { AsyncButton } from "../../components/button/AsyncButton";
+import { PaymentResponseColumns } from "../../components/column/PaymentResponseColumns";
 import { Icon } from "../../components/icons/Icon";
 import { TableServer } from "../../components/table/TableServer";
-import { createPayment, getPayments, getPendingOrders } from "../../services/paymentService";
-import { partialUpdateLabOrder } from "../../services/labOrderService";
 import { partialUpdateDispense } from "../../services/dispenseService";
+import { partialUpdateLabOrder } from "../../services/labOrderService";
+import {
+  createPayment,
+  getPayments,
+  getPendingOrders,
+} from "../../services/paymentService";
 import { usePaymentStore } from "../../stores/usePaymentStore";
 import { customStyles } from "../../theme/tableTheme";
-import type { PendingOrderResponse } from "../../types/PendingOrderResponse";
 import type { PaymentRequest } from "../../types/PaymentResponse";
-import { generateIdempotencyKey } from "../../utils/generateIdempotencyKey";
+import type { PendingOrderResponse } from "../../types/PendingOrderResponse";
 import { formatDate } from "../../utils/dateFormatter";
+import { generateIdempotencyKey } from "../../utils/generateIdempotencyKey";
 
 type PaymentMethodType = "cash" | "card";
 
@@ -36,14 +48,20 @@ export function PaymentPage() {
 
   // Pending orders state
   const [searchTerm, setSearchTerm] = useState("");
-  const [pendingOrders, setPendingOrders] = useState<PendingOrderResponse[]>([]);
+  const [pendingOrders, setPendingOrders] = useState<PendingOrderResponse[]>(
+    [],
+  );
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
+  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Payment modal state
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [ordersToPayList, setOrdersToPayList] = useState<PendingOrderResponse[]>([]);
+  const [ordersToPayList, setOrdersToPayList] = useState<
+    PendingOrderResponse[]
+  >([]);
   const [paymentForm, setPaymentForm] = useState<PaymentFormState>({
     paymentMethod: "cash",
     amountReceived: "",
@@ -154,19 +172,29 @@ export function PaymentPage() {
   // Open payment modal for a single order
   const handlePaySingle = useCallback((order: PendingOrderResponse) => {
     setOrdersToPayList([order]);
-    setPaymentForm({ paymentMethod: "cash", amountReceived: "", cardLastFourDigits: "" });
+    setPaymentForm({
+      paymentMethod: "cash",
+      amountReceived: "",
+      cardLastFourDigits: "",
+    });
     setIsPaymentModalOpen(true);
   }, []);
 
   // Open payment modal for selected orders
   const handlePaySelected = useCallback(() => {
-    const selected = pendingOrders.filter((o) => selectedOrderIds.has(getOrderKey(o)));
+    const selected = pendingOrders.filter((o) =>
+      selectedOrderIds.has(getOrderKey(o)),
+    );
     if (selected.length === 0) {
       toast.danger("Seleccione al menos una orden para cobrar.");
       return;
     }
     setOrdersToPayList(selected);
-    setPaymentForm({ paymentMethod: "cash", amountReceived: "", cardLastFourDigits: "" });
+    setPaymentForm({
+      paymentMethod: "cash",
+      amountReceived: "",
+      cardLastFourDigits: "",
+    });
     setIsPaymentModalOpen(true);
   }, [pendingOrders, selectedOrderIds, getOrderKey]);
 
@@ -223,7 +251,10 @@ export function PaymentPage() {
           ...(paymentForm.paymentMethod === "cash"
             ? {
                 amountReceived: parseFloat(paymentForm.amountReceived),
-                changeAmount: Math.max(0, parseFloat(paymentForm.amountReceived) - order.totalAmount),
+                changeAmount: Math.max(
+                  0,
+                  parseFloat(paymentForm.amountReceived) - order.totalAmount,
+                ),
               }
             : {
                 cardLastFourDigits: paymentForm.cardLastFourDigits,
@@ -246,7 +277,10 @@ export function PaymentPage() {
           if (order.orderType === "LabOrder") {
             await partialUpdateLabOrder({ id: order.orderId, orderStatus: 1 });
           } else if (order.orderType === "Dispense") {
-            await partialUpdateDispense({ id: order.orderId, dispenseStatus: 1 });
+            await partialUpdateDispense({
+              id: order.orderId,
+              dispenseStatus: 1,
+            });
           }
         } catch {
           toast.warning(
@@ -263,7 +297,9 @@ export function PaymentPage() {
 
       // Remove paid orders from the list
       const paidKeys = new Set(ordersToPayList.map(getOrderKey));
-      setPendingOrders((prev) => prev.filter((o) => !paidKeys.has(getOrderKey(o))));
+      setPendingOrders((prev) =>
+        prev.filter((o) => !paidKeys.has(getOrderKey(o))),
+      );
       setSelectedOrderIds((prev) => {
         const next = new Set(prev);
         for (const key of paidKeys) next.delete(key);
@@ -282,7 +318,13 @@ export function PaymentPage() {
   // Payments table query
   const queryFn = useCallback(
     async (filters: string, page: number, pageSize: number) => {
-      return getPayments({ pageNumber: page, pageSize, filters, include: "", includeTotal: false });
+      return getPayments({
+        pageNumber: page,
+        pageSize,
+        filters,
+        include: "",
+        includeTotal: false,
+      });
     },
     [],
   );
@@ -294,7 +336,7 @@ export function PaymentPage() {
       {/* Pending Orders Section */}
       <div className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
         <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <Icon name="bi bi-clock-history" size={22} color="#0A4FA6" />
+          <Icon color="#0A4FA6" name="bi bi-clock-history" size={22} />
           <span>Órdenes Pendientes de Pago</span>
         </h2>
 
@@ -316,28 +358,32 @@ export function PaymentPage() {
           </div>
           <Button
             className="px-6 py-2"
-            variant="primary"
             isDisabled={isSearching}
+            variant="primary"
             onPress={handleSearch}
           >
-            {isSearching ? <Spinner color="current" size="sm" /> : <Icon name="bi bi-search" size={16} color="white" />}
+            {isSearching ? (
+              <Spinner color="current" size="sm" />
+            ) : (
+              <Icon color="white" name="bi bi-search" size={16} />
+            )}
             <span className="ml-1">Buscar</span>
           </Button>
         </div>
 
         {/* Results */}
-        {isSearching && (
+        {isSearching ? (
           <div className="flex justify-center py-8">
             <Spinner color="accent" size="lg" />
           </div>
-        )}
+        ) : null}
 
-        {!isSearching && hasSearched && pendingOrders.length === 0 && (
+        {!isSearching && hasSearched && pendingOrders.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            <Icon name="bi bi-inbox" size={40} color="#9CA3AF" />
+            <Icon color="#9CA3AF" name="bi bi-inbox" size={40} />
             <p className="mt-2">No se encontraron órdenes pendientes.</p>
           </div>
-        )}
+        ) : null}
 
         {!isSearching && pendingOrders.length > 0 && (
           <>
@@ -345,7 +391,8 @@ export function PaymentPage() {
             <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
               <div className="flex items-center gap-3">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {selectedOrderIds.size} de {pendingOrders.length} seleccionadas
+                  {selectedOrderIds.size} de {pendingOrders.length}{" "}
+                  seleccionadas
                 </span>
                 {selectedOrderIds.size > 0 && (
                   <span className="text-sm font-semibold text-blue-700 dark:text-blue-400">
@@ -354,13 +401,11 @@ export function PaymentPage() {
                 )}
               </div>
               {selectedOrderIds.size > 1 && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onPress={handlePaySelected}
-                >
-                  <Icon name="bi bi-cash-stack" size={16} color="white" />
-                  <span className="ml-1">Cobrar Seleccionados ({formatCurrency(selectedTotal)})</span>
+                <Button size="sm" variant="primary" onPress={handlePaySelected}>
+                  <Icon color="white" name="bi bi-cash-stack" size={16} />
+                  <span className="ml-1">
+                    Cobrar Seleccionados ({formatCurrency(selectedTotal)})
+                  </span>
                 </Button>
               )}
             </div>
@@ -372,11 +417,14 @@ export function PaymentPage() {
                   <tr className="bg-blue-50 dark:bg-blue-900/20 text-left">
                     <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300">
                       <input
-                        type="checkbox"
-                        checked={selectedOrderIds.size === pendingOrders.length && pendingOrders.length > 0}
-                        onChange={toggleAllOrders}
-                        className="rounded border-gray-300"
                         aria-label="Seleccionar todas las órdenes"
+                        checked={
+                          selectedOrderIds.size === pendingOrders.length &&
+                          pendingOrders.length > 0
+                        }
+                        className="rounded border-gray-300"
+                        type="checkbox"
+                        onChange={toggleAllOrders}
                       />
                     </th>
                     <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300 uppercase text-xs tracking-wide">
@@ -417,11 +465,11 @@ export function PaymentPage() {
                       >
                         <td className="px-3 py-3">
                           <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleOrderSelection(order)}
-                            className="rounded border-gray-300"
                             aria-label={`Seleccionar orden ${order.orderNumber}`}
+                            checked={isSelected}
+                            className="rounded border-gray-300"
+                            type="checkbox"
+                            onChange={() => toggleOrderSelection(order)}
                           />
                         </td>
                         <td className="px-3 py-3">
@@ -432,7 +480,8 @@ export function PaymentPage() {
                                 : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                             }`}
                           >
-                            {ORDER_TYPE_LABELS[order.orderType] ?? order.orderType}
+                            {ORDER_TYPE_LABELS[order.orderType] ??
+                              order.orderType}
                           </span>
                         </td>
                         <td className="px-3 py-3 font-mono text-xs">
@@ -442,7 +491,9 @@ export function PaymentPage() {
                         <td className="px-3 py-3 text-gray-600 dark:text-gray-400">
                           {formatDate(order.createdAt)}
                         </td>
-                        <td className="px-3 py-3 text-center">{order.itemCount}</td>
+                        <td className="px-3 py-3 text-center">
+                          {order.itemCount}
+                        </td>
                         <td className="px-3 py-3 text-right font-semibold">
                           {formatCurrency(order.totalAmount)}
                         </td>
@@ -452,7 +503,7 @@ export function PaymentPage() {
                             variant="ghost"
                             onPress={() => handlePaySingle(order)}
                           >
-                            <Icon name="bi bi-cash" size={14} color="#0A4FA6" />
+                            <Icon color="#0A4FA6" name="bi bi-cash" size={14} />
                             <span className="ml-1">Cobrar</span>
                           </Button>
                         </td>
@@ -503,7 +554,9 @@ export function PaymentPage() {
                         className="flex justify-between items-center text-sm py-1 border-b border-blue-100 dark:border-blue-800 last:border-0"
                       >
                         <span className="text-gray-700 dark:text-gray-300">
-                          {ORDER_TYPE_LABELS[order.orderType] ?? order.orderType} — {order.orderNumber}
+                          {ORDER_TYPE_LABELS[order.orderType] ??
+                            order.orderType}{" "}
+                          — {order.orderNumber}
                         </span>
                         <span className="font-semibold text-gray-900 dark:text-gray-100">
                           {formatCurrency(order.totalAmount)}
@@ -527,38 +580,52 @@ export function PaymentPage() {
                     </p>
                     <div className="flex gap-3">
                       <button
-                        type="button"
-                        onClick={() =>
-                          setPaymentForm((prev) => ({ ...prev, paymentMethod: "cash" }))
-                        }
                         className={`flex-1 rounded-lg border-2 p-3 text-center transition-colors ${
                           paymentForm.paymentMethod === "cash"
                             ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
                             : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300"
                         }`}
+                        type="button"
+                        onClick={() =>
+                          setPaymentForm((prev) => ({
+                            ...prev,
+                            paymentMethod: "cash",
+                          }))
+                        }
                       >
                         <Icon
+                          color={
+                            paymentForm.paymentMethod === "cash"
+                              ? "#0A4FA6"
+                              : "#9CA3AF"
+                          }
                           name="bi bi-cash"
                           size={20}
-                          color={paymentForm.paymentMethod === "cash" ? "#0A4FA6" : "#9CA3AF"}
                         />
                         <p className="text-sm font-medium mt-1">Efectivo</p>
                       </button>
                       <button
-                        type="button"
-                        onClick={() =>
-                          setPaymentForm((prev) => ({ ...prev, paymentMethod: "card" }))
-                        }
                         className={`flex-1 rounded-lg border-2 p-3 text-center transition-colors ${
                           paymentForm.paymentMethod === "card"
                             ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
                             : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300"
                         }`}
+                        type="button"
+                        onClick={() =>
+                          setPaymentForm((prev) => ({
+                            ...prev,
+                            paymentMethod: "card",
+                          }))
+                        }
                       >
                         <Icon
+                          color={
+                            paymentForm.paymentMethod === "card"
+                              ? "#0A4FA6"
+                              : "#9CA3AF"
+                          }
                           name="bi bi-credit-card"
                           size={20}
-                          color={paymentForm.paymentMethod === "card" ? "#0A4FA6" : "#9CA3AF"}
                         />
                         <p className="text-sm font-medium mt-1">Tarjeta</p>
                       </button>
@@ -573,10 +640,10 @@ export function PaymentPage() {
                           Monto recibido (GTQ)
                         </Label>
                         <Input
-                          type="number"
                           min={0}
-                          step="0.01"
                           placeholder="0.00"
+                          step="0.01"
+                          type="number"
                           value={paymentForm.amountReceived}
                           onChange={(e) =>
                             setPaymentForm((prev) => ({
@@ -588,27 +655,31 @@ export function PaymentPage() {
                       </TextField>
 
                       {paymentForm.amountReceived &&
-                        parseFloat(paymentForm.amountReceived) >= paymentTotal && (
-                          <div className="rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 flex justify-between items-center">
-                            <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                              Cambio
-                            </span>
-                            <span className="text-xl font-bold text-green-800 dark:text-green-200">
-                              {formatCurrency(changeAmount)}
-                            </span>
-                          </div>
-                        )}
+                      parseFloat(paymentForm.amountReceived) >= paymentTotal ? (
+                        <div className="rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 flex justify-between items-center">
+                          <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                            Cambio
+                          </span>
+                          <span className="text-xl font-bold text-green-800 dark:text-green-200">
+                            {formatCurrency(changeAmount)}
+                          </span>
+                        </div>
+                      ) : null}
 
                       {paymentForm.amountReceived &&
-                        parseFloat(paymentForm.amountReceived) > 0 &&
-                        parseFloat(paymentForm.amountReceived) < paymentTotal && (
-                          <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3">
-                            <span className="text-sm text-red-700 dark:text-red-300">
-                              El monto recibido es insuficiente. Faltan{" "}
-                              {formatCurrency(paymentTotal - parseFloat(paymentForm.amountReceived))}.
-                            </span>
-                          </div>
-                        )}
+                      parseFloat(paymentForm.amountReceived) > 0 &&
+                      parseFloat(paymentForm.amountReceived) < paymentTotal ? (
+                        <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3">
+                          <span className="text-sm text-red-700 dark:text-red-300">
+                            El monto recibido es insuficiente. Faltan{" "}
+                            {formatCurrency(
+                              paymentTotal -
+                                parseFloat(paymentForm.amountReceived),
+                            )}
+                            .
+                          </span>
+                        </div>
+                      ) : null}
                     </div>
                   )}
 
@@ -619,15 +690,17 @@ export function PaymentPage() {
                         Últimos 4 dígitos de la tarjeta
                       </Label>
                       <Input
-                        type="text"
-                        maxLength={4}
                         inputMode="numeric"
+                        maxLength={4}
                         placeholder="1234"
+                        type="text"
                         value={paymentForm.cardLastFourDigits}
                         onChange={(e) =>
                           setPaymentForm((prev) => ({
                             ...prev,
-                            cardLastFourDigits: e.target.value.replace(/\D/g, "").slice(0, 4),
+                            cardLastFourDigits: e.target.value
+                              .replace(/\D/g, "")
+                              .slice(0, 4),
                           }))
                         }
                       />
@@ -638,8 +711,8 @@ export function PaymentPage() {
               <Modal.Footer>
                 <div className="flex gap-2 justify-end w-full">
                   <Button
-                    variant="secondary"
                     isDisabled={isProcessingPayment}
+                    variant="secondary"
                     onPress={closePaymentModal}
                   >
                     Cancelar

@@ -1,11 +1,11 @@
 import { Form, Input, Label, TextField } from "@heroui/react";
 import { useMutation } from "@tanstack/react-query";
 import { useCallback, useState, type ChangeEvent } from "react";
-import { AsyncButton } from "../button/AsyncButton";
-import { OutOfRangeAlert } from "../shared/OutOfRangeAlert";
-import { Response } from "../messages/Response";
 import { partialUpdateLabOrderItem } from "../../services/labOrderService";
 import type { LabOrderItemResponse } from "../../types/LabOrderItemResponse";
+import { AsyncButton } from "../button/AsyncButton";
+import { Response } from "../messages/Response";
+import { OutOfRangeAlert } from "../shared/OutOfRangeAlert";
 
 interface LabOrderItemResultFormProps {
   readonly item: LabOrderItemResponse;
@@ -20,7 +20,10 @@ interface ResultFormState {
   resultDate: string;
 }
 
-export function LabOrderItemResultForm({ item, onSuccess }: LabOrderItemResultFormProps) {
+export function LabOrderItemResultForm({
+  item,
+  onSuccess,
+}: LabOrderItemResultFormProps) {
   const [form, setForm] = useState<ResultFormState>({
     resultValue: item.resultValue ?? "",
     resultUnit: item.resultUnit ?? "",
@@ -32,13 +35,17 @@ export function LabOrderItemResultForm({ item, onSuccess }: LabOrderItemResultFo
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
-    }));
-  }, []);
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value, type } = e.target as HTMLInputElement;
+      setForm((prev) => ({
+        ...prev,
+        [name]:
+          type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      }));
+    },
+    [],
+  );
 
   const { mutateAsync: doUpdate, isPending } = useMutation({
     mutationFn: partialUpdateLabOrderItem,
@@ -71,8 +78,8 @@ export function LabOrderItemResultForm({ item, onSuccess }: LabOrderItemResultFo
 
   return (
     <Form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-      {submitError && <Response message={submitError} type={false} />}
-      {submitSuccess && <Response message={submitSuccess} type={true} />}
+      {submitError ? <Response message={submitError} type={false} /> : null}
+      {submitSuccess ? <Response type message={submitSuccess} /> : null}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <TextField className="flex flex-col gap-1" name="resultValue">
@@ -117,13 +124,19 @@ export function LabOrderItemResultForm({ item, onSuccess }: LabOrderItemResultFo
             type="checkbox"
             onChange={handleChange}
           />
-          <label className="font-bold text-sm cursor-pointer" htmlFor={`isOutOfRange-${item.id}`}>
+          <label
+            className="font-bold text-sm cursor-pointer"
+            htmlFor={`isOutOfRange-${item.id}`}
+          >
             Fuera de Rango
           </label>
         </div>
 
         <div className="flex flex-col gap-1 md:col-span-2">
-          <label className="font-bold text-sm" htmlFor={`resultNotes-${item.id}`}>
+          <label
+            className="font-bold text-sm"
+            htmlFor={`resultNotes-${item.id}`}
+          >
             Notas del Resultado
           </label>
           <textarea
@@ -137,14 +150,14 @@ export function LabOrderItemResultForm({ item, onSuccess }: LabOrderItemResultFo
         </div>
       </div>
 
-      {form.isOutOfRange && (
+      {form.isOutOfRange ? (
         <div className="mt-1">
           <OutOfRangeAlert
             isOutOfRange={form.isOutOfRange}
             referenceRange={item.referenceRange ?? undefined}
           />
         </div>
-      )}
+      ) : null}
 
       <div className="flex justify-end mt-2">
         <AsyncButton

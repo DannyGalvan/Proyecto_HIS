@@ -1,7 +1,7 @@
 import type { OperationResponse } from "../../types/OperationResponse";
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
-import { OperationButton } from "../button/OperationButton";
 import { formatDateTime } from "../../utils/dateFormatter";
+import { OperationButton } from "../button/OperationButton";
 
 export const OperationResponseColumns: TableColumnWithFilters<OperationResponse>[] =
   [

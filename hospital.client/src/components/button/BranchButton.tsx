@@ -18,7 +18,10 @@ export function BranchButton({ data }: BranchButtonProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleEdit = useCallback(() => navigate(`/branch/update/${data.id}`), [navigate, data.id]);
+  const handleEdit = useCallback(
+    () => navigate(`/branch/update/${data.id}`),
+    [navigate, data.id],
+  );
   const handleDeleteClick = useCallback(() => setIsDeleteDialogOpen(true), []);
 
   const handleDeleteConfirm = useCallback(async () => {
@@ -26,37 +29,66 @@ export function BranchButton({ data }: BranchButtonProps) {
     try {
       const response = await deleteBranch(data.id);
       if (response.success) {
-        toast.success(`El registro ${data.name} ha sido eliminado correctamente.`);
+        toast.success(
+          `El registro ${data.name} ha sido eliminado correctamente.`,
+        );
         await queryClient.invalidateQueries({ queryKey: ["branches"] });
         setIsDeleteDialogOpen(false);
       } else {
-        toast.danger(`No se pudo eliminar: ${response.message} ${validationFailureToString(response.data)}`);
+        toast.danger(
+          `No se pudo eliminar: ${response.message} ${validationFailureToString(response.data)}`,
+        );
       }
     } catch (error) {
-      toast.danger(`Error: ${error instanceof Error ? error.message : "Error desconocido"}`);
+      toast.danger(
+        `Error: ${error instanceof Error ? error.message : "Error desconocido"}`,
+      );
     } finally {
       setIsDeleting(false);
     }
   }, [data, queryClient]);
 
-  const handleCloseDialog = useCallback(() => { if (!isDeleting) setIsDeleteDialogOpen(false); }, [isDeleting]);
+  const handleCloseDialog = useCallback(() => {
+    if (!isDeleting) setIsDeleteDialogOpen(false);
+  }, [isDeleting]);
 
   return (
     <>
       <Dropdown>
         <Dropdown.Trigger>
-          <Button isIconOnly size="sm" variant="primary"><Icon name="bi bi-three-dots-vertical" /></Button>
+          <Button isIconOnly size="sm" variant="primary">
+            <Icon name="bi bi-three-dots-vertical" />
+          </Button>
         </Dropdown.Trigger>
         <Dropdown.Popover>
           <Dropdown.Menu aria-label="Acciones">
-            <Dropdown.Item key="edit" className="text-warning hover:text-white" onClick={handleEdit}>Editar</Dropdown.Item>
-            <Dropdown.Item key="delete" className="text-danger hover:text-white" onClick={handleDeleteClick}>Eliminar</Dropdown.Item>
+            <Dropdown.Item
+              key="edit"
+              className="text-warning hover:text-white"
+              onClick={handleEdit}
+            >
+              Editar
+            </Dropdown.Item>
+            <Dropdown.Item
+              key="delete"
+              className="text-danger hover:text-white"
+              onClick={handleDeleteClick}
+            >
+              Eliminar
+            </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown.Popover>
       </Dropdown>
-      <ConfirmDialog cancelText="Cancelar" confirmText="Eliminar" isLoading={isDeleting} isOpen={isDeleteDialogOpen}
-        message={`¿Está seguro que desea eliminar el registro ${data.name}? Esta acción no se puede deshacer.`} title="Confirmar eliminación"
-        onClose={handleCloseDialog} onConfirm={handleDeleteConfirm} />
+      <ConfirmDialog
+        cancelText="Cancelar"
+        confirmText="Eliminar"
+        isLoading={isDeleting}
+        isOpen={isDeleteDialogOpen}
+        message={`¿Está seguro que desea eliminar el registro ${data.name}? Esta acción no se puede deshacer.`}
+        title="Confirmar eliminación"
+        onClose={handleCloseDialog}
+        onConfirm={handleDeleteConfirm}
+      />
     </>
   );
 }

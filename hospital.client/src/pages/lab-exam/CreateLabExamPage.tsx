@@ -9,14 +9,22 @@ export function CreateLabExamPage() {
   const client = useQueryClient();
 
   const initialData: LabExamRequest = {
-    name: "", description: "", defaultAmount: null, referenceRange: "",
-    unit: "", laboratoryId: null, state: 1,
+    name: "",
+    description: "",
+    defaultAmount: null,
+    referenceRange: "",
+    unit: "",
+    laboratoryId: null,
+    state: 1,
   };
 
   const onSubmit = useCallback(
     async (form: LabExamRequest) => {
       const response = await createLabExam(form);
-      if (!response.success) { toast.danger(response.message); return response; }
+      if (!response.success) {
+        toast.danger(response.message);
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["lab-exams"] });
       toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
@@ -24,5 +32,7 @@ export function CreateLabExamPage() {
     [client],
   );
 
-  return <LabExamForm initialForm={initialData} type="create" onSubmit={onSubmit} />;
+  return (
+    <LabExamForm initialForm={initialData} type="create" onSubmit={onSubmit} />
+  );
 }

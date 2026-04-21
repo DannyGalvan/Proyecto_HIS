@@ -20,10 +20,17 @@ export function UpdateLabExamPage() {
   const onSubmit = useCallback(
     async (form: LabExamRequest) => {
       const response = await updateLabExam(form);
-      if (!response.success) { toast.danger(`${response.message} ${validationFailureToString(response.data)}`); return response; }
+      if (!response.success) {
+        toast.danger(
+          `${response.message} ${validationFailureToString(response.data)}`,
+        );
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["lab-exams"] });
       await client.invalidateQueries({ queryKey: ["labExamToUpdate", id] });
-      toast.success(`El registro ${form.name} ha sido actualizado correctamente.`);
+      toast.success(
+        `El registro ${form.name} ha sido actualizado correctamente.`,
+      );
       return response;
     },
     [client, id],
@@ -36,7 +43,9 @@ export function UpdateLabExamPage() {
       {data?.success ? (
         <LabExamForm initialForm={data.data} type="edit" onSubmit={onSubmit} />
       ) : (
-        <div>Error: {error instanceof Error ? error.message : "Error desconocido"}</div>
+        <div>
+          Error: {error instanceof Error ? error.message : "Error desconocido"}
+        </div>
       )}
     </div>
   );

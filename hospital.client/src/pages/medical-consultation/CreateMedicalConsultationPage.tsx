@@ -1,11 +1,14 @@
 import { toast } from "@heroui/react";
-import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router";
 import { MedicalConsultationForm } from "../../components/form/MedicalConsultationForm";
-import { createMedicalConsultation, getMedicalConsultations } from "../../services/medicalConsultationService";
+import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { nameRoutes } from "../../configs/constants";
 import { useAuth } from "../../hooks/useAuth";
-import { LoadingComponent } from "../../components/spinner/LoadingComponent";
+import {
+  createMedicalConsultation,
+  getMedicalConsultations,
+} from "../../services/medicalConsultationService";
 import type { MedicalConsultationRequest } from "../../types/MedicalConsultationResponse";
 
 export function CreateMedicalConsultationPage() {
@@ -27,8 +30,9 @@ export function CreateMedicalConsultationPage() {
           Acceso no permitido
         </h1>
         <p className="text-gray-500 dark:text-gray-400 max-w-md">
-          No puedes crear una consulta médica sin que provenga de una cita médica activa.
-          Las consultas solo pueden iniciarse desde el panel del médico.
+          No puedes crear una consulta médica sin que provenga de una cita
+          médica activa. Las consultas solo pueden iniciarse desde el panel del
+          médico.
         </p>
         <button
           className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 transition-colors"
@@ -97,13 +101,15 @@ function CreateMedicalConsultationGuard({
           Ya existe una consulta en curso
         </h1>
         <p className="text-gray-500 dark:text-gray-400 max-w-md">
-          Esta cita ya tiene una consulta médica registrada que aún no ha sido finalizada.
-          Puedes continuar editándola.
+          Esta cita ya tiene una consulta médica registrada que aún no ha sido
+          finalizada. Puedes continuar editándola.
         </p>
         <button
           className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 transition-colors"
           type="button"
-          onClick={() => navigate(`/medical-consultation/update/${existing.id}`)}
+          onClick={() =>
+            navigate(`/medical-consultation/update/${existing.id}`)
+          }
         >
           <i className="bi bi-pencil-square mr-1" />
           Continuar Consulta Existente
@@ -128,14 +134,16 @@ function CreateMedicalConsultationGuard({
           Consulta ya finalizada
         </h1>
         <p className="text-gray-500 dark:text-gray-400 max-w-md">
-          Esta cita ya tiene una consulta médica completada. No es posible crear una nueva.
-          Puedes ver la consulta existente o regresar al panel.
+          Esta cita ya tiene una consulta médica completada. No es posible crear
+          una nueva. Puedes ver la consulta existente o regresar al panel.
         </p>
         <div className="flex gap-3">
           <button
             className="flex items-center gap-2 rounded-xl bg-gray-200 px-5 py-2.5 font-semibold text-gray-700 hover:bg-gray-300 transition-colors"
             type="button"
-            onClick={() => navigate(`/medical-consultation/update/${existing.id}`)}
+            onClick={() =>
+              navigate(`/medical-consultation/update/${existing.id}`)
+            }
           >
             <i className="bi bi-eye mr-1" />
             Ver Consulta
@@ -177,9 +185,13 @@ function CreateMedicalConsultationGuard({
         const response = await createMedicalConsultation(form);
         if (response.success) {
           if (form.consultationStatus === 1) {
-            toast.success("La consulta ha sido finalizada exitosamente. El paciente puede proceder a las siguientes indicaciones médicas.");
+            toast.success(
+              "La consulta ha sido finalizada exitosamente. El paciente puede proceder a las siguientes indicaciones médicas.",
+            );
           } else {
-            toast.success("Consulta médica registrada exitosamente. Puede continuar editándola desde el panel del médico.");
+            toast.success(
+              "Consulta médica registrada exitosamente. Puede continuar editándola desde el panel del médico.",
+            );
           }
           onSubmitSuccess();
         } else {

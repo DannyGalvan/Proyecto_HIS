@@ -25,7 +25,9 @@ function getMonthDateRange(): { start: string; end: string } {
   };
 }
 
-export function MedicineInventorySummary({ data }: MedicineInventorySummaryProps) {
+export function MedicineInventorySummary({
+  data,
+}: MedicineInventorySummaryProps) {
   const { start, end } = useMemo(() => getMonthDateRange(), []);
 
   const { data: movementsResponse, isPending } = useQuery({
@@ -53,8 +55,9 @@ export function MedicineInventorySummary({ data }: MedicineInventorySummaryProps
   });
 
   const summary = useMemo(() => {
-    const movements: InventoryMovementResponse[] =
-      movementsResponse?.success ? movementsResponse.data : [];
+    const movements: InventoryMovementResponse[] = movementsResponse?.success
+      ? movementsResponse.data
+      : [];
 
     let totalEntries = 0;
     let totalExits = 0;
@@ -100,21 +103,31 @@ export function MedicineInventorySummary({ data }: MedicineInventorySummaryProps
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {/* Stock Actual */}
         <div className="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Stock Actual</p>
-          <p className={`text-lg font-bold ${isLowStock ? "text-red-600" : "text-green-600"}`}>
-            {currentStock} {isLowStock && "⚠️"}
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Stock Actual
+          </p>
+          <p
+            className={`text-lg font-bold ${isLowStock ? "text-red-600" : "text-green-600"}`}
+          >
+            {currentStock} {isLowStock ? "⚠️" : null}
           </p>
         </div>
 
         {/* Stock Mínimo */}
         <div className="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Stock Mínimo</p>
-          <p className="text-lg font-bold text-gray-700 dark:text-gray-200">{minimumStock}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Stock Mínimo
+          </p>
+          <p className="text-lg font-bold text-gray-700 dark:text-gray-200">
+            {minimumStock}
+          </p>
         </div>
 
         {/* Total Entradas del Mes */}
         <div className="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Entradas del Mes</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Entradas del Mes
+          </p>
           <p className="text-lg font-bold text-green-600">
             +{summary.totalEntries}
           </p>
@@ -122,7 +135,9 @@ export function MedicineInventorySummary({ data }: MedicineInventorySummaryProps
 
         {/* Total Salidas del Mes */}
         <div className="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Salidas del Mes</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Salidas del Mes
+          </p>
           <p className="text-lg font-bold text-red-600">
             -{summary.totalExits}
           </p>
@@ -130,24 +145,29 @@ export function MedicineInventorySummary({ data }: MedicineInventorySummaryProps
 
         {/* Último Movimiento */}
         <div className="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Último Movimiento</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Último Movimiento
+          </p>
           {lastMovement ? (
             <div>
               <span
                 className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                  MovementTypeLabels[lastMovement.movementType]?.color ?? "bg-gray-100 text-gray-800"
+                  MovementTypeLabels[lastMovement.movementType]?.color ??
+                  "bg-gray-100 text-gray-800"
                 }`}
               >
-                {MovementTypeLabels[lastMovement.movementType]?.label ?? "Desconocido"}
+                {MovementTypeLabels[lastMovement.movementType]?.label ??
+                  "Desconocido"}
               </span>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {formatDateTime(lastMovement.createdAt)} — {lastMovement.quantity} uds.
+                {formatDateTime(lastMovement.createdAt)} —{" "}
+                {lastMovement.quantity} uds.
               </p>
-              {lastMovement.user?.name && (
+              {lastMovement.user?.name ? (
                 <p className="text-xs text-gray-400 dark:text-gray-500">
                   por {lastMovement.user.name}
                 </p>
-              )}
+              ) : null}
             </div>
           ) : (
             <p className="text-sm text-gray-400">Sin movimientos</p>

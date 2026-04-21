@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 interface StepFormProps {
   /** Labels for each step */
@@ -14,7 +14,13 @@ interface StepFormProps {
  * Multi-step form wrapper that renders a step indicator bar and
  * Back / Next navigation buttons.
  */
-export function StepForm({ steps, currentStep, onNext, onBack, children }: StepFormProps) {
+export function StepForm({
+  steps,
+  currentStep,
+  onNext,
+  onBack,
+  children,
+}: StepFormProps) {
   const isFirst = currentStep === 0;
   const isLast = currentStep === steps.length - 1;
 
@@ -27,10 +33,10 @@ export function StepForm({ steps, currentStep, onNext, onBack, children }: StepF
             key={label}
             className={`flex-1 text-center ${
               index === currentStep
-                ? 'text-blue-600 font-semibold'
+                ? "text-blue-600 font-semibold"
                 : index < currentStep
-                ? 'text-green-600'
-                : 'text-gray-400'
+                  ? "text-green-600"
+                  : "text-gray-400"
             }`}
           >
             {label}
@@ -48,7 +54,7 @@ export function StepForm({ steps, currentStep, onNext, onBack, children }: StepF
             width:
               steps.length > 1
                 ? `${(currentStep / (steps.length - 1)) * 100}%`
-                : '0%',
+                : "0%",
           }}
         />
 
@@ -57,16 +63,16 @@ export function StepForm({ steps, currentStep, onNext, onBack, children }: StepF
           {steps.map((label, index) => (
             <div
               key={label}
+              aria-current={index === currentStep ? "step" : undefined}
               className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-bold transition-colors ${
                 index < currentStep
-                  ? 'border-green-500 bg-green-500 text-white'
+                  ? "border-green-500 bg-green-500 text-white"
                   : index === currentStep
-                  ? 'border-blue-500 bg-blue-500 text-white'
-                  : 'border-gray-300 bg-white text-gray-400'
+                    ? "border-blue-500 bg-blue-500 text-white"
+                    : "border-gray-300 bg-white text-gray-400"
               }`}
-              aria-current={index === currentStep ? 'step' : undefined}
             >
-              {index < currentStep ? '✓' : index + 1}
+              {index < currentStep ? "✓" : index + 1}
             </div>
           ))}
         </div>
@@ -78,23 +84,23 @@ export function StepForm({ steps, currentStep, onNext, onBack, children }: StepF
       {/* Navigation buttons */}
       <div className="flex justify-between gap-4 pt-2">
         <button
-          type="button"
-          disabled={isFirst}
-          onClick={onBack}
           className={`rounded-md px-5 py-2 text-sm font-semibold transition-colors ${
             isFirst
-              ? 'cursor-not-allowed bg-gray-100 text-gray-400'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              ? "cursor-not-allowed bg-gray-100 text-gray-400"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
+          disabled={isFirst}
+          type="button"
+          onClick={onBack}
         >
           Atrás
         </button>
 
         {!isLast && (
           <button
+            className="rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
             type="button"
             onClick={onNext}
-            className="rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
           >
             Siguiente
           </button>

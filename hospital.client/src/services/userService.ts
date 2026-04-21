@@ -45,5 +45,7 @@ export const deleteUser = async (id: number) => {
   return api.delete<unknown, ApiResponse<UserResponse>>(`User/${id}`);
 };
 
-export const partialUpdateUser = async (data: UserRequest): Promise<ApiResponse<UserResponse>> =>
+export const partialUpdateUser = async (
+  data: UserRequest,
+): Promise<ApiResponse<UserResponse>> =>
   api.patch<unknown, ApiResponse<UserResponse>, UserRequest>("User", data);

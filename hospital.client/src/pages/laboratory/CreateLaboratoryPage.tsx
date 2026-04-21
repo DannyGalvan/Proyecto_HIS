@@ -8,12 +8,19 @@ import type { LaboratoryRequest } from "../../types/LaboratoryResponse";
 export function CreateLaboratoryPage() {
   const client = useQueryClient();
 
-  const initialData: LaboratoryRequest = { name: "", description: "", state: 1 };
+  const initialData: LaboratoryRequest = {
+    name: "",
+    description: "",
+    state: 1,
+  };
 
   const onSubmit = useCallback(
     async (form: LaboratoryRequest) => {
       const response = await createLaboratory(form);
-      if (!response.success) { toast.danger(response.message); return response; }
+      if (!response.success) {
+        toast.danger(response.message);
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["laboratories"] });
       toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
@@ -21,5 +28,11 @@ export function CreateLaboratoryPage() {
     [client],
   );
 
-  return <LaboratoryForm initialForm={initialData} type="create" onSubmit={onSubmit} />;
+  return (
+    <LaboratoryForm
+      initialForm={initialData}
+      type="create"
+      onSubmit={onSubmit}
+    />
+  );
 }

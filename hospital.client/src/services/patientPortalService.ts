@@ -1,5 +1,7 @@
-import { api } from '../configs/axios/interceptors';
-import type { ApiResponse } from '../types/ApiResponse';
+import { api } from "../configs/axios/interceptors";
+import { usePatientAuthStore } from "../stores/usePatientAuthStore";
+import type { ApiResponse } from "../types/ApiResponse";
+import type { LoginRequest, LoginResponse } from "../types/LoginRequest";
 import type {
   AvailabilityResponse,
   BookAppointmentRequest,
@@ -8,9 +10,7 @@ import type {
   PatientPaymentRequest,
   PatientRegisterRequest,
   PaymentConfirmationResponse,
-} from '../types/PatientPortalTypes';
-import type { LoginRequest, LoginResponse } from '../types/LoginRequest';
-import { usePatientAuthStore } from '../stores/usePatientAuthStore';
+} from "../types/PatientPortalTypes";
 
 // ---------------------------------------------------------------------------
 // Helper: build Authorization header from the patient store (outside React)
@@ -29,7 +29,9 @@ const getPatientAuthHeader = (): Record<string, string> => {
  * patient role.
  * GET /api/v1/PatientPortal/verify-dpi/{dpi}
  */
-export const verifyDpi = (dpi: string): Promise<ApiResponse<DpiVerificationResponse>> =>
+export const verifyDpi = (
+  dpi: string,
+): Promise<ApiResponse<DpiVerificationResponse>> =>
   api.get<unknown, ApiResponse<DpiVerificationResponse>>(
     `PatientPortal/verify-dpi/${encodeURIComponent(dpi)}`,
   );
@@ -42,7 +44,7 @@ export const registerPatient = (
   data: PatientRegisterRequest,
 ): Promise<ApiResponse<string>> =>
   api.post<unknown, ApiResponse<string>, PatientRegisterRequest>(
-    'PatientPortal/register',
+    "PatientPortal/register",
     data,
   );
 
@@ -54,7 +56,10 @@ export const loginPatient = (credentials: {
   userName: string;
   password: string;
 }): Promise<ApiResponse<LoginResponse>> =>
-  api.post<unknown, ApiResponse<LoginResponse>, LoginRequest>('auth', credentials);
+  api.post<unknown, ApiResponse<LoginResponse>, LoginRequest>(
+    "auth",
+    credentials,
+  );
 
 /**
  * Get specialties available at a specific branch.
@@ -62,10 +67,9 @@ export const loginPatient = (credentials: {
  */
 export const getSpecialtiesByBranch = (
   branchId: number,
-): Promise<ApiResponse<import('../types/SpecialtyResponse').SpecialtyResponse[]>> =>
-  api.get(
-    `PatientPortal/specialties-by-branch?branchId=${branchId}`,
-  );
+): Promise<
+  ApiResponse<import("../types/SpecialtyResponse").SpecialtyResponse[]>
+> => api.get(`PatientPortal/specialties-by-branch?branchId=${branchId}`);
 
 /**
  * Get doctors filtered by branch and optionally by specialty.
@@ -118,7 +122,7 @@ export const bookAppointment = (
     unknown,
     ApiResponse<{ appointmentId: number; createdAt: string }>,
     BookAppointmentRequest
-  >('PatientPortal/book', data, {
+  >("PatientPortal/book", data, {
     headers: getPatientAuthHeader(),
   });
 
@@ -133,7 +137,7 @@ export const processPatientPayment = (
     unknown,
     ApiResponse<PaymentConfirmationResponse>,
     PatientPaymentRequest
-  >('PatientPortal/pay', data, {
+  >("PatientPortal/pay", data, {
     headers: getPatientAuthHeader(),
   });
 
@@ -156,9 +160,7 @@ export const getMyAppointments = (
  * Cancel a confirmed appointment (patient only).
  * POST /api/v1/PatientPortal/appointments/{id}/cancel
  */
-export const cancelAppointment = (
-  id: number,
-): Promise<ApiResponse<string>> =>
+export const cancelAppointment = (id: number): Promise<ApiResponse<string>> =>
   api.post<unknown, ApiResponse<string>>(
     `PatientPortal/appointments/${id}/cancel`,
   );
@@ -167,17 +169,19 @@ export const cancelAppointment = (
  * Get the authenticated patient's profile data.
  * GET /api/v1/PatientPortal/my-profile
  */
-export const getMyProfile = (): Promise<ApiResponse<{
-  id: number;
-  name: string;
-  email: string;
-  number: string;
-  identificationDocument: string;
-  nit: string | null;
-  insuranceNumber: string | null;
-  userName: string;
-}>> =>
-  api.get('PatientPortal/my-profile', {
+export const getMyProfile = (): Promise<
+  ApiResponse<{
+    id: number;
+    name: string;
+    email: string;
+    number: string;
+    identificationDocument: string;
+    nit: string | null;
+    insuranceNumber: string | null;
+    userName: string;
+  }>
+> =>
+  api.get("PatientPortal/my-profile", {
     headers: getPatientAuthHeader(),
   });
 
@@ -191,17 +195,19 @@ export const updateMyProfile = (data: {
   number?: string | null;
   nit?: string | null;
   insuranceNumber?: string | null;
-}): Promise<ApiResponse<{
-  id: number;
-  name: string;
-  email: string;
-  number: string;
-  identificationDocument: string;
-  nit: string | null;
-  insuranceNumber: string | null;
-  userName: string;
-}>> =>
-  api.patch('PatientPortal/my-profile', data, {
+}): Promise<
+  ApiResponse<{
+    id: number;
+    name: string;
+    email: string;
+    number: string;
+    identificationDocument: string;
+    nit: string | null;
+    insuranceNumber: string | null;
+    userName: string;
+  }>
+> =>
+  api.patch("PatientPortal/my-profile", data, {
     headers: getPatientAuthHeader(),
   });
 
@@ -209,24 +215,30 @@ export const updateMyProfile = (data: {
  * Get all active specialties (public, no auth required).
  * GET /api/v1/PatientPortal/specialties
  */
-export const getPublicSpecialties = (): Promise<ApiResponse<Array<{
-  id: number;
-  name: string;
-  description: string | null;
-  state: number;
-}>>> =>
-  api.get('PatientPortal/specialties');
+export const getPublicSpecialties = (): Promise<
+  ApiResponse<
+    Array<{
+      id: number;
+      name: string;
+      description: string | null;
+      state: number;
+    }>
+  >
+> => api.get("PatientPortal/specialties");
 
 /**
  * Get all active branches (public, no auth required).
  * GET /api/v1/PatientPortal/branches
  */
-export const getPublicBranches = (): Promise<ApiResponse<Array<{
-  id: number;
-  name: string;
-  address: string | null;
-  phone: string | null;
-  description: string | null;
-  state: number;
-}>>> =>
-  api.get('PatientPortal/branches');
+export const getPublicBranches = (): Promise<
+  ApiResponse<
+    Array<{
+      id: number;
+      name: string;
+      address: string | null;
+      phone: string | null;
+      description: string | null;
+      state: number;
+    }>
+  >
+> => api.get("PatientPortal/branches");

@@ -24,7 +24,9 @@ export function TimezoneSelector({
   reloadOnChange = false,
 }: TimezoneSelectorProps) {
   const [timezones, setTimezones] = useState<TimezoneResponse[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(currentTimezoneId ?? null);
+  const [selectedId, setSelectedId] = useState<number | null>(
+    currentTimezoneId ?? null,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
 
@@ -45,13 +47,20 @@ export function TimezoneSelector({
           pageSize: 100,
         });
         if (!cancelled && response.success) setTimezones(response.data);
-      } catch { /* silent */ }
-      finally { if (!cancelled) setIsFetching(false); }
+      } catch {
+        /* silent */
+      } finally {
+        if (!cancelled) setIsFetching(false);
+      }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  useEffect(() => { setSelectedId(currentTimezoneId ?? null); }, [currentTimezoneId]);
+  useEffect(() => {
+    setSelectedId(currentTimezoneId ?? null);
+  }, [currentTimezoneId]);
 
   const handleChange = useCallback(
     async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -59,10 +68,11 @@ export function TimezoneSelector({
       if (!newId || newId === selectedId) return;
       setIsLoading(true);
       try {
-        const response = await api.patch<unknown, ApiResponse<{ timezoneIanaId: string }>, { timezoneId: number }>(
-          "/Auth/Timezone",
-          { timezoneId: newId },
-        );
+        const response = await api.patch<
+          unknown,
+          ApiResponse<{ timezoneIanaId: string }>,
+          { timezoneId: number }
+        >("/Auth/Timezone", { timezoneId: newId });
         if (response.success) {
           setSelectedId(newId);
           const selectedTz = timezones.find((tz) => tz.id === newId);
@@ -83,16 +93,31 @@ export function TimezoneSelector({
           onTimezoneChanged?.(newIanaId);
           if (reloadOnChange) window.location.reload();
         }
-      } catch { /* silent */ }
-      finally { setIsLoading(false); }
+      } catch {
+        /* silent */
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [selectedId, userId, timezones, isPatientPortal, reloadOnChange, adminSignIn, adminAuthState, patientStore, onTimezoneChanged],
+    [
+      selectedId,
+      userId,
+      timezones,
+      isPatientPortal,
+      reloadOnChange,
+      adminSignIn,
+      adminAuthState,
+      patientStore,
+      onTimezoneChanged,
+    ],
   );
 
   if (isFetching) {
     return (
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Zona Horaria</label>
+        <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
+          Zona Horaria
+        </label>
         <div className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500">
           Cargando zonas horarias...
         </div>
@@ -102,26 +127,32 @@ export function TimezoneSelector({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor="timezone-selector" className="text-sm font-bold text-gray-700 dark:text-gray-300">
+      <label
+        className="text-sm font-bold text-gray-700 dark:text-gray-300"
+        htmlFor="timezone-selector"
+      >
         Zona Horaria <i className="bi bi-globe ms-1" />
       </label>
       <select
-        id="timezone-selector"
         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
         disabled={isLoading}
+        id="timezone-selector"
         value={selectedId ?? ""}
         onChange={handleChange}
       >
         <option value="">Seleccione una zona horaria</option>
         {timezones.map((tz) => (
-          <option key={tz.id} value={tz.id}>{tz.displayName}</option>
+          <option key={tz.id} value={tz.id}>
+            {tz.displayName}
+          </option>
         ))}
       </select>
-      {isLoading && (
+      {isLoading ? (
         <p className="text-xs text-blue-500 mt-0.5">
-          <i className="bi bi-hourglass-split animate-spin mr-1" />Actualizando...
+          <i className="bi bi-hourglass-split animate-spin mr-1" />
+          Actualizando...
         </p>
-      )}
+      ) : null}
     </div>
   );
 }

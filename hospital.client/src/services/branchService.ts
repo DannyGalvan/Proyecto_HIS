@@ -17,14 +17,22 @@ export const getBranches = async ({
   return api.get<unknown, ApiResponse<BranchResponse[]>>(baseQuery);
 };
 
-export const getBranchById = async (id: number): Promise<ApiResponse<BranchResponse>> =>
+export const getBranchById = async (
+  id: number,
+): Promise<ApiResponse<BranchResponse>> =>
   api.get<unknown, ApiResponse<BranchResponse>>(`Branch/${id}`);
 
-export const createBranch = async (data: BranchRequest): Promise<ApiResponse<BranchResponse>> =>
+export const createBranch = async (
+  data: BranchRequest,
+): Promise<ApiResponse<BranchResponse>> =>
   api.post<unknown, ApiResponse<BranchResponse>, BranchRequest>("Branch", data);
 
-export const updateBranch = async (data: BranchRequest): Promise<ApiResponse<BranchResponse>> =>
+export const updateBranch = async (
+  data: BranchRequest,
+): Promise<ApiResponse<BranchResponse>> =>
   api.put<unknown, ApiResponse<BranchResponse>, BranchRequest>("Branch", data);
 
-export const deleteBranch = async (id: number): Promise<ApiResponse<BranchResponse>> =>
+export const deleteBranch = async (
+  id: number,
+): Promise<ApiResponse<BranchResponse>> =>
   api.delete<unknown, ApiResponse<BranchResponse>>(`Branch/${id}`);

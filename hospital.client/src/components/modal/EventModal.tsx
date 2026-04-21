@@ -1,22 +1,30 @@
-import { useCallback, useState } from "react";
 import { toast } from "@heroui/react";
+import { useCallback, useState } from "react";
 
-import type { DoctorEventRequest, DoctorEventResponse } from "../../types/DoctorEventResponse";
-import { EventTypeLabels } from "../../types/DoctorEventResponse";
 import {
   createDoctorEvent,
-  updateDoctorEvent,
   patchDoctorEvent,
+  updateDoctorEvent,
 } from "../../services/doctorEventService";
+import type {
+  DoctorEventRequest,
+  DoctorEventResponse,
+} from "../../types/DoctorEventResponse";
+import { EventTypeLabels } from "../../types/DoctorEventResponse";
 
 interface EventModalProps {
-  event: DoctorEventResponse | null;
-  userId: number;
-  onClose: () => void;
-  onSaved: () => void;
+  readonly event: DoctorEventResponse | null;
+  readonly userId: number;
+  readonly onClose: () => void;
+  readonly onSaved: () => void;
 }
 
-export function EventModal({ event, userId, onClose, onSaved }: EventModalProps) {
+export function EventModal({
+  event,
+  userId,
+  onClose,
+  onSaved,
+}: EventModalProps) {
   const isEditing = !!event;
 
   const [title, setTitle] = useState(event?.title ?? "");
@@ -71,7 +79,9 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
         toast.success(`Evento actualizado exitosamente. ${title}`);
       } else {
         await createDoctorEvent(request);
-        toast.success(`Evento creado exitosamente. ${title} — ${new Date(startDate).toLocaleDateString("es-GT")} a ${new Date(endDate).toLocaleDateString("es-GT")}.`);
+        toast.success(
+          `Evento creado exitosamente. ${title} — ${new Date(startDate).toLocaleDateString("es-GT")} a ${new Date(endDate).toLocaleDateString("es-GT")}.`,
+        );
       }
 
       onSaved();
@@ -81,7 +91,19 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
     } finally {
       setSaving(false);
     }
-  }, [title, description, eventType, startDate, endDate, isAllDay, userId, isEditing, event, onSaved, onClose]);
+  }, [
+    title,
+    description,
+    eventType,
+    startDate,
+    endDate,
+    isAllDay,
+    userId,
+    isEditing,
+    event,
+    onSaved,
+    onClose,
+  ]);
 
   const handleDelete = useCallback(async () => {
     if (!event) return;
@@ -99,7 +121,10 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
   }, [event, onSaved, onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onClick={onClose}
+    >
       <div
         className="bg-white dark:bg-zinc-800 rounded-xl shadow-xl w-full max-w-lg mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
@@ -110,18 +135,18 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
           </h2>
           <button
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-            onClick={onClose}
             type="button"
+            onClick={onClose}
           >
             <i className="bi bi-x-lg text-xl" />
           </button>
         </div>
 
-        {error && (
+        {error ? (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm dark:bg-red-900/20 dark:border-red-800 dark:text-red-300">
             {error}
           </div>
-        )}
+        ) : null}
 
         <div className="space-y-4">
           {/* Title */}
@@ -130,33 +155,37 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
             <input
               className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               maxLength={200}
-              onChange={(e) => setTitle(e.target.value)}
               placeholder="Título del evento"
               type="text"
               value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium mb-1">Descripción</label>
+            <label className="block text-sm font-medium mb-1">
+              Descripción
+            </label>
             <textarea
               className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
               maxLength={500}
-              onChange={(e) => setDescription(e.target.value)}
               placeholder="Descripción opcional"
               rows={3}
               value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
           {/* Event Type */}
           <div>
-            <label className="block text-sm font-medium mb-1">Tipo de Evento *</label>
+            <label className="block text-sm font-medium mb-1">
+              Tipo de Evento *
+            </label>
             <select
               className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              onChange={(e) => setEventType(Number(e.target.value))}
               value={eventType}
+              onChange={(e) => setEventType(Number(e.target.value))}
             >
               {Object.entries(EventTypeLabels).map(([key, { label }]) => (
                 <option key={key} value={key}>
@@ -172,8 +201,8 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
               checked={isAllDay}
               className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
               id="isAllDay"
-              onChange={(e) => setIsAllDay(e.target.checked)}
               type="checkbox"
+              onChange={(e) => setIsAllDay(e.target.checked)}
             />
             <label className="text-sm font-medium" htmlFor="isAllDay">
               Todo el día
@@ -186,18 +215,18 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
               <label className="block text-sm font-medium mb-1">Inicio *</label>
               <input
                 className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                onChange={(e) => setStartDate(e.target.value)}
                 type={isAllDay ? "date" : "datetime-local"}
                 value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Fin *</label>
               <input
                 className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                onChange={(e) => setEndDate(e.target.value)}
                 type={isAllDay ? "date" : "datetime-local"}
                 value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
               />
             </div>
           </div>
@@ -206,32 +235,32 @@ export function EventModal({ event, userId, onClose, onSaved }: EventModalProps)
         {/* Actions */}
         <div className="flex items-center justify-between mt-6">
           <div>
-            {isEditing && (
+            {isEditing ? (
               <button
                 className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                 disabled={saving}
-                onClick={handleDelete}
                 type="button"
+                onClick={handleDelete}
               >
                 <i className="bi bi-trash mr-1" />
                 Eliminar
               </button>
-            )}
+            ) : null}
           </div>
           <div className="flex gap-2">
             <button
               className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
               disabled={saving}
-              onClick={onClose}
               type="button"
+              onClick={onClose}
             >
               Cancelar
             </button>
             <button
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors disabled:opacity-50"
               disabled={saving}
-              onClick={handleSave}
               type="button"
+              onClick={handleSave}
             >
               {saving ? "Guardando..." : isEditing ? "Actualizar" : "Crear"}
             </button>

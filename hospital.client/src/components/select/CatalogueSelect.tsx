@@ -154,7 +154,9 @@ export function CatalogueSelect<T extends object>({
           htmlFor={label}
         >
           {label}{" "}
-          {isRequired && <span className="text-danger font-bold ml-1">*</span>}
+          {isRequired ? (
+            <span className="text-danger font-bold ml-1">*</span>
+          ) : null}
         </label>
         <AsyncSelect
           key={deps}

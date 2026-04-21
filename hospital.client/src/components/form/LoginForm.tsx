@@ -1,10 +1,4 @@
-import {
-  FieldError,
-  Form,
-  Input,
-  Label,
-  TextField,
-} from "@heroui/react";
+import { FieldError, Form, Input, Label, TextField } from "@heroui/react";
 import { useCallback, type ChangeEvent } from "react";
 import { Link } from "react-router";
 import { nameRoutes } from "../../configs/constants";
@@ -26,8 +20,15 @@ export interface LoginFormProps {
 }
 
 export function LoginForm({ initialForm, onSubmit }: LoginFormProps) {
-  const { form, errors, handleChange, handleSubmit, success, message, loading } =
-    useForm<LoginFormData, unknown>(initialForm, validateLogin, onSubmit);
+  const {
+    form,
+    errors,
+    handleChange,
+    handleSubmit,
+    success,
+    message,
+    loading,
+  } = useForm<LoginFormData, unknown>(initialForm, validateLogin, onSubmit);
 
   const handleTextChange = useCallback(
     (name: string) => (val: string) => {
@@ -66,9 +67,9 @@ export function LoginForm({ initialForm, onSubmit }: LoginFormProps) {
         </TextField>
 
         <PasswordVisibilityToggle
-          isInvalid={!!errors?.password}
           isRequired
           errorMessage={errors?.password as string}
+          isInvalid={!!errors?.password}
           label="Contraseña"
           name="password"
           value={form.password || ""}

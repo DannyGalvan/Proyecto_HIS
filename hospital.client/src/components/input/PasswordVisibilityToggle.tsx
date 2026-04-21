@@ -89,7 +89,9 @@ export function PasswordVisibilityToggle({
           type="button"
           onClick={toggleVisibility}
         >
-          <i className={`bi ${isVisible ? "bi-eye-slash" : "bi-eye"} text-lg`} />
+          <i
+            className={`bi ${isVisible ? "bi-eye-slash" : "bi-eye"} text-lg`}
+          />
         </button>
       </div>
       {isInvalid && errorMessage ? (

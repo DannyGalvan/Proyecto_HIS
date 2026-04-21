@@ -14,11 +14,18 @@ interface NotificationStatusBadgeProps {
  * Renders a colored badge for a notification status code.
  * Defaults to gray styling when the status code is not recognized.
  */
-export function NotificationStatusBadge({ status }: NotificationStatusBadgeProps) {
-  const entry = NOTIFICATION_STATUS[status] ?? { label: String(status), color: "bg-gray-100 text-gray-800" };
+export function NotificationStatusBadge({
+  status,
+}: NotificationStatusBadgeProps) {
+  const entry = NOTIFICATION_STATUS[status] ?? {
+    label: String(status),
+    color: "bg-gray-100 text-gray-800",
+  };
 
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${entry.color}`}>
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-semibold ${entry.color}`}
+    >
       {entry.label}
     </span>
   );

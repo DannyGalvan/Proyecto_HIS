@@ -1,5 +1,6 @@
 import { toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type React from "react";
 import { useMemo } from "react";
 import { useParams } from "react-router";
 import {
@@ -13,7 +14,6 @@ import {
   deleteRolOperation,
   getRolOperations,
 } from "../../services/rolOperationService";
-import type React from "react";
 import type { ApiResponse } from "../../types/ApiResponse";
 import type { OperationResponse } from "../../types/OperationResponse";
 import type { RolOperationResponse } from "../../types/RolOperationResponse";
@@ -30,7 +30,13 @@ export function RolOperationPage() {
   >({
     queryKey: ["operations"],
     queryFn: () =>
-      getOperations({ pageSize: 1000, filters: "", include: "", pageNumber: 1, includeTotal: false }),
+      getOperations({
+        pageSize: 1000,
+        filters: "",
+        include: "",
+        pageNumber: 1,
+        includeTotal: false,
+      }),
   });
 
   const { data: rolOperationsData, isLoading: loadingRolOperations } = useQuery<
@@ -66,7 +72,9 @@ export function RolOperationPage() {
     mutationFn: (op: OperationWithAssignment) =>
       createRolOperation({ id: null, rolId, operationId: op.id, state: 1 }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["rolOperations", rolId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["rolOperations", rolId],
+      });
       await queryClient.invalidateQueries({ queryKey: ["operations"] });
       toast.success("Operación asignada correctamente");
     },
@@ -79,7 +87,9 @@ export function RolOperationPage() {
     mutationFn: (op: OperationWithAssignment) =>
       deleteRolOperation(op.rolOperationId!),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["rolOperations", rolId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["rolOperations", rolId],
+      });
       await queryClient.invalidateQueries({ queryKey: ["operations"] });
       toast.success("Operación removida correctamente");
     },
@@ -132,21 +142,34 @@ export function RolOperationPage() {
             {mergedRows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={columns.length}
                   className="text-center py-8 text-gray-400"
+                  colSpan={columns.length}
                 >
                   No hay operaciones disponibles
                 </td>
               </tr>
             ) : (
               mergedRows.map((row) => (
-                <tr key={row.id} className="border-t border-gray-100 hover:bg-gray-50">
+                <tr
+                  key={row.id}
+                  className="border-t border-gray-100 hover:bg-gray-50"
+                >
                   {columns.map((col) => (
                     <td key={col.id as string} className="px-4 py-2 text-sm">
                       {"cell" in col && col.cell
-                        ? (col.cell as (data: OperationWithAssignment) => React.ReactNode)(row)
+                        ? (
+                            col.cell as (
+                              data: OperationWithAssignment,
+                            ) => React.ReactNode
+                          )(row)
                         : "selector" in col && col.selector
-                          ? String((col.selector as (data: OperationWithAssignment) => unknown)(row) ?? "")
+                          ? String(
+                              (
+                                col.selector as (
+                                  data: OperationWithAssignment,
+                                ) => unknown
+                              )(row) ?? "",
+                            )
                           : null}
                     </td>
                   ))}

@@ -17,14 +17,30 @@ export const getLabExams = async ({
   return api.get<unknown, ApiResponse<LabExamResponse[]>>(baseQuery);
 };
 
-export const getLabExamById = async (id: number): Promise<ApiResponse<LabExamResponse>> =>
-  api.get<unknown, ApiResponse<LabExamResponse>>(`LabExam/${id}?Include=Laboratory`);
+export const getLabExamById = async (
+  id: number,
+): Promise<ApiResponse<LabExamResponse>> =>
+  api.get<unknown, ApiResponse<LabExamResponse>>(
+    `LabExam/${id}?Include=Laboratory`,
+  );
 
-export const createLabExam = async (data: LabExamRequest): Promise<ApiResponse<LabExamResponse>> =>
-  api.post<unknown, ApiResponse<LabExamResponse>, LabExamRequest>("LabExam", data);
+export const createLabExam = async (
+  data: LabExamRequest,
+): Promise<ApiResponse<LabExamResponse>> =>
+  api.post<unknown, ApiResponse<LabExamResponse>, LabExamRequest>(
+    "LabExam",
+    data,
+  );
 
-export const updateLabExam = async (data: LabExamRequest): Promise<ApiResponse<LabExamResponse>> =>
-  api.put<unknown, ApiResponse<LabExamResponse>, LabExamRequest>("LabExam", data);
+export const updateLabExam = async (
+  data: LabExamRequest,
+): Promise<ApiResponse<LabExamResponse>> =>
+  api.put<unknown, ApiResponse<LabExamResponse>, LabExamRequest>(
+    "LabExam",
+    data,
+  );
 
-export const deleteLabExam = async (id: number): Promise<ApiResponse<LabExamResponse>> =>
+export const deleteLabExam = async (
+  id: number,
+): Promise<ApiResponse<LabExamResponse>> =>
   api.delete<unknown, ApiResponse<LabExamResponse>>(`LabExam/${id}`);

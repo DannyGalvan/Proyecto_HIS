@@ -9,14 +9,22 @@ export function CreateMedicinePage() {
   const client = useQueryClient();
 
   const initialData: MedicineRequest = {
-    name: "", description: "", defaultPrice: null, unit: "",
-    isControlled: false, minimumStock: 0, state: 1,
+    name: "",
+    description: "",
+    defaultPrice: null,
+    unit: "",
+    isControlled: false,
+    minimumStock: 0,
+    state: 1,
   };
 
   const onSubmit = useCallback(
     async (form: MedicineRequest) => {
       const response = await createMedicine(form);
-      if (!response.success) { toast.danger(response.message); return response; }
+      if (!response.success) {
+        toast.danger(response.message);
+        return response;
+      }
       await client.invalidateQueries({ queryKey: ["medicines"] });
       toast.success(`El registro ${form.name} ha sido creado exitosamente.`);
       return response;
@@ -24,5 +32,7 @@ export function CreateMedicinePage() {
     [client],
   );
 
-  return <MedicineForm initialForm={initialData} type="create" onSubmit={onSubmit} />;
+  return (
+    <MedicineForm initialForm={initialData} type="create" onSubmit={onSubmit} />
+  );
 }

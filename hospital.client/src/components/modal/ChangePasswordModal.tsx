@@ -17,7 +17,10 @@ interface ChangePasswordModalProps {
  * <ChangePasswordModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
  * ```
  */
-export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProps) {
+export function ChangePasswordModal({
+  isOpen,
+  onClose,
+}: ChangePasswordModalProps) {
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose}>
       <Modal.Backdrop>
