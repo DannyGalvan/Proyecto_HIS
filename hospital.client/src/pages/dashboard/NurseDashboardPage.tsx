@@ -38,6 +38,16 @@ function AppointmentCard({
   const patientName =
     appointment.patient?.name ?? `Paciente #${appointment.patientId}`;
 
+  const handleStartVitals = useCallback(
+    () => onStartVitals(appointment),
+    [appointment, onStartVitals],
+  );
+
+  const handleGoToForm = useCallback(
+    () => onGoToForm(appointment),
+    [appointment, onGoToForm],
+  );
+
   return (
     <div
       className={`rounded-xl border p-4 flex flex-col gap-3 shadow-sm ${colorClass}`}
@@ -67,7 +77,7 @@ function AppointmentCard({
             isDisabled={isLoading}
             size="sm"
             variant="primary"
-            onPress={() => onStartVitals(appointment)}
+            onPress={handleStartVitals}
           >
             <i className="bi bi-megaphone mr-1" />
             Llamar y Tomar Signos
@@ -78,7 +88,7 @@ function AppointmentCard({
             isDisabled={isLoading}
             size="sm"
             variant="primary"
-            onPress={() => onGoToForm(appointment)}
+            onPress={handleGoToForm}
           >
             <i className="bi bi-heart-pulse mr-1" />
             Registrar Signos Vitales

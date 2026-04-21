@@ -69,6 +69,24 @@ export function VitalSignForm({
     [handleChange],
   );
 
+  const handleCancel = useCallback(
+    () => navigate(fromNurseDashboard ? "/nurse-dashboard" : "/vital-sign"),
+    [navigate, fromNurseDashboard],
+  );
+
+  const handleEmergencyChange = useCallback(
+    (v: OptionValue) => {
+      const val =
+        v && !Array.isArray(v) && "value" in v
+          ? (v as { value: string }).value === "true"
+          : false;
+      handleChange({
+        target: { name: "isEmergency", value: val },
+      } as unknown as ChangeEvent<HTMLInputElement>);
+    },
+    [handleChange],
+  );
+
   const handleStateChange = useCallback(
     (newValue: OptionValue) => {
       const value =
@@ -291,15 +309,7 @@ export function VitalSignForm({
               { label: "Sí 🚨", value: "true" },
             ]}
             placeholder="Seleccione"
-            onChange={(v) => {
-              const val =
-                v && !Array.isArray(v) && "value" in v
-                  ? (v as { value: string }).value === "true"
-                  : false;
-              handleChange({
-                target: { name: "isEmergency", value: val },
-              } as unknown as ChangeEvent<HTMLInputElement>);
-            }}
+            onChange={handleEmergencyChange}
           />
 
           <OptionsSelect
@@ -332,9 +342,7 @@ export function VitalSignForm({
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() =>
-              navigate(fromNurseDashboard ? "/nurse-dashboard" : "/vital-sign")
-            }
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

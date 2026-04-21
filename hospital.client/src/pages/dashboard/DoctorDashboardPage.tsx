@@ -39,6 +39,31 @@ function AppointmentCard({
   const isInConsultation = appointment.appointmentStatusId === STATUS_CONSULTA;
   const isEvaluated = appointment.appointmentStatusId === STATUS_EVALUADO;
 
+  const handleStartConsultation = useCallback(
+    () => onAction(appointment, "start-consultation"),
+    [appointment, onAction],
+  );
+  const handleNoShow = useCallback(
+    () => onAction(appointment, "no-show"),
+    [appointment, onAction],
+  );
+  const handleConsultation = useCallback(
+    () => onAction(appointment, "consultation"),
+    [appointment, onAction],
+  );
+  const handleLabOrder = useCallback(
+    () => onAction(appointment, "lab-order"),
+    [appointment, onAction],
+  );
+  const handlePrescription = useCallback(
+    () => onAction(appointment, "prescription"),
+    [appointment, onAction],
+  );
+  const handleFinish = useCallback(
+    () => onAction(appointment, "finish"),
+    [appointment, onAction],
+  );
+
   return (
     <div
       className={`rounded-xl border p-4 flex flex-col gap-3 shadow-sm ${colorClass}`}
@@ -70,7 +95,7 @@ function AppointmentCard({
               isDisabled={isLoading}
               size="sm"
               variant="primary"
-              onPress={() => onAction(appointment, "start-consultation")}
+              onPress={handleStartConsultation}
             >
               <i className="bi bi-clipboard2-pulse mr-1" /> Iniciar Consulta
             </Button>
@@ -78,7 +103,7 @@ function AppointmentCard({
               isDisabled={isLoading}
               size="sm"
               variant="danger"
-              onPress={() => onAction(appointment, "no-show")}
+              onPress={handleNoShow}
             >
               <i className="bi bi-person-x mr-1" /> No Asistio
             </Button>
@@ -89,7 +114,7 @@ function AppointmentCard({
             isDisabled={isLoading}
             size="sm"
             variant="primary"
-            onPress={() => onAction(appointment, "consultation")}
+            onPress={handleConsultation}
           >
             <i className="bi bi-clipboard2 mr-1" /> Ver / Completar Consulta
           </Button>
@@ -100,7 +125,7 @@ function AppointmentCard({
               isDisabled={isLoading}
               size="sm"
               variant="secondary"
-              onPress={() => onAction(appointment, "lab-order")}
+              onPress={handleLabOrder}
             >
               <i className="bi bi-flask mr-1" /> Pedir Laboratorio
             </Button>
@@ -108,7 +133,7 @@ function AppointmentCard({
               isDisabled={isLoading}
               size="sm"
               variant="secondary"
-              onPress={() => onAction(appointment, "prescription")}
+              onPress={handlePrescription}
             >
               <i className="bi bi-prescription2 mr-1" /> Receta / Farmacia
             </Button>
@@ -116,7 +141,7 @@ function AppointmentCard({
               isDisabled={isLoading}
               size="sm"
               variant="primary"
-              onPress={() => onAction(appointment, "finish")}
+              onPress={handleFinish}
             >
               <i className="bi bi-check-circle mr-1" /> Finalizar Atencion
             </Button>

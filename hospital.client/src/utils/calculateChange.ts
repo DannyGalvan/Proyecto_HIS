@@ -6,6 +6,9 @@
  * @param amount - The total amount owed
  * @returns The change amount, rounded to 2 decimal places
  */
-export function calculateChange(amountReceived: number, amount: number): number {
+export function calculateChange(
+  amountReceived: number,
+  amount: number,
+): number {
   return Math.round((amountReceived - amount) * 100) / 100;
 }

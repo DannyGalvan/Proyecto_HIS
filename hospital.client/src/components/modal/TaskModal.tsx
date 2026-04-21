@@ -66,7 +66,9 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
       onSaved();
       onClose();
     } catch (err) {
-      setError("Error al guardar la tarea. Intente de nuevo.");
+      setError(
+        "Error al guardar la tarea. Intente de nuevo." + (err as Error).message,
+      );
     } finally {
       setSaving(false);
     }
@@ -112,6 +114,33 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
     }
   }, [task, onSaved, onClose]);
 
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value),
+    [],
+  );
+
+  const handleDescriptionChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+      setDescription(e.target.value),
+    [],
+  );
+
+  const handleDueDateChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setDueDate(e.target.value),
+    [],
+  );
+
+  const handlePriorityChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) =>
+      setPriority(Number(e.target.value)),
+    [],
+  );
+
+  const handleStopPropagation = useCallback(
+    (e: React.MouseEvent) => e.stopPropagation(),
+    [],
+  );
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -119,7 +148,7 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
     >
       <div
         className="bg-white dark:bg-zinc-800 rounded-xl shadow-xl w-full max-w-lg mx-4 p-6"
-        onClick={(e) => e.stopPropagation()}
+        onClick={handleStopPropagation}
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold">
@@ -150,7 +179,7 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
               placeholder="Título de la tarea"
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={handleTitleChange}
             />
           </div>
 
@@ -165,7 +194,7 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
               placeholder="Descripción opcional"
               rows={3}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={handleDescriptionChange}
             />
           </div>
 
@@ -178,7 +207,7 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
               className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               type="datetime-local"
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              onChange={handleDueDateChange}
             />
           </div>
 
@@ -190,7 +219,7 @@ export function TaskModal({ task, userId, onClose, onSaved }: TaskModalProps) {
             <select
               className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               value={priority}
-              onChange={(e) => setPriority(Number(e.target.value))}
+              onChange={handlePriorityChange}
             >
               {Object.entries(PriorityLabels).map(([key, { label }]) => (
                 <option key={key} value={key}>

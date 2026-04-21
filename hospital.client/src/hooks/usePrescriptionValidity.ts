@@ -5,9 +5,10 @@
  * @returns `isValid` — true iff the prescription is 7 days old or less;
  *          `daysOld` — number of full days since the prescription date
  */
-export function usePrescriptionValidity(
-  prescriptionDate: string | null,
-): { isValid: boolean; daysOld: number } {
+export function usePrescriptionValidity(prescriptionDate: string | null): {
+  isValid: boolean;
+  daysOld: number;
+} {
   if (!prescriptionDate) {
     return { isValid: false, daysOld: 0 };
   }

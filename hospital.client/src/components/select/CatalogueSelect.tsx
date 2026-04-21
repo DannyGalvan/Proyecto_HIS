@@ -6,19 +6,19 @@ import type { ApiResponse } from "../../types/ApiResponse";
 import type { filterOptions } from "../../types/FilterTypes";
 
 interface BaseCatalogueSelectProps {
-  label: string;
-  defaultValue?: { label: string; value: string } | null;
-  name?: string;
-  placeholder?: string;
-  deps?: string;
-  cacheOptions?: boolean;
-  defaultOptions?: boolean;
-  errorMessage?: string;
-  isMulti?: boolean;
-  isInvalid?: boolean;
-  isRequired?: boolean;
-  ref?: React.Ref<SelectInstance<{ label: string; value: string }>>;
-  onChange?: (
+  readonly label: string;
+  readonly defaultValue?: { label: string; value: string } | null;
+  readonly name?: string;
+  readonly placeholder?: string;
+  readonly deps?: string;
+  readonly cacheOptions?: boolean;
+  readonly defaultOptions?: boolean;
+  readonly errorMessage?: string;
+  readonly isMulti?: boolean;
+  readonly isInvalid?: boolean;
+  readonly isRequired?: boolean;
+  readonly ref?: React.Ref<SelectInstance<{ label: string; value: string }>>;
+  readonly onChange?: (
     option:
       | SingleValue<{ label: string; value: string }>
       | MultiValue<{ label: string; value: string }>
@@ -28,18 +28,18 @@ interface BaseCatalogueSelectProps {
 
 // Opción A: `catalogue` está presente → `queryFn` y `selectorFn` son opcionales
 interface CatalogueOption<T> extends BaseCatalogueSelectProps {
-  catalogue: string;
-  fieldSearch?: string;
-  queryFn?: (options: filterOptions) => Promise<ApiResponse<T[]>>;
-  selectorFn?: (item: T) => { label: string; value: string };
+  readonly catalogue: string;
+  readonly fieldSearch?: string;
+  readonly queryFn?: (options: filterOptions) => Promise<ApiResponse<T[]>>;
+  readonly selectorFn?: (item: T) => { label: string; value: string };
 }
 
 // Opción B: no hay `catalogue` → `queryFn` y `selectorFn` son obligatorios
 interface CustomOption<T> extends BaseCatalogueSelectProps {
-  catalogue?: undefined;
-  fieldSearch: string;
-  queryFn: (options: filterOptions) => Promise<ApiResponse<T[]>>;
-  selectorFn: (item: T) => { label: string; value: string };
+  readonly catalogue?: undefined;
+  readonly fieldSearch: string;
+  readonly queryFn: (options: filterOptions) => Promise<ApiResponse<T[]>>;
+  readonly selectorFn: (item: T) => { label: string; value: string };
 }
 
 // Unión de ambas opciones válidas

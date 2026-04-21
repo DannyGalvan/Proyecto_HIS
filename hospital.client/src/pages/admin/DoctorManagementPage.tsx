@@ -23,6 +23,37 @@ interface EditModalState {
   specialtyId: number | null;
 }
 
+function DoctorRow({
+  doctor,
+  onEdit,
+}: {
+  readonly doctor: UserResponse;
+  readonly onEdit: (doctor: UserResponse) => void;
+}) {
+  const handleEdit = useCallback(() => onEdit(doctor), [doctor, onEdit]);
+  return (
+    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/40">
+      <td className="px-4 py-3 font-medium">{doctor.name}</td>
+      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+        {doctor.branch?.name ?? (
+          <span className="text-orange-500 italic">Sin asignar</span>
+        )}
+      </td>
+      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+        {doctor.specialty?.name ?? (
+          <span className="text-orange-500 italic">Sin asignar</span>
+        )}
+      </td>
+      <td className="px-4 py-3">
+        <Button size="sm" variant="secondary" onPress={handleEdit}>
+          <i className="bi bi-pencil mr-1" />
+          Editar Sede/Especialidad
+        </Button>
+      </td>
+    </tr>
+  );
+}
+
 export function DoctorManagementPage() {
   const { userId } = useAuth();
   const queryClient = useQueryClient();
@@ -105,6 +136,32 @@ export function DoctorManagementPage() {
     });
   }, [modal, userId, updateMutation]);
 
+  const handleFilterBranchChange = useCallback((opt: unknown) => {
+    const o = opt as SingleValue<{ label: string; value: string }>;
+    setFilterBranchId(o?.value ? Number(o.value) : null);
+  }, []);
+
+  const handleFilterSpecialtyChange = useCallback((opt: unknown) => {
+    const o = opt as SingleValue<{ label: string; value: string }>;
+    setFilterSpecialtyId(o?.value ? Number(o.value) : null);
+  }, []);
+
+  const handleModalBranchChange = useCallback((opt: unknown) => {
+    const o = opt as SingleValue<{ label: string; value: string }>;
+    setModal((prev) => ({
+      ...prev,
+      branchId: o?.value ? Number(o.value) : null,
+    }));
+  }, []);
+
+  const handleModalSpecialtyChange = useCallback((opt: unknown) => {
+    const o = opt as SingleValue<{ label: string; value: string }>;
+    setModal((prev) => ({
+      ...prev,
+      specialtyId: o?.value ? Number(o.value) : null,
+    }));
+  }, []);
+
   const selectorBranch = useCallback(
     (item: BranchResponse) => ({ label: item.name, value: String(item.id) }),
     [],
@@ -135,10 +192,7 @@ export function DoctorManagementPage() {
           placeholder="Todas las sedes"
           queryFn={getBranches}
           selectorFn={selectorBranch}
-          onChange={(opt) => {
-            const o = opt as SingleValue<{ label: string; value: string }>;
-            setFilterBranchId(o?.value ? Number(o.value) : null);
-          }}
+          onChange={handleFilterBranchChange}
         />
         <CatalogueSelect<SpecialtyResponse>
           defaultValue={null}
@@ -149,10 +203,7 @@ export function DoctorManagementPage() {
           placeholder="Todas las especialidades"
           queryFn={getSpecialties}
           selectorFn={selectorSpecialty}
-          onChange={(opt) => {
-            const o = opt as SingleValue<{ label: string; value: string }>;
-            setFilterSpecialtyId(o?.value ? Number(o.value) : null);
-          }}
+          onChange={handleFilterSpecialtyChange}
         />
       </div>
 
@@ -183,36 +234,7 @@ export function DoctorManagementPage() {
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {doctors.map((doctor) => (
-                <tr
-                  key={doctor.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/40"
-                >
-                  <td className="px-4 py-3 font-medium">{doctor.name}</td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                    {doctor.branch?.name ?? (
-                      <span className="text-orange-500 italic">
-                        Sin asignar
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                    {doctor.specialty?.name ?? (
-                      <span className="text-orange-500 italic">
-                        Sin asignar
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onPress={() => openModal(doctor)}
-                    >
-                      <i className="bi bi-pencil mr-1" />
-                      Editar Sede/Especialidad
-                    </Button>
-                  </td>
-                </tr>
+                <DoctorRow key={doctor.id} doctor={doctor} onEdit={openModal} />
               ))}
             </tbody>
           </table>
@@ -248,16 +270,7 @@ export function DoctorManagementPage() {
                     placeholder="Seleccione una sede"
                     queryFn={getBranches}
                     selectorFn={selectorBranch}
-                    onChange={(opt) => {
-                      const o = opt as SingleValue<{
-                        label: string;
-                        value: string;
-                      }>;
-                      setModal((prev) => ({
-                        ...prev,
-                        branchId: o?.value ? Number(o.value) : null,
-                      }));
-                    }}
+                    onChange={handleModalBranchChange}
                   />
                   <CatalogueSelect<SpecialtyResponse>
                     defaultValue={
@@ -275,16 +288,7 @@ export function DoctorManagementPage() {
                     placeholder="Seleccione una especialidad"
                     queryFn={getSpecialties}
                     selectorFn={selectorSpecialty}
-                    onChange={(opt) => {
-                      const o = opt as SingleValue<{
-                        label: string;
-                        value: string;
-                      }>;
-                      setModal((prev) => ({
-                        ...prev,
-                        specialtyId: o?.value ? Number(o.value) : null,
-                      }));
-                    }}
+                    onChange={handleModalSpecialtyChange}
                   />
                 </div>
               </Modal.Body>

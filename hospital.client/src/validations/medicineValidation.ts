@@ -19,10 +19,12 @@ export const medicineSchema = z.object({
   ]),
   unit: z.string().min(1, "La unidad es obligatoria"),
   isControlled: z.boolean().optional(),
-  minimumStock: z.union([
-    z.string({ error: invalid_type_error }),
-    z.number().min(0, "El stock mínimo debe ser mayor o igual a 0"),
-  ]).optional(),
+  minimumStock: z
+    .union([
+      z.string({ error: invalid_type_error }),
+      z.number().min(0, "El stock mínimo debe ser mayor o igual a 0"),
+    ])
+    .optional(),
   state: z.union([
     z.string({ error: invalid_type_error }).min(0),
     z.number().min(0).max(1),

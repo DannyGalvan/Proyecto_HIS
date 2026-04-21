@@ -14,6 +14,12 @@ import { isCuiValid } from "../../utils/cuiValidator";
 
 // ── Sección Hero ──────────────────────────────────────────────────────────────
 function HeroSection({ onSchedule }: { readonly onSchedule: () => void }) {
+  const handleScrollToServices = useCallback(() => {
+    document
+      .getElementById("servicios")
+      ?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   return (
     <section className="relative bg-gradient-to-br from-blue-700 via-blue-800 to-cyan-600 dark:from-blue-900 dark:via-blue-800 dark:to-cyan-700 text-white py-20 px-6 overflow-hidden">
       {/* Patrón de cruces médicas decorativo */}
@@ -48,11 +54,7 @@ function HeroSection({ onSchedule }: { readonly onSchedule: () => void }) {
           <Button
             className="px-8 py-3 text-lg font-bold border-2 border-white text-white hover:bg-green-600/60"
             size="lg"
-            onPress={() =>
-              document
-                .getElementById("servicios")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
+            onPress={handleScrollToServices}
           >
             <i className="bi bi-info-circle mr-2" />
             Ver Servicios
@@ -214,6 +216,15 @@ function DpiVerificationModal({
     [dpi, navigate, onClose],
   );
 
+  const handleDpiChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setDpi(e.target.value.replace(/\D/g, ""));
+      setDpiError("");
+      setInternalUserMsg("");
+    },
+    [],
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -260,11 +271,7 @@ function DpiVerificationModal({
               placeholder="0000000000000"
               type="text"
               value={dpi}
-              onChange={(e) => {
-                setDpi(e.target.value.replace(/\D/g, ""));
-                setDpiError("");
-                setInternalUserMsg("");
-              }}
+              onChange={handleDpiChange}
             />
             {dpiError ? (
               <p className="text-red-500 text-sm mt-1">
@@ -329,6 +336,16 @@ export function PortalPage() {
 
   const specialties = specialtiesData?.success ? specialtiesData.data : [];
   const branches = branchesData?.success ? branchesData.data : [];
+
+  const handleCloseDpiModal = useCallback(
+    () => setIsDpiModalOpen(false),
+    [],
+  );
+
+  const handleNavigateRegister = useCallback(
+    () => navigate(nameRoutes.portalRegister),
+    [navigate],
+  );
 
   const handleScheduleClick = useCallback(() => {
     setIsDpiModalOpen(true);
@@ -462,7 +479,7 @@ export function PortalPage() {
             className="px-8 py-3 text-lg font-bold border-2 border-white text-white hover:bg-white/10"
             size="lg"
             variant="secondary"
-            onPress={() => navigate(nameRoutes.portalRegister)}
+            onPress={handleNavigateRegister}
           >
             <i className="bi bi-person-plus mr-2" />
             Registrarse
@@ -489,7 +506,7 @@ export function PortalPage() {
       {/* Modal de verificación DPI */}
       <DpiVerificationModal
         isOpen={isDpiModalOpen}
-        onClose={() => setIsDpiModalOpen(false)}
+        onClose={handleCloseDpiModal}
       />
     </div>
   );

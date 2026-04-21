@@ -50,6 +50,8 @@ export function LabExamForm({ type, initialForm, onSubmit }: LabExamFormProps) {
     [handleChange],
   );
 
+  const handleCancel = useCallback(() => navigate("/lab-exam"), [navigate]);
+
   const handleSelectChange = useCallback(
     (name: string) => (opt: OptionValue) => {
       const option = opt as SingleValue<{ label: string; value: string }>;
@@ -229,7 +231,7 @@ export function LabExamForm({ type, initialForm, onSubmit }: LabExamFormProps) {
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() => navigate("/lab-exam")}
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

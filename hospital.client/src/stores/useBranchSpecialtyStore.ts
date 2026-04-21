@@ -6,7 +6,9 @@ interface BranchSpecialtyFilterState {
   setFilters: (filters: ListFilter) => void;
 }
 
-export const useBranchSpecialtyStore = create<BranchSpecialtyFilterState>((set) => ({
-  filters: { filter: "", page: 1, pageSize: 10 },
-  setFilters: (filters) => set({ filters }),
-}));
+export const useBranchSpecialtyStore = create<BranchSpecialtyFilterState>(
+  (set) => ({
+    filters: { filter: "", page: 1, pageSize: 10 },
+    setFilters: (filters) => set({ filters }),
+  }),
+);

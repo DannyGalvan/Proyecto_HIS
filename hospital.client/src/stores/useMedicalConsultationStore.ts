@@ -6,7 +6,8 @@ interface MedicalConsultationFilterState {
   setFilters: (filters: ListFilter) => void;
 }
 
-export const useMedicalConsultationStore = create<MedicalConsultationFilterState>((set) => ({
-  filters: { filter: "", page: 1, pageSize: 10 },
-  setFilters: (filters) => set({ filters }),
-}));
+export const useMedicalConsultationStore =
+  create<MedicalConsultationFilterState>((set) => ({
+    filters: { filter: "", page: 1, pageSize: 10 },
+    setFilters: (filters) => set({ filters }),
+  }));

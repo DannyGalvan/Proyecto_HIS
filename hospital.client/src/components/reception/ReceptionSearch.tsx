@@ -1,5 +1,5 @@
 import { Button, toast } from "@heroui/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 interface ReceptionSearchProps {
   readonly onSearch: (query: string, type: "dpi" | "id") => void;
@@ -9,14 +9,24 @@ export function ReceptionSearch({ onSearch }: ReceptionSearchProps) {
   const [searchValue, setSearchValue] = useState("");
   const [searchType, setSearchType] = useState<"dpi" | "id">("dpi");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchValue.trim()) {
-      toast.danger("Ingrese un número de cita o DPI para buscar");
-      return;
-    }
-    onSearch(searchValue.trim(), searchType);
-  };
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!searchValue.trim()) {
+        toast.danger("Ingrese un número de cita o DPI para buscar");
+        return;
+      }
+      onSearch(searchValue.trim(), searchType);
+    },
+    [searchValue, searchType, onSearch],
+  );
+
+  const handleSetDpi = useCallback(() => setSearchType("dpi"), []);
+  const handleSetId = useCallback(() => setSearchType("id"), []);
+  const handleSearchValueChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setSearchValue(e.target.value),
+    [],
+  );
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border p-6 mb-6">
@@ -29,7 +39,7 @@ export function ReceptionSearch({ onSearch }: ReceptionSearchProps) {
                 : "bg-white text-gray-600 border-gray-300"
             }`}
             type="button"
-            onClick={() => setSearchType("dpi")}
+            onClick={handleSetDpi}
           >
             Por DPI
           </button>
@@ -40,7 +50,7 @@ export function ReceptionSearch({ onSearch }: ReceptionSearchProps) {
                 : "bg-white text-gray-600 border-gray-300"
             }`}
             type="button"
-            onClick={() => setSearchType("id")}
+            onClick={handleSetId}
           >
             Por No. Cita
           </button>
@@ -54,7 +64,7 @@ export function ReceptionSearch({ onSearch }: ReceptionSearchProps) {
           }
           type="text"
           value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+          onChange={handleSearchValueChange}
         />
         <Button className="px-6" type="submit" variant="primary">
           <i className="bi bi-search mr-2" /> Buscar

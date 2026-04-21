@@ -6,7 +6,9 @@ import { handleOneLevelZodError } from "../utils/converted";
 export const prescriptionSchema = z.object({
   id: z.number().nullable().optional(),
   consultationId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "La consulta es obligatoria"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "La consulta es obligatoria"),
     z.number().min(1, "La consulta es obligatoria"),
   ]),
   doctorId: z.union([

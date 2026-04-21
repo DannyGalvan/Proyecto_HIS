@@ -109,9 +109,9 @@ export function SubMenu({
                 transition={{ duration: 0.15 }}
               >
                 {/* Flecha apuntando al icono */}
-                <div className="absolute top-[1.1rem] -left-[5.5px] w-2.5 h-2.5 rotate-45 border-b border-l border-[var(--color-border)] bg-[var(--color-surface-50)]" />
+                <div className="absolute top-[1.1rem] -left-[5.5px] w-2.5 h-2.5 rotate-45 border-b border-l border-(--color-border) bg-(--color-surface-50)" />
 
-                <div className="submenu-floating-header mb-2 border-b border-[var(--color-border)] pb-2 px-2">
+                <div className="submenu-floating-header mb-2 border-b border-(--color-border) pb-2 px-2">
                   {data.module.displayName || data.module.name}
                 </div>
                 <ul className="flex flex-col gap-0.5 w-full">
@@ -157,7 +157,7 @@ export function SubMenu({
                     className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                       pathname === menu.path
                         ? "sidebar-link-active"
-                        : "text-gray-500 hover:bg-[var(--color-surface-100)] dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        : "text-gray-500 hover:bg-(--color-surface-100) dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     }`}
                     to={menu.path}
                   >

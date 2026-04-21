@@ -10,6 +10,6 @@ export function maskCardNumber(cardNumber: string): string {
     return cardNumber;
   }
   const visiblePart = cardNumber.slice(-4);
-  const maskedPart = '•'.repeat(cardNumber.length - 4);
+  const maskedPart = "•".repeat(cardNumber.length - 4);
   return maskedPart + visiblePart;
 }

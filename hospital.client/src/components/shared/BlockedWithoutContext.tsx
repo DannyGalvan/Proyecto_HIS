@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate } from "react-router";
 import { nameRoutes } from "../../configs/constants";
 
@@ -22,6 +23,11 @@ export function BlockedWithoutContext({
 }: BlockedWithoutContextProps) {
   const navigate = useNavigate();
 
+  const handleBack = useCallback(
+    () => navigate(backRoute ?? nameRoutes.doctorDashboard),
+    [navigate, backRoute],
+  );
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 p-8 text-center">
       <i className={`bi ${icon} text-6xl text-red-400`} />
@@ -32,7 +38,7 @@ export function BlockedWithoutContext({
       <button
         className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 transition-colors"
         type="button"
-        onClick={() => navigate(backRoute ?? nameRoutes.doctorDashboard)}
+        onClick={handleBack}
       >
         <i className="bi bi-arrow-left" />
         {backLabel}

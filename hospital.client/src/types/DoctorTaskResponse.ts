@@ -31,8 +31,9 @@ export interface DoctorTaskRequest {
  * Maps numeric Priority values to Spanish labels and TailwindCSS colors.
  * 0=Baja, 1=Normal, 2=Alta
  */
-export const PriorityLabels: Record<number, { label: string; color: string }> = {
-  0: { label: "Baja", color: "bg-gray-100 text-gray-800" },
-  1: { label: "Normal", color: "bg-blue-100 text-blue-800" },
-  2: { label: "Alta", color: "bg-red-100 text-red-800" },
-};
+export const PriorityLabels: Record<number, { label: string; color: string }> =
+  {
+    0: { label: "Baja", color: "bg-gray-100 text-gray-800" },
+    1: { label: "Normal", color: "bg-blue-100 text-blue-800" },
+    2: { label: "Alta", color: "bg-red-100 text-red-800" },
+  };

@@ -46,6 +46,8 @@ export function BranchForm({ type, initialForm, onSubmit }: BranchFormProps) {
     [handleChange],
   );
 
+  const handleCancel = useCallback(() => navigate("/branch"), [navigate]);
+
   const handleStateChange = useCallback(
     (newValue: OptionValue) => {
       const value =
@@ -165,7 +167,7 @@ export function BranchForm({ type, initialForm, onSubmit }: BranchFormProps) {
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() => navigate("/branch")}
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

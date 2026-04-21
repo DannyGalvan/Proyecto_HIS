@@ -28,10 +28,9 @@ export const paymentSchema = z.object({
     .regex(/^\d{4}$/, "Deben ser exactamente 4 dígitos")
     .optional()
     .or(z.literal("")),
-  amountReceived: z.union([
-    z.string({ error: invalid_type_error }),
-    z.number().min(0),
-  ]).optional(),
+  amountReceived: z
+    .union([z.string({ error: invalid_type_error }), z.number().min(0)])
+    .optional(),
   state: z.union([
     z.string({ error: invalid_type_error }).min(0),
     z.number().min(0).max(1),

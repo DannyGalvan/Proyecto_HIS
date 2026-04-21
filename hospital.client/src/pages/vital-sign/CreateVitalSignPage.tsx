@@ -1,5 +1,6 @@
 import { toast } from "@heroui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { VitalSignForm } from "../../components/form/VitalSignForm";
 import { BlockedWithoutContext } from "../../components/shared/BlockedWithoutContext";
@@ -54,6 +55,11 @@ function CreateVitalSignGuard({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const handleNavigateBack = useCallback(
+    () => navigate(nameRoutes.nurseDashboard),
+    [navigate],
+  );
+
   const { data: vitalData, isLoading } = useQuery({
     queryKey: ["vitals-check", appointmentId],
     queryFn: () => getVitalSignByAppointment(appointmentId),
@@ -78,7 +84,7 @@ function CreateVitalSignGuard({
         <button
           className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 transition-colors"
           type="button"
-          onClick={() => navigate(nameRoutes.nurseDashboard)}
+          onClick={handleNavigateBack}
         >
           <i className="bi bi-arrow-left" />
           Volver al Panel
@@ -100,35 +106,40 @@ function CreateVitalSignGuard({
     state: 1,
   };
 
+  const handleSubmit = useCallback(
+    async (form: VitalSignRequest) => {
+      const response = await createVitalSign(form);
+      if (response.success) {
+        const name = patientName ?? "Paciente";
+        if (form.isEmergency) {
+          toast.success(
+            `Signos vitales de emergencia registrados para paciente ${name}. El paciente debe pasar directamente a consulta médica.`,
+          );
+        } else {
+          toast.success(
+            `Signos vitales del paciente ${name} registrados correctamente. El paciente puede regresar a la sala de espera.`,
+          );
+        }
+        await queryClient.invalidateQueries({ queryKey: ["vital-signs"] });
+        await queryClient.invalidateQueries({
+          queryKey: ["nurse-appointments"],
+        });
+        navigate(nameRoutes.nurseDashboard);
+      } else {
+        toast.danger(response.message);
+      }
+      return response;
+    },
+    [patientName, queryClient, navigate],
+  );
+
   return (
     <VitalSignForm
       fromNurseDashboard
       initialForm={initialData}
       patientName={patientName}
       type="create"
-      onSubmit={async (form) => {
-        const response = await createVitalSign(form);
-        if (response.success) {
-          const name = patientName ?? "Paciente";
-          if (form.isEmergency) {
-            toast.success(
-              `Signos vitales de emergencia registrados para paciente ${name}. El paciente debe pasar directamente a consulta médica.`,
-            );
-          } else {
-            toast.success(
-              `Signos vitales del paciente ${name} registrados correctamente. El paciente puede regresar a la sala de espera.`,
-            );
-          }
-          await queryClient.invalidateQueries({ queryKey: ["vital-signs"] });
-          await queryClient.invalidateQueries({
-            queryKey: ["nurse-appointments"],
-          });
-          navigate(nameRoutes.nurseDashboard);
-        } else {
-          toast.danger(response.message);
-        }
-        return response;
-      }}
+      onSubmit={handleSubmit}
     />
   );
 }

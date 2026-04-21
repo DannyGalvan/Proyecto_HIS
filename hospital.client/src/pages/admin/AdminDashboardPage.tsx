@@ -1,5 +1,6 @@
 import { Button } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { useNavigate } from "react-router";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { nameRoutes } from "../../configs/constants";
@@ -63,10 +64,11 @@ function QuickActionButton({
   readonly to: string;
 }) {
   const navigate = useNavigate();
+  const handleClick = useCallback(() => navigate(to), [navigate, to]);
   return (
     <button
       className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-gray-900/50 border rounded-xl shadow-sm hover:border-primary/60 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full"
-      onClick={() => navigate(to)}
+      onClick={handleClick}
     >
       <i className={`bi ${icon} text-2xl text-primary`} />
       <span className="text-xs font-semibold text-center text-gray-700 dark:text-gray-300">
@@ -78,6 +80,11 @@ function QuickActionButton({
 
 export function AdminDashboardPage() {
   const navigate = useNavigate();
+
+  const handleNavigateAppointments = useCallback(
+    () => navigate(nameRoutes.appointment),
+    [navigate],
+  );
 
   // Build today's filter
   const todayStart = new Date();
@@ -309,10 +316,7 @@ export function AdminDashboardPage() {
 
           {/* Navigate to appointments */}
           <div className="mt-4 flex justify-end">
-            <Button
-              variant="secondary"
-              onPress={() => navigate(nameRoutes.appointment)}
-            >
+            <Button variant="secondary" onPress={handleNavigateAppointments}>
               <i className="bi bi-list-ul mr-2" />
               Ver todas las citas
             </Button>

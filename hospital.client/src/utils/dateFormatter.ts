@@ -2,7 +2,7 @@
  * Centralized date formatting utility for the HIS application.
  * All dates from the backend are in UTC. This utility converts them
  * to the configured timezone for display.
- * 
+ *
  * The timezone is read dynamically from the authenticated user's
  * preference stored in localStorage.
  * Default timezone: America/Guatemala (UTC-6)
@@ -49,39 +49,49 @@ export function getAppTimezone(): string {
 
 /**
  * Parses a date string from the backend.
- * Handles both ISO strings ("2026-04-15T14:30:00Z") and 
+ * Handles both ISO strings ("2026-04-15T14:30:00Z") and
  * pre-formatted strings ("15/04/2026 14:30:00" which are UTC).
  */
 function parseBackendDate(dateStr: string | null | undefined): Date | null {
   if (!dateStr) return null;
-  
+
   // If it's already ISO format, parse directly
   if (dateStr.includes("T") || dateStr.endsWith("Z")) {
     const d = new Date(dateStr);
     return isNaN(d.getTime()) ? null : d;
   }
-  
+
   // Backend format: "dd/MM/yyyy HH:mm:ss" (UTC)
   // Parse manually: day/month/year hour:minute:second
-  const match = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/);
+  const match = dateStr.match(
+    /^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/,
+  );
   if (match) {
     const [, day, month, year, hour, min, sec] = match;
     // Create as UTC since backend stores UTC
-    const d = new Date(Date.UTC(
-      parseInt(year), parseInt(month) - 1, parseInt(day),
-      parseInt(hour), parseInt(min), parseInt(sec)
-    ));
+    const d = new Date(
+      Date.UTC(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day),
+        parseInt(hour),
+        parseInt(min),
+        parseInt(sec),
+      ),
+    );
     return isNaN(d.getTime()) ? null : d;
   }
-  
+
   // Try date-only format: "dd/MM/yyyy"
   const dateOnly = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (dateOnly) {
     const [, day, month, year] = dateOnly;
-    const d = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
+    const d = new Date(
+      Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
+    );
     return isNaN(d.getTime()) ? null : d;
   }
-  
+
   // Fallback: try native parsing
   const d = new Date(dateStr);
   return isNaN(d.getTime()) ? null : d;
@@ -186,10 +196,10 @@ export function formatDateTimeLong(dateStr: string | null | undefined): string {
  */
 export function formatLocalDateTime(date: Date): string {
   const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  const hh = String(date.getHours()).padStart(2, '0');
-  const mm = String(date.getMinutes()).padStart(2, '0');
-  const ss = String(date.getSeconds()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  const ss = String(date.getSeconds()).padStart(2, "0");
   return `${y}-${m}-${d}T${hh}:${mm}:${ss}`;
 }

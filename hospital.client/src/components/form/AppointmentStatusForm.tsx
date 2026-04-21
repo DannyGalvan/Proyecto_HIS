@@ -50,6 +50,11 @@ export function AppointmentStatusForm({
     [handleChange],
   );
 
+  const handleCancel = useCallback(
+    () => navigate("/appointment-status"),
+    [navigate],
+  );
+
   const handleStateChange = useCallback(
     (newValue: OptionValue) => {
       const value =
@@ -135,7 +140,7 @@ export function AppointmentStatusForm({
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() => navigate("/appointment-status")}
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

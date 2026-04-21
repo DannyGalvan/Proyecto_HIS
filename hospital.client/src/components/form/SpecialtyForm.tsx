@@ -50,6 +50,8 @@ export function SpecialtyForm({
     [handleChange],
   );
 
+  const handleCancel = useCallback(() => navigate("/specialty"), [navigate]);
+
   const handleStateChange = useCallback(
     (newValue: OptionValue) => {
       const value =
@@ -136,7 +138,7 @@ export function SpecialtyForm({
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() => navigate("/specialty")}
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

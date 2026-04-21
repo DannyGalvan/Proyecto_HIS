@@ -50,6 +50,8 @@ export function LaboratoryForm({
     [handleChange],
   );
 
+  const handleCancel = useCallback(() => navigate("/laboratory"), [navigate]);
+
   const handleStateChange = useCallback(
     (newValue: OptionValue) => {
       const value =
@@ -135,7 +137,7 @@ export function LaboratoryForm({
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() => navigate("/laboratory")}
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

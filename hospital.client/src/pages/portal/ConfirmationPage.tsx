@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router";
 
 import { nameRoutes } from "../../configs/constants";
@@ -10,6 +11,18 @@ export function ConfirmationPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { email } = usePatientAuthStore();
+
+  const confirmation = location.state as PaymentConfirmationResponse | null;
+
+  const handleNavigatePortal = useCallback(
+    () => navigate(nameRoutes.portalDashboard),
+    [navigate],
+  );
+
+  const handleNavigateAppointments = useCallback(
+    () => navigate(nameRoutes.portalAppointments),
+    [navigate],
+  );
 
   const confirmation = location.state as PaymentConfirmationResponse | null;
 
@@ -133,7 +146,7 @@ export function ConfirmationPage() {
           <button
             className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 bg-success  px-5 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-green-800  dark:text-gray-200 dark:hover:bg-gray-700"
             type="button"
-            onClick={() => navigate(nameRoutes.portalDashboard)}
+            onClick={handleNavigatePortal}
           >
             <i className="bi bi-house" />
             Volver al Portal
@@ -141,7 +154,7 @@ export function ConfirmationPage() {
           <button
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-bold text-white transition-colors hover:bg-blue-700"
             type="button"
-            onClick={() => navigate(nameRoutes.portalAppointments)}
+            onClick={handleNavigateAppointments}
           >
             <i className="bi bi-calendar-check" />
             Ver Mis Citas

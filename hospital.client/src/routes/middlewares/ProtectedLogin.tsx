@@ -15,13 +15,13 @@ function ProtectedLogin({ children }: ProtectedLoginProps) {
     const role = token ? getRoleFromToken(token) : null;
     switch (role) {
       case "Medico":
-        return <Navigate to={nameRoutes.doctorDashboard} replace />;
+        return <Navigate replace to={nameRoutes.doctorDashboard} />;
       case "Enfermero":
-        return <Navigate to={nameRoutes.nurseDashboard} replace />;
+        return <Navigate replace to={nameRoutes.nurseDashboard} />;
       case "Paciente":
-        return <Navigate to={nameRoutes.portalDashboard} replace />;
+        return <Navigate replace to={nameRoutes.portalDashboard} />;
       default:
-        return <Navigate to={nameRoutes.adminDashboard} replace />;
+        return <Navigate replace to={nameRoutes.adminDashboard} />;
     }
   }
 

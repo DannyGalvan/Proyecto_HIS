@@ -33,7 +33,7 @@ export function ConfirmDialog({
             </Modal.Header>
             <Modal.Body>
               <div className="flex items-start gap-4 p-4">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <Icon
                     color="rgb(239, 68, 68)"
                     name="bi bi-exclamation-triangle"

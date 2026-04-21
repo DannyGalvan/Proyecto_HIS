@@ -9,6 +9,30 @@ import type { ApiResponse } from "../../types/ApiResponse";
 import type { TimezoneResponse } from "../../types/TimezoneResponse";
 import { getAppTimezone } from "../../utils/dateFormatter";
 
+interface TimezoneButtonProps {
+  readonly tz: TimezoneResponse;
+  readonly isCurrent: boolean;
+  readonly onSelect: (tz: TimezoneResponse) => void;
+}
+
+function TimezoneButton({ tz, isCurrent, onSelect }: TimezoneButtonProps) {
+  const handleClick = useCallback(() => onSelect(tz), [tz, onSelect]);
+
+  return (
+    <button
+      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+        isCurrent
+          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium"
+          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700"
+      }`}
+      type="button"
+      onClick={handleClick}
+    >
+      <span className="block truncate">{tz.displayName}</span>
+    </button>
+  );
+}
+
 interface HeaderProps {
   readonly toggleSidebar: () => void;
 }
@@ -140,18 +164,12 @@ export function Header({ toggleSidebar }: HeaderProps) {
               ) : (
                 <div className="py-1">
                   {timezones.map((tz) => (
-                    <button
+                    <TimezoneButton
                       key={tz.id}
-                      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                        tz.ianaId === currentTz
-                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700"
-                      }`}
-                      type="button"
-                      onClick={() => handleTzSelect(tz)}
-                    >
-                      <span className="block truncate">{tz.displayName}</span>
-                    </button>
+                      isCurrent={tz.ianaId === currentTz}
+                      tz={tz}
+                      onSelect={handleTzSelect}
+                    />
                   ))}
                 </div>
               )}

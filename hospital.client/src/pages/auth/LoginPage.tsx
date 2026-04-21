@@ -68,6 +68,27 @@ export function Component() {
     [form, signIn],
   );
 
+  const handleUserNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({ ...prev, userName: e.target.value }));
+      setApiError("");
+    },
+    [],
+  );
+
+  const handlePasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({ ...prev, password: e.target.value }));
+      setApiError("");
+    },
+    [],
+  );
+
+  const handleTogglePassword = useCallback(
+    () => setShowPassword((prev) => !prev),
+    [],
+  );
+
   return (
     <ProtectedLogin>
       <section className="relative flex items-center justify-center min-h-screen px-4 py-12 login-bg overflow-hidden">
@@ -129,10 +150,7 @@ export function Component() {
                   placeholder="Ingrese su usuario"
                   type="text"
                   value={form.userName}
-                  onChange={(e) => {
-                    setForm((prev) => ({ ...prev, userName: e.target.value }));
-                    setApiError("");
-                  }}
+                  onChange={handleUserNameChange}
                 />
               </div>
 
@@ -152,13 +170,7 @@ export function Component() {
                     placeholder="Ingrese su contraseña"
                     type={showPassword ? "text" : "password"}
                     value={form.password}
-                    onChange={(e) => {
-                      setForm((prev) => ({
-                        ...prev,
-                        password: e.target.value,
-                      }));
-                      setApiError("");
-                    }}
+                    onChange={handlePasswordChange}
                   />
                   <button
                     aria-label={
@@ -167,7 +179,7 @@ export function Component() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                     tabIndex={-1}
                     type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
+                    onClick={handleTogglePassword}
                   >
                     <i
                       className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-lg`}

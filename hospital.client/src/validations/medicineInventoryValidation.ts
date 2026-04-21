@@ -6,15 +6,21 @@ import { handleOneLevelZodError } from "../utils/converted";
 export const medicineInventorySchema = z.object({
   id: z.number().nullable().optional(),
   medicineId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "El medicamento es obligatorio"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "El medicamento es obligatorio"),
     z.number().min(1, "El medicamento es obligatorio"),
   ]),
   branchId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "La sucursal es obligatoria"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "La sucursal es obligatoria"),
     z.number().min(1, "La sucursal es obligatoria"),
   ]),
   currentStock: z.union([
-    z.string({ error: invalid_type_error }).min(1, "El stock actual es obligatorio"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "El stock actual es obligatorio"),
     z.number().min(0, "El stock no puede ser negativo"),
   ]),
   state: z.union([

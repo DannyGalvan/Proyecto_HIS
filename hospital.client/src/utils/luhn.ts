@@ -4,7 +4,7 @@
  * @returns true if the card number passes the Luhn check, false otherwise
  */
 export function luhnCheck(cardNumber: string): boolean {
-  const digits = cardNumber.replace(/\D/g, '');
+  const digits = cardNumber.replace(/\D/g, "");
 
   if (digits.length < 13 || digits.length > 19) {
     return false;

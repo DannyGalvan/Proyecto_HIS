@@ -253,7 +253,7 @@ function MultiStepCreateForm({
     return null;
   };
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     const error = validateStep(step);
     if (error) {
       setStepErrors(error);
@@ -261,12 +261,12 @@ function MultiStepCreateForm({
     }
     setStepErrors(null);
     setStep((s) => s + 1);
-  };
+  }, [step]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     setStepErrors(null);
     setStep((s) => s - 1);
-  };
+  }, []);
 
   // ── Expiry handler ─────────────────────────────────────────────────────────
 
@@ -278,7 +278,7 @@ function MultiStepCreateForm({
 
   // ── Submit ─────────────────────────────────────────────────────────────────
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setLoading(true);
     setSubmitError(null);
 
@@ -317,7 +317,88 @@ function MultiStepCreateForm({
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    initialForm,
+    formState,
+    followUp,
+    parentConsultationId,
+    onSubmit,
+    onSuccess,
+  ]);
+
+  // ── Handlers ────────────────────────────────────────────────────────────────
+
+  const handleSpecialtyChange = useCallback(
+    (opt: SingleValue<{ label: string; value: string }> | unknown) => {
+      const o = opt as SingleValue<{ label: string; value: string }>;
+      setFormState((prev) => ({
+        ...prev,
+        specialtyId: o?.value ?? null,
+        specialtyLabel: o?.label ?? "",
+      }));
+    },
+    [],
+  );
+
+  const handleBranchChange = useCallback(
+    (opt: SingleValue<{ label: string; value: string }> | unknown) => {
+      const o = opt as SingleValue<{ label: string; value: string }>;
+      setFormState((prev) => ({
+        ...prev,
+        branchId: o?.value ?? null,
+        branchLabel: o?.label ?? "",
+      }));
+    },
+    [],
+  );
+
+  const handleDoctorChange = useCallback(
+    (opt: SingleValue<{ label: string; value: string }> | unknown) => {
+      const o = opt as SingleValue<{ label: string; value: string }>;
+      setFormState((prev) => ({
+        ...prev,
+        doctorId: o?.value ?? null,
+        doctorLabel: o?.label ?? "",
+        appointmentDate: "",
+      }));
+    },
+    [],
+  );
+
+  const handleSlotSelected = useCallback((dateTime: Date) => {
+    setFormState((prev) => ({
+      ...prev,
+      appointmentDate: dateTime.toISOString(),
+    }));
+  }, []);
+
+  const handleReasonChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setFormState((prev) => ({ ...prev, reason: e.target.value }));
+    },
+    [],
+  );
+
+  const handleDocumentChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0] ?? null;
+      if (file) {
+        const error = validateDocument(file);
+        setFormState((prev) => ({
+          ...prev,
+          document: error ? null : file,
+          documentError: error,
+        }));
+      } else {
+        setFormState((prev) => ({
+          ...prev,
+          document: null,
+          documentError: null,
+        }));
+      }
+    },
+    [],
+  );
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -350,14 +431,7 @@ function MultiStepCreateForm({
               placeholder="Seleccione especialidad"
               queryFn={getSpecialties}
               selectorFn={selectorSpecialty}
-              onChange={(opt) => {
-                const o = opt as SingleValue<{ label: string; value: string }>;
-                setFormState((prev) => ({
-                  ...prev,
-                  specialtyId: o?.value ?? null,
-                  specialtyLabel: o?.label ?? "",
-                }));
-              }}
+              onChange={handleSpecialtyChange}
             />
             <CatalogueSelect<BranchResponse>
               isRequired
@@ -369,14 +443,7 @@ function MultiStepCreateForm({
               placeholder="Seleccione sucursal"
               queryFn={getBranches}
               selectorFn={selectorBranch}
-              onChange={(opt) => {
-                const o = opt as SingleValue<{ label: string; value: string }>;
-                setFormState((prev) => ({
-                  ...prev,
-                  branchId: o?.value ?? null,
-                  branchLabel: o?.label ?? "",
-                }));
-              }}
+              onChange={handleBranchChange}
             />
           </div>
         )}
@@ -394,16 +461,7 @@ function MultiStepCreateForm({
               placeholder="Buscar médico..."
               queryFn={getUsers}
               selectorFn={selectorUser}
-              onChange={(opt) => {
-                const o = opt as SingleValue<{ label: string; value: string }>;
-                setFormState((prev) => ({
-                  ...prev,
-                  doctorId: o?.value ?? null,
-                  doctorLabel: o?.label ?? "",
-                  // Reset date when doctor changes
-                  appointmentDate: "",
-                }));
-              }}
+              onChange={handleDoctorChange}
             />
 
             {formState.doctorId ? (
@@ -415,12 +473,7 @@ function MultiStepCreateForm({
                 <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                   <DynamicCalendar
                     doctorId={Number(formState.doctorId)}
-                    onSlotSelected={(dateTime) => {
-                      setFormState((prev) => ({
-                        ...prev,
-                        appointmentDate: dateTime.toISOString(),
-                      }));
-                    }}
+                    onSlotSelected={handleSlotSelected}
                   />
                 </div>
                 {formState.appointmentDate ? (
@@ -458,9 +511,7 @@ function MultiStepCreateForm({
                 name="reason"
                 placeholder="Describa el motivo de su consulta..."
                 value={formState.reason}
-                onChange={(e) => {
-                  setFormState((prev) => ({ ...prev, reason: e.target.value }));
-                }}
+                onChange={handleReasonChange}
               />
               <p className="text-xs text-gray-400 text-right">
                 {formState.reason.length}/2000
@@ -480,23 +531,7 @@ function MultiStepCreateForm({
                 id="document"
                 name="document"
                 type="file"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] ?? null;
-                  if (file) {
-                    const error = validateDocument(file);
-                    setFormState((prev) => ({
-                      ...prev,
-                      document: error ? null : file,
-                      documentError: error,
-                    }));
-                  } else {
-                    setFormState((prev) => ({
-                      ...prev,
-                      document: null,
-                      documentError: null,
-                    }));
-                  }
-                }}
+                onChange={handleDocumentChange}
               />
               {formState.documentError ? (
                 <p className="text-danger text-sm ms-1">
@@ -584,6 +619,11 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
       } as unknown as ChangeEvent<HTMLInputElement>);
     },
     [handleChange],
+  );
+
+  const handleCancel = useCallbackEdit(
+    () => navigate("/appointment"),
+    [navigate],
   );
 
   const selectorUser = useCallbackEdit(
@@ -802,7 +842,7 @@ function EditForm({ initialForm, onSubmit }: EditFormProps) {
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() => navigate("/appointment")}
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

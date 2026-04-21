@@ -1,9 +1,9 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-import { setAuthorization } from '../configs/axios/interceptors';
-import type { PatientAuthState } from '../types/PatientPortalTypes';
+import { setAuthorization } from "../configs/axios/interceptors";
+import type { PatientAuthState } from "../types/PatientPortalTypes";
 
-const STORAGE_KEY = '@patient-auth';
+const STORAGE_KEY = "@patient-auth";
 
 interface PatientAuthStore {
   /** Current auth state */
@@ -26,12 +26,12 @@ interface PatientAuthStore {
 
 const initialState: PatientAuthState = {
   isLoggedIn: false,
-  token: '',
+  token: "",
   userId: 0,
-  name: '',
-  email: '',
-  userName: '',
-  timezoneIanaId: 'America/Guatemala',
+  name: "",
+  email: "",
+  userName: "",
+  timezoneIanaId: "America/Guatemala",
 };
 
 export const usePatientAuthStore = create<PatientAuthStore>((set) => ({
@@ -63,7 +63,7 @@ export const usePatientAuthStore = create<PatientAuthStore>((set) => ({
 
   logoutPatient: () => {
     set({ ...initialState, loading: false });
-    setAuthorization('');
+    setAuthorization("");
     window.localStorage.removeItem(STORAGE_KEY);
   },
 }));

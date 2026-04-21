@@ -6,7 +6,9 @@ interface NotificationLogFilterState {
   setFilters: (filters: ListFilter) => void;
 }
 
-export const useNotificationLogStore = create<NotificationLogFilterState>((set) => ({
-  filters: { filter: "", page: 1, pageSize: 10 },
-  setFilters: (filters) => set({ filters }),
-}));
+export const useNotificationLogStore = create<NotificationLogFilterState>(
+  (set) => ({
+    filters: { filter: "", page: 1, pageSize: 10 },
+    setFilters: (filters) => set({ filters }),
+  }),
+);

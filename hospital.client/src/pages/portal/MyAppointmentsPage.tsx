@@ -64,7 +64,13 @@ function AppointmentRow({
   const statusName = appt.appointmentStatusName ?? "";
   const canCancel = CANCELLABLE_STATUSES.has(statusName);
 
+  const handleCancelClick = useCallback(
+    () => onCancel(appt.id, appt.doctorName ?? `cita #${appt.id}`),
+    [appt, onCancel],
+  );
+
   return (
+    return (
     <div className="rounded-xl border border-gray-200 p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 bg-white dark:bg-gray-900/50">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Left: date + info */}
@@ -115,9 +121,7 @@ function AppointmentRow({
             <button
               className="mt-1 flex items-center gap-1 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400"
               type="button"
-              onClick={() =>
-                onCancel(appt.id, appt.doctorName ?? `cita #${appt.id}`)
-              }
+              onClick={handleCancelClick}
             >
               <i className="bi bi-x-circle" />
               Cancelar cita
@@ -172,6 +176,23 @@ export function MyAppointmentsPage() {
     },
   });
 
+  const handleNavigateBook = useCallback(
+    () => navigate(nameRoutes.portalBook),
+    [navigate],
+  );
+
+  const handlePrevPage = useCallback(
+    () => setPage((p) => Math.max(1, p - 1)),
+    [],
+  );
+
+  const handleNextPage = useCallback(() => setPage((p) => p + 1), []);
+
+  const handleCloseCancelModal = useCallback(
+    () => setCancelTarget(null),
+    [],
+  );
+
   const handleCancelRequest = useCallback((id: number, label: string) => {
     setCancelTarget({ id, label });
   }, []);
@@ -202,7 +223,7 @@ export function MyAppointmentsPage() {
           <button
             className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 font-bold text-white transition-colors hover:bg-blue-700"
             type="button"
-            onClick={() => navigate(nameRoutes.portalBook)}
+            onClick={handleNavigateBook}
           >
             <i className="bi bi-calendar-plus" />
             Agendar Nueva Cita
@@ -234,7 +255,7 @@ export function MyAppointmentsPage() {
             <button
               className="rounded-xl bg-blue-600 px-6 py-2.5 font-bold text-white hover:bg-blue-700"
               type="button"
-              onClick={() => navigate(nameRoutes.portalBook)}
+              onClick={handleNavigateBook}
             >
               Agendar su primera cita
             </button>
@@ -262,7 +283,7 @@ export function MyAppointmentsPage() {
                 className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
                 disabled={!hasPrev || isFetching}
                 type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                onClick={handlePrevPage}
               >
                 <i className="bi bi-chevron-left" />
                 Anterior
@@ -276,7 +297,7 @@ export function MyAppointmentsPage() {
                 className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
                 disabled={!hasMore || isFetching}
                 type="button"
-                onClick={() => setPage((p) => p + 1)}
+                onClick={handleNextPage}
               >
                 Siguiente
                 <i className="bi bi-chevron-right" />
@@ -287,7 +308,7 @@ export function MyAppointmentsPage() {
       </div>
 
       {/* Cancel confirmation modal */}
-      <Modal isOpen={!!cancelTarget} onOpenChange={() => setCancelTarget(null)}>
+      <Modal isOpen={!!cancelTarget} onOpenChange={handleCloseCancelModal}>
         <Modal.Backdrop>
           <Modal.Container>
             <Modal.Dialog className="max-w-md w-full">
@@ -314,7 +335,7 @@ export function MyAppointmentsPage() {
                   <Button
                     isDisabled={cancelMutation.isPending}
                     variant="secondary"
-                    onPress={() => setCancelTarget(null)}
+                    onPress={handleCloseCancelModal}
                   >
                     No, mantener cita
                   </Button>

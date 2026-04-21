@@ -6,7 +6,9 @@ interface InventoryMovementFilterState {
   setFilters: (filters: ListFilter) => void;
 }
 
-export const useInventoryMovementStore = create<InventoryMovementFilterState>((set) => ({
-  filters: { filter: "", page: 1, pageSize: 10 },
-  setFilters: (filters) => set({ filters }),
-}));
+export const useInventoryMovementStore = create<InventoryMovementFilterState>(
+  (set) => ({
+    filters: { filter: "", page: 1, pageSize: 10 },
+    setFilters: (filters) => set({ filters }),
+  }),
+);

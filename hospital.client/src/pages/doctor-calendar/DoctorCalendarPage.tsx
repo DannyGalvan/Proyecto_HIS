@@ -19,6 +19,11 @@ import { getAppTimezone } from "../../utils/dateFormatter";
 import { EventModal } from "../../components/modal/EventModal";
 import { TaskModal } from "../../components/modal/TaskModal";
 import { TaskPanel } from "../../components/modal/TaskPanel";
+import {
+  getAppointmentColor,
+  parseCalendarDate,
+  toLocalCalendarString,
+} from "../../utils/dateCalendarPageUtils";
 
 interface CalendarEvent {
   id: string;
@@ -34,63 +39,6 @@ interface CalendarEvent {
     type: "appointment" | "event" | "task";
     data: AppointmentResponse | DoctorEventResponse | DoctorTaskResponse;
   };
-}
-
-/** Map appointment status to color */
-function getAppointmentColor(statusId: number): string {
-  // 1=Pendiente(blue), 2=Confirmada(green), 3-6=En progreso(yellow), 7+=Completada(gray)
-  if (statusId <= 1) return "#3b82f6"; // blue
-  if (statusId === 2) return "#22c55e"; // green
-  if (statusId >= 3 && statusId <= 6) return "#eab308"; // yellow
-  return "#9ca3af"; // gray
-}
-
-/** Parse backend date strings (handles "dd/MM/yyyy HH:mm:ss" and ISO formats) */
-function parseCalendarDate(dateStr: string | null | undefined): Date | null {
-  if (!dateStr) return null;
-  // ISO format
-  if (dateStr.includes("T") || dateStr.endsWith("Z")) {
-    const d = new Date(dateStr);
-    return isNaN(d.getTime()) ? null : d;
-  }
-  // Backend format: "dd/MM/yyyy HH:mm:ss"
-  const match = dateStr.match(
-    /^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/,
-  );
-  if (match) {
-    const [, day, month, year, hour, min, sec] = match;
-    return new Date(Date.UTC(+year, +month - 1, +day, +hour, +min, +sec));
-  }
-  // Date-only: "dd/MM/yyyy"
-  const dateOnly = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (dateOnly) {
-    const [, day, month, year] = dateOnly;
-    return new Date(Date.UTC(+year, +month - 1, +day));
-  }
-  const d = new Date(dateStr);
-  return isNaN(d.getTime()) ? null : d;
-}
-
-/**
- * Convert a UTC Date to a local datetime string in the user's timezone.
- * Returns format "YYYY-MM-DDTHH:mm:ss" (no Z suffix) so FullCalendar treats it as local.
- */
-function toLocalCalendarString(utcDate: Date, tz: string): string {
-  // Use Intl.DateTimeFormat to get the date parts in the target timezone
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: tz,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  }).formatToParts(utcDate);
-
-  const get = (type: string) =>
-    parts.find((p) => p.type === type)?.value ?? "00";
-  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:${get("second")}`;
 }
 
 export function DoctorCalendarPage() {
@@ -267,6 +215,21 @@ export function DoctorCalendarPage() {
     setTaskModalOpen(true);
   }, []);
 
+  const handleToggleTaskPanel = useCallback(
+    () => setTaskPanelOpen((prev) => !prev),
+    [],
+  );
+
+  const handleCloseEventModal = useCallback(() => {
+    setEventModalOpen(false);
+    setEditingEvent(null);
+  }, []);
+
+  const handleCloseTaskModal = useCallback(() => {
+    setTaskModalOpen(false);
+    setEditingTask(null);
+  }, []);
+
   const [taskPanelOpen, setTaskPanelOpen] = useState(true);
 
   // Resize calendar when task panel toggles or window resizes
@@ -319,7 +282,7 @@ export function DoctorCalendarPage() {
                 : "bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400"
             }`}
             type="button"
-            onClick={() => setTaskPanelOpen((prev) => !prev)}
+            onClick={handleToggleTaskPanel}
           >
             <i
               className={`bi ${taskPanelOpen ? "bi-layout-sidebar-reverse" : "bi-list-task"}`}
@@ -387,10 +350,7 @@ export function DoctorCalendarPage() {
         <EventModal
           event={editingEvent}
           userId={userId}
-          onClose={() => {
-            setEventModalOpen(false);
-            setEditingEvent(null);
-          }}
+          onClose={handleCloseEventModal}
           onSaved={refreshData}
         />
       ) : null}
@@ -400,10 +360,7 @@ export function DoctorCalendarPage() {
         <TaskModal
           task={editingTask}
           userId={userId}
-          onClose={() => {
-            setTaskModalOpen(false);
-            setEditingTask(null);
-          }}
+          onClose={handleCloseTaskModal}
           onSaved={refreshData}
         />
       ) : null}

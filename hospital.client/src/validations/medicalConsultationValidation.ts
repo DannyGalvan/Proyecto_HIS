@@ -13,9 +13,7 @@ export const medicalConsultationSchema = z.object({
     z.string({ error: invalid_type_error }).min(1, "El médico es obligatorio"),
     z.number().min(1, "El médico es obligatorio"),
   ]),
-  reasonForVisit: z
-    .string()
-    .min(1, "El motivo de visita es obligatorio"),
+  reasonForVisit: z.string().min(1, "El motivo de visita es obligatorio"),
   clinicalFindings: z.string().optional().or(z.literal("")),
   diagnosis: z
     .string()
@@ -38,7 +36,9 @@ export const medicalConsultationSchema = z.object({
 
 export const validateMedicalConsultation = (data: unknown): ErrorObject => {
   const result = medicalConsultationSchema.safeParse(data);
-  const errors: ErrorObject = result.success ? {} : handleOneLevelZodError(result.error);
+  const errors: ErrorObject = result.success
+    ? {}
+    : handleOneLevelZodError(result.error);
 
   // CU-08: Diagnóstico obligatorio al finalizar consulta
   const record = data as Record<string, unknown>;
@@ -46,7 +46,8 @@ export const validateMedicalConsultation = (data: unknown): ErrorObject => {
   if (status === 1) {
     const diagnosis = String(record.diagnosis ?? "").trim();
     if (!diagnosis) {
-      errors.diagnosis = "No es posible finalizar la consulta sin registrar un diagnóstico. El campo Diagnóstico es obligatorio.";
+      errors.diagnosis =
+        "No es posible finalizar la consulta sin registrar un diagnóstico. El campo Diagnóstico es obligatorio.";
     }
   }
 

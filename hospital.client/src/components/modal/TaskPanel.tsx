@@ -17,6 +17,10 @@ export function TaskPanel({ tasks, selectedDate, onRefresh }: TaskPanelProps) {
   const [filter, setFilter] = useState<TaskFilter>("pending");
   const [completingId, setCompletingId] = useState<number | null>(null);
 
+  const handleSetPending = useCallback(() => setFilter("pending"), []);
+  const handleSetCompleted = useCallback(() => setFilter("completed"), []);
+  const handleSetAll = useCallback(() => setFilter("all"), []);
+
   // Filter tasks for selected date
   const dayTasks = useMemo(() => {
     return tasks
@@ -83,17 +87,17 @@ export function TaskPanel({ tasks, selectedDate, onRefresh }: TaskPanelProps) {
         <FilterButton
           active={filter === "pending"}
           label="Pendientes"
-          onClick={() => setFilter("pending")}
+          onClick={handleSetPending}
         />
         <FilterButton
           active={filter === "completed"}
           label="Completadas"
-          onClick={() => setFilter("completed")}
+          onClick={handleSetCompleted}
         />
         <FilterButton
           active={filter === "all"}
           label="Todas"
-          onClick={() => setFilter("all")}
+          onClick={handleSetAll}
         />
       </div>
 
@@ -196,6 +200,11 @@ function TaskItem({
 }) {
   const priorityInfo = PriorityLabels[task.priority] ?? PriorityLabels[1];
 
+  const handleComplete = useCallback(
+    () => onComplete(task.id),
+    [task.id, onComplete],
+  );
+
   return (
     <div
       className={`p-3 rounded-lg border transition-colors ${
@@ -212,7 +221,7 @@ function TaskItem({
             disabled={completing}
             title="Marcar como completada"
             type="button"
-            onClick={() => onComplete(task.id)}
+            onClick={handleComplete}
           >
             {completing ? (
               <div className="w-3 h-3 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />

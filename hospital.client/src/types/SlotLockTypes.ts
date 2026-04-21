@@ -3,9 +3,9 @@
  */
 export interface SlotLockInfo {
   doctorId: number;
-  date: string;       // "yyyy-MM-dd"
-  time: string;       // "HH:mm"
-  expiresAt: string;  // ISO 8601
+  date: string; // "yyyy-MM-dd"
+  time: string; // "HH:mm"
+  expiresAt: string; // ISO 8601
 }
 
 /**
@@ -21,4 +21,8 @@ export interface SlotLockRejection {
 /**
  * Connection state of the SignalR hub.
  */
-export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
+export type ConnectionState =
+  | "disconnected"
+  | "connecting"
+  | "connected"
+  | "reconnecting";

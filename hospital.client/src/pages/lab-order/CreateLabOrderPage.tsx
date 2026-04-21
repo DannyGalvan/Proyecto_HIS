@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { LabOrderForm } from "../../components/form/LabOrderForm";
 import { BlockedWithoutContext } from "../../components/shared/BlockedWithoutContext";
@@ -19,18 +20,21 @@ export function CreateLabOrderPage() {
   const patientNameParam = searchParams.get("patientName");
   const fromDoctorDashboard = !!appointmentIdParam || !!consultationIdParam;
 
-  // ── Guard: no context → blocked ────────────────────────────────────────────
-  if (!appointmentIdParam && !consultationIdParam) {
-    return (
-      <BlockedWithoutContext
-        backLabel="Ir al Panel del Médico"
-        backRoute={nameRoutes.doctorDashboard}
-        icon="bi-flask"
-        message="No puedes crear una orden de laboratorio sin que provenga de una consulta médica completada. Las órdenes solo pueden generarse desde el panel del médico."
-        title="Acceso no permitido"
-      />
-    );
-  }
+  const handleNavigateDashboard = useCallback(
+    () => navigate(nameRoutes.doctorDashboard),
+    [navigate],
+  );
+
+  const handleLabOrderSuccess = useCallback(
+    (id: number) => {
+      if (fromDoctorDashboard) {
+        navigate(nameRoutes.doctorDashboard);
+      } else {
+        navigate(`/lab-order/${id}`);
+      }
+    },
+    [fromDoctorDashboard, navigate],
+  );
 
   // If we have appointmentId but not consultationId, look up the consultation
   const { data: consultationData, isLoading } = useQuery({
@@ -45,6 +49,19 @@ export function CreateLabOrderPage() {
       }),
     enabled: !!appointmentIdParam && !consultationIdParam,
   });
+
+  // ── Guard: no context → blocked ────────────────────────────────────────────
+  if (!appointmentIdParam && !consultationIdParam) {
+    return (
+      <BlockedWithoutContext
+        backLabel="Ir al Panel del Médico"
+        backRoute={nameRoutes.doctorDashboard}
+        icon="bi-flask"
+        message="No puedes crear una orden de laboratorio sin que provenga de una consulta médica completada. Las órdenes solo pueden generarse desde el panel del médico."
+        title="Acceso no permitido"
+      />
+    );
+  }
 
   if (isLoading) return <LoadingComponent />;
 
@@ -70,7 +87,7 @@ export function CreateLabOrderPage() {
         <button
           className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 transition-colors"
           type="button"
-          onClick={() => navigate(nameRoutes.doctorDashboard)}
+          onClick={handleNavigateDashboard}
         >
           <i className="bi bi-arrow-left" />
           Volver al Panel
@@ -89,13 +106,7 @@ export function CreateLabOrderPage() {
         }
         initialPatientId={patientIdParam ? Number(patientIdParam) : null}
         patientName={patientNameParam ?? undefined}
-        onSuccess={(id) => {
-          if (fromDoctorDashboard) {
-            navigate(nameRoutes.doctorDashboard);
-          } else {
-            navigate(`/lab-order/${id}`);
-          }
-        }}
+        onSuccess={handleLabOrderSuccess}
       />
     </div>
   );

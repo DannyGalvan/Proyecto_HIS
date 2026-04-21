@@ -110,6 +110,11 @@ export function PatientDashboardPage() {
       a.appointmentStatusName && PAST_STATUSES.has(a.appointmentStatusName),
   );
 
+  const handleNavigateBook = useCallback(
+    () => navigate(nameRoutes.portalBook),
+    [navigate],
+  );
+
   const handleLogout = useCallback(() => {
     logoutPatient();
     navigate(nameRoutes.portalHome);
@@ -150,7 +155,7 @@ export function PatientDashboardPage() {
           <button
             className="flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-bold text-blue-800 transition-colors hover:bg-blue-50"
             type="button"
-            onClick={() => navigate(nameRoutes.portalBook)}
+            onClick={handleNavigateBook}
           >
             <i className="bi bi-calendar-plus" />
             Agendar Nueva Cita
@@ -185,7 +190,7 @@ export function PatientDashboardPage() {
               <button
                 className="mt-1 rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700"
                 type="button"
-                onClick={() => navigate(nameRoutes.portalBook)}
+                onClick={handleNavigateBook}
               >
                 Agendar una cita
               </button>

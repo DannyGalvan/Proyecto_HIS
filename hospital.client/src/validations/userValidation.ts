@@ -36,7 +36,10 @@ export const userSchema = z.object({
   identificationDocument: z
     .string()
     .regex(/^\d{13}$/, "El DPI debe tener exactamente 13 dígitos numéricos")
-    .refine(isCuiValid, "El número de DPI/CUI no es válido. Verifique que los dígitos sean correctos.")
+    .refine(
+      isCuiValid,
+      "El número de DPI/CUI no es válido. Verifique que los dígitos sean correctos.",
+    )
     .optional()
     .or(z.literal("")),
   number: z
@@ -50,10 +53,10 @@ export const userSchema = z.object({
     .max(9, "El NIT debe tener entre 8 y 9 caracteres")
     .optional()
     .or(z.literal("")),
-  branchId: z.union([
-    z.string({ error: invalid_type_error }),
-    z.number(),
-  ]).optional().nullable(),
+  branchId: z
+    .union([z.string({ error: invalid_type_error }), z.number()])
+    .optional()
+    .nullable(),
   insuranceNumber: z
     .string()
     .min(5, "El número de seguro debe tener entre 5 y 50 caracteres")

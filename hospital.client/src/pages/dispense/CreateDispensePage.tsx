@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { DispenseForm } from "../../components/form/DispenseForm";
 import { usePrescriptionValidity } from "../../hooks/usePrescriptionValidity";
@@ -8,6 +9,16 @@ export function CreateDispensePage() {
   const navigate = useNavigate();
   const { prescriptionId: paramId } = useParams<{ prescriptionId: string }>();
   const [searchParams] = useSearchParams();
+
+  const handleNavigateDispense = useCallback(
+    () => navigate("/dispense"),
+    [navigate],
+  );
+
+  const handleDispenseSuccess = useCallback(
+    () => navigate("/dispense"),
+    [navigate],
+  );
 
   const prescriptionIdRaw = paramId ?? searchParams.get("prescriptionId");
   const prescriptionId = prescriptionIdRaw ? Number(prescriptionIdRaw) : null;
@@ -71,7 +82,7 @@ export function CreateDispensePage() {
           <button
             className="mt-2 px-4 py-2 rounded-lg bg-red-100 text-red-800 font-semibold hover:bg-red-200 transition-colors"
             type="button"
-            onClick={() => navigate("/dispense")}
+            onClick={handleNavigateDispense}
           >
             Volver a Despachos
           </button>
@@ -85,7 +96,7 @@ export function CreateDispensePage() {
       <DispenseForm
         prescriptionDate={prescription.prescriptionDate}
         prescriptionId={prescriptionId}
-        onSuccess={() => navigate("/dispense")}
+        onSuccess={handleDispenseSuccess}
       />
     </div>
   );

@@ -1,13 +1,13 @@
 import { createBrowserRouter, Navigate } from "react-router";
 
 import { nameRoutes } from "../configs/constants";
-import { Root } from "../containers/Root";
 import { PortalLayout } from "../containers/PortalLayout";
+import { Root } from "../containers/Root";
 import { ErrorRoutes } from "../routes/ErrorRoutes";
-import { PublicRoutes } from "../routes/PublicRoutes";
 import { PortalRoutes } from "../routes/PortalRoutes";
-import { useAuth } from "./useAuth";
+import { PublicRoutes } from "../routes/PublicRoutes";
 import { getRoleFromToken } from "../utils/jwt";
+import { useAuth } from "./useAuth";
 
 // Index route: redirect based on role or to portal if not logged in
 function RootIndex() {
@@ -20,25 +20,27 @@ function RootIndex() {
       try {
         const parsed = JSON.parse(patientAuth);
         if (parsed?.isLoggedIn && parsed?.token) {
-          return <Navigate to={nameRoutes.portalDashboard} replace />;
+          return <Navigate replace to={nameRoutes.portalDashboard} />;
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
-    return <Navigate to={nameRoutes.portalHome} replace />;
+    return <Navigate replace to={nameRoutes.portalHome} />;
   }
 
   const role = token ? getRoleFromToken(token) : null;
 
   switch (role) {
     case "Medico":
-      return <Navigate to={nameRoutes.doctorDashboard} replace />;
+      return <Navigate replace to={nameRoutes.doctorDashboard} />;
     case "Enfermero":
-      return <Navigate to={nameRoutes.nurseDashboard} replace />;
+      return <Navigate replace to={nameRoutes.nurseDashboard} />;
     case "Paciente":
-      return <Navigate to={nameRoutes.portalDashboard} replace />;
+      return <Navigate replace to={nameRoutes.portalDashboard} />;
     default:
       // SA, Recepcionista, Cajero, etc. → admin dashboard
-      return <Navigate to={nameRoutes.adminDashboard} replace />;
+      return <Navigate replace to={nameRoutes.adminDashboard} />;
   }
 }
 
@@ -105,8 +107,8 @@ export const useAuthorizationRoutes = () => {
     const normalizedPath = route.path
       .toLowerCase()
       .replace(/^\//, "")
-      .replace(/\/:[^/]+/g, "")   // remove /:param anywhere in the path
-      .replace(/:.*$/, "");        // remove :param at the start (edge case)
+      .replace(/\/:[^/]+/g, "") // remove /:param anywhere in the path
+      .replace(/:.*$/, ""); // remove :param at the start (edge case)
 
     if (errorPaths.has(route.path)) return true;
     return operations.has(normalizedPath);

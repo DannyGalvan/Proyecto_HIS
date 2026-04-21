@@ -1,5 +1,6 @@
 import { Button, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
 import { LabOrderItemResultForm } from "../../components/form/LabOrderItemResultForm";
 import { OutOfRangeAlert } from "../../components/shared/OutOfRangeAlert";
@@ -9,12 +10,36 @@ import {
   partialUpdateLabOrderItem,
 } from "../../services/labOrderService";
 
+function PublishButton({
+  itemId,
+  isPending,
+  onPublish,
+}: {
+  readonly itemId: number;
+  readonly isPending: boolean;
+  readonly onPublish: (id: number) => void;
+}) {
+  const handleClick = useCallback(() => onPublish(itemId), [itemId, onPublish]);
+  return (
+    <button
+      className="px-4 py-2 rounded-lg text-sm font-semibold bg-green-100 text-green-800 hover:bg-green-200 transition-colors disabled:opacity-50"
+      disabled={isPending}
+      type="button"
+      onClick={handleClick}
+    >
+      <i className="bi bi-send-check mr-1" /> Publicar resultado
+    </button>
+  );
+}
+
 export function LabOrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const labOrderId = Number(id);
+
+  const handleGoBack = useCallback(() => navigate(-1), [navigate]);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["lab-order", labOrderId],
@@ -32,6 +57,17 @@ export function LabOrderDetailPage() {
     onError: () => toast.danger("Error al publicar el resultado."),
   });
 
+  const handleRefetch = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handlePublish = useCallback(
+    (itemId: number) => {
+      publishMutation.mutate(itemId);
+    },
+    [publishMutation],
+  );
+
   if (isLoading) return <LoadingComponent />;
 
   const order = data?.success ? data.data : null;
@@ -44,7 +80,7 @@ export function LabOrderDetailPage() {
           className="mt-4"
           size="sm"
           variant="secondary"
-          onPress={() => navigate(-1)}
+          onPress={handleGoBack}
         >
           <i className="bi bi-arrow-left mr-1" /> Volver
         </Button>
@@ -71,7 +107,7 @@ export function LabOrderDetailPage() {
     <div className="max-w-4xl mx-auto p-6">
       {/* ── Header ── */}
       <div className="flex items-center gap-3 mb-6">
-        <Button size="sm" variant="secondary" onPress={() => navigate(-1)}>
+        <Button size="sm" variant="secondary" onPress={handleGoBack}>
           <i className="bi bi-arrow-left mr-1" /> Volver
         </Button>
         <h1 className="text-2xl font-bold">
@@ -188,20 +224,17 @@ export function LabOrderDetailPage() {
                 <i className="bi bi-pencil-square mr-1" /> Ingresar / Actualizar
                 Resultado
               </p>
-              <LabOrderItemResultForm item={item} onSuccess={() => refetch()} />
+              <LabOrderItemResultForm item={item} onSuccess={handleRefetch} />
             </div>
 
             {/* Publish button */}
             {!item.isPublished && (
               <div className="mt-3 flex justify-end">
-                <button
-                  className="px-4 py-2 rounded-lg text-sm font-semibold bg-green-100 text-green-800 hover:bg-green-200 transition-colors disabled:opacity-50"
-                  disabled={publishMutation.isPending}
-                  type="button"
-                  onClick={() => publishMutation.mutate(item.id)}
-                >
-                  <i className="bi bi-send-check mr-1" /> Publicar resultado
-                </button>
+                <PublishButton
+                  isPending={publishMutation.isPending}
+                  itemId={item.id}
+                  onPublish={handlePublish}
+                />
               </div>
             )}
           </div>

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import cie10Data from '../data/cie10.json';
+import { useEffect, useState } from "react";
+import cie10Data from "../data/cie10.json";
 
 export interface Cie10Item {
   code: string;

@@ -104,6 +104,43 @@ export function CashierPage() {
       ),
   });
 
+  const handleSearchTypeDpi = useCallback(() => setSearchType("dpi"), []);
+  const handleSearchTypeId = useCallback(() => setSearchType("id"), []);
+  const handleSearchValueChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setSearchValue(e.target.value),
+    [],
+  );
+  const handleDeselectAppointment = useCallback(
+    () => setSelectedAppointment(null),
+    [],
+  );
+  const handlePaymentMethodChange = useCallback(
+    (v: unknown) => {
+      const val =
+        v && !Array.isArray(v) && typeof v === "object" && v !== null && "value" in v
+          ? Number((v as { value: string }).value)
+          : 0;
+      setPaymentMethod(val);
+    },
+    [],
+  );
+  const handleAmountReceivedChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setAmountReceived(e.target.value),
+    [],
+  );
+  const handleCardLastFourChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setCardLastFour(e.target.value.replace(/\D/g, "")),
+    [],
+  );
+  const handleNewPayment = useCallback(() => {
+    setSelectedAppointment(null);
+    setPaymentSuccess(null);
+    setSearchValue("");
+    setSearchQuery("");
+  }, []);
+
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
@@ -206,14 +243,14 @@ export function CashierPage() {
             <button
               className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-colors ${searchType === "dpi" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-300"}`}
               type="button"
-              onClick={() => setSearchType("dpi")}
+              onClick={handleSearchTypeDpi}
             >
               Por DPI
             </button>
             <button
               className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-colors ${searchType === "id" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-300"}`}
               type="button"
-              onClick={() => setSearchType("id")}
+              onClick={handleSearchTypeId}
             >
               Por No. Cita
             </button>
@@ -227,7 +264,7 @@ export function CashierPage() {
             }
             type="text"
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={handleSearchValueChange}
           />
           <Button className="px-6" type="submit" variant="primary">
             <i className="bi bi-search mr-2" /> Buscar
@@ -295,7 +332,7 @@ export function CashierPage() {
             <Button
               size="sm"
               variant="secondary"
-              onPress={() => setSelectedAppointment(null)}
+              onPress={handleDeselectAppointment}
             >
               <i className="bi bi-arrow-left mr-1" /> Cambiar cita
             </Button>
@@ -338,13 +375,7 @@ export function CashierPage() {
               name="paymentMethod"
               options={PAYMENT_METHODS}
               placeholder="Seleccione método de pago"
-              onChange={(v) => {
-                const val =
-                  v && !Array.isArray(v) && "value" in v
-                    ? Number((v as { value: string }).value)
-                    : 0;
-                setPaymentMethod(val);
-              }}
+              onChange={handlePaymentMethodChange}
             />
           </div>
 
@@ -361,7 +392,7 @@ export function CashierPage() {
                   step="0.01"
                   type="number"
                   value={amountReceived}
-                  onChange={(e) => setAmountReceived(e.target.value)}
+                  onChange={handleAmountReceivedChange}
                 />
               </div>
               <div className="flex flex-col justify-end">

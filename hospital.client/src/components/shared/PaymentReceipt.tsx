@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import type { PaymentResponse } from "../../types/PaymentResponse";
 import { formatDateTimeLong } from "../../utils/dateFormatter";
 
@@ -26,6 +27,8 @@ export function PaymentReceipt({
     style: "currency",
     currency: "GTQ",
   }).format(payment.amount);
+
+  const handlePrint = useCallback(() => window.print(), []);
 
   return (
     <div className="mx-auto max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-md print:shadow-none print:border-none">
@@ -83,7 +86,7 @@ export function PaymentReceipt({
         <button
           className="flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
           type="button"
-          onClick={() => window.print()}
+          onClick={handlePrint}
         >
           🖨️ Imprimir recibo
         </button>

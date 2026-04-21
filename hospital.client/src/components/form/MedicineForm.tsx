@@ -50,6 +50,8 @@ export function MedicineForm({
     [handleChange],
   );
 
+  const handleCancel = useCallback(() => navigate("/medicine"), [navigate]);
+
   const handleSelectChange = useCallback(
     (name: string) => (newValue: OptionValue) => {
       const value =
@@ -230,7 +232,7 @@ export function MedicineForm({
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() => navigate("/medicine")}
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

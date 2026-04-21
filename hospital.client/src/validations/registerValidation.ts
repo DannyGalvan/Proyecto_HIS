@@ -11,7 +11,10 @@ export const registerSchema = z.object({
   identificationDocument: z
     .string()
     .regex(/^\d{13}$/, "El DPI debe tener exactamente 13 dígitos numéricos")
-    .refine(isCuiValid, "El número de DPI/CUI no es válido. Verifique que los dígitos sean correctos."),
+    .refine(
+      isCuiValid,
+      "El número de DPI/CUI no es válido. Verifique que los dígitos sean correctos.",
+    ),
   userName: z
     .string()
     .min(8, "El usuario debe tener entre 8 y 9 caracteres")
@@ -43,9 +46,8 @@ export const registerSchema = z.object({
 export type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const validateRegister = (data: unknown): ErrorObject => {
-
   const result = registerSchema.safeParse(data);
-  console.log(result)
+  console.log(result);
   if (!result.success) return handleOneLevelZodError(result.error);
   return {};
 };

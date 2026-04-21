@@ -22,7 +22,7 @@ function ProtectedPublic({ children }: ProtectedPublicProps) {
   if (token) {
     const roleName = getRoleFromToken(token);
     if (roleName === "Paciente") {
-      return <Navigate to={nameRoutes.portalDashboard} replace />;
+      return <Navigate replace to={nameRoutes.portalDashboard} />;
     }
   }
 

@@ -58,6 +58,11 @@ export function MedicineInventoryForm({
     [handleChange],
   );
 
+  const handleCancel = useCallback(
+    () => navigate("/medicine-inventory"),
+    [navigate],
+  );
+
   const handleSelectChange = useCallback(
     (name: string) => (opt: OptionValue) => {
       const option = opt as SingleValue<{ label: string; value: string }>;
@@ -207,7 +212,7 @@ export function MedicineInventoryForm({
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() => navigate("/medicine-inventory")}
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

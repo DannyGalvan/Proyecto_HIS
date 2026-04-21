@@ -9,29 +9,46 @@ import { handleOneLevelZodError } from "../utils/converted";
  */
 export const inventoryMovementSchema = z.object({
   movementType: z.union([
-    z.string({ error: invalid_type_error }).min(1, "Debe seleccionar el tipo de movimiento."),
-    z.number().min(0, "Debe seleccionar el tipo de movimiento.").max(5, "Tipo de operación inválido"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "Debe seleccionar el tipo de movimiento."),
+    z
+      .number()
+      .min(0, "Debe seleccionar el tipo de movimiento.")
+      .max(5, "Tipo de operación inválido"),
   ]),
   medicineId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "Debe seleccionar un medicamento."),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "Debe seleccionar un medicamento."),
     z.number().min(1, "Debe seleccionar un medicamento."),
   ]),
   branchId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "Debe seleccionar una sucursal."),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "Debe seleccionar una sucursal."),
     z.number().min(1, "Debe seleccionar una sucursal."),
   ]),
   quantity: z.union([
     z
       .string({ error: invalid_type_error })
       .min(1, "La cantidad es obligatoria")
-      .refine((v) => Number.isInteger(Number(v)) && Number(v) > 0, "La cantidad debe ser un número entero positivo."),
-    z.number().int("La cantidad debe ser un número entero positivo.").min(1, "La cantidad debe ser un número entero positivo."),
+      .refine(
+        (v) => Number.isInteger(Number(v)) && Number(v) > 0,
+        "La cantidad debe ser un número entero positivo.",
+      ),
+    z
+      .number()
+      .int("La cantidad debe ser un número entero positivo.")
+      .min(1, "La cantidad debe ser un número entero positivo."),
   ]),
 });
 
 export const validateInventoryMovement = (data: unknown): ErrorObject => {
   const result = inventoryMovementSchema.safeParse(data);
-  const errors: ErrorObject = result.success ? {} : handleOneLevelZodError(result.error);
+  const errors: ErrorObject = result.success
+    ? {}
+    : handleOneLevelZodError(result.error);
 
   const record = data as Record<string, unknown>;
   const movementType = Number(record.movementType ?? -1);

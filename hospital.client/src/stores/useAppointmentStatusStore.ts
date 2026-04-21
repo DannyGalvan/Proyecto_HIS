@@ -6,7 +6,9 @@ interface AppointmentStatusFilterState {
   setFilters: (filters: ListFilter) => void;
 }
 
-export const useAppointmentStatusStore = create<AppointmentStatusFilterState>((set) => ({
-  filters: { filter: "", page: 1, pageSize: 10 },
-  setFilters: (filters) => set({ filters }),
-}));
+export const useAppointmentStatusStore = create<AppointmentStatusFilterState>(
+  (set) => ({
+    filters: { filter: "", page: 1, pageSize: 10 },
+    setFilters: (filters) => set({ filters }),
+  }),
+);

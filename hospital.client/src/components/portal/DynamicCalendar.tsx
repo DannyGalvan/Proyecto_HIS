@@ -4,6 +4,12 @@ import "react-calendar/dist/Calendar.css";
 import type { UseAppointmentHubReturn } from "../../hooks/useAppointmentHub";
 import { getDoctorAvailability } from "../../services/patientPortalService";
 import { formatDateLong } from "../../utils/dateFormatter";
+import {
+  formatDateForApi,
+  formatTime,
+  generateSlots,
+  isSlotOccupied,
+} from "../../utils/dynamicCalendar";
 
 interface DynamicCalendarProps {
   readonly doctorId: number;
@@ -14,49 +20,79 @@ interface DynamicCalendarProps {
   readonly onDateChange?: (date: string | null) => void;
 }
 
-/**
- * Returns true if the 30-minute window starting at slotStart overlaps with
- * any of the occupied slots (each also treated as a 30-minute window).
- */
-const isSlotOccupied = (slotStart: Date, occupiedSlots: string[]): boolean => {
-  const slotEnd = new Date(slotStart.getTime() + 30 * 60 * 1000);
-  return occupiedSlots.some((occupied) => {
-    const occStart = new Date(occupied);
-    const occEnd = new Date(occStart.getTime() + 30 * 60 * 1000);
-    return slotStart < occEnd && slotEnd > occStart;
-  });
-};
+interface SlotButtonProps {
+  readonly slot: Date;
+  readonly time: string;
+  readonly disabled: boolean;
+  readonly isSelected: boolean;
+  readonly isLockedByOther: boolean;
+  readonly isPast: boolean;
+  readonly occupied: boolean;
+  readonly isConfirmed: boolean;
+  readonly onSlotClick: (slot: Date) => void;
+}
 
-/** Generate all 30-minute slots from 07:00 to 18:30 for the given date. */
-const generateSlots = (date: Date): Date[] => {
-  const slots: Date[] = [];
-  // Start at 07:00, end at 18:30 (last slot starts at 18:30)
-  for (let hour = 7; hour <= 18; hour++) {
-    const minutes = hour === 18 ? [0, 30] : [0, 30];
-    for (const minute of minutes) {
-      if (hour === 18 && minute > 30) break;
-      const slot = new Date(date);
-      slot.setHours(hour, minute, 0, 0);
-      slots.push(slot);
-    }
+function SlotButton({
+  slot,
+  time,
+  disabled,
+  isSelected,
+  isLockedByOther,
+  isPast,
+  occupied,
+  isConfirmed,
+  onSlotClick,
+}: SlotButtonProps) {
+  const handleClick = useCallback(
+    () => void onSlotClick(slot),
+    [slot, onSlotClick],
+  );
+
+  let buttonClass =
+    "rounded px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ";
+
+  if (isSelected) {
+    buttonClass += "bg-blue-600 text-white focus:ring-blue-500";
+  } else if (isLockedByOther) {
+    buttonClass += "cursor-not-allowed bg-amber-100 text-amber-600";
+  } else if (isPast || occupied || isConfirmed) {
+    buttonClass += "cursor-not-allowed bg-gray-100 text-gray-400";
+  } else {
+    buttonClass +=
+      "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500";
   }
-  return slots;
-};
 
-/** Format a Date as "yyyy-MM-dd" for the API call. */
-const formatDateForApi = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-/** Format a Date as "HH:MM" for display. */
-const formatTime = (date: Date): string => {
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
-};
+  return (
+    <button
+      aria-label={`Slot ${time}${
+        isLockedByOther
+          ? " - reservado temporalmente por otro paciente"
+          : occupied || isConfirmed
+            ? " - ocupado"
+            : isPast
+              ? " - pasado"
+              : " - disponible"
+      }`}
+      aria-pressed={isSelected}
+      className={buttonClass}
+      disabled={disabled}
+      title={
+        isLockedByOther
+          ? "Reservado temporalmente por otro paciente"
+          : undefined
+      }
+      type="button"
+      onClick={handleClick}
+    >
+      {time}
+      {isLockedByOther ? (
+        <span className="sr-only">
+          Reservado temporalmente por otro paciente
+        </span>
+      ) : null}
+    </button>
+  );
+}
 
 export function DynamicCalendar({
   doctorId,
@@ -112,6 +148,15 @@ export function DynamicCalendar({
     [onSlotSelected, lockSlot],
   );
 
+  const handleCalendarChange = useCallback(
+    (value: Date | Date[] | null | [Date | null, Date | null]) => {
+      if (value instanceof Date) {
+        void handleDateChange(value);
+      }
+    },
+    [handleDateChange],
+  );
+
   const now = new Date();
   const allSlots = selectedDate ? generateSlots(selectedDate) : [];
 
@@ -122,11 +167,7 @@ export function DynamicCalendar({
         <Calendar
           minDate={new Date()}
           value={selectedDate}
-          onChange={(value) => {
-            if (value instanceof Date) {
-              void handleDateChange(value);
-            }
-          }}
+          onChange={handleCalendarChange}
         />
       </div>
 
@@ -171,51 +212,19 @@ export function DynamicCalendar({
                 const disabled =
                   isPast || occupied || isLockedByOther || isConfirmed;
 
-                let buttonClass =
-                  "rounded px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ";
-
-                if (isSelected) {
-                  buttonClass += "bg-blue-600 text-white focus:ring-blue-500";
-                } else if (isLockedByOther) {
-                  buttonClass +=
-                    "cursor-not-allowed bg-amber-100 text-amber-600";
-                } else if (isPast || occupied || isConfirmed) {
-                  buttonClass += "cursor-not-allowed bg-gray-100 text-gray-400";
-                } else {
-                  buttonClass +=
-                    "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500";
-                }
-
                 return (
-                  <button
+                  <SlotButton
                     key={slot.toISOString()}
-                    aria-label={`Slot ${time}${
-                      isLockedByOther
-                        ? " - reservado temporalmente por otro paciente"
-                        : occupied || isConfirmed
-                          ? " - ocupado"
-                          : isPast
-                            ? " - pasado"
-                            : " - disponible"
-                    }`}
-                    aria-pressed={isSelected}
-                    className={buttonClass}
                     disabled={disabled}
-                    title={
-                      isLockedByOther
-                        ? "Reservado temporalmente por otro paciente"
-                        : undefined
-                    }
-                    type="button"
-                    onClick={() => void handleSlotClick(slot)}
-                  >
-                    {time}
-                    {isLockedByOther ? (
-                      <span className="sr-only">
-                        Reservado temporalmente por otro paciente
-                      </span>
-                    ) : null}
-                  </button>
+                    isConfirmed={isConfirmed}
+                    isLockedByOther={isLockedByOther}
+                    isPast={isPast}
+                    isSelected={isSelected}
+                    occupied={occupied}
+                    slot={slot}
+                    time={time}
+                    onSlotClick={handleSlotClick}
+                  />
                 );
               })}
             </div>

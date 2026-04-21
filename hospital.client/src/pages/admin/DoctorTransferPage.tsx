@@ -108,7 +108,7 @@ export function DoctorTransferPage() {
     newBranchSpecialtyNames.length > 0 &&
     !newBranchSpecialtyNames.includes(doctorSpecialtyName);
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     if (!doctor || !newBranchId) return;
     transferMutation.mutate({
       id: doctor.id,
@@ -116,7 +116,7 @@ export function DoctorTransferPage() {
       branchId: newBranchId,
       updatedBy: userId,
     });
-  };
+  }, [doctor, newBranchId, transferMutation, userId]);
 
   const handleDoctorSelect = (
     opt: SingleValue<{ label: string; value: string }> | null,
@@ -126,6 +126,32 @@ export function DoctorTransferPage() {
     setStep("select-doctor");
     setNewBranchId(null);
   };
+
+  const handleDoctorSelectChange = useCallback((opt: unknown) => {
+    handleDoctorSelect(opt as SingleValue<{ label: string; value: string }>);
+  }, []);
+
+  const handleNewBranchChange = useCallback(
+    (opt: unknown) => {
+      const o = opt as SingleValue<{ label: string; value: string }>;
+      setNewBranchId(o?.value ? Number(o.value) : null);
+      setNewBranchName(o?.label ?? "");
+      if (step === "confirm") setStep("select-branch");
+    },
+    [step],
+  );
+
+  const handleGoToSelectBranch = useCallback(
+    () => setStep("select-branch"),
+    [],
+  );
+
+  const handleGoToSelectDoctor = useCallback(
+    () => setStep("select-doctor"),
+    [],
+  );
+
+  const handleGoToConfirm = useCallback(() => setStep("confirm"), []);
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -182,11 +208,7 @@ export function DoctorTransferPage() {
             placeholder="Escriba el nombre del médico..."
             queryFn={getUsers}
             selectorFn={selectorDoctor}
-            onChange={(opt) => {
-              handleDoctorSelect(
-                opt as SingleValue<{ label: string; value: string }>,
-              );
-            }}
+            onChange={handleDoctorSelectChange}
           />
 
           {doctorLoading ? <LoadingComponent /> : null}
@@ -213,10 +235,7 @@ export function DoctorTransferPage() {
 
           {doctor && step === "select-doctor" ? (
             <div className="flex justify-end mt-4">
-              <Button
-                variant="primary"
-                onPress={() => setStep("select-branch")}
-              >
+              <Button variant="primary" onPress={handleGoToSelectBranch}>
                 Continuar <i className="bi bi-arrow-right ml-1" />
               </Button>
             </div>
@@ -243,12 +262,7 @@ export function DoctorTransferPage() {
             placeholder="Seleccione la nueva sede"
             queryFn={getBranches}
             selectorFn={selectorBranch}
-            onChange={(opt) => {
-              const o = opt as SingleValue<{ label: string; value: string }>;
-              setNewBranchId(o?.value ? Number(o.value) : null);
-              setNewBranchName(o?.label ?? "");
-              if (step === "confirm") setStep("select-branch");
-            }}
+            onChange={handleNewBranchChange}
           />
 
           {specialtyWarning ? (
@@ -271,13 +285,10 @@ export function DoctorTransferPage() {
 
           {newBranchId && step === "select-branch" ? (
             <div className="flex justify-between mt-4">
-              <Button
-                variant="secondary"
-                onPress={() => setStep("select-doctor")}
-              >
+              <Button variant="secondary" onPress={handleGoToSelectDoctor}>
                 <i className="bi bi-arrow-left mr-1" /> Atrás
               </Button>
-              <Button variant="primary" onPress={() => setStep("confirm")}>
+              <Button variant="primary" onPress={handleGoToConfirm}>
                 Continuar <i className="bi bi-arrow-right ml-1" />
               </Button>
             </div>
@@ -320,10 +331,7 @@ export function DoctorTransferPage() {
           ) : null}
 
           <div className="flex justify-between mt-5">
-            <Button
-              variant="secondary"
-              onPress={() => setStep("select-branch")}
-            >
+            <Button variant="secondary" onPress={handleGoToSelectBranch}>
               <i className="bi bi-arrow-left mr-1" /> Atrás
             </Button>
             <AsyncButton

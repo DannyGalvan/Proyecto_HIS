@@ -72,7 +72,7 @@ export default defineConfig({
         secure: false,
         ws: true,
       },
-    },    
+    },
     port: 60263,
     https: {
       key: readFileSync(keyFilePath),

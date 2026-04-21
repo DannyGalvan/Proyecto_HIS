@@ -87,7 +87,10 @@ export function EventModal({
       onSaved();
       onClose();
     } catch (err) {
-      setError("Error al guardar el evento. Intente de nuevo.");
+      setError(
+        "Error al guardar el evento. Intente de nuevo." +
+          (err as Error).message,
+      );
     } finally {
       setSaving(false);
     }
@@ -120,6 +123,43 @@ export function EventModal({
     }
   }, [event, onSaved, onClose]);
 
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value),
+    [],
+  );
+
+  const handleDescriptionChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+      setDescription(e.target.value),
+    [],
+  );
+
+  const handleEventTypeChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) =>
+      setEventType(Number(e.target.value)),
+    [],
+  );
+
+  const handleIsAllDayChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setIsAllDay(e.target.checked),
+    [],
+  );
+
+  const handleStartDateChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value),
+    [],
+  );
+
+  const handleEndDateChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value),
+    [],
+  );
+
+  const handleStopPropagation = useCallback(
+    (e: React.MouseEvent) => e.stopPropagation(),
+    [],
+  );
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -127,7 +167,7 @@ export function EventModal({
     >
       <div
         className="bg-white dark:bg-zinc-800 rounded-xl shadow-xl w-full max-w-lg mx-4 p-6"
-        onClick={(e) => e.stopPropagation()}
+        onClick={handleStopPropagation}
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold">
@@ -158,7 +198,7 @@ export function EventModal({
               placeholder="Título del evento"
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={handleTitleChange}
             />
           </div>
 
@@ -173,7 +213,7 @@ export function EventModal({
               placeholder="Descripción opcional"
               rows={3}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={handleDescriptionChange}
             />
           </div>
 
@@ -185,7 +225,7 @@ export function EventModal({
             <select
               className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               value={eventType}
-              onChange={(e) => setEventType(Number(e.target.value))}
+              onChange={handleEventTypeChange}
             >
               {Object.entries(EventTypeLabels).map(([key, { label }]) => (
                 <option key={key} value={key}>
@@ -202,7 +242,7 @@ export function EventModal({
               className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
               id="isAllDay"
               type="checkbox"
-              onChange={(e) => setIsAllDay(e.target.checked)}
+              onChange={handleIsAllDayChange}
             />
             <label className="text-sm font-medium" htmlFor="isAllDay">
               Todo el día
@@ -217,7 +257,7 @@ export function EventModal({
                 className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 type={isAllDay ? "date" : "datetime-local"}
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={handleStartDateChange}
               />
             </div>
             <div>
@@ -226,7 +266,7 @@ export function EventModal({
                 className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 type={isAllDay ? "date" : "datetime-local"}
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={handleEndDateChange}
               />
             </div>
           </div>

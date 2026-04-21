@@ -15,13 +15,17 @@ export const labExamSchema = z.object({
     .optional()
     .or(z.literal("")),
   defaultAmount: z.union([
-    z.string({ error: invalid_type_error }).min(1, "El precio base es obligatorio"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "El precio base es obligatorio"),
     z.number().min(0, "El precio base debe ser mayor o igual a 0"),
   ]),
   referenceRange: z.string().optional().or(z.literal("")),
   unit: z.string().optional().or(z.literal("")),
   laboratoryId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "El laboratorio es obligatorio"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "El laboratorio es obligatorio"),
     z.number().min(1, "El laboratorio es obligatorio"),
   ]),
   state: z.union([

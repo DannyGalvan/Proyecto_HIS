@@ -22,6 +22,34 @@ interface MedicalConsultationFormProps {
   readonly doctorName?: string;
 }
 
+interface Cie10SuggestionItemProps {
+  readonly code: string;
+  readonly description: string;
+  readonly onSelect: (code: string, description: string) => void;
+}
+
+function Cie10SuggestionItem({
+  code,
+  description,
+  onSelect,
+}: Cie10SuggestionItemProps) {
+  const handleMouseDown = useCallback(
+    () => onSelect(code, description),
+    [code, description, onSelect],
+  );
+
+  return (
+    <li
+      className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+      onMouseDown={handleMouseDown}
+    >
+      <span className="font-mono font-semibold text-blue-700">{code}</span>
+      {" — "}
+      <span className="text-gray-700">{description}</span>
+    </li>
+  );
+}
+
 export function MedicalConsultationForm({
   type,
   initialForm,
@@ -58,6 +86,57 @@ export function MedicalConsultationForm({
       handleChange({
         target: { name, value: val },
       } as unknown as ChangeEvent<HTMLInputElement>);
+    },
+    [handleChange],
+  );
+
+  const handleCancel = useCallback(
+    () =>
+      navigate(fromDoctorDashboard ? "/dashboard" : "/medical-consultation"),
+    [navigate, fromDoctorDashboard],
+  );
+
+  const handleCreatePrescription = useCallback(
+    () => navigate(`/prescription/create?consultationId=${initialForm.id}`),
+    [navigate, initialForm.id],
+  );
+
+  const handleCreateLabOrder = useCallback(
+    () => navigate(`/lab-order/create?consultationId=${initialForm.id}`),
+    [navigate, initialForm.id],
+  );
+
+  const handleScheduleFollowUp = useCallback(
+    () =>
+      navigate(
+        `/appointment/create?followUp=true&parentConsultationId=${initialForm.id}`,
+      ),
+    [navigate, initialForm.id],
+  );
+
+  const handleCie10InputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setCie10Query(e.target.value);
+      setShowSuggestions(true);
+      handleChange({
+        target: { name: "diagnosisCie10Code", value: e.target.value },
+      } as React.ChangeEvent<HTMLInputElement>);
+    },
+    [handleChange],
+  );
+
+  const handleCie10Blur = useCallback(() => {
+    setTimeout(() => setShowSuggestions(false), 200);
+  }, []);
+
+  const handleCie10Select = useCallback(
+    (code: string, description: string) => {
+      const value = `${code} - ${description}`;
+      setCie10Query(value);
+      handleChange({
+        target: { name: "diagnosisCie10Code", value },
+      } as React.ChangeEvent<HTMLInputElement>);
+      setShowSuggestions(false);
     },
     [handleChange],
   );
@@ -191,15 +270,8 @@ export function MedicalConsultationForm({
               placeholder="Buscar diagnóstico CIE-10..."
               type="text"
               value={cie10Query || form.diagnosisCie10Code || ""}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              onChange={(e) => {
-                setCie10Query(e.target.value);
-                setShowSuggestions(true);
-                // Also update the form field directly
-                handleChange({
-                  target: { name: "diagnosisCie10Code", value: e.target.value },
-                } as React.ChangeEvent<HTMLInputElement>);
-              }}
+              onBlur={handleCie10Blur}
+              onChange={handleCie10InputChange}
             />
             {cie10Loading ? (
               <p className="text-xs text-gray-400">Buscando...</p>
@@ -207,24 +279,12 @@ export function MedicalConsultationForm({
             {showSuggestions && suggestions.length > 0 ? (
               <ul className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
                 {suggestions.map((item) => (
-                  <li
+                  <Cie10SuggestionItem
                     key={item.code}
-                    className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
-                    onMouseDown={() => {
-                      const value = `${item.code} - ${item.description}`;
-                      setCie10Query(value);
-                      handleChange({
-                        target: { name: "diagnosisCie10Code", value },
-                      } as React.ChangeEvent<HTMLInputElement>);
-                      setShowSuggestions(false);
-                    }}
-                  >
-                    <span className="font-mono font-semibold text-blue-700">
-                      {item.code}
-                    </span>
-                    {" — "}
-                    <span className="text-gray-700">{item.description}</span>
-                  </li>
+                    code={item.code}
+                    description={item.description}
+                    onSelect={handleCie10Select}
+                  />
                 ))}
               </ul>
             ) : null}
@@ -341,31 +401,21 @@ export function MedicalConsultationForm({
               <button
                 className="px-4 py-2 rounded-lg text-sm font-semibold bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors"
                 type="button"
-                onClick={() =>
-                  navigate(
-                    `/prescription/create?consultationId=${initialForm.id}`,
-                  )
-                }
+                onClick={handleCreatePrescription}
               >
                 📋 Crear Receta
               </button>
               <button
                 className="px-4 py-2 rounded-lg text-sm font-semibold bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors"
                 type="button"
-                onClick={() =>
-                  navigate(`/lab-order/create?consultationId=${initialForm.id}`)
-                }
+                onClick={handleCreateLabOrder}
               >
                 🔬 Crear Orden de Lab
               </button>
               <button
                 className="px-4 py-2 rounded-lg text-sm font-semibold bg-green-100 text-green-800 hover:bg-green-200 transition-colors"
                 type="button"
-                onClick={() =>
-                  navigate(
-                    `/appointment/create?followUp=true&parentConsultationId=${initialForm.id}`,
-                  )
-                }
+                onClick={handleScheduleFollowUp}
               >
                 📅 Agendar Seguimiento
               </button>
@@ -377,11 +427,7 @@ export function MedicalConsultationForm({
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() =>
-              navigate(
-                fromDoctorDashboard ? "/dashboard" : "/medical-consultation",
-              )
-            }
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

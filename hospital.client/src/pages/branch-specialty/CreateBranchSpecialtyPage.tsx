@@ -33,6 +33,21 @@ export function CreateBranchSpecialtyPage() {
     [],
   );
 
+  const handleBranchChange = useCallback((opt: unknown) => {
+    const o = opt as SingleValue<{ label: string; value: string }>;
+    setBranchId(o?.value ? Number(o.value) : null);
+  }, []);
+
+  const handleSpecialtyChange = useCallback((opt: unknown) => {
+    const o = opt as SingleValue<{ label: string; value: string }>;
+    setSpecialtyId(o?.value ? Number(o.value) : null);
+  }, []);
+
+  const handleCancel = useCallback(
+    () => navigate(nameRoutes.branchSpecialty),
+    [navigate],
+  );
+
   const handleSubmit = useCallback(async () => {
     setError(null);
     if (!branchId) {
@@ -86,10 +101,7 @@ export function CreateBranchSpecialtyPage() {
           placeholder="Seleccione una sede"
           queryFn={getBranches}
           selectorFn={selectorBranch}
-          onChange={(opt) => {
-            const o = opt as SingleValue<{ label: string; value: string }>;
-            setBranchId(o?.value ? Number(o.value) : null);
-          }}
+          onChange={handleBranchChange}
         />
 
         <CatalogueSelect<SpecialtyResponse>
@@ -102,10 +114,7 @@ export function CreateBranchSpecialtyPage() {
           placeholder="Seleccione una especialidad"
           queryFn={getSpecialties}
           selectorFn={selectorSpecialty}
-          onChange={(opt) => {
-            const o = opt as SingleValue<{ label: string; value: string }>;
-            setSpecialtyId(o?.value ? Number(o.value) : null);
-          }}
+          onChange={handleSpecialtyChange}
         />
 
         {error ? (
@@ -121,7 +130,7 @@ export function CreateBranchSpecialtyPage() {
             size="lg"
             type="button"
             variant="secondary"
-            onClick={() => navigate(nameRoutes.branchSpecialty)}
+            onClick={handleCancel}
           >
             Cancelar
           </AsyncButton>

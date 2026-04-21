@@ -24,6 +24,11 @@ export function BranchSpecialtyPage() {
     [],
   );
 
+  const handleNavigateCreate = useCallback(
+    () => navigate(nameRoutes.branchSpecialtyCreate),
+    [navigate],
+  );
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -31,7 +36,7 @@ export function BranchSpecialtyPage() {
         <button
           className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700 transition-colors"
           type="button"
-          onClick={() => navigate(nameRoutes.branchSpecialtyCreate)}
+          onClick={handleNavigateCreate}
         >
           <i className="bi bi-plus-circle" />
           Asignar Especialidad

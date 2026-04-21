@@ -7,6 +7,7 @@ import { usePaymentTimer } from "../../hooks/usePaymentTimer";
 import { createPayment } from "../../services/paymentService";
 import type { PaymentResponse } from "../../types/PaymentResponse";
 import { maskCardNumber } from "../../utils/maskCardNumber";
+import { isExpiryInFuture } from "../../utils/paymentUtils";
 import { AsyncButton } from "../button/AsyncButton";
 import { CountdownTimer } from "../shared/CountdownTimer";
 
@@ -21,26 +22,6 @@ const PAYMENT_ERROR_MESSAGES: Record<string, string> = {
   invalid_card: "Tarjeta inválida",
   expired_card: "Tarjeta expirada",
 };
-
-function parseExpiry(expiry: string): { month: number; year: number } | null {
-  const match = /^(\d{2})\/(\d{2})$/.exec(expiry);
-  if (!match) return null;
-  const month = parseInt(match[1], 10);
-  const year = parseInt(match[2], 10) + 2000;
-  if (month < 1 || month > 12) return null;
-  return { month, year };
-}
-
-function isExpiryInFuture(expiry: string): boolean {
-  const parsed = parseExpiry(expiry);
-  if (!parsed) return false;
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1; // 1-based
-  if (parsed.year > currentYear) return true;
-  if (parsed.year === currentYear && parsed.month >= currentMonth) return true;
-  return false;
-}
 
 /**
  * Credit/debit card payment form.
@@ -74,7 +55,7 @@ export function CardPaymentForm({
     currency: "GTQ",
   }).format(amount);
 
-  function validate(): boolean {
+  const validate = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
 
     // Card number: 13–19 digits, passes Luhn
@@ -109,64 +90,95 @@ export function CardPaymentForm({
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }
+  }, [cardNumber, cardholderName, expiry, cvv, validateLuhn]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (isExpired) return;
-    if (!validate()) return;
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (isExpired) return;
+      if (!validate()) return;
 
-    const digits = cardNumber.replace(/\s/g, "");
+      const digits = cardNumber.replace(/\s/g, "");
 
-    try {
-      const response = await mutation.mutateAsync({
-        appointmentId,
-        amount,
-        paymentMethod: 1,
-        paymentType: 0,
-        idempotencyKey: key,
-        cardLastFourDigits: digits.slice(-4),
-        state: 1,
-      });
+      try {
+        const response = await mutation.mutateAsync({
+          appointmentId,
+          amount,
+          paymentMethod: 1,
+          paymentType: 0,
+          idempotencyKey: key,
+          cardLastFourDigits: digits.slice(-4),
+          state: 1,
+        });
 
-      // Clear CVV immediately after API call — before any other action
-      setCvv("");
+        // Clear CVV immediately after API call — before any other action
+        setCvv("");
 
-      if (response.success && response.data) {
-        onSuccess(response.data);
-      } else {
-        const errorKey =
-          response.message?.toLowerCase().replace(/\s+/g, "_") ?? "";
-        const friendlyMessage =
-          PAYMENT_ERROR_MESSAGES[errorKey] ??
-          PAYMENT_ERROR_MESSAGES[response.message ?? ""] ??
-          response.message ??
-          "Error al procesar el pago";
-        toast.danger(friendlyMessage);
+        if (response.success && response.data) {
+          onSuccess(response.data);
+        } else {
+          const errorKey =
+            response.message?.toLowerCase().replace(/\s+/g, "_") ?? "";
+          const friendlyMessage =
+            PAYMENT_ERROR_MESSAGES[errorKey] ??
+            PAYMENT_ERROR_MESSAGES[response.message ?? ""] ??
+            response.message ??
+            "Error al procesar el pago";
+          toast.danger(friendlyMessage);
+          regenerate();
+        }
+      } catch {
+        // CVV already cleared above in the try block; ensure it's cleared on error too
+        setCvv("");
+        toast.danger("Error al procesar el pago. Intente nuevamente.");
         regenerate();
       }
-    } catch {
-      // CVV already cleared above in the try block; ensure it's cleared on error too
-      setCvv("");
-      toast.danger("Error al procesar el pago. Intente nuevamente.");
-      regenerate();
-    }
-  }
+    },
+    [
+      isExpired,
+      validate,
+      cardNumber,
+      mutation,
+      appointmentId,
+      amount,
+      key,
+      onSuccess,
+      regenerate,
+    ],
+  );
 
-  function handleCardNumberChange(e: React.ChangeEvent<HTMLInputElement>) {
-    // Allow only digits, max 19
-    const value = e.target.value.replace(/\D/g, "").slice(0, 19);
-    setCardNumber(value);
-  }
+  const handleCardNumberChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      // Allow only digits, max 19
+      const value = e.target.value.replace(/\D/g, "").slice(0, 19);
+      setCardNumber(value);
+    },
+    [],
+  );
 
-  function handleExpiryChange(e: React.ChangeEvent<HTMLInputElement>) {
-    let value = e.target.value.replace(/\D/g, "");
-    if (value.length > 4) value = value.slice(0, 4);
-    if (value.length >= 3) {
-      value = `${value.slice(0, 2)}/${value.slice(2)}`;
-    }
-    setExpiry(value);
-  }
+  const handleExpiryChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      let value = e.target.value.replace(/\D/g, "");
+      if (value.length > 4) value = value.slice(0, 4);
+      if (value.length >= 3) {
+        value = `${value.slice(0, 2)}/${value.slice(2)}`;
+      }
+      setExpiry(value);
+    },
+    [],
+  );
+
+  const handleCardholderNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setCardholderName(e.target.value),
+    [],
+  );
+
+  const handleCvvChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setCvv(e.target.value.replace(/\D/g, "").slice(0, 4)),
+    [],
+  );
 
   if (isExpired) {
     return (
@@ -245,7 +257,7 @@ export function CardPaymentForm({
           placeholder="Como aparece en la tarjeta"
           type="text"
           value={cardholderName}
-          onChange={(e) => setCardholderName(e.target.value)}
+          onChange={handleCardholderNameChange}
         />
         {errors.cardholderName ? (
           <p className="mt-1 text-xs text-red-600">{errors.cardholderName}</p>
@@ -296,9 +308,7 @@ export function CardPaymentForm({
             placeholder="•••"
             type="password"
             value={cvv}
-            onChange={(e) =>
-              setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))
-            }
+            onChange={handleCvvChange}
           />
           {errors.cvv ? (
             <p className="mt-1 text-xs text-red-600">{errors.cvv}</p>

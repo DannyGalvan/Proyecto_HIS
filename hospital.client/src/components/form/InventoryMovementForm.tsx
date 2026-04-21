@@ -261,6 +261,31 @@ export function InventoryMovementForm() {
     [],
   );
 
+  const handleQuantityChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setQuantity(e.target.value),
+    [],
+  );
+
+  const handleUnitCostChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setUnitCost(e.target.value),
+    [],
+  );
+
+  const handleReferenceNumberChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setReferenceNumber(e.target.value),
+    [],
+  );
+
+  const handleNotesChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value),
+    [],
+  );
+
+  const handleCancel = useCallback(
+    () => navigate("/inventory-movement"),
+    [navigate],
+  );
+
   // ── Mutation ───────────────────────────────────────────────────────────
   const { mutateAsync: doCreate, isPending } = useMutation({
     mutationFn: createInventoryMovement,
@@ -362,6 +387,7 @@ export function InventoryMovementForm() {
       inventory,
       userId,
       doCreate,
+      selectedMedicine?.name,
     ],
   );
 
@@ -473,7 +499,7 @@ export function InventoryMovementForm() {
                   step="1"
                   type="number"
                   value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={handleQuantityChange}
                 />
                 {errors.quantity ? (
                   <FieldError>{errors.quantity}</FieldError>
@@ -495,7 +521,7 @@ export function InventoryMovementForm() {
                     step="0.01"
                     type="number"
                     value={unitCost}
-                    onChange={(e) => setUnitCost(e.target.value)}
+                    onChange={handleUnitCostChange}
                   />
                   {errors.unitCost ? (
                     <FieldError>{errors.unitCost}</FieldError>
@@ -517,7 +543,7 @@ export function InventoryMovementForm() {
                     maxLength={100}
                     type="text"
                     value={referenceNumber}
-                    onChange={(e) => setReferenceNumber(e.target.value)}
+                    onChange={handleReferenceNumberChange}
                   />
                 </TextField>
               ) : null}
@@ -541,7 +567,7 @@ export function InventoryMovementForm() {
                   name="notes"
                   rows={3}
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={handleNotesChange}
                 />
                 {errors.notes ? (
                   <p className="text-danger text-sm">{errors.notes}</p>
@@ -629,7 +655,7 @@ export function InventoryMovementForm() {
                 size="lg"
                 type="button"
                 variant="secondary"
-                onClick={() => navigate("/inventory-movement")}
+                onClick={handleCancel}
               >
                 Cancelar
               </AsyncButton>

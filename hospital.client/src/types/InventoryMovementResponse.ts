@@ -54,7 +54,10 @@ export interface InventoryMovementRequest {
  * Maps numeric MovementType values to Spanish labels and TailwindCSS badge colors.
  * 0=Compra, 1=Devolución, 2=Venta, 3=Reclamo, 4=Ajuste+, 5=Ajuste-, 6=Despacho
  */
-export const MovementTypeLabels: Record<number, { label: string; color: string }> = {
+export const MovementTypeLabels: Record<
+  number,
+  { label: string; color: string }
+> = {
   0: { label: "Compra", color: "bg-green-100 text-green-800" },
   1: { label: "Devolución", color: "bg-green-100 text-green-800" },
   2: { label: "Venta", color: "bg-blue-100 text-blue-800" },

@@ -56,6 +56,14 @@ export function ForgotPasswordPage({
     [email],
   );
 
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setEmail(e.target.value);
+      setError("");
+    },
+    [],
+  );
+
   return (
     <section className="flex items-center justify-center min-h-[calc(100vh-140px)] px-4 py-12">
       <div className="w-full max-w-md">
@@ -120,10 +128,7 @@ export function ForgotPasswordPage({
                     placeholder="usuario@dominio.com"
                     type="email"
                     value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setError("");
-                    }}
+                    onChange={handleEmailChange}
                   />
                 </div>
 

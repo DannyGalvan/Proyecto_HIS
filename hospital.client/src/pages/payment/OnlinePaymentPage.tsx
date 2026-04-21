@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router";
 import { CardPaymentForm } from "../../components/payment/CardPaymentForm";
 import { PaymentReceipt } from "../../components/shared/PaymentReceipt";
@@ -44,11 +44,14 @@ export function OnlinePaymentPage() {
       }),
   });
 
-  async function handleSuccess(payment: PaymentResponse) {
-    // Update appointment status to "Pagada" — fire and forget (non-blocking)
-    statusMutation.mutate();
-    setCompletedPayment(payment);
-  }
+  const handleSuccess = useCallback(
+    (payment: PaymentResponse) => {
+      // Update appointment status to "Pagada" — fire and forget (non-blocking)
+      statusMutation.mutate();
+      setCompletedPayment(payment);
+    },
+    [statusMutation],
+  );
 
   if (isNaN(appointmentId)) {
     return (

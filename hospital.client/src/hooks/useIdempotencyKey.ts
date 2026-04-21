@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { generateIdempotencyKey } from '../utils/generateIdempotencyKey';
+import { useCallback, useState } from "react";
+import { generateIdempotencyKey } from "../utils/generateIdempotencyKey";
 
 /**
  * Generates a UUID v4 idempotency key on mount.

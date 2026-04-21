@@ -1,18 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   HubConnection,
   HubConnectionBuilder,
   HubConnectionState,
   LogLevel,
-} from '@microsoft/signalr';
+} from "@microsoft/signalr";
 
-import { usePatientAuthStore } from '../stores/usePatientAuthStore';
+import { usePatientAuthStore } from "../stores/usePatientAuthStore";
 import type {
   ConnectionState,
   SlotLockInfo,
   SlotLockRejection,
-} from '../types/SlotLockTypes';
+} from "../types/SlotLockTypes";
 
 // ---------------------------------------------------------------------------
 // Return type
@@ -42,13 +42,13 @@ export interface UseAppointmentHubReturn {
 function toConnectionState(state: HubConnectionState): ConnectionState {
   switch (state) {
     case HubConnectionState.Connected:
-      return 'connected';
+      return "connected";
     case HubConnectionState.Connecting:
-      return 'connecting';
+      return "connecting";
     case HubConnectionState.Reconnecting:
-      return 'reconnecting';
+      return "reconnecting";
     default:
-      return 'disconnected';
+      return "disconnected";
   }
 }
 
@@ -71,7 +71,7 @@ export function useAppointmentHub(
 ): UseAppointmentHubReturn {
   // ---- state ---------------------------------------------------------------
   const [connectionState, setConnectionState] =
-    useState<ConnectionState>('disconnected');
+    useState<ConnectionState>("disconnected");
   const [lockedSlots, setLockedSlots] = useState<Map<string, SlotLockInfo>>(
     () => new Map(),
   );
@@ -94,9 +94,8 @@ export function useAppointmentHub(
   // ---- build connection (once) --------------------------------------------
   useEffect(() => {
     const connection = new HubConnectionBuilder()
-      .withUrl('/hubs/appointment-booking', {
-        accessTokenFactory: () =>
-          usePatientAuthStore.getState().token,
+      .withUrl("/hubs/appointment-booking", {
+        accessTokenFactory: () => usePatientAuthStore.getState().token,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(LogLevel.Warning)
@@ -104,16 +103,16 @@ export function useAppointmentHub(
 
     // --- connection lifecycle callbacks ---
     connection.onreconnecting(() => {
-      setConnectionState('reconnecting');
+      setConnectionState("reconnecting");
     });
 
     connection.onreconnected(async () => {
-      setConnectionState('connected');
+      setConnectionState("connected");
       // Re-join the current group and sync state after reconnection
       if (groupRef.current) {
         try {
           await connection.invoke(
-            'JoinSlotGroup',
+            "JoinSlotGroup",
             groupRef.current.doctorId,
             groupRef.current.date,
           );
@@ -124,11 +123,11 @@ export function useAppointmentHub(
     });
 
     connection.onclose(() => {
-      setConnectionState('disconnected');
+      setConnectionState("disconnected");
     });
 
     // --- event listeners ---
-    connection.on('ActiveLocks', (locks: SlotLockInfo[]) => {
+    connection.on("ActiveLocks", (locks: SlotLockInfo[]) => {
       const map = new Map<string, SlotLockInfo>();
       for (const lock of locks) {
         map.set(lock.time, lock);
@@ -136,7 +135,7 @@ export function useAppointmentHub(
       setLockedSlots(map);
     });
 
-    connection.on('SlotLocked', (info: SlotLockInfo) => {
+    connection.on("SlotLocked", (info: SlotLockInfo) => {
       setLockedSlots((prev) => {
         const next = new Map(prev);
         next.set(info.time, info);
@@ -144,7 +143,7 @@ export function useAppointmentHub(
       });
     });
 
-    connection.on('SlotReleased', (info: SlotLockInfo) => {
+    connection.on("SlotReleased", (info: SlotLockInfo) => {
       setLockedSlots((prev) => {
         const next = new Map(prev);
         next.delete(info.time);
@@ -152,11 +151,11 @@ export function useAppointmentHub(
       });
     });
 
-    connection.on('SlotLockRejected', (rejection: SlotLockRejection) => {
+    connection.on("SlotLockRejected", (rejection: SlotLockRejection) => {
       setError(rejection.reason);
     });
 
-    connection.on('SlotConfirmed', (info: SlotLockInfo) => {
+    connection.on("SlotConfirmed", (info: SlotLockInfo) => {
       setConfirmedSlots((prev) => {
         const next = new Set(prev);
         next.add(info.time);
@@ -185,7 +184,7 @@ export function useAppointmentHub(
             conn.state === HubConnectionState.Connected
           ) {
             await conn.invoke(
-              'ReleaseSlot',
+              "ReleaseSlot",
               groupRef.current.doctorId,
               groupRef.current.date,
               myLockedSlotRef.current,
@@ -193,12 +192,9 @@ export function useAppointmentHub(
           }
 
           // Leave the current group
-          if (
-            groupRef.current &&
-            conn.state === HubConnectionState.Connected
-          ) {
+          if (groupRef.current && conn.state === HubConnectionState.Connected) {
             await conn.invoke(
-              'LeaveSlotGroup',
+              "LeaveSlotGroup",
               groupRef.current.doctorId,
               groupRef.current.date,
             );
@@ -213,7 +209,6 @@ export function useAppointmentHub(
       cleanup();
       connectionRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ---- start / stop connection based on params ----------------------------
@@ -223,14 +218,14 @@ export function useAppointmentHub(
 
     if (doctorId != null && date != null) {
       if (connection.state === HubConnectionState.Disconnected) {
-        setConnectionState('connecting');
+        setConnectionState("connecting");
         connection
           .start()
           .then(() => {
             setConnectionState(toConnectionState(connection.state));
           })
           .catch(() => {
-            setConnectionState('disconnected');
+            setConnectionState("disconnected");
           });
       }
     } else {
@@ -244,14 +239,14 @@ export function useAppointmentHub(
             ) {
               if (myLockedSlotRef.current) {
                 await connection.invoke(
-                  'ReleaseSlot',
+                  "ReleaseSlot",
                   groupRef.current.doctorId,
                   groupRef.current.date,
                   myLockedSlotRef.current,
                 );
               }
               await connection.invoke(
-                'LeaveSlotGroup',
+                "LeaveSlotGroup",
                 groupRef.current.doctorId,
                 groupRef.current.date,
               );
@@ -264,7 +259,7 @@ export function useAppointmentHub(
             setLockedSlots(new Map());
             setConfirmedSlots(new Set());
             await connection.stop();
-            setConnectionState('disconnected');
+            setConnectionState("disconnected");
           }
         };
         leaveAndStop();
@@ -275,7 +270,8 @@ export function useAppointmentHub(
   // ---- group management (join / leave) ------------------------------------
   useEffect(() => {
     const connection = connectionRef.current;
-    if (!connection || connection.state !== HubConnectionState.Connected) return;
+    if (!connection || connection.state !== HubConnectionState.Connected)
+      return;
     if (doctorId == null || date == null) return;
 
     const prev = groupRef.current;
@@ -290,18 +286,14 @@ export function useAppointmentHub(
         if (prev) {
           if (myLockedSlotRef.current) {
             await connection.invoke(
-              'ReleaseSlot',
+              "ReleaseSlot",
               prev.doctorId,
               prev.date,
               myLockedSlotRef.current,
             );
             setMyLockedSlot(null);
           }
-          await connection.invoke(
-            'LeaveSlotGroup',
-            prev.doctorId,
-            prev.date,
-          );
+          await connection.invoke("LeaveSlotGroup", prev.doctorId, prev.date);
         }
 
         // Reset local state for the new group
@@ -310,10 +302,10 @@ export function useAppointmentHub(
         setError(null);
 
         // Join new group
-        await connection.invoke('JoinSlotGroup', doctorId, date);
+        await connection.invoke("JoinSlotGroup", doctorId, date);
         groupRef.current = { doctorId, date };
       } catch {
-        setError('Error al cambiar de grupo. Intente de nuevo.');
+        setError("Error al cambiar de grupo. Intente de nuevo.");
       }
     };
 
@@ -330,15 +322,10 @@ export function useAppointmentHub(
 
     setError(null);
     try {
-      await connection.invoke(
-        'LockSlot',
-        group.doctorId,
-        group.date,
-        time,
-      );
+      await connection.invoke("LockSlot", group.doctorId, group.date, time);
       setMyLockedSlot(time);
     } catch {
-      setError('No se pudo bloquear el horario. Intente de nuevo.');
+      setError("No se pudo bloquear el horario. Intente de nuevo.");
     }
   }, []);
 
@@ -349,15 +336,10 @@ export function useAppointmentHub(
     if (connection.state !== HubConnectionState.Connected) return;
 
     try {
-      await connection.invoke(
-        'ReleaseSlot',
-        group.doctorId,
-        group.date,
-        time,
-      );
+      await connection.invoke("ReleaseSlot", group.doctorId, group.date, time);
       setMyLockedSlot(null);
     } catch {
-      setError('No se pudo liberar el horario. Intente de nuevo.');
+      setError("No se pudo liberar el horario. Intente de nuevo.");
     }
   }, []);
 

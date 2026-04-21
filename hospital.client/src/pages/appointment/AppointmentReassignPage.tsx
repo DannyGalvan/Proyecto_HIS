@@ -16,6 +16,51 @@ import { getUsers } from "../../services/userService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 import type { UserResponse } from "../../types/UserResponse";
 
+function AppointmentSearchResult({
+  appt,
+  onSelect,
+}: {
+  readonly appt: AppointmentResponse;
+  readonly onSelect: (appt: AppointmentResponse) => void;
+}) {
+  const handleClick = useCallback(() => onSelect(appt), [appt, onSelect]);
+  return (
+    <div
+      className="bg-white dark:bg-gray-800 border rounded-xl p-4 flex justify-between items-start gap-4 hover:border-primary/60 transition-colors cursor-pointer"
+      onClick={handleClick}
+    >
+      <div className="text-sm space-y-1">
+        <p className="font-bold">
+          {appt.patient?.name ?? `Paciente #${appt.patientId}`}
+        </p>
+        <p>
+          <span className="font-semibold">Cita #:</span> {appt.id}
+        </p>
+        <p>
+          <span className="font-semibold">Fecha:</span> {appt.appointmentDate}
+        </p>
+        <p>
+          <span className="font-semibold">Especialidad:</span>{" "}
+          {appt.specialty?.name ?? "—"}
+        </p>
+        <p>
+          <span className="font-semibold">Sede:</span>{" "}
+          {appt.branch?.name ?? "—"}
+        </p>
+        <p>
+          <span className="font-semibold">Médico actual:</span>{" "}
+          {appt.doctor?.name ?? (
+            <em className="text-orange-500">Sin asignar</em>
+          )}
+        </p>
+      </div>
+      <Button size="sm" variant="primary">
+        Seleccionar
+      </Button>
+    </div>
+  );
+}
+
 export function AppointmentReassignPage() {
   const { userId } = useAuth();
   const navigate = useNavigate();
@@ -101,12 +146,62 @@ export function AppointmentReassignPage() {
     [],
   );
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (!searchInput.trim()) return;
     setSearchQuery(searchInput.trim());
     setSelectedAppointment(null);
     setNewDoctorId(null);
-  };
+  }, [searchInput]);
+
+  const handleSelectAppointment = useCallback((appt: AppointmentResponse) => {
+    setSelectedAppointment(appt);
+    setNewDoctorId(null);
+  }, []);
+
+  const handleNavigateBack = useCallback(
+    () => navigate(nameRoutes.appointment),
+    [navigate],
+  );
+
+  const handleSearchTypeId = useCallback(() => setSearchType("id"), []);
+  const handleSearchTypeDpi = useCallback(() => setSearchType("dpi"), []);
+
+  const handleSearchInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setSearchInput(e.target.value),
+    [],
+  );
+
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        if (!searchInput.trim()) return;
+        setSearchQuery(searchInput.trim());
+        setSelectedAppointment(null);
+        setNewDoctorId(null);
+      }
+    },
+    [searchInput],
+  );
+
+  const handleDeselectAppointment = useCallback(() => {
+    setSelectedAppointment(null);
+    setNewDoctorId(null);
+  }, []);
+
+  const handleDoctorChange = useCallback((opt: unknown) => {
+    const o = opt as SingleValue<{ label: string; value: string }>;
+    setNewDoctorId(o?.value ? Number(o.value) : null);
+  }, []);
+
+  const handleNotesChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value),
+    [],
+  );
+
+  const handleReassign = useCallback(
+    () => reassignMutation.mutate(),
+    [reassignMutation],
+  );
 
   const appointments = searchData?.success ? searchData.data : [];
   const availableDoctors = doctorsData?.success ? doctorsData.data : [];
@@ -114,11 +209,7 @@ export function AppointmentReassignPage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex items-center gap-3 mb-1">
-        <Button
-          size="sm"
-          variant="secondary"
-          onPress={() => navigate(nameRoutes.appointment)}
-        >
+        <Button size="sm" variant="secondary" onPress={handleNavigateBack}>
           <i className="bi bi-arrow-left mr-1" /> Volver
         </Button>
         <h1 className="text-2xl font-bold">Reasignar Médico</h1>
@@ -135,14 +226,14 @@ export function AppointmentReassignPage() {
             <button
               className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors
                 ${searchType === "dpi" ? "bg-primary text-white border-primary" : "bg-gray-100 border-gray-200 text-gray-600"}`}
-              onClick={() => setSearchType("dpi")}
+              onClick={handleSearchTypeDpi}
             >
               DPI
             </button>
             <button
               className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors
                 ${searchType === "id" ? "bg-primary text-white border-primary" : "bg-gray-100 border-gray-200 text-gray-600"}`}
-              onClick={() => setSearchType("id")}
+              onClick={handleSearchTypeId}
             >
               # Cita
             </button>
@@ -156,8 +247,8 @@ export function AppointmentReassignPage() {
             }
             type="text"
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            onChange={handleSearchInputChange}
+            onKeyDown={handleSearchKeyDown}
           />
           <Button variant="primary" onPress={handleSearch}>
             <i className="bi bi-search mr-1" /> Buscar
@@ -182,44 +273,11 @@ export function AppointmentReassignPage() {
           </h2>
           <div className="space-y-3">
             {appointments.map((appt) => (
-              <div
+              <AppointmentSearchResult
                 key={appt.id}
-                className="bg-white dark:bg-gray-800 border rounded-xl p-4 flex justify-between items-start gap-4 hover:border-primary/60 transition-colors cursor-pointer"
-                onClick={() => {
-                  setSelectedAppointment(appt);
-                  setNewDoctorId(null);
-                }}
-              >
-                <div className="text-sm space-y-1">
-                  <p className="font-bold">
-                    {appt.patient?.name ?? `Paciente #${appt.patientId}`}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Cita #:</span> {appt.id}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Fecha:</span>{" "}
-                    {appt.appointmentDate}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Especialidad:</span>{" "}
-                    {appt.specialty?.name ?? "—"}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Sede:</span>{" "}
-                    {appt.branch?.name ?? "—"}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Médico actual:</span>{" "}
-                    {appt.doctor?.name ?? (
-                      <em className="text-orange-500">Sin asignar</em>
-                    )}
-                  </p>
-                </div>
-                <Button size="sm" variant="primary">
-                  Seleccionar
-                </Button>
-              </div>
+                appt={appt}
+                onSelect={handleSelectAppointment}
+              />
             ))}
           </div>
         </div>
@@ -235,10 +293,7 @@ export function AppointmentReassignPage() {
             <Button
               size="sm"
               variant="secondary"
-              onPress={() => {
-                setSelectedAppointment(null);
-                setNewDoctorId(null);
-              }}
+              onPress={handleDeselectAppointment}
             >
               Cambiar cita
             </Button>
@@ -290,13 +345,7 @@ export function AppointmentReassignPage() {
                 placeholder="Seleccione el nuevo médico..."
                 queryFn={getUsers}
                 selectorFn={selectorDoctor}
-                onChange={(opt) => {
-                  const o = opt as SingleValue<{
-                    label: string;
-                    value: string;
-                  }>;
-                  setNewDoctorId(o?.value ? Number(o.value) : null);
-                }}
+                onChange={handleDoctorChange}
               />
             </div>
           )}
@@ -311,15 +360,12 @@ export function AppointmentReassignPage() {
               placeholder="Motivo de la reasignación..."
               rows={3}
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={handleNotesChange}
             />
           </div>
 
           <div className="flex justify-end gap-3">
-            <Button
-              variant="secondary"
-              onPress={() => navigate(nameRoutes.appointment)}
-            >
+            <Button variant="secondary" onPress={handleNavigateBack}>
               Cancelar
             </Button>
             <AsyncButton
@@ -327,7 +373,7 @@ export function AppointmentReassignPage() {
               isLoading={reassignMutation.isPending}
               loadingText="Reasignando..."
               variant="primary"
-              onPress={() => reassignMutation.mutate()}
+              onPress={handleReassign}
             >
               <i className="bi bi-person-check mr-1" />
               Confirmar Reasignación

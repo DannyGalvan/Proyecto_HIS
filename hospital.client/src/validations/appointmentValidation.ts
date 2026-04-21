@@ -6,7 +6,9 @@ import { handleOneLevelZodError } from "../utils/converted";
 export const appointmentSchema = z.object({
   id: z.number().nullable().optional(),
   patientId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "El paciente es obligatorio"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "El paciente es obligatorio"),
     z.number().min(1, "El paciente es obligatorio"),
   ]),
   doctorId: z.union([
@@ -14,11 +16,15 @@ export const appointmentSchema = z.object({
     z.number().min(1, "El médico es obligatorio"),
   ]),
   specialtyId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "La especialidad es obligatoria"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "La especialidad es obligatoria"),
     z.number().min(1, "La especialidad es obligatoria"),
   ]),
   branchId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "La sucursal es obligatoria"),
+    z
+      .string({ error: invalid_type_error })
+      .min(1, "La sucursal es obligatoria"),
     z.number().min(1, "La sucursal es obligatoria"),
   ]),
   appointmentStatusId: z.union([

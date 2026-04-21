@@ -19,37 +19,42 @@ export interface VitalSignValues {
 export function useVitalSignAlerts(values: VitalSignValues): string[] {
   const alerts: string[] = [];
 
-  const { bloodPressureSystolic, bloodPressureDiastolic, temperature, heartRate } = values;
+  const {
+    bloodPressureSystolic,
+    bloodPressureDiastolic,
+    temperature,
+    heartRate,
+  } = values;
 
   if (bloodPressureSystolic != null) {
     if (bloodPressureSystolic < 90) {
-      alerts.push('Hipotensión');
+      alerts.push("Hipotensión");
     } else if (bloodPressureSystolic > 140) {
-      alerts.push('Hipertensión');
+      alerts.push("Hipertensión");
     }
   }
 
   if (bloodPressureDiastolic != null) {
     if (bloodPressureDiastolic < 60) {
-      alerts.push('Presión diastólica baja');
+      alerts.push("Presión diastólica baja");
     } else if (bloodPressureDiastolic > 90) {
-      alerts.push('Presión diastólica alta');
+      alerts.push("Presión diastólica alta");
     }
   }
 
   if (temperature != null) {
     if (temperature < 36.0) {
-      alerts.push('Hipotermia');
+      alerts.push("Hipotermia");
     } else if (temperature > 37.5) {
-      alerts.push('Fiebre');
+      alerts.push("Fiebre");
     }
   }
 
   if (heartRate != null) {
     if (heartRate < 60) {
-      alerts.push('Bradicardia');
+      alerts.push("Bradicardia");
     } else if (heartRate > 100) {
-      alerts.push('Taquicardia');
+      alerts.push("Taquicardia");
     }
   }
 

@@ -1,47 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { api } from "../../configs/axios/interceptors";
-import type { ApiResponse } from "../../types/ApiResponse";
-import type { AppointmentRequest } from "../../types/AppointmentResponse";
+import { cancelAppointment } from "../../services/appointmentService";
+import { calcRemaining, formatTime } from "../../utils/reservationTimer";
 
 interface ReservationTimerProps {
   readonly appointmentId: number;
   readonly createdAt: string; // ISO string
   readonly onExpired: () => void;
 }
-
-const RESERVATION_SECONDS = 300; // 5 minutes
-
-/** Calculate remaining seconds based on createdAt timestamp. */
-const calcRemaining = (createdAt: string): number => {
-  const elapsed = Math.floor(
-    (Date.now() - new Date(createdAt).getTime()) / 1000,
-  );
-  return Math.max(0, RESERVATION_SECONDS - elapsed);
-};
-
-/** Format seconds as MM:SS */
-const formatTime = (seconds: number): string => {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-};
-
-/** Cancel the appointment via PATCH /api/v1/Appointment */
-const cancelAppointment = async (appointmentId: number): Promise<void> => {
-  try {
-    await api.patch<unknown, ApiResponse<unknown>, AppointmentRequest>(
-      "Appointment",
-      {
-        id: appointmentId,
-        // appointmentStatusId will be resolved by the backend to "Cancelada"
-        // We send state=0 to mark it as inactive / cancelled
-        state: 0,
-      },
-    );
-  } catch {
-    // Best-effort cancellation — the backend also enforces the 5-minute window
-  }
-};
 
 export function ReservationTimer({
   appointmentId,

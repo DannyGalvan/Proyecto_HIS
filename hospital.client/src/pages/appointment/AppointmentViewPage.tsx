@@ -1,5 +1,6 @@
 import { Button } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { nameRoutes } from "../../configs/constants";
@@ -45,6 +46,11 @@ export function AppointmentViewPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const handleNavigateAppointments = useCallback(
+    () => navigate(nameRoutes.appointment),
+    [navigate],
+  );
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["appointment-view", id],
     queryFn: () => getAppointmentById(Number(id)),
@@ -60,7 +66,7 @@ export function AppointmentViewPage() {
         <Button
           className="mt-4"
           variant="secondary"
-          onPress={() => navigate(nameRoutes.appointment)}
+          onPress={handleNavigateAppointments}
         >
           Volver a Citas
         </Button>
@@ -79,7 +85,7 @@ export function AppointmentViewPage() {
         <Button
           size="sm"
           variant="secondary"
-          onPress={() => navigate(nameRoutes.appointment)}
+          onPress={handleNavigateAppointments}
         >
           <i className="bi bi-arrow-left mr-1" /> Volver
         </Button>

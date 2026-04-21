@@ -17,6 +17,11 @@ export function UpdateAppointmentPage() {
   const client = useQueryClient();
   const navigate = useNavigate();
 
+  const handleNavigateReassign = useCallback(
+    () => navigate(`${nameRoutes.appointmentReassign}?appointmentId=${id}`),
+    [navigate, id],
+  );
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["appointmentToUpdate", id],
     queryFn: () => getAppointmentById(Number(id)),
@@ -50,11 +55,7 @@ export function UpdateAppointmentPage() {
               <Button
                 size="sm"
                 variant="secondary"
-                onPress={() =>
-                  navigate(
-                    `${nameRoutes.appointmentReassign}?appointmentId=${id}`,
-                  )
-                }
+                onPress={handleNavigateReassign}
               >
                 <i className="bi bi-person-check mr-2" />
                 Reasignar Médico

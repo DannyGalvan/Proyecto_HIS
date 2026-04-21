@@ -28,8 +28,8 @@ export function isCuiValid(cui: string | null | undefined): boolean {
 
   // Municipality count per department (Guatemala has 22 departments)
   const munisPorDepto = [
-    17, 8, 16, 16, 13, 14, 19, 8, 24, 21, 9,
-    30, 32, 21, 8, 17, 14, 5, 11, 11, 7, 17,
+    17, 8, 16, 16, 13, 14, 19, 8, 24, 21, 9, 30, 32, 21, 8, 17, 14, 5, 11, 11,
+    7, 17,
   ];
 
   if (depto === 0 || muni === 0) return false;

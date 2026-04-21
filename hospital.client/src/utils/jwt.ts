@@ -2,7 +2,9 @@
  * Decodes a JWT payload without verifying the signature.
  * Returns null if the token is malformed.
  */
-export function decodeJwtPayload(token: string): Record<string, unknown> | null {
+export function decodeJwtPayload(
+  token: string,
+): Record<string, unknown> | null {
   try {
     const base64Url = token.split(".")[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -22,7 +24,9 @@ export function getRoleFromToken(token: string): string | null {
 
   return (
     (payload["RoleName"] as string | undefined) ??
-    (payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] as string | undefined) ??
+    (payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] as
+      | string
+      | undefined) ??
     null
   );
 }

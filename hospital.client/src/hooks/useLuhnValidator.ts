@@ -2,7 +2,9 @@
  * Provides a Luhn checksum validator for credit/debit card numbers.
  * Accepts digit strings of length 13–19 only.
  */
-export function useLuhnValidator(): { validate: (cardNumber: string) => boolean } {
+export function useLuhnValidator(): {
+  validate: (cardNumber: string) => boolean;
+} {
   const validate = (cardNumber: string): boolean => {
     // Only accept digit strings of length 13–19
     if (!/^\d{13,19}$/.test(cardNumber)) {

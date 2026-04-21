@@ -78,3 +78,22 @@ export const finishAppointment = (id: number) => transition(id, "finish");
 
 /** Doctor: Confirmada/En Espera → No Asistió */
 export const markNoShow = (id: number) => transition(id, "no-show");
+
+/** Cancel the appointment via PATCH /api/v1/Appointment */
+export const cancelAppointment = async (
+  appointmentId: number,
+): Promise<void> => {
+  try {
+    await api.patch<unknown, ApiResponse<unknown>, AppointmentRequest>(
+      "Appointment",
+      {
+        id: appointmentId,
+        // appointmentStatusId will be resolved by the backend to "Cancelada"
+        // We send state=0 to mark it as inactive / cancelled
+        state: 0,
+      },
+    );
+  } catch {
+    // Best-effort cancellation — the backend also enforces the 5-minute window
+  }
+};
