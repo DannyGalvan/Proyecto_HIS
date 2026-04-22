@@ -6,18 +6,19 @@ import { ReceptionSearch } from "../../components/reception/ReceptionSearch";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import {
   getAppointments,
-  partialUpdateAppointment,
+  registerArrival,
 } from "../../services/appointmentService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 
 const statusColors: Record<string, string> = {
-  Pagada: "bg-green-100 text-green-800 border-green-300",
-  Pendiente: "bg-yellow-100 text-yellow-800 border-yellow-300",
+  "Pendiente de Pago": "bg-yellow-100 text-yellow-800 border-yellow-300",
+  Confirmada: "bg-green-100 text-green-800 border-green-300",
+  "Paciente Presente": "bg-purple-100 text-purple-800 border-purple-300",
+  "Signos Vitales": "bg-blue-100 text-blue-800 border-blue-300",
+  "En Espera": "bg-indigo-100 text-indigo-800 border-indigo-300",
+  "Consulta Médica": "bg-cyan-100 text-cyan-800 border-cyan-300",
   Cancelada: "bg-red-100 text-red-800 border-red-300",
-  "En curso": "bg-blue-100 text-blue-800 border-blue-300",
-  Completada: "bg-gray-100 text-gray-800 border-gray-300",
-  "No asistió": "bg-orange-100 text-orange-800 border-orange-300",
-  "Paciente presente": "bg-purple-100 text-purple-800 border-purple-300",
+  "No Asistió": "bg-orange-100 text-orange-800 border-orange-300",
 };
 
 function AppointmentCard({
@@ -34,8 +35,9 @@ function AppointmentCard({
   const statusName = appointment.appointmentStatus?.name ?? "";
   const colorClass =
     statusColors[statusName] ?? "bg-gray-100 text-gray-800 border-gray-300";
-  const isPaid = statusName === "Pagada";
-  const isPending = statusName === "Pendiente";
+  const isConfirmed = statusName === "Confirmada";
+  const isPatientPresent = statusName === "Paciente Presente";
+  const isPendingPayment = statusName === "Pendiente de Pago";
   const isCancelled = statusName === "Cancelada";
 
   const handleRegisterArrival = useCallback(
@@ -109,7 +111,7 @@ function AppointmentCard({
         </div>
 
         <div className="flex flex-col gap-2 min-w-45">
-          {isPaid && !appointment.arrivalTime ? (
+          {isConfirmed ? (
             <Button
               isDisabled={isRegistering}
               variant="primary"
@@ -119,21 +121,21 @@ function AppointmentCard({
               Registrar Llegada
             </Button>
           ) : null}
-          {isPaid ? (
+          {(isConfirmed || isPatientPresent) ? (
             <Button variant="secondary" onPress={handleReassign}>
               <i className="bi bi-person-badge mr-2" />
               Reasignar Médico
             </Button>
           ) : null}
-          {isPaid && appointment.arrivalTime ? (
+          {isPatientPresent ? (
             <div className="text-green-700 font-semibold text-sm text-center p-2 bg-green-50 rounded-lg border border-green-200">
-              ✅ Llegada registrada
+              ✅ Llegada registrada — esperando llamado de enfermería
             </div>
           ) : null}
-          {isPending ? (
+          {isPendingPayment ? (
             <>
               <div className="text-yellow-700 text-xs text-center p-2 bg-yellow-50 rounded-lg border border-yellow-200">
-                La cita del paciente tiene estado &apos;Pendiente de pago&apos;.
+                La cita del paciente tiene estado &apos;Pendiente de Pago&apos;.
                 Debe realizar el pago en caja antes de ser atendido.
               </div>
               <Button variant="primary" onPress={handlePayment}>
@@ -198,12 +200,13 @@ export function ReceptionPage() {
 
   const registerArrivalMutation = useMutation({
     mutationFn: async (appointment: AppointmentResponse) => {
-      return partialUpdateAppointment({
-        id: appointment.id,
-        arrivalTime: new Date().toISOString(),
-      });
+      return registerArrival(appointment.id);
     },
-    onSuccess: (_data, appointment) => {
+    onSuccess: (res, appointment) => {
+      if (!res.success) {
+        toast.danger(res.message ?? "Error al registrar la llegada");
+        return;
+      }
       const patientName =
         appointment.patient?.name ?? `Paciente #${appointment.patientId}`;
       if (appointment.priority > 0) {

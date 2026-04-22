@@ -24,7 +24,8 @@ namespace Hospital.Server.Context.Config
                 new AppointmentStatus { Id = 8, Name = "Farmacia", Description = "Paciente en despacho de medicamentos", State = 1, CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1 },
                 new AppointmentStatus { Id = 9, Name = "Atención Finalizada", Description = "Ciclo de atención completo, paciente dado de alta", State = 1, CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1 },
                 new AppointmentStatus { Id = 10, Name = "No Asistió", Description = "El paciente no se presentó a la cita programada", State = 1, CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1 },
-                new AppointmentStatus { Id = 11, Name = "Cancelada", Description = "Cita cancelada por el paciente o el sistema", State = 1, CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1 }
+                new AppointmentStatus { Id = 11, Name = "Cancelada", Description = "Cita cancelada por el paciente o el sistema", State = 1, CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1 },
+                new AppointmentStatus { Id = 12, Name = "Paciente Presente", Description = "Recepción verificó la llegada del paciente al hospital", State = 1, CreatedAt = new DateTime(2025, 2, 17, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1 }
             );
         }
     }

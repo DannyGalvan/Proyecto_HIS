@@ -1,9 +1,11 @@
 using Hospital.Server.Attributes;
+using Hospital.Server.Context;
 using Hospital.Server.Entities.Response;
 using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.Server.Controllers
 {
@@ -25,14 +27,41 @@ namespace Hospital.Server.Controllers
     public class AppointmentTransitionController : CommonController
     {
         private readonly IAppointmentStateMachine _stateMachine;
+        private readonly DataContext _db;
 
-        public AppointmentTransitionController(IAppointmentStateMachine stateMachine)
+        public AppointmentTransitionController(IAppointmentStateMachine stateMachine, DataContext db)
         {
             _stateMachine = stateMachine;
+            _db = db;
         }
 
         /// <summary>
-        /// Nurse: Confirmada → Signos Vitales
+        /// Reception: Confirmada → Paciente Presente
+        /// Registers patient arrival at the hospital and sets arrivalTime.
+        /// POST /api/v1/AppointmentTransition/{id}/register-arrival
+        /// </summary>
+        [HttpPost("{id}/register-arrival")]
+        [ExcludeFromSync]
+        public async Task<IActionResult> RegisterArrival(long id)
+        {
+            var (ok, err) = await _stateMachine.TransitionAsync(
+                id, AppointmentStateMachine.STATUS_PACIENTE_PRESENTE, GetUserId());
+            if (!ok)
+                return BadRequest(new Response<string> { Success = false, Message = err });
+
+            // Also record the physical arrival time
+            var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.Id == id);
+            if (appointment != null)
+            {
+                appointment.ArrivalTime = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+            }
+
+            return Ok(new Response<string> { Success = true, Message = "Llegada del paciente registrada" });
+        }
+
+        /// <summary>
+        /// Nurse: Paciente Presente → Signos Vitales
         /// Triggers the TTS announcement on the frontend.
         /// POST /api/v1/AppointmentTransition/{id}/start-vitals
         /// </summary>
