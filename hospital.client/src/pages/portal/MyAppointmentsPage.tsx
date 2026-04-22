@@ -70,7 +70,6 @@ function AppointmentRow({
   );
 
   return (
-    return (
     <div className="rounded-xl border border-gray-200 p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 bg-white dark:bg-gray-900/50">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Left: date + info */}
