@@ -171,7 +171,7 @@ export function Component() {
             Agendar Cita Ahora
           </Button>
           <Button
-            className="px-8 py-3 text-lg font-bold border-2 border-white text-white hover:bg-white/10"
+            className="px-8 py-3 text-lg font-bold border-2 border-white text-black hover:bg-white hover:text-blue-900"
             size="lg"
             variant="secondary"
             onPress={handleNavigateRegister}
