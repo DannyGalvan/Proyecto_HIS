@@ -3,8 +3,8 @@
 import { useReservationTimer } from "../../hooks/useReservationTimer";
 import { formatDateTimeLong } from "../../utils/dateFormatter";
 import { AsyncButton } from "../button/AsyncButton";
-import type { CreateFormState } from "../form/AppointmentForm";
 import { CountdownTimer } from "../shared/CountdownTimer";
+import type { CreateFormState } from "./EditForm";
 import { SummaryRow } from "./SummaryRow";
 
 interface ConfirmationStepProps {

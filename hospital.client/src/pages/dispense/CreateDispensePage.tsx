@@ -94,7 +94,6 @@ export function CreateDispensePage() {
   return (
     <div>
       <DispenseForm
-        prescriptionDate={prescription.prescriptionDate}
         prescriptionId={prescriptionId}
         onSuccess={handleDispenseSuccess}
       />

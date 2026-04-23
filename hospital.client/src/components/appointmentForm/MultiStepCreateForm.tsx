@@ -18,12 +18,12 @@ import type { UserResponse } from "../../types/UserResponse";
 import type { ValidationFailure } from "../../types/ValidationFailure";
 import { formatDateTimeLong } from "../../utils/dateFormatter";
 import { validateDocument } from "../../utils/validateDocument";
-import type { CreateFormState } from "../form/AppointmentForm";
 import { Response } from "../messages/Response";
 import { DynamicCalendar } from "../portal/DynamicCalendar";
 import { CatalogueSelect } from "../select/CatalogueSelect";
 import { StepForm } from "../shared/StepForm";
 import { ConfirmationStep } from "./ConfirmationStep";
+import type { CreateFormState } from "./EditForm";
 
 interface MultiStepCreateFormProps {
   readonly initialForm: AppointmentRequest;

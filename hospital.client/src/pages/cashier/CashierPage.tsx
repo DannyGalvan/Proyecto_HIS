@@ -114,32 +114,33 @@ export function CashierPage() {
     () => setSelectedAppointment(null),
     [],
   );
-  const handlePaymentMethodChange = useCallback(
-    (v: unknown) => {
-      const val =
-        v && !Array.isArray(v) && typeof v === "object" && v !== null && "value" in v
-          ? Number((v as { value: string }).value)
-          : 0;
-      setPaymentMethod(val);
-    },
-    [],
-  );
+  const handlePaymentMethodChange = useCallback((v: unknown) => {
+    const val =
+      v &&
+      !Array.isArray(v) &&
+      typeof v === "object" &&
+      v !== null &&
+      "value" in v
+        ? Number((v as { value: string }).value)
+        : 0;
+    setPaymentMethod(val);
+  }, []);
   const handleAmountReceivedChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) =>
       setAmountReceived(e.target.value),
     [],
   );
-  const handleCardLastFourChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setCardLastFour(e.target.value.replace(/\D/g, "")),
-    [],
-  );
-  const handleNewPayment = useCallback(() => {
-    setSelectedAppointment(null);
-    setPaymentSuccess(null);
-    setSearchValue("");
-    setSearchQuery("");
-  }, []);
+  // const handleCardLastFourChange = useCallback(
+  //   (e: React.ChangeEvent<HTMLInputElement>) =>
+  //     setCardLastFour(e.target.value.replace(/\D/g, "")),
+  //   [],
+  // );
+  // const handleNewPayment = useCallback(() => {
+  //   setSelectedAppointment(null);
+  //   setPaymentSuccess(null);
+  //   setSearchValue("");
+  //   setSearchQuery("");
+  // }, []);
 
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
@@ -230,7 +231,7 @@ export function CashierPage() {
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-2">Cobro de Consulta en Caja</h1>
       <p className="text-gray-500 text-sm mb-6">
-        Busque citas con estado "Pendiente de pago" para procesar el cobro.
+        Busque citas con estado Pendiente de Pago para procesar el cobro.
       </p>
 
       {/* Buscador */}
@@ -460,7 +461,7 @@ export function CashierPage() {
             ¡Pago Registrado Exitosamente!
           </h2>
           <p className="text-green-700 mb-6">
-            La cita ha sido actualizada a estado "Confirmada".
+            La cita ha sido actualizada a estado Confirmada.
           </p>
 
           <PaymentReceipt

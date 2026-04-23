@@ -73,7 +73,7 @@ export function TaskItem({
               {priorityInfo.label}
             </span>
             <span className="text-xs text-gray-400 dark:text-gray-500">
-              {formatTime(task.dueDate)}
+              {formatTime(Number(task.dueDate))}
             </span>
           </div>
         </div>
