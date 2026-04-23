@@ -99,9 +99,9 @@ export function TimezoneSelector({
         setIsLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       selectedId,
-      userId,
       timezones,
       isPatientPortal,
       reloadOnChange,
@@ -109,6 +109,7 @@ export function TimezoneSelector({
       adminAuthState,
       patientStore,
       onTimezoneChanged,
+      userId,
     ],
   );
 

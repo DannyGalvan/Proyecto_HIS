@@ -1,30 +1,14 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router";
-import { z } from "zod";
 
+import { Field } from "../../components/input/Field";
 import { nameRoutes } from "../../configs/constants";
 import {
   getMyProfile,
   updateMyProfile,
 } from "../../services/patientPortalService";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
-
-// ── Zod schema ────────────────────────────────────────────────────────────────
-const profileSchema = z.object({
-  name: z
-    .string()
-    .min(10, "El nombre debe tener al menos 10 caracteres")
-    .max(100, "El nombre no puede superar 100 caracteres"),
-  email: z.string().email("Ingrese un correo electrónico válido"),
-  number: z
-    .string()
-    .regex(
-      /^\d{8}$/,
-      "El teléfono debe contener exactamente 8 dígitos numéricos",
-    ),
-  nit: z.string().optional().or(z.literal("")),
-  insuranceNumber: z.string().optional().or(z.literal("")),
-});
+import { profileSchema } from "../../validations/profileValidations";
 
 interface ProfileForm {
   name: string;
@@ -46,71 +30,8 @@ const initialForm: ProfileForm = {
   insuranceNumber: "",
 };
 
-// ── Reusable field component ──────────────────────────────────────────────────
-interface FieldProps {
-  readonly id: string;
-  readonly label: string;
-  readonly required?: boolean;
-  readonly type?: string;
-  readonly placeholder?: string;
-  readonly maxLength?: number;
-  readonly value: string;
-  readonly error?: string;
-  readonly disabled?: boolean;
-  readonly readOnly?: boolean;
-  readonly onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-function Field({
-  id,
-  label,
-  required = false,
-  type = "text",
-  placeholder,
-  maxLength,
-  value,
-  error,
-  disabled,
-  readOnly,
-  onChange,
-}: FieldProps) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label
-        className="text-sm font-bold text-gray-700 dark:text-gray-300"
-        htmlFor={id}
-      >
-        {label} {required ? <span className="text-red-500">*</span> : null}
-      </label>
-      <input
-        className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
-          readOnly
-            ? "bg-gray-100 dark:bg-gray-600 cursor-not-allowed text-gray-500 dark:text-gray-400"
-            : error
-              ? "border-red-400 bg-red-50 dark:bg-red-900/20"
-              : "border-gray-300 dark:border-gray-600"
-        }`}
-        disabled={disabled}
-        id={id}
-        maxLength={maxLength}
-        placeholder={placeholder}
-        readOnly={readOnly}
-        type={type}
-        value={value}
-        onChange={onChange}
-      />
-      {error ? (
-        <p className="text-red-500 text-xs mt-0.5">
-          <i className="bi bi-exclamation-circle mr-1" />
-          {error}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
 // ── Page ──────────────────────────────────────────────────────────────────────
-export function ProfilePage() {
+export function Component() {
   const { userId, isLoggedIn, signInPatient, ...patientState } =
     usePatientAuthStore();
 
@@ -121,6 +42,8 @@ export function ProfilePage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+
+  console.log("ProfilePage rendered with userId:", userId);
 
   // ── Load user data ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -459,9 +382,4 @@ export function ProfilePage() {
   );
 }
 
-export default ProfilePage;
-
-export function Component() {
-  return <ProfilePage />;
-}
 Component.displayName = "ProfilePage";

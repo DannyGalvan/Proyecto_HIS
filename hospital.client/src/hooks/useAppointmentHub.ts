@@ -95,7 +95,9 @@ export function useAppointmentHub(
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl("/hubs/appointment-booking", {
-        accessTokenFactory: () => usePatientAuthStore.getState().token,
+        accessTokenFactory: () => {
+          return usePatientAuthStore.getState().token;
+        },
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(LogLevel.Warning)

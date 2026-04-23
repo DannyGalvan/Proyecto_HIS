@@ -39,13 +39,13 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
       />
 
       <aside
-        className={`fixed left-0 top-0 z-48 flex h-screen flex-col border-r border-[var(--color-border)] bg-[var(--color-surface-50)] transition-all duration-300 ease-in-out md:sticky whitespace-nowrap ${
+        className={`fixed left-0 top-0 z-48 flex h-screen flex-col border-r border-(--color-border) bg-(--color-surface-50) transition-all duration-300 ease-in-out md:sticky whitespace-nowrap ${
           isOpen
-            ? "w-[17rem] translate-x-0 shadow-[4px_0_12px_rgba(10,79,166,0.08)] md:shadow-none"
+            ? "w-68 translate-x-0 shadow-[4px_0_12px_rgba(10,79,166,0.08)] md:shadow-none"
             : "w-18 -translate-x-full md:translate-x-0"
         }`}
       >
-        <div className="flex h-16 shrink-0 items-center justify-center border-b border-[var(--color-border)] relative w-full overflow-hidden">
+        <div className="flex h-16 shrink-0 items-center justify-center border-b border-(--color-border) relative w-full overflow-hidden">
           <Link
             className="flex items-center justify-center h-full transition-all duration-300 w-full"
             to={nameRoutes.root}
@@ -77,7 +77,7 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
                         ${
                           pathname === nameRoutes.root
                             ? "sidebar-link-active"
-                            : "text-gray-700 hover:bg-[var(--color-surface-100)] dark:text-gray-300"
+                            : "text-gray-700 hover:bg-(--color-surface-100) dark:text-gray-300"
                         } 
                         ${isOpen ? "justify-start px-3" : "justify-center px-0"}
                       `}
@@ -117,7 +117,7 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
                         ${
                           pathname === nameRoutes.doctorCalendar
                             ? "sidebar-link-active"
-                            : "text-gray-700 hover:bg-[var(--color-surface-100)] dark:text-gray-300"
+                            : "text-gray-700 hover:bg-(--color-surface-100) dark:text-gray-300"
                         } 
                         ${isOpen ? "justify-start px-3" : "justify-center px-0"}
                       `}
@@ -165,7 +165,7 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
           </div>
         </div>
 
-        <div className="border-t border-[var(--color-border)] p-4 shrink-0 w-full flex justify-center">
+        <div className="border-t border-(--color-border) p-4 shrink-0 w-full flex justify-center">
           <div className="w-full">
             <Tooltip closeDelay={0} delay={0} isDisabled={isOpen}>
               <Button

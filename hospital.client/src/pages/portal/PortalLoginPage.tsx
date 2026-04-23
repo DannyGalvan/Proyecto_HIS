@@ -4,15 +4,11 @@ import { z } from "zod";
 
 import { LogoHIS } from "../../components/brand/LogoHIS";
 import { nameRoutes } from "../../configs/constants";
+import { GuestOnlyRoute } from "../../routes/middlewares/GuestOnlyRoute";
 import { loginPatient } from "../../services/patientPortalService";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
 import { getRoleFromToken } from "../../utils/jwt";
-
-// ── Zod schema ────────────────────────────────────────────────────────────────
-const loginSchema = z.object({
-  userName: z.string().min(1, "El nombre de usuario es requerido"),
-  password: z.string().min(1, "La contraseña es requerida"),
-});
+import { loginSchema } from "../../validations/loginValidation";
 
 type LoginForm = z.infer<typeof loginSchema>;
 
@@ -20,7 +16,7 @@ const MAX_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
 
 // ── Page ──────────────────────────────────────────────────────────────────────
-export function PortalLoginPage() {
+export function Component() {
   const navigate = useNavigate();
   const { signInPatient } = usePatientAuthStore();
 
@@ -144,181 +140,178 @@ export function PortalLoginPage() {
   );
 
   return (
-    <section className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
-          {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <LogoHIS className="h-14 w-auto" height="auto" width="160px" />
-          </div>
-
-          <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-1">
-            Iniciar Sesión
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
-            Acceda a su cuenta del portal de pacientes
-          </p>
-
-          {/* Error banner */}
-          {apiError ? (
-            <div
-              className={`mb-4 p-4 rounded-xl text-sm flex items-start gap-2 ${
-                isLocked
-                  ? "bg-red-50 border border-red-300 text-red-800 dark:bg-red-900/20 dark:border-red-700 dark:text-red-300"
-                  : "bg-amber-50 border border-amber-300 text-amber-800 dark:bg-amber-900/20 dark:border-amber-700 dark:text-amber-300"
-              }`}
-            >
-              <i
-                className={`bi ${isLocked ? "bi-lock-fill" : "bi-exclamation-triangle-fill"} mt-0.5 shrink-0`}
-              />
-              <span>{apiError}</span>
+    <GuestOnlyRoute>
+      <section className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] px-4 py-12">
+        <div className="w-full max-w-md">
+          {/* Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
+            {/* Logo */}
+            <div className="flex justify-center mb-6">
+              <LogoHIS className="h-14 w-auto" height="auto" width="160px" />
             </div>
-          ) : null}
 
-          <form
-            noValidate
-            className="flex flex-col gap-4"
-            onSubmit={handleSubmit}
-          >
-            {/* Username */}
-            <div className="flex flex-col gap-1">
-              <label
-                className="text-sm font-bold text-gray-700 dark:text-gray-300"
-                htmlFor="portal-username"
-              >
-                Nombre de usuario *
-              </label>
-              <input
-                autoComplete="username"
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
-                  fieldErrors.userName
-                    ? "border-red-400 bg-red-50 dark:bg-red-900/20"
-                    : "border-gray-300 dark:border-gray-600"
+            <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-1">
+              Iniciar Sesión
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
+              Acceda a su cuenta del portal de pacientes
+            </p>
+
+            {/* Error banner */}
+            {apiError ? (
+              <div
+                className={`mb-4 p-4 rounded-xl text-sm flex items-start gap-2 ${
+                  isLocked
+                    ? "bg-red-50 border border-red-300 text-red-800 dark:bg-red-900/20 dark:border-red-700 dark:text-red-300"
+                    : "bg-amber-50 border border-amber-300 text-amber-800 dark:bg-amber-900/20 dark:border-amber-700 dark:text-amber-300"
                 }`}
-                disabled={isLocked}
-                id="portal-username"
-                placeholder="Ingrese su usuario"
-                type="text"
-                value={form.userName}
-                onChange={handleChange("userName")}
-              />
-              {fieldErrors.userName ? (
-                <p className="text-red-500 text-xs mt-0.5">
-                  <i className="bi bi-exclamation-circle mr-1" />
-                  {fieldErrors.userName}
-                </p>
-              ) : null}
-            </div>
-
-            {/* Password */}
-            <div className="flex flex-col gap-1">
-              <label
-                className="text-sm font-bold text-gray-700 dark:text-gray-300"
-                htmlFor="portal-password"
               >
-                Contraseña *
-              </label>
-              <div className="relative">
+                <i
+                  className={`bi ${isLocked ? "bi-lock-fill" : "bi-exclamation-triangle-fill"} mt-0.5 shrink-0`}
+                />
+                <span>{apiError}</span>
+              </div>
+            ) : null}
+
+            <form
+              noValidate
+              className="flex flex-col gap-4"
+              onSubmit={handleSubmit}
+            >
+              {/* Username */}
+              <div className="flex flex-col gap-1">
+                <label
+                  className="text-sm font-bold text-gray-700 dark:text-gray-300"
+                  htmlFor="portal-username"
+                >
+                  Nombre de usuario *
+                </label>
                 <input
-                  autoComplete="current-password"
-                  className={`w-full px-4 py-3 pr-12 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
-                    fieldErrors.password
+                  autoComplete="username"
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
+                    fieldErrors.userName
                       ? "border-red-400 bg-red-50 dark:bg-red-900/20"
                       : "border-gray-300 dark:border-gray-600"
                   }`}
                   disabled={isLocked}
-                  id="portal-password"
-                  placeholder="Ingrese su contraseña"
-                  type={showPassword ? "text" : "password"}
-                  value={form.password}
-                  onChange={handlePasswordInputChange}
+                  id="portal-username"
+                  placeholder="Ingrese su usuario"
+                  type="text"
+                  value={form.userName}
+                  onChange={handleChange("userName")}
                 />
-                <button
-                  aria-label={
-                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-                  }
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  tabIndex={-1}
-                  type="button"
-                  onClick={handleTogglePassword}
-                >
-                  <i
-                    className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-lg`}
-                  />
-                </button>
+                {fieldErrors.userName ? (
+                  <p className="text-red-500 text-xs mt-0.5">
+                    <i className="bi bi-exclamation-circle mr-1" />
+                    {fieldErrors.userName}
+                  </p>
+                ) : null}
               </div>
-              {fieldErrors.password ? (
-                <p className="text-red-500 text-xs mt-0.5">
-                  <i className="bi bi-exclamation-circle mr-1" />
-                  {fieldErrors.password}
-                </p>
-              ) : null}
-            </div>
 
-            {/* Submit */}
-            <button
-              className="w-full py-3 mt-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
-              disabled={isLoading || isLocked}
-              type="submit"
-            >
-              {isLoading ? (
-                <>
-                  <i className="bi bi-hourglass-split animate-spin" />
-                  Iniciando sesión...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-box-arrow-in-right" />
-                  Iniciar Sesión
-                </>
-              )}
-            </button>
-          </form>
+              {/* Password */}
+              <div className="flex flex-col gap-1">
+                <label
+                  className="text-sm font-bold text-gray-700 dark:text-gray-300"
+                  htmlFor="portal-password"
+                >
+                  Contraseña *
+                </label>
+                <div className="relative">
+                  <input
+                    autoComplete="current-password"
+                    className={`w-full px-4 py-3 pr-12 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
+                      fieldErrors.password
+                        ? "border-red-400 bg-red-50 dark:bg-red-900/20"
+                        : "border-gray-300 dark:border-gray-600"
+                    }`}
+                    disabled={isLocked}
+                    id="portal-password"
+                    placeholder="Ingrese su contraseña"
+                    type={showPassword ? "text" : "password"}
+                    value={form.password}
+                    onChange={handlePasswordInputChange}
+                  />
+                  <button
+                    aria-label={
+                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    tabIndex={-1}
+                    type="button"
+                    onClick={handleTogglePassword}
+                  >
+                    <i
+                      className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-lg`}
+                    />
+                  </button>
+                </div>
+                {fieldErrors.password ? (
+                  <p className="text-red-500 text-xs mt-0.5">
+                    <i className="bi bi-exclamation-circle mr-1" />
+                    {fieldErrors.password}
+                  </p>
+                ) : null}
+              </div>
 
-          {/* Links */}
-          <div className="flex flex-col items-center mt-6 gap-2 text-sm">
-            <Link
-              className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 underline"
-              to={nameRoutes.portalForgotPassword}
-            >
-              ¿Olvidó su contraseña?
-            </Link>
-            <div className="flex items-center gap-1 mt-2">
-              <span className="text-gray-500 dark:text-gray-400">
-                ¿No tiene cuenta?
-              </span>
-              <Link
-                className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 underline"
-                to={nameRoutes.portalRegister}
+              {/* Submit */}
+              <button
+                className="w-full py-3 mt-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                disabled={isLoading || isLocked}
+                type="submit"
               >
-                Registrarse
+                {isLoading ? (
+                  <>
+                    <i className="bi bi-hourglass-split animate-spin" />
+                    Iniciando sesión...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-box-arrow-in-right" />
+                    Iniciar Sesión
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Links */}
+            <div className="flex flex-col items-center mt-6 gap-2 text-sm">
+              <Link
+                className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 underline"
+                to={nameRoutes.portalForgotPassword}
+              >
+                ¿Olvidó su contraseña?
+              </Link>
+              <div className="flex items-center gap-1 mt-2">
+                <span className="text-gray-500 dark:text-gray-400">
+                  ¿No tiene cuenta?
+                </span>
+                <Link
+                  className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 underline"
+                  to={nameRoutes.portalRegister}
+                >
+                  Registrarse
+                </Link>
+              </div>
+              <Link
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xs mt-1"
+                to={nameRoutes.portalHome}
+              >
+                <i className="bi bi-arrow-left mr-1" />
+                Volver al portal
+              </Link>
+              <Link
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xs mt-1"
+                to={nameRoutes.login}
+              >
+                <i className="bi bi-shield-lock mr-1" />
+                Acceso Panel Administrativo
               </Link>
             </div>
-            <Link
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xs mt-1"
-              to={nameRoutes.portalHome}
-            >
-              <i className="bi bi-arrow-left mr-1" />
-              Volver al portal
-            </Link>
-            <Link
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xs mt-1"
-              to={nameRoutes.login}
-            >
-              <i className="bi bi-shield-lock mr-1" />
-              Acceso Panel Administrativo
-            </Link>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </GuestOnlyRoute>
   );
 }
 
-export default PortalLoginPage;
-
-export function Component() {
-  return <PortalLoginPage />;
-}
 Component.displayName = "PortalLoginPage";

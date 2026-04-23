@@ -1,3 +1,4 @@
+import type { CreateFormState } from "../components/appointmentForm/EditForm";
 import type { InitialAuth } from "../types/InitialAuth";
 import type { UserRequest } from "../types/UserRequest";
 
@@ -6,6 +7,20 @@ export const API_URL = `${URL_BASE}/api/v1/`;
 
 export const invalid_type_error = "El tipo provisto es invalido";
 export const required_error = "El campo es requerido";
+
+// Constants
+export const CONSULTATION_FEE = 150.0;
+
+export const DEFAULT_BRANCH_ID = 1;
+
+// ─── Step labels ─────────────────────────────────────────────────────────────
+
+export const STEP_LABELS = [
+  "Especialidad y Sucursal",
+  "Médico y Fecha",
+  "Motivo y Documento",
+  "Confirmación",
+];
 
 export const nameRoutes = {
   login: "/auth",
@@ -164,4 +179,17 @@ export const initialUser: UserRequest = {
   createdBy: null,
   updatedBy: null,
   timezoneId: null,
+};
+
+export const initialCreateState: CreateFormState = {
+  specialtyId: null,
+  specialtyLabel: "",
+  branchId: null,
+  branchLabel: "",
+  doctorId: null,
+  doctorLabel: "",
+  appointmentDate: "",
+  reason: "",
+  document: null,
+  documentError: null,
 };

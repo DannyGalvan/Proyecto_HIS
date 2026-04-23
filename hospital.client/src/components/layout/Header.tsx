@@ -8,30 +8,7 @@ import { useAuthStore } from "../../stores/useAuthStore";
 import type { ApiResponse } from "../../types/ApiResponse";
 import type { TimezoneResponse } from "../../types/TimezoneResponse";
 import { getAppTimezone } from "../../utils/dateFormatter";
-
-interface TimezoneButtonProps {
-  readonly tz: TimezoneResponse;
-  readonly isCurrent: boolean;
-  readonly onSelect: (tz: TimezoneResponse) => void;
-}
-
-function TimezoneButton({ tz, isCurrent, onSelect }: TimezoneButtonProps) {
-  const handleClick = useCallback(() => onSelect(tz), [tz, onSelect]);
-
-  return (
-    <button
-      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-        isCurrent
-          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium"
-          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700"
-      }`}
-      type="button"
-      onClick={handleClick}
-    >
-      <span className="block truncate">{tz.displayName}</span>
-    </button>
-  );
-}
+import { TimezoneButton } from "../button/TimeZoneButton";
 
 interface HeaderProps {
   readonly toggleSidebar: () => void;
@@ -122,10 +99,10 @@ export function Header({ toggleSidebar }: HeaderProps) {
   }, [setTheme, resolvedTheme]);
 
   return (
-    <header className="relative sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[var(--color-border)] bg-[rgba(255,255,255,0.85)] dark:bg-[rgba(24,24,27,0.85)] px-4 backdrop-blur-md transition-colors duration-300">
+    <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-(--color-border) bg-[rgba(255,255,255,0.85)] dark:bg-[rgba(24,24,27,0.85)] px-4 backdrop-blur-md transition-colors duration-300">
       <Button
         aria-label="Toggle Sidebar"
-        className="flex min-w-0 bg-transparent items-center justify-center rounded-md p-2 text-gray-600 hover:bg-[var(--color-surface-100)] dark:text-gray-300 transition-colors"
+        className="flex min-w-0 bg-transparent items-center justify-center rounded-md p-2 text-gray-600 hover:bg-(--color-surface-100) dark:text-gray-300 transition-colors"
         onClick={toggleSidebar}
       >
         <i className="bi bi-list text-2xl" />
@@ -135,13 +112,13 @@ export function Header({ toggleSidebar }: HeaderProps) {
         {/* Timezone selector */}
         <div ref={dropdownRef} className="relative">
           <button
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-[var(--color-surface-100)] transition-colors"
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-(--color-surface-100) transition-colors"
             title={`Zona horaria: ${currentTz}`}
             type="button"
             onClick={handleTzToggle}
           >
             <i className="bi bi-globe text-sm text-blue-500" />
-            <span className="hidden sm:inline max-w-[100px] truncate">
+            <span className="hidden sm:inline max-w-25 truncate">
               {tzShort}
             </span>
             <i
@@ -181,7 +158,7 @@ export function Header({ toggleSidebar }: HeaderProps) {
         {name ? (
           <span className="hidden sm:flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
             <i className="bi bi-person-circle text-blue-600" />
-            <span className="max-w-[140px] truncate">{name}</span>
+            <span className="max-w-35 truncate">{name}</span>
           </span>
         ) : null}
 
@@ -189,7 +166,7 @@ export function Header({ toggleSidebar }: HeaderProps) {
         {mounted ? (
           <Button
             aria-label="Alternar tema"
-            className="theme-toggle-btn flex h-10 w-10 min-w-0 items-center justify-center rounded-full bg-[var(--color-surface-100)] text-[var(--color-primary)] transition-colors"
+            className="theme-toggle-btn flex h-10 w-10 min-w-0 items-center justify-center rounded-full bg-(--color-surface-100) text-(--color-primary) transition-colors"
             onClick={handleThemeChange}
           >
             {resolvedTheme === "dark" ? (

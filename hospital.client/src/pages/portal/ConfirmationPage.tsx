@@ -7,7 +7,7 @@ import type { PaymentConfirmationResponse } from "../../types/PatientPortalTypes
 import { formatDateLong, formatTime } from "../../utils/dateFormatter";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
-export function ConfirmationPage() {
+export function Component() {
   const navigate = useNavigate();
   const location = useLocation();
   const { email } = usePatientAuthStore();
@@ -163,9 +163,4 @@ export function ConfirmationPage() {
   );
 }
 
-export default ConfirmationPage;
-
-export function Component() {
-  return <ConfirmationPage />;
-}
 Component.displayName = "ConfirmationPage";

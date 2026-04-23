@@ -1,53 +1,29 @@
 import type { RouteObject } from "react-router";
-import { Navigate } from "react-router";
 
-import { nameRoutes } from "../configs/constants";
 import { PortalForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
-import { PortalResetPasswordPage } from "../pages/auth/ResetPasswordPage";
-import { BookAppointmentPage } from "../pages/portal/BookAppointmentPage";
-import { ConfirmationPage } from "../pages/portal/ConfirmationPage";
-import { MyAppointmentsPage } from "../pages/portal/MyAppointmentsPage";
-import { PatientDashboardPage } from "../pages/portal/PatientDashboardPage";
-import { PortalChangePasswordPage } from "../pages/portal/PortalChangePasswordPage";
-import { PortalLoginPage } from "../pages/portal/PortalLoginPage";
-import { PortalPage } from "../pages/portal/PortalPage";
-import { PortalPaymentPage } from "../pages/portal/PortalPaymentPage";
-import { PortalRegisterPage } from "../pages/portal/PortalRegisterPage";
-import { ProfilePage } from "../pages/portal/ProfilePage";
-import { usePatientAuthStore } from "../stores/usePatientAuthStore";
-import ProtectedPatient from "./middlewares/ProtectedPatient";
 
-// Redirect already-logged-in patients away from login/register
-function GuestOnlyRoute({ children }: { readonly children: React.ReactNode }) {
-  const { isLoggedIn } = usePatientAuthStore();
-  return isLoggedIn ? (
-    <Navigate replace to={nameRoutes.portalDashboard} />
-  ) : (
-    <>{children}</>
-  );
-}
+import { PortalChangePasswordPage } from "../pages/portal/PortalChangePasswordPage";
+
+import { PortalResetPasswordPage } from "../pages/auth/PortalResetPasswordPage";
+import LoadingPage from "../pages/public/LoadingPage";
+import ProtectedPatient from "./middlewares/ProtectedPatient";
 
 export const PortalRoutes: RouteObject[] = [
   // Rutas públicas del portal
   {
     index: true,
-    element: <PortalPage />,
+    lazy: () => import("../pages/portal/PortalPage"),
+    hydrateFallbackElement: <LoadingPage />,
   },
   {
     path: "login",
-    element: (
-      <GuestOnlyRoute>
-        <PortalLoginPage />
-      </GuestOnlyRoute>
-    ),
+    lazy: () => import("../pages/portal/PortalLoginPage"),
+    hydrateFallbackElement: <LoadingPage />,
   },
   {
     path: "register",
-    element: (
-      <GuestOnlyRoute>
-        <PortalRegisterPage />
-      </GuestOnlyRoute>
-    ),
+    lazy: () => import("../pages/portal/PortalRegisterPage"),
+    hydrateFallbackElement: <LoadingPage />,
   },
   {
     path: "forgot-password",
@@ -63,27 +39,33 @@ export const PortalRoutes: RouteObject[] = [
     children: [
       {
         path: "dashboard",
-        element: <PatientDashboardPage />,
+        lazy: () => import("../pages/portal/PatientDashboardPage"),
+        hydrateFallbackElement: <LoadingPage />,
       },
       {
         path: "book",
-        element: <BookAppointmentPage />,
+        lazy: () => import("../pages/portal/BookAppointmentPage"),
+        hydrateFallbackElement: <LoadingPage />,
       },
       {
         path: "book/pay",
-        element: <PortalPaymentPage />,
+        lazy: () => import("../pages/portal/PortalPaymentPage"),
+        hydrateFallbackElement: <LoadingPage />,
       },
       {
         path: "book/confirm",
-        element: <ConfirmationPage />,
+        lazy: () => import("../pages/portal/ConfirmationPage"),
+        hydrateFallbackElement: <LoadingPage />,
       },
       {
         path: "appointments",
-        element: <MyAppointmentsPage />,
+        lazy: () => import("../pages/portal/MyAppointmentsPage"),
+        hydrateFallbackElement: <LoadingPage />,
       },
       {
         path: "profile",
-        element: <ProfilePage />,
+        lazy: () => import("../pages/portal/ProfilePage"),
+        hydrateFallbackElement: <LoadingPage />,
       },
       {
         path: "change-password",

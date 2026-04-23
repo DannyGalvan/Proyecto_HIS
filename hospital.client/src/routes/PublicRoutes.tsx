@@ -2,7 +2,7 @@ import type { RouteObject } from "react-router";
 
 import { nameRoutes } from "../configs/constants";
 import { AdminForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
-import { AdminResetPasswordPage } from "../pages/auth/ResetPasswordPage";
+
 import LoadingPage from "../pages/public/LoadingPage";
 import ProtectedPublic from "./middlewares/ProtectedPublic";
 
@@ -114,6 +114,7 @@ import { DoctorTransferPage } from "../pages/admin/DoctorTransferPage";
 import { AppointmentReassignPage } from "../pages/appointment/AppointmentReassignPage";
 
 // Doctor Calendar
+import { AdminResetPasswordPage } from "../pages/auth/AdminResetPasswordPage";
 import { DoctorCalendarPage } from "../pages/doctor-calendar/DoctorCalendarPage";
 
 // Middlewares

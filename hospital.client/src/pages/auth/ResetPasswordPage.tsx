@@ -270,7 +270,7 @@ export function ResetPasswordPage({
                 sesión con su nueva contraseña.
               </p>
               <Link
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 inline-flex"
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors items-center justify-center gap-2 inline-flex"
                 to={loginRoute}
               >
                 <i className="bi bi-box-arrow-in-right" />
@@ -281,26 +281,6 @@ export function ResetPasswordPage({
         </div>
       </div>
     </section>
-  );
-}
-
-/** Admin reset password wrapper */
-export function AdminResetPasswordPage() {
-  return (
-    <ResetPasswordPage
-      forgotRoute={nameRoutes.forgotPassword}
-      loginRoute={nameRoutes.login}
-    />
-  );
-}
-
-/** Portal reset password wrapper */
-export function PortalResetPasswordPage() {
-  return (
-    <ResetPasswordPage
-      forgotRoute={nameRoutes.portalForgotPassword}
-      loginRoute={nameRoutes.portalLogin}
-    />
   );
 }
 

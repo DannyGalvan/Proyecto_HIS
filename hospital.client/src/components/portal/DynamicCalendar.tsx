@@ -10,6 +10,7 @@ import {
   generateSlots,
   isSlotOccupied,
 } from "../../utils/dynamicCalendar";
+import { SlotButton } from "./SlotButton";
 
 interface DynamicCalendarProps {
   readonly doctorId: number;
@@ -18,80 +19,6 @@ interface DynamicCalendarProps {
   readonly hub?: UseAppointmentHubReturn;
   /** The currently selected date (controlled from parent for hub group management) */
   readonly onDateChange?: (date: string | null) => void;
-}
-
-interface SlotButtonProps {
-  readonly slot: Date;
-  readonly time: string;
-  readonly disabled: boolean;
-  readonly isSelected: boolean;
-  readonly isLockedByOther: boolean;
-  readonly isPast: boolean;
-  readonly occupied: boolean;
-  readonly isConfirmed: boolean;
-  readonly onSlotClick: (slot: Date) => void;
-}
-
-function SlotButton({
-  slot,
-  time,
-  disabled,
-  isSelected,
-  isLockedByOther,
-  isPast,
-  occupied,
-  isConfirmed,
-  onSlotClick,
-}: SlotButtonProps) {
-  const handleClick = useCallback(
-    () => void onSlotClick(slot),
-    [slot, onSlotClick],
-  );
-
-  let buttonClass =
-    "rounded px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ";
-
-  if (isSelected) {
-    buttonClass += "bg-blue-600 text-white focus:ring-blue-500";
-  } else if (isLockedByOther) {
-    buttonClass += "cursor-not-allowed bg-amber-100 text-amber-600";
-  } else if (isPast || occupied || isConfirmed) {
-    buttonClass += "cursor-not-allowed bg-gray-100 text-gray-400";
-  } else {
-    buttonClass +=
-      "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500";
-  }
-
-  return (
-    <button
-      aria-label={`Slot ${time}${
-        isLockedByOther
-          ? " - reservado temporalmente por otro paciente"
-          : occupied || isConfirmed
-            ? " - ocupado"
-            : isPast
-              ? " - pasado"
-              : " - disponible"
-      }`}
-      aria-pressed={isSelected}
-      className={buttonClass}
-      disabled={disabled}
-      title={
-        isLockedByOther
-          ? "Reservado temporalmente por otro paciente"
-          : undefined
-      }
-      type="button"
-      onClick={handleClick}
-    >
-      {time}
-      {isLockedByOther ? (
-        <span className="sr-only">
-          Reservado temporalmente por otro paciente
-        </span>
-      ) : null}
-    </button>
-  );
 }
 
 export function DynamicCalendar({
@@ -103,7 +30,6 @@ export function DynamicCalendar({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
 
   // Use hub state from props (or fallback to empty defaults if not provided)
   const connectionState = hub?.connectionState ?? "disconnected";
@@ -116,7 +42,6 @@ export function DynamicCalendar({
   const handleDateChange = useCallback(
     async (value: Date) => {
       setSelectedDate(value);
-      setSelectedSlot(null);
       onDateChange?.(formatDateForApi(value));
       setLoading(true);
       try {
@@ -142,7 +67,6 @@ export function DynamicCalendar({
       if (lockSlot) {
         await lockSlot(time);
       }
-      setSelectedSlot(slot);
       onSlotSelected(slot);
     },
     [onSlotSelected, lockSlot],
@@ -165,6 +89,8 @@ export function DynamicCalendar({
       {/* react-calendar */}
       <div className="flex justify-center">
         <Calendar
+          calendarType="iso8601"
+          className="text-xl text-black"
           minDate={new Date()}
           value={selectedDate}
           onChange={handleCalendarChange}
@@ -174,7 +100,7 @@ export function DynamicCalendar({
       {/* Slot grid */}
       {selectedDate ? (
         <div className="mt-2">
-          <h3 className="mb-2 font-semibold text-gray-700">
+          <h3 className="mb-2 font-semibold text-black dark:text-white">
             Horarios disponibles para el{" "}
             {formatDateLong(selectedDate.toISOString())}
           </h3>

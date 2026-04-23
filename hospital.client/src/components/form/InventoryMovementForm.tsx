@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ChangeEvent,
 } from "react";
@@ -136,9 +137,7 @@ export function InventoryMovementForm() {
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
   // ── Medicine cache ─────────────────────────────────────────────────────
-  const medicineCacheRef = useState<Map<number, MedicineResponse>>(
-    () => new Map(),
-  )[0];
+  const medicineCacheRef = useRef<Map<number, MedicineResponse>>(new Map());
 
   // ── Field config for current type ──────────────────────────────────────
   const fieldConfig = movementType !== null ? FIELD_CONFIG[movementType] : null;
@@ -197,13 +196,10 @@ export function InventoryMovementForm() {
   }, [movementType, projectedStock, selectedMedicine]);
 
   // ── Selectors for CatalogueSelect ──────────────────────────────────────
-  const selectorMedicine = useCallback(
-    (item: MedicineResponse) => {
-      medicineCacheRef.set(item.id, item);
-      return { label: `${item.name} (${item.unit})`, value: String(item.id) };
-    },
-    [medicineCacheRef],
-  );
+  const selectorMedicine = useCallback((item: MedicineResponse) => {
+    medicineCacheRef.current.set(item.id, item);
+    return { label: `${item.name} (${item.unit})`, value: String(item.id) };
+  }, []);
 
   const selectorBranch = useCallback(
     (item: BranchResponse) => ({ label: item.name, value: String(item.id) }),
@@ -221,14 +217,14 @@ export function InventoryMovementForm() {
       if (opt && !Array.isArray(opt) && "value" in opt) {
         const id = Number(opt.value);
         setMedicineId(id);
-        setSelectedMedicine(medicineCacheRef.get(id) ?? null);
+        setSelectedMedicine(medicineCacheRef.current.get(id) ?? null);
       } else {
         setMedicineId(null);
         setSelectedMedicine(null);
         setInventory(null);
       }
     },
-    [medicineCacheRef],
+    [],
   );
 
   const handleBranchChange = useCallback(

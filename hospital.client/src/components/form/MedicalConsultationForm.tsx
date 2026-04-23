@@ -8,6 +8,7 @@ import type { MedicalConsultationRequest } from "../../types/MedicalConsultation
 import type { ValidationFailure } from "../../types/ValidationFailure";
 import { validateMedicalConsultation } from "../../validations/medicalConsultationValidation";
 import { AsyncButton } from "../button/AsyncButton";
+import { Cie10SuggestionItem } from "../MedicalConsultationForm/Cie10SuggestionItem";
 import { Response } from "../messages/Response";
 import { OptionsSelect, type OptionValue } from "../select/OptionsSelect";
 
@@ -20,34 +21,6 @@ interface MedicalConsultationFormProps {
   readonly fromDoctorDashboard?: boolean;
   readonly patientName?: string;
   readonly doctorName?: string;
-}
-
-interface Cie10SuggestionItemProps {
-  readonly code: string;
-  readonly description: string;
-  readonly onSelect: (code: string, description: string) => void;
-}
-
-function Cie10SuggestionItem({
-  code,
-  description,
-  onSelect,
-}: Cie10SuggestionItemProps) {
-  const handleMouseDown = useCallback(
-    () => onSelect(code, description),
-    [code, description, onSelect],
-  );
-
-  return (
-    <li
-      className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
-      onMouseDown={handleMouseDown}
-    >
-      <span className="font-mono font-semibold text-blue-700">{code}</span>
-      {" — "}
-      <span className="text-gray-700">{description}</span>
-    </li>
-  );
 }
 
 export function MedicalConsultationForm({

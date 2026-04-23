@@ -1,146 +1,23 @@
-import { Button, Modal, toast } from "@heroui/react";
+import { toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 
+import {
+  AppointmentRow,
+  type AppointmentItem,
+} from "../../components/portal/AppointmentRow";
+import { CancelModal } from "../../components/portal/CancelModal";
 import { nameRoutes } from "../../configs/constants";
 import {
   cancelAppointment,
   getMyAppointments,
 } from "../../services/patientPortalService";
-import {
-  APP_LOCALE,
-  formatDateShort,
-  formatTime,
-  getAppTimezone,
-} from "../../utils/dateFormatter";
-
-// ── Status badge ──────────────────────────────────────────────────────────────
-function StatusBadge({ status }: { readonly status: string }) {
-  const map: Record<string, string> = {
-    "Pendiente de Pago": "bg-yellow-100 text-yellow-800",
-    Confirmada: "bg-green-100 text-green-800",
-    "Signos Vitales": "bg-purple-100 text-purple-800",
-    "En Espera": "bg-orange-100 text-orange-800",
-    "Consulta Médica": "bg-blue-100 text-blue-800",
-    Evaluado: "bg-teal-100 text-teal-800",
-    Laboratorio: "bg-indigo-100 text-indigo-800",
-    Farmacia: "bg-cyan-100 text-cyan-800",
-    "Atención Finalizada": "bg-gray-100 text-gray-700",
-    "No Asistió": "bg-red-100 text-red-800",
-    Cancelada: "bg-red-100 text-red-800",
-  };
-  const cls = map[status] ?? "bg-gray-100 text-gray-700";
-  return (
-    <span
-      className={`inline-block rounded-full px-3 py-0.5 text-xs font-semibold ${cls}`}
-    >
-      {status}
-    </span>
-  );
-}
-
-// Appointments that the patient can still cancel
-const CANCELLABLE_STATUSES = new Set(["Pendiente de Pago", "Confirmada"]);
-
-// ── Appointment row ───────────────────────────────────────────────────────────
-interface AppointmentItem {
-  id: number;
-  appointmentDate: string;
-  doctorName?: string;
-  specialtyName?: string;
-  branchName?: string;
-  appointmentStatusName?: string; // matches the API response field
-  amount?: number;
-}
-
-function AppointmentRow({
-  appt,
-  onCancel,
-}: {
-  readonly appt: AppointmentItem;
-  readonly onCancel: (id: number, label: string) => void;
-}) {
-  const statusName = appt.appointmentStatusName ?? "";
-  const canCancel = CANCELLABLE_STATUSES.has(statusName);
-
-  const handleCancelClick = useCallback(
-    () => onCancel(appt.id, appt.doctorName ?? `cita #${appt.id}`),
-    [appt, onCancel],
-  );
-
-  return (
-    <div className="rounded-xl border border-gray-200 p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 bg-white dark:bg-gray-900/50">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Left: date + info */}
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/30">
-            <span className="text-xs font-bold text-blue-600 dark:text-blue-300">
-              {new Date(appt.appointmentDate)
-                .toLocaleDateString(APP_LOCALE, {
-                  month: "short",
-                  timeZone: getAppTimezone(),
-                })
-                .toUpperCase()}
-            </span>
-            <span className="text-xl font-bold text-blue-800 dark:text-blue-200">
-              {new Date(appt.appointmentDate).toLocaleDateString(APP_LOCALE, {
-                day: "numeric",
-                timeZone: getAppTimezone(),
-              })}
-            </span>
-          </div>
-          <div>
-            <p className="font-semibold text-gray-800 dark:text-gray-100">
-              {appt.doctorName ?? "Médico"}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {appt.specialtyName ?? "Especialidad"}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500">
-              <i className="bi bi-geo-alt mr-1" />
-              {appt.branchName ?? "Sucursal"}
-            </p>
-          </div>
-        </div>
-
-        {/* Right: time + status + amount + cancel */}
-        <div className="flex flex-row items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-            <i className="bi bi-clock mr-1" />
-            {formatTime(appt.appointmentDate)}
-          </span>
-          {statusName ? <StatusBadge status={statusName} /> : null}
-          {appt.amount !== undefined && (
-            <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-              Q{appt.amount.toFixed(2)}
-            </span>
-          )}
-          {canCancel ? (
-            <button
-              className="mt-1 flex items-center gap-1 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400"
-              type="button"
-              onClick={handleCancelClick}
-            >
-              <i className="bi bi-x-circle" />
-              Cancelar cita
-            </button>
-          ) : null}
-        </div>
-      </div>
-
-      {/* Full date on mobile */}
-      <p className="mt-2 text-xs text-gray-400 dark:text-gray-500 sm:hidden">
-        {formatDateShort(appt.appointmentDate)}
-      </p>
-    </div>
-  );
-}
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 const PAGE_SIZE = 10;
 
-export function MyAppointmentsPage() {
+export function Component() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
@@ -187,10 +64,7 @@ export function MyAppointmentsPage() {
 
   const handleNextPage = useCallback(() => setPage((p) => p + 1), []);
 
-  const handleCloseCancelModal = useCallback(
-    () => setCancelTarget(null),
-    [],
-  );
+  const handleCloseCancelModal = useCallback(() => setCancelTarget(null), []);
 
   const handleCancelRequest = useCallback((id: number, label: string) => {
     setCancelTarget({ id, label });
@@ -206,7 +80,7 @@ export function MyAppointmentsPage() {
   const hasPrev = page > 1;
 
   return (
-    <section className="w-full min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 bg-white dark:bg-gray-800">
+    <section className="w-full min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 dark:bg-gray-800">
       <div className="mx-auto max-w-3xl">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -307,57 +181,14 @@ export function MyAppointmentsPage() {
       </div>
 
       {/* Cancel confirmation modal */}
-      <Modal isOpen={!!cancelTarget} onOpenChange={handleCloseCancelModal}>
-        <Modal.Backdrop>
-          <Modal.Container>
-            <Modal.Dialog className="max-w-md w-full">
-              <Modal.CloseTrigger />
-              <Modal.Header>
-                <Modal.Heading>Cancelar Cita</Modal.Heading>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="flex items-start gap-4 p-4">
-                  <i className="bi bi-exclamation-triangle text-red-500 text-3xl shrink-0" />
-                  <div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                      ¿Está seguro que desea cancelar esta cita?
-                    </p>
-                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                      Recibirá un correo de confirmación y los fondos serán
-                      reintegrados según los términos del servicio.
-                    </p>
-                  </div>
-                </div>
-              </Modal.Body>
-              <Modal.Footer>
-                <div className="flex gap-2 justify-end w-full">
-                  <Button
-                    isDisabled={cancelMutation.isPending}
-                    variant="secondary"
-                    onPress={handleCloseCancelModal}
-                  >
-                    No, mantener cita
-                  </Button>
-                  <Button
-                    isPending={cancelMutation.isPending}
-                    variant="danger"
-                    onPress={handleCancelConfirm}
-                  >
-                    Sí, cancelar cita
-                  </Button>
-                </div>
-              </Modal.Footer>
-            </Modal.Dialog>
-          </Modal.Container>
-        </Modal.Backdrop>
-      </Modal>
+      <CancelModal
+        isOpen={!!cancelTarget}
+        isPending={cancelMutation.isPending}
+        onClose={handleCloseCancelModal}
+        onConfirm={handleCancelConfirm}
+      />
     </section>
   );
 }
 
-export default MyAppointmentsPage;
-
-export function Component() {
-  return <MyAppointmentsPage />;
-}
 Component.displayName = "MyAppointmentsPage";

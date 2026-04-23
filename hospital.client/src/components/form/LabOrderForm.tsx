@@ -8,32 +8,20 @@ import {
   type ChangeEvent,
 } from "react";
 import type { MultiValue, SingleValue } from "react-select";
-import { getLabExams } from "../../services/labExamService";
 import {
   createLabOrder,
   createLabOrderItem,
 } from "../../services/labOrderService";
 import type { LabExamResponse } from "../../types/LabExamResponse";
 import type { LabOrderRequest } from "../../types/LabOrderResponse";
+import { formatCurrency } from "../../utils/formatCurrency";
 import { AsyncButton } from "../button/AsyncButton";
+import {
+  LabOrderItemRowComponent,
+  type LabOrderItemRow,
+} from "../LabOrderForm/LabOrderItemRowComponent";
+import { newItemRow } from "../LabOrderForm/NewItemRow";
 import { Response } from "../messages/Response";
-import { CatalogueSelect } from "../select/CatalogueSelect";
-
-interface LabOrderFormProps {
-  readonly initialConsultationId?: number | null;
-  readonly initialDoctorId?: number | null;
-  readonly initialPatientId?: number | null;
-  readonly fromDoctorDashboard?: boolean;
-  readonly patientName?: string;
-  readonly onSuccess?: (labOrderId: number) => void;
-}
-
-interface LabOrderItemRow {
-  id: string; // local key for React list rendering
-  labExamId: number | null;
-  examName: string;
-  defaultAmount: number | null;
-}
 
 interface LabOrderFormState {
   consultationId: number | null;
@@ -43,92 +31,13 @@ interface LabOrderFormState {
   notes: string;
 }
 
-const formatCurrency = (amount: number): string => `Q ${amount.toFixed(2)}`;
-
-const newItemRow = (): LabOrderItemRow => ({
-  id: crypto.randomUUID(),
-  labExamId: null,
-  examName: "",
-  defaultAmount: null,
-});
-
-// ── Extracted item row component ──────────────────────────────────────────────
-
-interface LabOrderItemRowProps {
-  readonly item: LabOrderItemRow;
-  readonly index: number;
-  readonly onRemove: (id: string) => void;
-  readonly onUpdateExam: (
-    id: string,
-  ) => (
-    opt:
-      | SingleValue<{ label: string; value: string }>
-      | MultiValue<{ label: string; value: string }>
-      | null,
-  ) => void;
-  readonly selectorLabExam: (item: LabExamResponse) => {
-    label: string;
-    value: string;
-  };
-}
-
-function LabOrderItemRowComponent({
-  item,
-  index,
-  onRemove,
-  onUpdateExam,
-  selectorLabExam,
-}: LabOrderItemRowProps) {
-  const handleRemove = useCallback(
-    () => onRemove(item.id),
-    [item.id, onRemove],
-  );
-
-  const handleExamChange = useMemo(
-    () => onUpdateExam(item.id),
-    [item.id, onUpdateExam],
-  );
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-[1fr_140px_auto] gap-3 items-end p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
-      <div>
-        <label className="font-bold text-sm block mb-1">
-          Examen #{index + 1} *
-        </label>
-        <CatalogueSelect<LabExamResponse>
-          fieldSearch="Name"
-          label=""
-          placeholder="Buscar examen..."
-          queryFn={getLabExams}
-          selectorFn={selectorLabExam}
-          onChange={handleExamChange}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label className="font-bold text-sm">Precio</label>
-        {item.labExamId == null ? (
-          <span className="px-3 py-2 text-sm text-gray-400">—</span>
-        ) : !item.defaultAmount ? (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-yellow-100 text-yellow-800">
-            <i className="bi bi-exclamation-triangle" /> Precio no configurado
-          </span>
-        ) : (
-          <span className="px-3 py-2 text-sm font-semibold text-green-700 dark:text-green-400">
-            {formatCurrency(item.defaultAmount)}
-          </span>
-        )}
-      </div>
-
-      <button
-        className="px-3 py-2 rounded-lg text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-colors self-end"
-        type="button"
-        onClick={handleRemove}
-      >
-        <i className="bi bi-trash mr-1" /> Eliminar
-      </button>
-    </div>
-  );
+interface LabOrderFormProps {
+  readonly initialConsultationId?: number | null;
+  readonly initialDoctorId?: number | null;
+  readonly initialPatientId?: number | null;
+  readonly fromDoctorDashboard?: boolean;
+  readonly patientName?: string;
+  readonly onSuccess?: (labOrderId: number) => void;
 }
 
 export function LabOrderForm({
@@ -300,7 +209,7 @@ export function LabOrderForm({
       );
       onSuccess?.(labOrderId);
     },
-    [form, items, doCreateOrder, onSuccess],
+    [form, items, doCreateOrder, onSuccess, totalAmount],
   );
 
   return (
@@ -429,7 +338,7 @@ export function LabOrderForm({
 
           {items.length === 0 && (
             <p className="text-gray-400 text-center py-4">
-              No hay exámenes. Haga clic en "Agregar Examen" para comenzar.
+              No hay exámenes. Haga clic en Agregar Examen para comenzar.
             </p>
           )}
 

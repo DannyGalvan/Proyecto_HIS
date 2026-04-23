@@ -1,16 +1,10 @@
-import {
-  Button,
-  Input,
-  Label,
-  Modal,
-  Spinner,
-  TextField,
-  toast,
-} from "@heroui/react";
+import { Button, Input, Label, Spinner, TextField, toast } from "@heroui/react";
 import { useCallback, useMemo, useState } from "react";
-import { AsyncButton } from "../../components/button/AsyncButton";
+
 import { PaymentResponseColumns } from "../../components/column/PaymentResponseColumns";
 import { Icon } from "../../components/icons/Icon";
+import { PaymentModal } from "../../components/payment/PaymentModal";
+import { PendingOrdersTable } from "../../components/payment/PendingOrdersTable";
 import { TableServer } from "../../components/table/TableServer";
 import { partialUpdateDispense } from "../../services/dispenseService";
 import { partialUpdateLabOrder } from "../../services/labOrderService";
@@ -23,7 +17,6 @@ import { usePaymentStore } from "../../stores/usePaymentStore";
 import { customStyles } from "../../theme/tableTheme";
 import type { PaymentRequest } from "../../types/PaymentResponse";
 import type { PendingOrderResponse } from "../../types/PendingOrderResponse";
-import { formatDate } from "../../utils/dateFormatter";
 import { generateIdempotencyKey } from "../../utils/generateIdempotencyKey";
 
 type PaymentMethodType = "cash" | "card";
@@ -33,11 +26,6 @@ interface PaymentFormState {
   amountReceived: string;
   cardLastFourDigits: string;
 }
-
-const ORDER_TYPE_LABELS: Record<string, string> = {
-  LabOrder: "Laboratorio",
-  Dispense: "Farmacia",
-};
 
 function formatCurrency(amount: number): string {
   return `Q ${amount.toFixed(2)}`;
@@ -107,7 +95,6 @@ export function PaymentPage() {
     setSelectedOrderIds(new Set());
 
     try {
-      // Determine if search term is a DPI (numeric, 13 digits) or order number
       const isNumericOnly = /^\d+$/.test(term);
       const isDpi = isNumericOnly && term.length >= 8;
 
@@ -133,6 +120,11 @@ export function PaymentPage() {
     }
   }, [searchTerm]);
 
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value),
+    [],
+  );
+
   const handleSearchKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
@@ -143,22 +135,15 @@ export function PaymentPage() {
     [handleSearch],
   );
 
-  // Toggle selection of a single order
-  const toggleOrderSelection = useCallback(
-    (order: PendingOrderResponse) => {
-      const key = getOrderKey(order);
-      setSelectedOrderIds((prev) => {
-        const next = new Set(prev);
-        if (next.has(key)) {
-          next.delete(key);
-        } else {
-          next.add(key);
-        }
-        return next;
-      });
-    },
-    [getOrderKey],
-  );
+  // Toggle selection of a single order (accepts key directly)
+  const toggleOrderSelection = useCallback((key: string) => {
+    setSelectedOrderIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
 
   // Toggle all orders
   const toggleAllOrders = useCallback(() => {
@@ -169,16 +154,23 @@ export function PaymentPage() {
     }
   }, [selectedOrderIds.size, pendingOrders, getOrderKey]);
 
-  // Open payment modal for a single order
-  const handlePaySingle = useCallback((order: PendingOrderResponse) => {
-    setOrdersToPayList([order]);
+  const resetPaymentForm = useCallback(() => {
     setPaymentForm({
       paymentMethod: "cash",
       amountReceived: "",
       cardLastFourDigits: "",
     });
-    setIsPaymentModalOpen(true);
   }, []);
+
+  // Open payment modal for a single order
+  const handlePaySingle = useCallback(
+    (order: PendingOrderResponse) => {
+      setOrdersToPayList([order]);
+      resetPaymentForm();
+      setIsPaymentModalOpen(true);
+    },
+    [resetPaymentForm],
+  );
 
   // Open payment modal for selected orders
   const handlePaySelected = useCallback(() => {
@@ -190,13 +182,9 @@ export function PaymentPage() {
       return;
     }
     setOrdersToPayList(selected);
-    setPaymentForm({
-      paymentMethod: "cash",
-      amountReceived: "",
-      cardLastFourDigits: "",
-    });
+    resetPaymentForm();
     setIsPaymentModalOpen(true);
-  }, [pendingOrders, selectedOrderIds, getOrderKey]);
+  }, [pendingOrders, selectedOrderIds, getOrderKey, resetPaymentForm]);
 
   // Close payment modal
   const closePaymentModal = useCallback(() => {
@@ -205,6 +193,29 @@ export function PaymentPage() {
       setOrdersToPayList([]);
     }
   }, [isProcessingPayment]);
+
+  // Payment form field handlers
+  const handleSelectCash = useCallback(
+    () => setPaymentForm((prev) => ({ ...prev, paymentMethod: "cash" })),
+    [],
+  );
+  const handleSelectCard = useCallback(
+    () => setPaymentForm((prev) => ({ ...prev, paymentMethod: "card" })),
+    [],
+  );
+  const handleAmountReceivedChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setPaymentForm((prev) => ({ ...prev, amountReceived: e.target.value })),
+    [],
+  );
+  const handleCardDigitsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setPaymentForm((prev) => ({
+        ...prev,
+        cardLastFourDigits: e.target.value.replace(/\D/g, "").slice(0, 4),
+      })),
+    [],
+  );
 
   // Validate payment form
   const validatePayment = useCallback((): boolean => {
@@ -234,7 +245,6 @@ export function PaymentPage() {
     setIsProcessingPayment(true);
 
     try {
-      // Process each order individually
       for (const order of ordersToPayList) {
         const idempotencyKey = generateIdempotencyKey();
 
@@ -272,7 +282,6 @@ export function PaymentPage() {
           return;
         }
 
-        // Update order status to Paid (1)
         try {
           if (order.orderType === "LabOrder") {
             await partialUpdateLabOrder({ id: order.orderId, orderStatus: 1 });
@@ -295,7 +304,6 @@ export function PaymentPage() {
           : `${ordersToPayList.length} pagos procesados exitosamente.`,
       );
 
-      // Remove paid orders from the list
       const paidKeys = new Set(ordersToPayList.map(getOrderKey));
       setPendingOrders((prev) =>
         prev.filter((o) => !paidKeys.has(getOrderKey(o))),
@@ -342,7 +350,7 @@ export function PaymentPage() {
 
         {/* Search bar */}
         <div className="flex flex-wrap items-end gap-3 mb-4">
-          <div className="flex-1 min-w-[250px]">
+          <div className="flex-1 min-w-62.5">
             <TextField name="pendingSearch">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Buscar por DPI del paciente o número de orden
@@ -351,7 +359,7 @@ export function PaymentPage() {
                 placeholder="Ingrese DPI o número de orden..."
                 type="search"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 onKeyDown={handleSearchKeyDown}
               />
             </TextField>
@@ -371,13 +379,14 @@ export function PaymentPage() {
           </Button>
         </div>
 
-        {/* Results */}
+        {/* Loading */}
         {isSearching ? (
           <div className="flex justify-center py-8">
             <Spinner color="accent" size="lg" />
           </div>
         ) : null}
 
+        {/* Empty state */}
         {!isSearching && hasSearched && pendingOrders.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <Icon color="#9CA3AF" name="bi bi-inbox" size={40} />
@@ -385,6 +394,7 @@ export function PaymentPage() {
           </div>
         ) : null}
 
+        {/* Results */}
         {!isSearching && pendingOrders.length > 0 && (
           <>
             {/* Selection actions */}
@@ -411,108 +421,14 @@ export function PaymentPage() {
             </div>
 
             {/* Pending orders table */}
-            <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-blue-50 dark:bg-blue-900/20 text-left">
-                    <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300">
-                      <input
-                        aria-label="Seleccionar todas las órdenes"
-                        checked={
-                          selectedOrderIds.size === pendingOrders.length &&
-                          pendingOrders.length > 0
-                        }
-                        className="rounded border-gray-300"
-                        type="checkbox"
-                        onChange={toggleAllOrders}
-                      />
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300 uppercase text-xs tracking-wide">
-                      Tipo
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300 uppercase text-xs tracking-wide">
-                      Número
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300 uppercase text-xs tracking-wide">
-                      Paciente
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300 uppercase text-xs tracking-wide">
-                      Fecha
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300 uppercase text-xs tracking-wide text-center">
-                      Ítems
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300 uppercase text-xs tracking-wide text-right">
-                      Total
-                    </th>
-                    <th className="px-3 py-3 font-semibold text-blue-800 dark:text-blue-300 uppercase text-xs tracking-wide text-center">
-                      Acción
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingOrders.map((order) => {
-                    const key = getOrderKey(order);
-                    const isSelected = selectedOrderIds.has(key);
-                    return (
-                      <tr
-                        key={key}
-                        className={`border-b border-gray-100 dark:border-gray-800 transition-colors ${
-                          isSelected
-                            ? "bg-blue-50 dark:bg-blue-900/10"
-                            : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                        }`}
-                      >
-                        <td className="px-3 py-3">
-                          <input
-                            aria-label={`Seleccionar orden ${order.orderNumber}`}
-                            checked={isSelected}
-                            className="rounded border-gray-300"
-                            type="checkbox"
-                            onChange={() => toggleOrderSelection(order)}
-                          />
-                        </td>
-                        <td className="px-3 py-3">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                              order.orderType === "LabOrder"
-                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-                                : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                            }`}
-                          >
-                            {ORDER_TYPE_LABELS[order.orderType] ??
-                              order.orderType}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3 font-mono text-xs">
-                          {order.orderNumber}
-                        </td>
-                        <td className="px-3 py-3">{order.patientName}</td>
-                        <td className="px-3 py-3 text-gray-600 dark:text-gray-400">
-                          {formatDate(order.createdAt)}
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          {order.itemCount}
-                        </td>
-                        <td className="px-3 py-3 text-right font-semibold">
-                          {formatCurrency(order.totalAmount)}
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onPress={() => handlePaySingle(order)}
-                          >
-                            <Icon color="#0A4FA6" name="bi bi-cash" size={14} />
-                            <span className="ml-1">Cobrar</span>
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <PendingOrdersTable
+              getOrderKey={getOrderKey}
+              orders={pendingOrders}
+              selectedOrderIds={selectedOrderIds}
+              onPaySingle={handlePaySingle}
+              onToggleAll={toggleAllOrders}
+              onToggleOrder={toggleOrderSelection}
+            />
           </>
         )}
       </div>
@@ -531,205 +447,20 @@ export function PaymentPage() {
       />
 
       {/* Payment Modal */}
-      <Modal isOpen={isPaymentModalOpen} onOpenChange={closePaymentModal}>
-        <Modal.Backdrop>
-          <Modal.Container>
-            <Modal.Dialog className="max-w-lg w-full">
-              <Modal.CloseTrigger />
-              <Modal.Header>
-                <Modal.Heading>Procesar Pago</Modal.Heading>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="space-y-5 p-2">
-                  {/* Order summary */}
-                  <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4">
-                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">
-                      {ordersToPayList.length === 1
-                        ? "Orden a cobrar"
-                        : `${ordersToPayList.length} órdenes a cobrar`}
-                    </p>
-                    {ordersToPayList.map((order) => (
-                      <div
-                        key={getOrderKey(order)}
-                        className="flex justify-between items-center text-sm py-1 border-b border-blue-100 dark:border-blue-800 last:border-0"
-                      >
-                        <span className="text-gray-700 dark:text-gray-300">
-                          {ORDER_TYPE_LABELS[order.orderType] ??
-                            order.orderType}{" "}
-                          — {order.orderNumber}
-                        </span>
-                        <span className="font-semibold text-gray-900 dark:text-gray-100">
-                          {formatCurrency(order.totalAmount)}
-                        </span>
-                      </div>
-                    ))}
-                    <div className="flex justify-between items-center mt-3 pt-2 border-t border-blue-300 dark:border-blue-700">
-                      <span className="text-base font-bold text-blue-900 dark:text-blue-100">
-                        Total a pagar
-                      </span>
-                      <span className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                        {formatCurrency(paymentTotal)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Payment method selector */}
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Método de pago
-                    </p>
-                    <div className="flex gap-3">
-                      <button
-                        className={`flex-1 rounded-lg border-2 p-3 text-center transition-colors ${
-                          paymentForm.paymentMethod === "cash"
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                            : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300"
-                        }`}
-                        type="button"
-                        onClick={() =>
-                          setPaymentForm((prev) => ({
-                            ...prev,
-                            paymentMethod: "cash",
-                          }))
-                        }
-                      >
-                        <Icon
-                          color={
-                            paymentForm.paymentMethod === "cash"
-                              ? "#0A4FA6"
-                              : "#9CA3AF"
-                          }
-                          name="bi bi-cash"
-                          size={20}
-                        />
-                        <p className="text-sm font-medium mt-1">Efectivo</p>
-                      </button>
-                      <button
-                        className={`flex-1 rounded-lg border-2 p-3 text-center transition-colors ${
-                          paymentForm.paymentMethod === "card"
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                            : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300"
-                        }`}
-                        type="button"
-                        onClick={() =>
-                          setPaymentForm((prev) => ({
-                            ...prev,
-                            paymentMethod: "card",
-                          }))
-                        }
-                      >
-                        <Icon
-                          color={
-                            paymentForm.paymentMethod === "card"
-                              ? "#0A4FA6"
-                              : "#9CA3AF"
-                          }
-                          name="bi bi-credit-card"
-                          size={20}
-                        />
-                        <p className="text-sm font-medium mt-1">Tarjeta</p>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Cash payment fields */}
-                  {paymentForm.paymentMethod === "cash" && (
-                    <div className="space-y-4">
-                      <TextField name="amountReceived">
-                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Monto recibido (GTQ)
-                        </Label>
-                        <Input
-                          min={0}
-                          placeholder="0.00"
-                          step="0.01"
-                          type="number"
-                          value={paymentForm.amountReceived}
-                          onChange={(e) =>
-                            setPaymentForm((prev) => ({
-                              ...prev,
-                              amountReceived: e.target.value,
-                            }))
-                          }
-                        />
-                      </TextField>
-
-                      {paymentForm.amountReceived &&
-                      parseFloat(paymentForm.amountReceived) >= paymentTotal ? (
-                        <div className="rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 flex justify-between items-center">
-                          <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                            Cambio
-                          </span>
-                          <span className="text-xl font-bold text-green-800 dark:text-green-200">
-                            {formatCurrency(changeAmount)}
-                          </span>
-                        </div>
-                      ) : null}
-
-                      {paymentForm.amountReceived &&
-                      parseFloat(paymentForm.amountReceived) > 0 &&
-                      parseFloat(paymentForm.amountReceived) < paymentTotal ? (
-                        <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3">
-                          <span className="text-sm text-red-700 dark:text-red-300">
-                            El monto recibido es insuficiente. Faltan{" "}
-                            {formatCurrency(
-                              paymentTotal -
-                                parseFloat(paymentForm.amountReceived),
-                            )}
-                            .
-                          </span>
-                        </div>
-                      ) : null}
-                    </div>
-                  )}
-
-                  {/* Card payment fields */}
-                  {paymentForm.paymentMethod === "card" && (
-                    <TextField name="cardLastFour">
-                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Últimos 4 dígitos de la tarjeta
-                      </Label>
-                      <Input
-                        inputMode="numeric"
-                        maxLength={4}
-                        placeholder="1234"
-                        type="text"
-                        value={paymentForm.cardLastFourDigits}
-                        onChange={(e) =>
-                          setPaymentForm((prev) => ({
-                            ...prev,
-                            cardLastFourDigits: e.target.value
-                              .replace(/\D/g, "")
-                              .slice(0, 4),
-                          }))
-                        }
-                      />
-                    </TextField>
-                  )}
-                </div>
-              </Modal.Body>
-              <Modal.Footer>
-                <div className="flex gap-2 justify-end w-full">
-                  <Button
-                    isDisabled={isProcessingPayment}
-                    variant="secondary"
-                    onPress={closePaymentModal}
-                  >
-                    Cancelar
-                  </Button>
-                  <AsyncButton
-                    isLoading={isProcessingPayment}
-                    variant="primary"
-                    onPress={handleProcessPayment}
-                  >
-                    Confirmar Pago ({formatCurrency(paymentTotal)})
-                  </AsyncButton>
-                </div>
-              </Modal.Footer>
-            </Modal.Dialog>
-          </Modal.Container>
-        </Modal.Backdrop>
-      </Modal>
+      <PaymentModal
+        changeAmount={changeAmount}
+        isOpen={isPaymentModalOpen}
+        isProcessingPayment={isProcessingPayment}
+        ordersToPayList={ordersToPayList}
+        paymentForm={paymentForm}
+        paymentTotal={paymentTotal}
+        onAmountReceivedChange={handleAmountReceivedChange}
+        onCardDigitsChange={handleCardDigitsChange}
+        onClose={closePaymentModal}
+        onProcessPayment={handleProcessPayment}
+        onSelectCard={handleSelectCard}
+        onSelectCash={handleSelectCash}
+      />
     </div>
   );
 }

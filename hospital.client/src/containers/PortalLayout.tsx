@@ -141,7 +141,7 @@ export function PortalLayout() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* ── Navbar ── */}
-      <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 shadow-sm">
+      <nav className="bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-9999 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
@@ -251,7 +251,7 @@ export function PortalLayout() {
                   </div>
 
                   <button
-                    className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors max-w-[180px] truncate"
+                    className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors max-w-45 truncate"
                     type="button"
                     onClick={() => navigate(nameRoutes.portalDashboard)}
                   >
