@@ -24,8 +24,6 @@ export function ConfirmationPage() {
     [navigate],
   );
 
-  const confirmation = location.state as PaymentConfirmationResponse | null;
-
   // If no state, redirect to portal home
   if (!confirmation) {
     navigate(nameRoutes.portalHome, { replace: true });

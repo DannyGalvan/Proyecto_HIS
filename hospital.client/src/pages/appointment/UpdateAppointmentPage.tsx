@@ -50,7 +50,7 @@ export function UpdateAppointmentPage() {
     <div>
       {data?.success ? (
         <>
-          {data.data.appointmentStatus?.name === "Pagada" && (
+          {(data.data.appointmentStatus?.name === "Confirmada" || data.data.appointmentStatus?.name === "Paciente Presente") && (
             <div className="max-w-3xl mx-auto px-4 pt-4 flex justify-end">
               <Button
                 size="sm"

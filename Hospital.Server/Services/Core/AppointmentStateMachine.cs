@@ -29,6 +29,7 @@ namespace Hospital.Server.Services.Core
         public const long STATUS_ATENCION_FINAL    = 9;
         public const long STATUS_NO_ASISTIO        = 10;
         public const long STATUS_CANCELADA         = 11;
+        public const long STATUS_PACIENTE_PRESENTE = 12;
 
         /// <summary>
         /// Valid transitions map: from → allowed next states
@@ -38,8 +39,11 @@ namespace Hospital.Server.Services.Core
             // Pendiente de Pago → Confirmada (via payment) or Cancelada
             [STATUS_PENDIENTE_PAGO] = new() { STATUS_CONFIRMADA, STATUS_CANCELADA },
 
-            // Confirmada → Signos Vitales (nurse selects patient) or No Asistió
-            [STATUS_CONFIRMADA] = new() { STATUS_SIGNOS_VITALES, STATUS_NO_ASISTIO, STATUS_CANCELADA },
+            // Confirmada → Paciente Presente (reception registers arrival) or No Asistió / Cancelada
+            [STATUS_CONFIRMADA] = new() { STATUS_PACIENTE_PRESENTE, STATUS_NO_ASISTIO, STATUS_CANCELADA },
+
+            // Paciente Presente → Signos Vitales (nurse calls patient) or No Asistió / Cancelada
+            [STATUS_PACIENTE_PRESENTE] = new() { STATUS_SIGNOS_VITALES, STATUS_NO_ASISTIO, STATUS_CANCELADA },
 
             // Signos Vitales → En Espera (nurse completes vitals)
             [STATUS_SIGNOS_VITALES] = new() { STATUS_EN_ESPERA },

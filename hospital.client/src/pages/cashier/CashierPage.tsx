@@ -48,8 +48,8 @@ export function CashierPage() {
         });
       const filter =
         searchType === "dpi"
-          ? `Patient.IdentificationDocument:eq:${searchQuery} AND AppointmentStatus.Name:eq:Pendiente`
-          : `Id:eq:${searchQuery} AND AppointmentStatus.Name:eq:Pendiente`;
+          ? `Patient.IdentificationDocument:eq:${searchQuery} AND AppointmentStatus.Name:eq:Pendiente de Pago`
+          : `Id:eq:${searchQuery} AND AppointmentStatus.Name:eq:Pendiente de Pago`;
       return getAppointments({
         pageNumber: 1,
         pageSize: 20,
@@ -79,7 +79,7 @@ export function CashierPage() {
         setPaymentSuccess({ payment, change });
         const patientName = selectedAppointment?.patient?.name ?? "Paciente";
         toast.success(
-          `¡Pago registrado exitosamente! Paciente: ${patientName}. La cita ha sido actualizada a estado "Pagada".`,
+          `¡Pago registrado exitosamente! Paciente: ${patientName}. La cita ha sido actualizada a estado "Confirmada".`,
         );
         queryClient.invalidateQueries({ queryKey: ["cashier-search"] });
       } else {
@@ -460,7 +460,7 @@ export function CashierPage() {
             ¡Pago Registrado Exitosamente!
           </h2>
           <p className="text-green-700 mb-6">
-            La cita ha sido actualizada a estado "Pagada".
+            La cita ha sido actualizada a estado "Confirmada".
           </p>
 
           <PaymentReceipt

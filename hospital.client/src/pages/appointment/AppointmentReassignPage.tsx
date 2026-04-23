@@ -79,7 +79,7 @@ export function AppointmentReassignPage() {
   const [newDoctorId, setNewDoctorId] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
 
-  // Search appointments (only Pagada status)
+  // Search appointments (Confirmada or Paciente Presente status)
   const { data: searchData, isLoading: searchLoading } = useQuery({
     queryKey: ["reassign-search", searchQuery, searchType],
     queryFn: () => {
@@ -90,7 +90,7 @@ export function AppointmentReassignPage() {
       return getAppointments({
         pageNumber: 1,
         pageSize: 20,
-        filters: `${filter} AND State:eq:1 AND AppointmentStatus.Name:eq:Pagada`,
+        filters: `${filter} AND State:eq:1 AND AppointmentStatusId:in:2,12`,
         include: "Specialty,Branch,AppointmentStatus,Patient,Doctor",
         includeTotal: false,
       });
@@ -215,7 +215,7 @@ export function AppointmentReassignPage() {
         <h1 className="text-2xl font-bold">Reasignar Médico</h1>
       </div>
       <p className="text-gray-500 text-sm mb-6">
-        Busque una cita pagada y asigne un nuevo médico de la misma sede y
+        Busque una cita confirmada y asigne un nuevo médico de la misma sede y
         especialidad.
       </p>
 
@@ -262,7 +262,7 @@ export function AppointmentReassignPage() {
       {!searchLoading && searchQuery && appointments.length === 0 ? (
         <div className="text-center py-10 text-gray-400">
           <i className="bi bi-calendar-x text-4xl block mb-3" />
-          <p>No se encontraron citas pagadas con los parámetros ingresados.</p>
+          <p>No se encontraron citas confirmadas con los parámetros ingresados.</p>
         </div>
       ) : null}
 

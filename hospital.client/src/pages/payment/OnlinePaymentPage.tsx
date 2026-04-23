@@ -11,8 +11,8 @@ import {
 import type { PaymentResponse } from "../../types/PaymentResponse";
 import { formatDateLong } from "../../utils/dateFormatter";
 
-/** appointmentStatusId that corresponds to "Pagada" */
-const PAID_STATUS_ID = 1;
+/** appointmentStatusId that corresponds to "Confirmada" (payment received) */
+const CONFIRMED_STATUS_ID = 2;
 
 /**
  * Online payment page.
@@ -40,13 +40,13 @@ export function OnlinePaymentPage() {
     mutationFn: () =>
       partialUpdateAppointment({
         id: appointmentId,
-        appointmentStatusId: PAID_STATUS_ID,
+        appointmentStatusId: CONFIRMED_STATUS_ID,
       }),
   });
 
   const handleSuccess = useCallback(
     (payment: PaymentResponse) => {
-      // Update appointment status to "Pagada" — fire and forget (non-blocking)
+      // Update appointment status to "Confirmada" — fire and forget (non-blocking)
       statusMutation.mutate();
       setCompletedPayment(payment);
     },

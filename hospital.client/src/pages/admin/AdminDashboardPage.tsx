@@ -9,23 +9,33 @@ import type { AppointmentResponse } from "../../types/AppointmentResponse";
 import { formatDateLong } from "../../utils/dateFormatter";
 
 const statusColors: Record<string, string> = {
-  Pagada: "bg-green-100 text-green-800 border-green-200",
-  "Paciente presente": "bg-purple-100 text-purple-800 border-purple-200",
-  "En curso": "bg-blue-100 text-blue-800 border-blue-200",
-  Completada: "bg-gray-100 text-gray-800 border-gray-200",
-  Pendiente: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  "Pendiente de Pago": "bg-yellow-100 text-yellow-800 border-yellow-200",
+  Confirmada: "bg-green-100 text-green-800 border-green-200",
+  "Paciente Presente": "bg-purple-100 text-purple-800 border-purple-200",
+  "Signos Vitales": "bg-blue-100 text-blue-800 border-blue-200",
+  "En Espera": "bg-indigo-100 text-indigo-800 border-indigo-200",
+  "Consulta Médica": "bg-cyan-100 text-cyan-800 border-cyan-200",
+  Evaluado: "bg-teal-100 text-teal-800 border-teal-200",
+  Laboratorio: "bg-amber-100 text-amber-800 border-amber-200",
+  Farmacia: "bg-lime-100 text-lime-800 border-lime-200",
+  "Atención Finalizada": "bg-gray-100 text-gray-800 border-gray-200",
   Cancelada: "bg-red-100 text-red-800 border-red-200",
-  "No asistió": "bg-orange-100 text-orange-800 border-orange-200",
+  "No Asistió": "bg-orange-100 text-orange-800 border-orange-200",
 };
 
 const statusDots: Record<string, string> = {
-  Pagada: "bg-green-500",
-  "Paciente presente": "bg-purple-500",
-  "En curso": "bg-blue-500",
-  Completada: "bg-gray-400",
-  Pendiente: "bg-yellow-500",
+  "Pendiente de Pago": "bg-yellow-500",
+  Confirmada: "bg-green-500",
+  "Paciente Presente": "bg-purple-500",
+  "Signos Vitales": "bg-blue-500",
+  "En Espera": "bg-indigo-500",
+  "Consulta Médica": "bg-cyan-500",
+  Evaluado: "bg-teal-500",
+  Laboratorio: "bg-amber-500",
+  Farmacia: "bg-lime-500",
+  "Atención Finalizada": "bg-gray-400",
   Cancelada: "bg-red-500",
-  "No asistió": "bg-orange-500",
+  "No Asistió": "bg-orange-500",
 };
 
 function StatCard({
@@ -110,14 +120,14 @@ export function AdminDashboardPage() {
 
   // KPI calculations
   const total = appointments.length;
-  const pagadas = appointments.filter(
-    (a) => a.appointmentStatus?.name === "Pagada",
+  const confirmadas = appointments.filter(
+    (a) => a.appointmentStatus?.name === "Confirmada",
   ).length;
   const enEspera = appointments.filter(
-    (a) => a.arrivalTime && a.appointmentStatus?.name !== "Completada",
+    (a) => a.arrivalTime && a.appointmentStatus?.name !== "Atención Finalizada",
   ).length;
   const completadas = appointments.filter(
-    (a) => a.appointmentStatus?.name === "Completada",
+    (a) => a.appointmentStatus?.name === "Atención Finalizada",
   ).length;
 
   // Group by status
@@ -180,8 +190,8 @@ export function AdminDashboardPage() {
             <StatCard
               color="bg-green-50 text-green-800 border-green-200"
               icon="bi-cash-coin"
-              label="Citas Pagadas"
-              value={pagadas}
+              label="Citas Confirmadas"
+              value={confirmadas}
             />
             <StatCard
               color="bg-purple-50 text-purple-800 border-purple-200"

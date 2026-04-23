@@ -11,11 +11,11 @@ import {
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 import { callPatient } from "../../utils/tts";
 
-const STATUS_CONFIRMADA = 2;
+const STATUS_PACIENTE_PRESENTE = 12;
 const STATUS_SIGNOS = 3;
 
 const statusColors: Record<string, string> = {
-  Confirmada: "bg-green-100 text-green-800 border-green-200",
+  "Paciente Presente": "bg-green-100 text-green-800 border-green-200",
   "Signos Vitales": "bg-purple-100 text-purple-800 border-purple-200",
 };
 
@@ -33,7 +33,7 @@ function AppointmentCard({
   const statusName = appointment.appointmentStatus?.name ?? "";
   const colorClass =
     statusColors[statusName] ?? "bg-gray-100 text-gray-800 border-gray-200";
-  const isConfirmed = appointment.appointmentStatusId === STATUS_CONFIRMADA;
+  const isPresent = appointment.appointmentStatusId === STATUS_PACIENTE_PRESENTE;
   const isVitals = appointment.appointmentStatusId === STATUS_SIGNOS;
   const patientName =
     appointment.patient?.name ?? `Paciente #${appointment.patientId}`;
@@ -72,7 +72,7 @@ function AppointmentCard({
         </span>
       </div>
       <div className="flex gap-2 flex-wrap">
-        {isConfirmed ? (
+        {isPresent ? (
           <Button
             isDisabled={isLoading}
             size="sm"
@@ -110,7 +110,7 @@ export function NurseDashboardPage() {
       getAppointments({
         pageNumber: 1,
         pageSize: 100,
-        filters: `State:eq:1 AND AppointmentStatusId:in:${STATUS_CONFIRMADA},${STATUS_SIGNOS}`,
+        filters: `State:eq:1 AND AppointmentStatusId:in:${STATUS_PACIENTE_PRESENTE},${STATUS_SIGNOS}`,
         include: "Specialty,Branch,AppointmentStatus,Patient",
         includeTotal: false,
       }),
@@ -157,8 +157,8 @@ export function NurseDashboardPage() {
   if (isLoading) return <LoadingComponent />;
 
   const appointments = data?.success ? data.data : [];
-  const confirmed = appointments.filter(
-    (a) => a.appointmentStatusId === STATUS_CONFIRMADA,
+  const present = appointments.filter(
+    (a) => a.appointmentStatusId === STATUS_PACIENTE_PRESENTE,
   );
   const inVitals = appointments.filter(
     (a) => a.appointmentStatusId === STATUS_SIGNOS,
@@ -204,14 +204,14 @@ export function NurseDashboardPage() {
         </section>
       )}
 
-      {confirmed.length > 0 && (
+      {present.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-green-500 inline-block" />
-            Citas Confirmadas — En Espera de Ser Llamadas ({confirmed.length})
+            Pacientes Presentes — En Espera de Ser Llamados ({present.length})
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {confirmed.map((a) => (
+            {present.map((a) => (
               <AppointmentCard
                 key={a.id}
                 appointment={a}
