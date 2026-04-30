@@ -1,7 +1,7 @@
 import type { RouteObject } from "react-router";
 
 import { nameRoutes } from "../configs/constants";
-import { AdminForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
+import { AdminForgotPasswordPage } from "../pages/auth/AdminForgotPasswordPage";
 
 import LoadingPage from "../pages/public/LoadingPage";
 import ProtectedPublic from "./middlewares/ProtectedPublic";
@@ -141,7 +141,7 @@ export const PublicRoutes: RouteObject[] = [
   },
   {
     path: nameRoutes.register,
-    lazy: () => import("../pages/public/RegisterPage"),
+    lazy: () => import("../pages/public/RegisterPageLazy"),
     hydrateFallbackElement: <LoadingPage />,
   },
   // Portal público — manejado por PortalLayout + PortalRoutes en useAuthorizationRoutes

@@ -21,6 +21,22 @@ export const api = axios.create({
   },
 });
 
+const handleUnauthorized = () => {
+  const isPortalContext = window.location.pathname.startsWith("/portal");
+
+  // Clear axios authorization header
+  api.defaults.headers.common["Authorization"] = "";
+  api.defaults.headers.Authorization = "";
+
+  if (isPortalContext) {
+    window.localStorage.removeItem("@patient-auth");
+    window.location.href = "/portal/login";
+  } else {
+    window.localStorage.removeItem("@auth");
+    window.location.href = "/auth";
+  }
+};
+
 export const authorization = api.interceptors.response.use(
   async (response) => {
     return response.data;
@@ -29,6 +45,7 @@ export const authorization = api.interceptors.response.use(
     const { response } = error;
 
     if (response.status === 401) {
+      handleUnauthorized();
       throw new UnauthorizedError(
         "Tu sesión ha expirado vuelve a iniciar sesión",
       );

@@ -6,7 +6,6 @@ import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
 function ProtectedPatient() {
   const { isLoggedIn, loading } = usePatientAuthStore();
 
-  // While loading from localStorage, don't redirect — just wait
   if (loading) return null;
 
   return isLoggedIn ? (

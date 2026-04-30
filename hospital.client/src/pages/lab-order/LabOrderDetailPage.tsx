@@ -3,34 +3,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
 import { LabOrderItemResultForm } from "../../components/form/LabOrderItemResultForm";
+import { PublishButton } from "../../components/labOrder/PublishButton";
 import { OutOfRangeAlert } from "../../components/shared/OutOfRangeAlert";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import {
   getLabOrderById,
   partialUpdateLabOrderItem,
 } from "../../services/labOrderService";
-
-function PublishButton({
-  itemId,
-  isPending,
-  onPublish,
-}: {
-  readonly itemId: number;
-  readonly isPending: boolean;
-  readonly onPublish: (id: number) => void;
-}) {
-  const handleClick = useCallback(() => onPublish(itemId), [itemId, onPublish]);
-  return (
-    <button
-      className="px-4 py-2 rounded-lg text-sm font-semibold bg-green-100 text-green-800 hover:bg-green-200 transition-colors disabled:opacity-50"
-      disabled={isPending}
-      type="button"
-      onClick={handleClick}
-    >
-      <i className="bi bi-send-check mr-1" /> Publicar resultado
-    </button>
-  );
-}
 
 export function LabOrderDetailPage() {
   const { id } = useParams<{ id: string }>();

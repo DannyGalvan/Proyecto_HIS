@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { useAppointmentHub } from "../../hooks/useAppointmentHub";
+import type { UseAppointmentHubReturn } from "../../hooks/useAppointmentHub";
 import { formatDateLong } from "../../utils/dateFormatter";
 import { DynamicCalendar } from "./DynamicCalendar";
 
@@ -18,7 +18,7 @@ export function Step4Slot({
   readonly doctorName: string;
   readonly specialtyName: string;
   readonly branchName: string;
-  readonly hub: ReturnType<typeof useAppointmentHub>;
+  readonly hub: UseAppointmentHubReturn;
   readonly onDateChange: (date: string | null) => void;
   readonly onSelect: (dateTime: Date) => void;
   readonly onBack: () => void;

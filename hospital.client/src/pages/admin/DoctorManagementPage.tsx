@@ -2,6 +2,7 @@ import { Button, Modal, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import type { SingleValue } from "react-select";
+import { DoctorRow } from "../../components/admin/DoctorRow";
 import { AsyncButton } from "../../components/button/AsyncButton";
 import { CatalogueSelect } from "../../components/select/CatalogueSelect";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
@@ -21,37 +22,6 @@ interface EditModalState {
   doctor: UserResponse | null;
   branchId: number | null;
   specialtyId: number | null;
-}
-
-function DoctorRow({
-  doctor,
-  onEdit,
-}: {
-  readonly doctor: UserResponse;
-  readonly onEdit: (doctor: UserResponse) => void;
-}) {
-  const handleEdit = useCallback(() => onEdit(doctor), [doctor, onEdit]);
-  return (
-    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/40">
-      <td className="px-4 py-3 font-medium">{doctor.name}</td>
-      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-        {doctor.branch?.name ?? (
-          <span className="text-orange-500 italic">Sin asignar</span>
-        )}
-      </td>
-      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-        {doctor.specialty?.name ?? (
-          <span className="text-orange-500 italic">Sin asignar</span>
-        )}
-      </td>
-      <td className="px-4 py-3">
-        <Button size="sm" variant="secondary" onPress={handleEdit}>
-          <i className="bi bi-pencil mr-1" />
-          Editar Sede/Especialidad
-        </Button>
-      </td>
-    </tr>
-  );
 }
 
 export function DoctorManagementPage() {

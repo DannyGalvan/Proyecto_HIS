@@ -9,7 +9,7 @@ import { Step4Slot } from "../../components/portal/Step4Slot";
 import { StepIndicator } from "../../components/portal/StepIndicator";
 import { Step5Confirm } from "../../components/pure/Step5Confirm";
 import { CONSULTATION_FEE, nameRoutes } from "../../configs/constants";
-import { useAppointmentHub } from "../../hooks/useAppointmentHub";
+import { usePatientAppointmentHub } from "../../hooks/usePatientAppointmentHub";
 import { bookAppointment } from "../../services/patientPortalService";
 import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
 import type { BranchResponse } from "../../types/BranchResponse";
@@ -43,7 +43,7 @@ export function Component() {
   const [hubDate, setHubDate] = useState<string | null>(null);
 
   // SignalR hub lives at the page level so the lock persists across wizard steps
-  const hub = useAppointmentHub(wizard.doctor?.id ?? null, hubDate);
+  const hub = usePatientAppointmentHub(wizard.doctor?.id ?? null, hubDate);
 
   // 5-minute reservation timer — tracks when step 5 was entered
   const [step5StartedAt, setStep5StartedAt] = useState<number | null>(null);
@@ -155,10 +155,11 @@ export function Component() {
     [wizard, userId, navigate],
   );
 
-  const handleWizardReset = useCallback(
-    (step: WizardStep) => setWizard((prev) => ({ ...prev, step })),
-    [],
-  );
+  const handleWizardReset = useCallback((step: WizardStep) => {
+    setWizard((prev) => ({ ...prev, step }));
+    // Reset hub date when going back before the slot selection step
+    if (step < 4) setHubDate(null);
+  }, []);
   const handleBackToStep1 = useCallback(
     () => handleWizardReset(1),
     [handleWizardReset],

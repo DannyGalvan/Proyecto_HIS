@@ -1,8 +1,13 @@
-import { Button, toast } from "@heroui/react";
+import { toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useNavigate } from "react-router";
+import { NurseAppointmentCard } from "../../components/dashboard/NurseAppointmentCard";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
+import {
+  STATUS_PACIENTE_PRESENTE,
+  STATUS_SIGNOS,
+} from "../../configs/constants";
 import { useAuth } from "../../hooks/useAuth";
 import {
   getAppointments,
@@ -10,94 +15,6 @@ import {
 } from "../../services/appointmentService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 import { callPatient } from "../../utils/tts";
-
-const STATUS_PACIENTE_PRESENTE = 12;
-const STATUS_SIGNOS = 3;
-
-const statusColors: Record<string, string> = {
-  "Paciente Presente": "bg-green-100 text-green-800 border-green-200",
-  "Signos Vitales": "bg-purple-100 text-purple-800 border-purple-200",
-};
-
-function AppointmentCard({
-  appointment,
-  onStartVitals,
-  onGoToForm,
-  isLoading,
-}: {
-  readonly appointment: AppointmentResponse;
-  readonly onStartVitals: (a: AppointmentResponse) => void;
-  readonly onGoToForm: (a: AppointmentResponse) => void;
-  readonly isLoading: boolean;
-}) {
-  const statusName = appointment.appointmentStatus?.name ?? "";
-  const colorClass =
-    statusColors[statusName] ?? "bg-gray-100 text-gray-800 border-gray-200";
-  const isPresent = appointment.appointmentStatusId === STATUS_PACIENTE_PRESENTE;
-  const isVitals = appointment.appointmentStatusId === STATUS_SIGNOS;
-  const patientName =
-    appointment.patient?.name ?? `Paciente #${appointment.patientId}`;
-
-  const handleStartVitals = useCallback(
-    () => onStartVitals(appointment),
-    [appointment, onStartVitals],
-  );
-
-  const handleGoToForm = useCallback(
-    () => onGoToForm(appointment),
-    [appointment, onGoToForm],
-  );
-
-  return (
-    <div
-      className={`rounded-xl border p-4 flex flex-col gap-3 shadow-sm ${colorClass}`}
-    >
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="font-bold text-base">
-            #{appointment.id} — {patientName}
-          </p>
-          <p className="text-sm opacity-75">
-            {appointment.specialty?.name ?? "—"}
-          </p>
-          <p className="text-sm opacity-75">
-            {appointment.branch?.name ?? "—"}
-          </p>
-          <p className="text-sm opacity-75">{appointment.appointmentDate}</p>
-        </div>
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold border ${colorClass}`}
-        >
-          {statusName}
-        </span>
-      </div>
-      <div className="flex gap-2 flex-wrap">
-        {isPresent ? (
-          <Button
-            isDisabled={isLoading}
-            size="sm"
-            variant="primary"
-            onPress={handleStartVitals}
-          >
-            <i className="bi bi-megaphone mr-1" />
-            Llamar y Tomar Signos
-          </Button>
-        ) : null}
-        {isVitals ? (
-          <Button
-            isDisabled={isLoading}
-            size="sm"
-            variant="primary"
-            onPress={handleGoToForm}
-          >
-            <i className="bi bi-heart-pulse mr-1" />
-            Registrar Signos Vitales
-          </Button>
-        ) : null}
-      </div>
-    </div>
-  );
-}
 
 export function NurseDashboardPage() {
   const queryClient = useQueryClient();
@@ -187,12 +104,12 @@ export function NurseDashboardPage() {
             {inVitals.length})
           </h2>
           <p className="text-xs text-gray-500 mb-3">
-            Estos pacientes ya fueron llamados. Haga clic en "Registrar Signos
-            Vitales" para completar el formulario.
+            Estos pacientes ya fueron llamados. Haga clic en Registrar Signos
+            Vitales para completar el formulario.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {inVitals.map((a) => (
-              <AppointmentCard
+              <NurseAppointmentCard
                 key={a.id}
                 appointment={a}
                 isLoading={startVitalsMutation.isPending}
@@ -212,7 +129,7 @@ export function NurseDashboardPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {present.map((a) => (
-              <AppointmentCard
+              <NurseAppointmentCard
                 key={a.id}
                 appointment={a}
                 isLoading={startVitalsMutation.isPending}

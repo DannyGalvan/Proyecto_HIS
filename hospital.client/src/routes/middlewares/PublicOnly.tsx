@@ -9,7 +9,7 @@ interface PublicOnlyProps {
 }
 
 function PublicOnly({ children }: PublicOnlyProps) {
-  return <>{children}</>;
+  return children;
 }
 
 export default PublicOnly;

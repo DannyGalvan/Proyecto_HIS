@@ -1,6 +1,6 @@
 import type { RouteObject } from "react-router";
 
-import { PortalForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
+import { PortalForgotPasswordPage } from "../pages/auth/PortalForgotPasswordPage";
 
 import { PortalChangePasswordPage } from "../pages/portal/PortalChangePasswordPage";
 

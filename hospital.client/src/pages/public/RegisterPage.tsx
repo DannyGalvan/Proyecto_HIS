@@ -292,8 +292,3 @@ export function RegisterPage() {
     </section>
   );
 }
-
-export function Component() {
-  return <RegisterPage />;
-}
-Component.displayName = "RegisterPage";

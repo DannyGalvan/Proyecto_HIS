@@ -3,20 +3,20 @@ import type { ComponentProps, ReactNode } from "react";
 
 type HeroButtonProps = ComponentProps<typeof Button>;
 
-interface AsyncButtonProps extends Omit<
-  HeroButtonProps,
-  "isPending" | "isDisabled" | "children"
-> {
+interface AsyncButtonProps {
   /** Whether the async operation is in progress. Shows spinner and disables the button. */
   readonly isLoading: boolean;
   /** Button label or content shown when not loading. */
   readonly children: ReactNode;
   /** Optional label shown while loading. Defaults to children. */
   readonly loadingText?: string;
-  /**
-   * Whether the button should be disabled.
-   */
   readonly isDisabled?: boolean;
+  readonly variant?: HeroButtonProps["variant"];
+  readonly size?: HeroButtonProps["size"];
+  readonly type?: "button" | "submit" | "reset";
+  readonly className?: string;
+  readonly onPress?: HeroButtonProps["onPress"];
+  readonly onClick?: HeroButtonProps["onClick"];
 }
 
 /**
@@ -34,18 +34,29 @@ export function AsyncButton({
   isLoading,
   children,
   loadingText,
-  ...rest
+  isDisabled,
+  variant,
+  size,
+  type,
+  className,
+  onPress,
+  onClick,
 }: AsyncButtonProps) {
   return (
     <Button
-      {...rest}
-      isDisabled={isLoading || rest.isDisabled}
+      className={className}
+      isDisabled={isLoading || isDisabled}
       isPending={isLoading}
+      size={size}
+      type={type}
+      variant={variant}
+      onClick={onClick}
+      onPress={onPress}
     >
-      {({ isPending }: { readonly isPending: boolean }) => (
+      {(renderProps: { readonly isPending: boolean }) => (
         <>
-          {isPending ? <Spinner color="current" size="sm" /> : null}
-          {isPending && loadingText ? loadingText : children}
+          {renderProps.isPending ? <Spinner color="current" size="sm" /> : null}
+          {renderProps.isPending && loadingText ? loadingText : children}
         </>
       )}
     </Button>

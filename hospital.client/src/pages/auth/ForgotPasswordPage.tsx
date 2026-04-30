@@ -168,14 +168,4 @@ export function ForgotPasswordPage({
   );
 }
 
-/** Admin forgot password wrapper */
-export function AdminForgotPasswordPage() {
-  return <ForgotPasswordPage loginRoute={nameRoutes.login} />;
-}
-
-/** Portal forgot password wrapper */
-export function PortalForgotPasswordPage() {
-  return <ForgotPasswordPage loginRoute={nameRoutes.portalLogin} />;
-}
-
 export default ForgotPasswordPage;

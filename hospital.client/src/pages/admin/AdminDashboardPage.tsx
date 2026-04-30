@@ -2,6 +2,8 @@ import { Button } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useNavigate } from "react-router";
+import { QuickActionButton } from "../../components/admin/QuickActionButton";
+import { StatCard } from "../../components/admin/StatCard";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { nameRoutes } from "../../configs/constants";
 import { getAppointments } from "../../services/appointmentService";
@@ -37,56 +39,6 @@ const statusDots: Record<string, string> = {
   Cancelada: "bg-red-500",
   "No Asistió": "bg-orange-500",
 };
-
-function StatCard({
-  icon,
-  label,
-  value,
-  color,
-}: {
-  readonly icon: string;
-  readonly label: string;
-  readonly value: number;
-  readonly color: string;
-}) {
-  return (
-    <div
-      className={`rounded-xl border p-5 shadow-sm flex items-center gap-4 ${color}`}
-    >
-      <div className="text-3xl">
-        <i className={`bi ${icon}`} />
-      </div>
-      <div>
-        <p className="text-2xl font-bold">{value}</p>
-        <p className="text-sm font-medium opacity-80">{label}</p>
-      </div>
-    </div>
-  );
-}
-
-function QuickActionButton({
-  icon,
-  label,
-  to,
-}: {
-  readonly icon: string;
-  readonly label: string;
-  readonly to: string;
-}) {
-  const navigate = useNavigate();
-  const handleClick = useCallback(() => navigate(to), [navigate, to]);
-  return (
-    <button
-      className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-gray-900/50 border rounded-xl shadow-sm hover:border-primary/60 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full"
-      onClick={handleClick}
-    >
-      <i className={`bi ${icon} text-2xl text-primary`} />
-      <span className="text-xs font-semibold text-center text-gray-700 dark:text-gray-300">
-        {label}
-      </span>
-    </button>
-  );
-}
 
 export function AdminDashboardPage() {
   const navigate = useNavigate();
@@ -260,9 +212,9 @@ export function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                      {activeDoctors.map((doc, idx) => (
+                      {activeDoctors.map((doc) => (
                         <tr
-                          key={idx}
+                          key={doc.name}
                           className="hover:bg-gray-50 dark:hover:bg-gray-700/30"
                         >
                           <td className="py-2 font-medium">{doc.name}</td>

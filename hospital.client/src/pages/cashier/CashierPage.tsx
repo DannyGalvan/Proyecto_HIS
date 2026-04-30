@@ -1,6 +1,7 @@
 import { Button, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
+import { CashierAppointmentCard } from "../../components/cashier/CashierAppointmentCard";
 import { OptionsSelect } from "../../components/select/OptionsSelect";
 import { PaymentReceipt } from "../../components/shared/PaymentReceipt";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
@@ -130,17 +131,17 @@ export function CashierPage() {
       setAmountReceived(e.target.value),
     [],
   );
-  // const handleCardLastFourChange = useCallback(
-  //   (e: React.ChangeEvent<HTMLInputElement>) =>
-  //     setCardLastFour(e.target.value.replace(/\D/g, "")),
-  //   [],
-  // );
-  // const handleNewPayment = useCallback(() => {
-  //   setSelectedAppointment(null);
-  //   setPaymentSuccess(null);
-  //   setSearchValue("");
-  //   setSearchQuery("");
-  // }, []);
+  const handleCardLastFourChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setCardLastFour(e.target.value.replace(/\D/g, "")),
+    [],
+  );
+  const handleNewPayment = useCallback(() => {
+    setSelectedAppointment(null);
+    setPaymentSuccess(null);
+    setSearchValue("");
+    setSearchQuery("");
+  }, []);
 
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
@@ -280,32 +281,11 @@ export function CashierPage() {
         <div className="space-y-3 mb-6">
           <h2 className="font-bold text-lg">Citas Pendientes de Pago</h2>
           {appointments.map((appointment) => (
-            <div
+            <CashierAppointmentCard
               key={appointment.id}
-              className="border rounded-xl p-4 bg-yellow-50 border-yellow-200 cursor-pointer hover:bg-yellow-100 transition-colors"
-              onClick={() => handleSelectAppointment(appointment)}
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-bold">
-                    {appointment.patient?.name ??
-                      `Paciente #${appointment.patientId}`}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Cita #{appointment.id} · {appointment.specialty?.name} ·{" "}
-                    {appointment.appointmentDate}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-green-700">
-                    Q{appointment.amount?.toFixed(2)}
-                  </p>
-                  <Button size="sm" variant="primary">
-                    Cobrar
-                  </Button>
-                </div>
-              </div>
-            </div>
+              appointment={appointment}
+              onSelect={handleSelectAppointment}
+            />
           ))}
         </div>
       )}
@@ -425,9 +405,7 @@ export function CashierPage() {
                 placeholder="XXXX"
                 type="text"
                 value={cardLastFour}
-                onChange={(e) =>
-                  setCardLastFour(e.target.value.replace(/\D/g, ""))
-                }
+                onChange={handleCardLastFourChange}
               />
             </div>
           )}
@@ -475,15 +453,7 @@ export function CashierPage() {
           />
 
           <div className="flex gap-3 justify-center mt-6">
-            <Button
-              variant="secondary"
-              onPress={() => {
-                setSelectedAppointment(null);
-                setPaymentSuccess(null);
-                setSearchValue("");
-                setSearchQuery("");
-              }}
-            >
+            <Button variant="secondary" onPress={handleNewPayment}>
               <i className="bi bi-arrow-repeat mr-2" /> Nuevo Cobro
             </Button>
           </div>

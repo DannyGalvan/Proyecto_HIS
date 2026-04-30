@@ -181,6 +181,19 @@ export const initialUser: UserRequest = {
   timezoneId: null,
 };
 
+export const SPECIALTY_ICONS: Record<string, string> = {
+  Cardiologia: "bi-heart-pulse",
+  Pediatria: "bi-person-hearts",
+  Neurologia: "bi-brain",
+  Ortopedia: "bi-bandaid",
+  Ginecologia: "bi-gender-female",
+  Dermatologia: "bi-droplet",
+  Oftalmologia: "bi-eye",
+  "Medicina General": "bi-clipboard2-pulse",
+};
+
+export const TOTAL_APPOINTMENT_STEPS = 6;
+
 export const initialCreateState: CreateFormState = {
   specialtyId: null,
   specialtyLabel: "",
@@ -193,3 +206,9 @@ export const initialCreateState: CreateFormState = {
   document: null,
   documentError: null,
 };
+
+export const STATUS_EN_ESPERA = 4;
+export const STATUS_CONSULTA = 5;
+export const STATUS_EVALUADO = 6;
+export const STATUS_PACIENTE_PRESENTE = 12;
+export const STATUS_SIGNOS = 3;

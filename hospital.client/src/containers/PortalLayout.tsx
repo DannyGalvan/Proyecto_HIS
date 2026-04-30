@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router";
 
 import { LogoHIS } from "../components/brand/LogoHIS";
+import { TimezoneItem } from "../components/portal/TimezoneItem";
 import { api } from "../configs/axios/interceptors";
 import { nameRoutes } from "../configs/constants";
 import { getTimezones } from "../services/timezoneService";
@@ -21,7 +22,10 @@ export function PortalLayout() {
     logoutPatient,
     syncPatientAuth,
     signInPatient,
-    ...patientState
+    token,
+    userId,
+    email,
+    userName,
   } = usePatientAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -39,10 +43,11 @@ export function PortalLayout() {
   const currentTz = getAppTimezone();
   const tzShort = currentTz.split("/").pop()?.replace(/_/g, " ") ?? currentTz;
 
-  // Sync patient auth from localStorage on mount (handles page reload)
+  // Sync patient auth from localStorage al montar (solo corre una vez)
   useEffect(() => {
     syncPatientAuth();
-  }, [syncPatientAuth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Close tz dropdown on outside click
   useEffect(() => {
@@ -88,9 +93,12 @@ export function PortalLayout() {
         >("/Auth/Timezone", { timezoneId: tz.id });
         if (res.success) {
           signInPatient({
-            ...patientState,
             isLoggedIn,
+            token,
+            userId,
             name,
+            email,
+            userName,
             timezoneIanaId: tz.ianaId,
           });
           window.location.reload();
@@ -99,7 +107,7 @@ export function PortalLayout() {
         /* silent */
       }
     },
-    [signInPatient, patientState, isLoggedIn, name],
+    [signInPatient, isLoggedIn, token, userId, name, email, userName],
   );
 
   const handleLogout = useCallback(() => {
@@ -122,21 +130,38 @@ export function PortalLayout() {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
   }, [setTheme, resolvedTheme]);
 
-  // Show loading while syncing auth from localStorage
-  if (loading) {
-    return (
-      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" />
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Cargando...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleNavigateDashboard = useCallback(
+    () => navigate(nameRoutes.portalDashboard),
+    [navigate],
+  );
+  const handleNavigateBook = useCallback(
+    () => navigate(nameRoutes.portalBook),
+    [navigate],
+  );
+  const handleNavigateLogin = useCallback(
+    () => navigate(nameRoutes.portalLogin),
+    [navigate],
+  );
+  const handleNavigateRegister = useCallback(
+    () => navigate(nameRoutes.portalRegister),
+    [navigate],
+  );
+  const handleMobileBook = useCallback(
+    () => handleNavigate(nameRoutes.portalBook),
+    [handleNavigate],
+  );
+  const handleMobileLogin = useCallback(
+    () => handleNavigate(nameRoutes.portalLogin),
+    [handleNavigate],
+  );
+  const handleMobileRegister = useCallback(
+    () => handleNavigate(nameRoutes.portalRegister),
+    [handleNavigate],
+  );
+  const handleToggleMobileMenu = useCallback(
+    () => setMobileMenuOpen((prev) => !prev),
+    [],
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -231,18 +256,12 @@ export function PortalLayout() {
                         ) : (
                           <div className="py-1">
                             {timezones.map((tz) => (
-                              <button
+                              <TimezoneItem
                                 key={tz.id}
-                                className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                                  tz.ianaId === currentTz
-                                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium"
-                                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700"
-                                }`}
-                                type="button"
-                                onClick={() => handleTzSelect(tz)}
-                              >
-                                {tz.displayName}
-                              </button>
+                                currentTz={currentTz}
+                                tz={tz}
+                                onSelect={handleTzSelect}
+                              />
                             ))}
                           </div>
                         )}
@@ -253,7 +272,7 @@ export function PortalLayout() {
                   <button
                     className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors max-w-45 truncate"
                     type="button"
-                    onClick={() => navigate(nameRoutes.portalDashboard)}
+                    onClick={handleNavigateDashboard}
                   >
                     <i className="bi bi-person-circle text-blue-600 shrink-0" />
                     <span className="truncate">{name || "Mi cuenta"}</span>
@@ -261,7 +280,7 @@ export function PortalLayout() {
                   <button
                     className="text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
                     type="button"
-                    onClick={() => navigate(nameRoutes.portalBook)}
+                    onClick={handleNavigateBook}
                   >
                     <i className="bi bi-calendar-plus mr-1" />
                     Agendar Cita
@@ -280,14 +299,14 @@ export function PortalLayout() {
                   <button
                     className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     type="button"
-                    onClick={() => navigate(nameRoutes.portalLogin)}
+                    onClick={handleNavigateLogin}
                   >
                     Iniciar Sesión
                   </button>
                   <button
                     className="text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors"
                     type="button"
-                    onClick={() => navigate(nameRoutes.portalRegister)}
+                    onClick={handleNavigateRegister}
                   >
                     Registrarse
                   </button>
@@ -315,7 +334,7 @@ export function PortalLayout() {
                 <button
                   className="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
                   type="button"
-                  onClick={() => handleNavigate(nameRoutes.portalBook)}
+                  onClick={handleMobileBook}
                 >
                   <i className="bi bi-calendar-plus mr-1" />
                   Agendar
@@ -325,7 +344,7 @@ export function PortalLayout() {
                 aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
                 className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 type="button"
-                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                onClick={handleToggleMobileMenu}
               >
                 <i
                   className={`bi ${mobileMenuOpen ? "bi-x-lg" : "bi-list"} text-xl`}
@@ -390,7 +409,7 @@ export function PortalLayout() {
                   <button
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full"
                     type="button"
-                    onClick={() => handleNavigate(nameRoutes.portalBook)}
+                    onClick={handleMobileBook}
                   >
                     <i className="bi bi-calendar-plus text-gray-400 w-5 text-center" />
                     Agendar Cita
@@ -414,7 +433,7 @@ export function PortalLayout() {
                   <button
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full"
                     type="button"
-                    onClick={() => handleNavigate(nameRoutes.portalLogin)}
+                    onClick={handleMobileLogin}
                   >
                     <i className="bi bi-box-arrow-in-right text-gray-400 w-5 text-center" />
                     Iniciar Sesión
@@ -422,7 +441,7 @@ export function PortalLayout() {
                   <button
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors w-full"
                     type="button"
-                    onClick={() => handleNavigate(nameRoutes.portalRegister)}
+                    onClick={handleMobileRegister}
                   >
                     <i className="bi bi-person-plus text-blue-500 w-5 text-center" />
                     Registrarse
@@ -436,7 +455,18 @@ export function PortalLayout() {
 
       {/* Contenido principal */}
       <main className="flex-1">
-        <Outlet />
+        {loading ? (
+          <div className="flex items-center justify-center h-full min-h-[60vh]">
+            <div className="flex flex-col items-center gap-3">
+              <i className="bi bi-hourglass-split animate-spin text-3xl text-blue-500" />
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Cargando...
+              </p>
+            </div>
+          </div>
+        ) : (
+          <Outlet />
+        )}
       </main>
 
       {/* Footer */}

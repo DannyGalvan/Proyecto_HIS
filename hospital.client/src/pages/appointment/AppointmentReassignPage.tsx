@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import type { SingleValue } from "react-select";
+import { AppointmentSearchResult } from "../../components/appointment/AppointmentSearchResult";
 import { AsyncButton } from "../../components/button/AsyncButton";
 import { CatalogueSelect } from "../../components/select/CatalogueSelect";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
@@ -15,51 +16,6 @@ import {
 import { getUsers } from "../../services/userService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 import type { UserResponse } from "../../types/UserResponse";
-
-function AppointmentSearchResult({
-  appt,
-  onSelect,
-}: {
-  readonly appt: AppointmentResponse;
-  readonly onSelect: (appt: AppointmentResponse) => void;
-}) {
-  const handleClick = useCallback(() => onSelect(appt), [appt, onSelect]);
-  return (
-    <div
-      className="bg-white dark:bg-gray-800 border rounded-xl p-4 flex justify-between items-start gap-4 hover:border-primary/60 transition-colors cursor-pointer"
-      onClick={handleClick}
-    >
-      <div className="text-sm space-y-1">
-        <p className="font-bold">
-          {appt.patient?.name ?? `Paciente #${appt.patientId}`}
-        </p>
-        <p>
-          <span className="font-semibold">Cita #:</span> {appt.id}
-        </p>
-        <p>
-          <span className="font-semibold">Fecha:</span> {appt.appointmentDate}
-        </p>
-        <p>
-          <span className="font-semibold">Especialidad:</span>{" "}
-          {appt.specialty?.name ?? "—"}
-        </p>
-        <p>
-          <span className="font-semibold">Sede:</span>{" "}
-          {appt.branch?.name ?? "—"}
-        </p>
-        <p>
-          <span className="font-semibold">Médico actual:</span>{" "}
-          {appt.doctor?.name ?? (
-            <em className="text-orange-500">Sin asignar</em>
-          )}
-        </p>
-      </div>
-      <Button size="sm" variant="primary">
-        Seleccionar
-      </Button>
-    </div>
-  );
-}
 
 export function AppointmentReassignPage() {
   const { userId } = useAuth();
@@ -226,6 +182,7 @@ export function AppointmentReassignPage() {
             <button
               className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors
                 ${searchType === "dpi" ? "bg-primary text-white border-primary" : "bg-gray-100 border-gray-200 text-gray-600"}`}
+              type="button"
               onClick={handleSearchTypeDpi}
             >
               DPI
@@ -233,6 +190,7 @@ export function AppointmentReassignPage() {
             <button
               className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors
                 ${searchType === "id" ? "bg-primary text-white border-primary" : "bg-gray-100 border-gray-200 text-gray-600"}`}
+              type="button"
               onClick={handleSearchTypeId}
             >
               # Cita
@@ -262,7 +220,9 @@ export function AppointmentReassignPage() {
       {!searchLoading && searchQuery && appointments.length === 0 ? (
         <div className="text-center py-10 text-gray-400">
           <i className="bi bi-calendar-x text-4xl block mb-3" />
-          <p>No se encontraron citas confirmadas con los parámetros ingresados.</p>
+          <p>
+            No se encontraron citas confirmadas con los parámetros ingresados.
+          </p>
         </div>
       ) : null}
 

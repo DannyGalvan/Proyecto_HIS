@@ -2,6 +2,7 @@ import { Button } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
+import { DetailRow } from "../../components/appointment/DetailRow";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { nameRoutes } from "../../configs/constants";
 import { getAppointmentById } from "../../services/appointmentService";
@@ -19,28 +20,6 @@ const statusColors: Record<string, string> = {
   "No Asistió": "bg-red-100 text-red-800 border-red-200",
   Cancelada: "bg-red-100 text-red-800 border-red-200",
 };
-
-function DetailRow({
-  label,
-  value,
-  icon,
-}: {
-  readonly label: string;
-  readonly value: string;
-  readonly icon?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-        {icon ? <i className={`bi ${icon} mr-1`} /> : null}
-        {label}
-      </span>
-      <span className="text-sm font-medium text-gray-800 dark:text-gray-100">
-        {value || "—"}
-      </span>
-    </div>
-  );
-}
 
 export function AppointmentViewPage() {
   const { id } = useParams();

@@ -7,7 +7,6 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 
-import { usePatientAuthStore } from "../stores/usePatientAuthStore";
 import type {
   ConnectionState,
   SlotLockInfo,
@@ -57,17 +56,17 @@ function toConnectionState(state: HubConnectionState): ConnectionState {
 // ---------------------------------------------------------------------------
 
 /**
- * Manages a SignalR connection to the appointment-booking hub.
+ * Core SignalR hook for appointment slot blocking.
+ * Do NOT use directly — use `usePatientAppointmentHub` or `useAdminAppointmentHub`.
  *
- * Handles group subscription (doctor + date), slot lock/release commands,
- * and real-time event listeners for lock state synchronisation.
- *
- * @param doctorId - The doctor whose calendar is being viewed (null = inactive)
- * @param date     - The selected date in "yyyy-MM-dd" format (null = inactive)
+ * @param doctorId     - The doctor whose calendar is being viewed (null = inactive)
+ * @param date         - The selected date in "yyyy-MM-dd" format (null = inactive)
+ * @param tokenFactory - Factory function that returns the JWT token for authentication
  */
-export function useAppointmentHub(
+export function useAppointmentHubCore(
   doctorId: number | null,
   date: string | null,
+  tokenFactory: () => string,
 ): UseAppointmentHubReturn {
   // ---- state ---------------------------------------------------------------
   const [connectionState, setConnectionState] =
@@ -95,9 +94,7 @@ export function useAppointmentHub(
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl("/hubs/appointment-booking", {
-        accessTokenFactory: () => {
-          return usePatientAuthStore.getState().token;
-        },
+        accessTokenFactory: () => tokenFactory(),
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(LogLevel.Warning)
@@ -213,12 +210,15 @@ export function useAppointmentHub(
     };
   }, []);
 
-  // ---- start / stop connection based on params ----------------------------
+  // ---- start / stop connection based on doctorId only --------------------
+  // Connect as soon as a doctor is selected; JoinSlotGroup happens separately
+  // once a date is also chosen. This avoids showing "Disconnected" while the
+  // user is still picking a date on the calendar.
   useEffect(() => {
     const connection = connectionRef.current;
     if (!connection) return;
 
-    if (doctorId != null && date != null) {
+    if (doctorId != null) {
       if (connection.state === HubConnectionState.Disconnected) {
         setConnectionState("connecting");
         connection
@@ -231,7 +231,7 @@ export function useAppointmentHub(
           });
       }
     } else {
-      // Both params are null → disconnect
+      // doctorId is null → disconnect entirely
       if (connection.state !== HubConnectionState.Disconnected) {
         const leaveAndStop = async () => {
           try {
@@ -267,14 +267,46 @@ export function useAppointmentHub(
         leaveAndStop();
       }
     }
-  }, [doctorId, date]);
+  }, [doctorId]);
 
-  // ---- group management (join / leave) ------------------------------------
+  // ---- group management (join / leave on date change) --------------------
   useEffect(() => {
     const connection = connectionRef.current;
-    if (!connection || connection.state !== HubConnectionState.Connected)
+    if (!connection) return;
+    if (doctorId == null) return;
+
+    // Wait until connected before managing groups
+    if (connection.state !== HubConnectionState.Connected) return;
+
+    if (date == null) {
+      // Date cleared → leave current group but keep connection alive
+      if (groupRef.current) {
+        const prev = groupRef.current;
+        const leaveGroup = async () => {
+          try {
+            if (myLockedSlotRef.current) {
+              await connection.invoke(
+                "ReleaseSlot",
+                prev.doctorId,
+                prev.date,
+                myLockedSlotRef.current,
+              );
+              setMyLockedSlot(null);
+            }
+            await connection.invoke("LeaveSlotGroup", prev.doctorId, prev.date);
+          } catch {
+            // best-effort
+          } finally {
+            groupRef.current = null;
+            setLockedSlots(new Map());
+            setConfirmedSlots(new Set());
+            setError(null);
+          }
+        };
+        leaveGroup();
+      }
       return;
-    if (doctorId == null || date == null) return;
+    }
 
     const prev = groupRef.current;
     const isSameGroup =

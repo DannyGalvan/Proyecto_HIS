@@ -64,7 +64,8 @@ const transition = (id: number, action: string): Promise<ApiResponse<string>> =>
   );
 
 /** Reception: Confirmada → Paciente Presente */
-export const registerArrival = (id: number) => transition(id, "register-arrival");
+export const registerArrival = (id: number) =>
+  transition(id, "register-arrival");
 
 /** Nurse: Paciente Presente → Signos Vitales */
 export const startVitals = (id: number) => transition(id, "start-vitals");

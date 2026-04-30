@@ -17,4 +17,7 @@
 
   y para utilizar <Component onClick={navigate}>
 
-- Evitemos tener multiples componentes en un solo archivo tsx, lo mejor es crear un archivo por cada componente esto para no afectar rendimiento, los componentes creados se crean en la carpeta components dentro de la sub carpeta correspondiente a lo que pertenecen
+- Evitemos tener multiples componentes en un solo archivo tsx, 
+- lo mejor es crear un archivo por cada componente esto para no afectar rendimiento, los componentes creados se crean en la carpeta components dentro de la sub carpeta correspondiente a lo que pertenecen
+
+- TODO COMPONENTE DEBE RESPETAL QUE NO DEBEN HABER JSX props should not use arrow functionseslintreact/jsx-no-bind ESTE TIPO DE ERRORES Y RESPETAR QUE SOLO DEBE EXISTIR EXPLICITAMENTE UN COMPONENTE POR ARCHIVO OBLIGATORIAMENTE

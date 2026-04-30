@@ -106,6 +106,9 @@ export function DynamicCalendar({
           </h3>
 
           {/* Connection state indicator */}
+          {connectionState === "connecting" && (
+            <div className="text-sm text-blue-500">Conectando...</div>
+          )}
           {connectionState === "reconnecting" && (
             <div className="text-sm text-amber-600">Reconectando...</div>
           )}

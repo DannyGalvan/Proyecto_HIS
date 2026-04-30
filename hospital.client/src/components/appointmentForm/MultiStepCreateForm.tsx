@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router";
 import type { SingleValue } from "react-select";
 import { initialCreateState, STEP_LABELS } from "../../configs/constants";
+import { useAdminAppointmentHub } from "../../hooks/useAdminAppointmentHub";
 import { getBranches } from "../../services/branchService";
 import { getSpecialties } from "../../services/specialtyService";
 import { getUsers } from "../../services/userService";
@@ -50,6 +51,13 @@ export function MultiStepCreateForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<boolean | null>(null);
   const [submitMessage, setSubmitMessage] = useState<string>("");
+  const [hubDate, setHubDate] = useState<string | null>(null);
+
+  // SignalR hub para bloqueo de slots en tiempo real (lado administrativo)
+  const hub = useAdminAppointmentHub(
+    formState.doctorId ? Number(formState.doctorId) : null,
+    hubDate,
+  );
 
   // ── Selectors ──────────────────────────────────────────────────────────────
 
@@ -207,6 +215,7 @@ export function MultiStepCreateForm({
         doctorLabel: o?.label ?? "",
         appointmentDate: "",
       }));
+      setHubDate(null);
     },
     [],
   );
@@ -319,6 +328,8 @@ export function MultiStepCreateForm({
                 <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                   <DynamicCalendar
                     doctorId={Number(formState.doctorId)}
+                    hub={hub}
+                    onDateChange={setHubDate}
                     onSlotSelected={handleSlotSelected}
                   />
                 </div>
