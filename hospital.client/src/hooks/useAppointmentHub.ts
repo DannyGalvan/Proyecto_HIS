@@ -84,6 +84,12 @@ export function useAppointmentHubCore(
   const connectionRef = useRef<HubConnection | null>(null);
   const groupRef = useRef<{ doctorId: number; date: string } | null>(null);
   const myLockedSlotRef = useRef<string | null>(null);
+  const tokenFactoryRef = useRef(tokenFactory);
+
+  // Keep the tokenFactory ref in sync without triggering reconnects.
+  useEffect(() => {
+    tokenFactoryRef.current = tokenFactory;
+  });
 
   // Keep the ref in sync so cleanup callbacks always see the latest value.
   useEffect(() => {
@@ -94,7 +100,7 @@ export function useAppointmentHubCore(
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl("/hubs/appointment-booking", {
-        accessTokenFactory: () => tokenFactory(),
+        accessTokenFactory: () => tokenFactoryRef.current(),
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(LogLevel.Warning)

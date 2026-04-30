@@ -1,32 +1,8 @@
-import { Button } from "@heroui/react";
-import { useCallback } from "react";
-import type { OperationResponse } from "../../types/OperationResponse";
+import type { OperationWithAssignment } from "../../types/OperationWithAssignment";
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
+import { ToggleButton } from "../button/ToggleButton";
 
-export interface OperationWithAssignment extends OperationResponse {
-  assigned: boolean;
-  rolOperationId?: number;
-}
-
-function ToggleButton({
-  data,
-  onToggle,
-}: {
-  readonly data: OperationWithAssignment;
-  readonly onToggle: (op: OperationWithAssignment) => void;
-}) {
-  const handleClick = useCallback(() => onToggle(data), [data, onToggle]);
-
-  return (
-    <Button
-      size="sm"
-      variant={data.assigned ? "danger" : "primary"}
-      onClick={handleClick}
-    >
-      {data.assigned ? "Quitar" : "Asignar"}
-    </Button>
-  );
-}
+export type { OperationWithAssignment } from "../../types/OperationWithAssignment";
 
 export function getRolOperationColumns(
   onToggle: (op: OperationWithAssignment) => void,
@@ -35,7 +11,7 @@ export function getRolOperationColumns(
     {
       id: "id",
       name: "ID",
-      selector: (data) => data.id ?? "",
+      selector: (data) => data.id ?? 0,
       sortable: true,
       wrap: true,
       omit: false,

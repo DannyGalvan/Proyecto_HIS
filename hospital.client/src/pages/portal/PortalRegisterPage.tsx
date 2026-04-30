@@ -162,19 +162,18 @@ export function Component() {
               {/* Grid layout */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Name — full width */}
-                <div className="md:col-span-2">
-                  <Field
-                    required
-                    error={fieldErrors.name}
-                    id="reg-name"
-                    label="Nombre Completo"
-                    maxLength={100}
-                    minLength={10}
-                    placeholder="Mínimo 10 caracteres"
-                    value={form.name}
-                    onChange={handleChange("name")}
-                  />
-                </div>
+                <Field
+                  required
+                  className="flex flex-col gap-1 md:col-span-2"
+                  error={fieldErrors.name}
+                  id="reg-name"
+                  label="Nombre Completo"
+                  maxLength={100}
+                  minLength={10}
+                  placeholder="Mínimo 10 caracteres"
+                  value={form.name}
+                  onChange={handleChange("name")}
+                />
 
                 {/* DPI */}
                 <Field
@@ -202,18 +201,17 @@ export function Component() {
                 />
 
                 {/* Email — full width */}
-                <div className="md:col-span-2">
-                  <Field
-                    required
-                    error={fieldErrors.email}
-                    id="reg-email"
-                    label="Correo Electrónico"
-                    placeholder="usuario@dominio.com"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange("email")}
-                  />
-                </div>
+                <Field
+                  required
+                  className="flex flex-col gap-1 md:col-span-2"
+                  error={fieldErrors.email}
+                  id="reg-email"
+                  label="Correo Electrónico"
+                  placeholder="usuario@dominio.com"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange("email")}
+                />
 
                 {/* Username */}
                 <Field

@@ -11,6 +11,7 @@ interface FieldProps {
   readonly error?: string;
   readonly disabled?: boolean;
   readonly readOnly?: boolean;
+  readonly className?: string;
   readonly onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -26,10 +27,11 @@ export function Field({
   error,
   disabled,
   readOnly,
+  className = "flex flex-col gap-1",
   onChange,
 }: FieldProps) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className={className}>
       <label
         className="text-sm font-bold text-gray-700 dark:text-gray-300"
         htmlFor={id}

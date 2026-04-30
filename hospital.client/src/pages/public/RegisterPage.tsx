@@ -1,14 +1,7 @@
-import {
-  Card,
-  FieldError,
-  Form,
-  Input,
-  Label,
-  TextField,
-  toast,
-} from "@heroui/react";
+import { Card, Form, toast } from "@heroui/react";
 import { useCallback, type ChangeEvent } from "react";
 import { useNavigate } from "react-router";
+import { RegisterField } from "../../components/auth/RegisterField";
 import { LogoHIS } from "../../components/brand/LogoHIS";
 import { AsyncButton } from "../../components/button/AsyncButton";
 import { Response } from "../../components/messages/Response";
@@ -101,167 +94,100 @@ export function RegisterPage() {
               onSubmit={handleSubmit}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
+                <RegisterField
                   isRequired
                   className="flex flex-col gap-1 md:col-span-2"
+                  error={errors?.name as string | undefined}
                   isInvalid={!!errors?.name}
+                  label="Nombre Completo *"
                   name="name"
+                  placeholder="Mínimo 10 caracteres"
+                  value={form.name}
                   onChange={handleTextChange("name")}
-                >
-                  <Label className="font-bold">Nombre Completo *</Label>
-                  <Input
-                    className="px-3 py-2 border rounded-md"
-                    placeholder="Mínimo 10 caracteres"
-                    type="text"
-                    value={form.name}
-                  />
-                  {errors?.name ? (
-                    <FieldError>{errors.name as string}</FieldError>
-                  ) : null}
-                </TextField>
+                />
 
-                <TextField
+                <RegisterField
                   isRequired
-                  className="flex flex-col gap-1"
+                  error={errors?.identificationDocument as string | undefined}
                   isInvalid={!!errors?.identificationDocument}
+                  label="DPI * (13 dígitos)"
+                  maxLength={13}
                   name="identificationDocument"
+                  placeholder="1234567890123"
+                  value={form.identificationDocument}
                   onChange={handleTextChange("identificationDocument")}
-                >
-                  <Label className="font-bold">DPI * (13 dígitos)</Label>
-                  <Input
-                    className="px-3 py-2 border rounded-md"
-                    maxLength={13}
-                    placeholder="1234567890123"
-                    type="text"
-                    value={form.identificationDocument}
-                  />
-                  {errors?.identificationDocument ? (
-                    <FieldError>
-                      {errors.identificationDocument as string}
-                    </FieldError>
-                  ) : null}
-                </TextField>
+                />
 
-                <TextField
+                <RegisterField
                   isRequired
-                  className="flex flex-col gap-1"
+                  error={errors?.number as string | undefined}
                   isInvalid={!!errors?.number}
+                  label="Teléfono * (8 dígitos)"
+                  maxLength={8}
                   name="number"
+                  placeholder="55551234"
+                  type="tel"
+                  value={form.number}
                   onChange={handleTextChange("number")}
-                >
-                  <Label className="font-bold">Teléfono * (8 dígitos)</Label>
-                  <Input
-                    className="px-3 py-2 border rounded-md"
-                    maxLength={8}
-                    placeholder="55551234"
-                    type="tel"
-                    value={form.number}
-                  />
-                  {errors?.number ? (
-                    <FieldError>{errors.number as string}</FieldError>
-                  ) : null}
-                </TextField>
+                />
 
-                <TextField
+                <RegisterField
                   isRequired
                   className="flex flex-col gap-1 md:col-span-2"
+                  error={errors?.email as string | undefined}
                   isInvalid={!!errors?.email}
+                  label="Correo Electrónico *"
                   name="email"
+                  placeholder="usuario@dominio.com"
+                  type="email"
+                  value={form.email}
                   onChange={handleTextChange("email")}
-                >
-                  <Label className="font-bold">Correo Electrónico *</Label>
-                  <Input
-                    className="px-3 py-2 border rounded-md"
-                    placeholder="usuario@dominio.com"
-                    type="email"
-                    value={form.email}
-                  />
-                  {errors?.email ? (
-                    <FieldError>{errors.email as string}</FieldError>
-                  ) : null}
-                </TextField>
+                />
 
-                <TextField
+                <RegisterField
                   isRequired
-                  className="flex flex-col gap-1"
+                  error={errors?.userName as string | undefined}
                   isInvalid={!!errors?.userName}
+                  label="Nombre de Usuario * (8-9 chars)"
+                  maxLength={9}
+                  minLength={8}
                   name="userName"
+                  placeholder="miusuario"
+                  value={form.userName}
                   onChange={handleTextChange("userName")}
-                >
-                  <Label className="font-bold">
-                    Nombre de Usuario * (8-9 chars)
-                  </Label>
-                  <Input
-                    className="px-3 py-2 border rounded-md"
-                    maxLength={9}
-                    minLength={8}
-                    placeholder="miusuario"
-                    type="text"
-                    value={form.userName}
-                  />
-                  {errors?.userName ? (
-                    <FieldError>{errors.userName as string}</FieldError>
-                  ) : null}
-                </TextField>
+                />
 
-                <TextField
+                <RegisterField
                   isRequired
-                  className="flex flex-col gap-1"
+                  error={errors?.password as string | undefined}
                   isInvalid={!!errors?.password}
+                  label="Contraseña * (mín. 12 chars)"
                   name="password"
+                  placeholder="Mínimo 12 caracteres"
+                  type="password"
+                  value={form.password}
                   onChange={handleTextChange("password")}
-                >
-                  <Label className="font-bold">
-                    Contraseña * (mín. 12 chars)
-                  </Label>
-                  <Input
-                    className="px-3 py-2 border rounded-md"
-                    placeholder="Mínimo 12 caracteres"
-                    type="password"
-                    value={form.password}
-                  />
-                  {errors?.password ? (
-                    <FieldError>{errors.password as string}</FieldError>
-                  ) : null}
-                </TextField>
+                />
 
-                <TextField
-                  className="flex flex-col gap-1"
+                <RegisterField
+                  error={errors?.nit as string | undefined}
                   isInvalid={!!errors?.nit}
+                  label="NIT (8-9 chars, opcional)"
                   name="nit"
+                  placeholder="12345678"
+                  value={form.nit || ""}
                   onChange={handleTextChange("nit")}
-                >
-                  <Label className="font-bold">NIT (8-9 chars, opcional)</Label>
-                  <Input
-                    className="px-3 py-2 border rounded-md"
-                    placeholder="12345678"
-                    type="text"
-                    value={form.nit || ""}
-                  />
-                  {errors?.nit ? (
-                    <FieldError>{errors.nit as string}</FieldError>
-                  ) : null}
-                </TextField>
+                />
 
-                <TextField
-                  className="flex flex-col gap-1"
+                <RegisterField
+                  error={errors?.insuranceNumber as string | undefined}
                   isInvalid={!!errors?.insuranceNumber}
+                  label="No. Seguro Médico (opcional)"
                   name="insuranceNumber"
+                  placeholder="Número de afiliado"
+                  value={form.insuranceNumber || ""}
                   onChange={handleTextChange("insuranceNumber")}
-                >
-                  <Label className="font-bold">
-                    No. Seguro Médico (opcional)
-                  </Label>
-                  <Input
-                    className="px-3 py-2 border rounded-md"
-                    placeholder="Número de afiliado"
-                    type="text"
-                    value={form.insuranceNumber || ""}
-                  />
-                  {errors?.insuranceNumber ? (
-                    <FieldError>{errors.insuranceNumber as string}</FieldError>
-                  ) : null}
-                </TextField>
+                />
               </div>
 
               <AsyncButton

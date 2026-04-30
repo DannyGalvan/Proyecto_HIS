@@ -1,9 +1,9 @@
-import { Button, Modal, toast } from "@heroui/react";
+import { Modal, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import type { SingleValue } from "react-select";
+import { DoctorEditModalContent } from "../../components/admin/DoctorEditModalContent";
 import { DoctorRow } from "../../components/admin/DoctorRow";
-import { AsyncButton } from "../../components/button/AsyncButton";
 import { CatalogueSelect } from "../../components/select/CatalogueSelect";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { api } from "../../configs/axios/interceptors";
@@ -223,60 +223,32 @@ export function DoctorManagementPage() {
                 </Modal.Heading>
               </Modal.Header>
               <Modal.Body>
-                <div className="flex flex-col gap-4 p-2">
-                  <CatalogueSelect<BranchResponse>
-                    defaultValue={
-                      modal.doctor?.branch
-                        ? {
-                            label: modal.doctor.branch.name,
-                            value: String(modal.doctor.branchId),
-                          }
-                        : null
-                    }
-                    deps="State:eq:1"
-                    fieldSearch="Name"
-                    label="Nueva sede"
-                    name="branchId"
-                    placeholder="Seleccione una sede"
-                    queryFn={getBranches}
-                    selectorFn={selectorBranch}
-                    onChange={handleModalBranchChange}
-                  />
-                  <CatalogueSelect<SpecialtyResponse>
-                    defaultValue={
-                      modal.doctor?.specialty
-                        ? {
-                            label: modal.doctor.specialty.name,
-                            value: String(modal.doctor.specialtyId),
-                          }
-                        : null
-                    }
-                    deps="State:eq:1"
-                    fieldSearch="Name"
-                    label="Nueva especialidad"
-                    name="specialtyId"
-                    placeholder="Seleccione una especialidad"
-                    queryFn={getSpecialties}
-                    selectorFn={selectorSpecialty}
-                    onChange={handleModalSpecialtyChange}
-                  />
-                </div>
+                <DoctorEditModalContent
+                  defaultBranch={
+                    modal.doctor?.branch
+                      ? {
+                          label: modal.doctor.branch.name,
+                          value: String(modal.doctor.branchId),
+                        }
+                      : null
+                  }
+                  defaultSpecialty={
+                    modal.doctor?.specialty
+                      ? {
+                          label: modal.doctor.specialty.name,
+                          value: String(modal.doctor.specialtyId),
+                        }
+                      : null
+                  }
+                  isPending={updateMutation.isPending}
+                  selectorBranch={selectorBranch}
+                  selectorSpecialty={selectorSpecialty}
+                  onBranchChange={handleModalBranchChange}
+                  onCancel={closeModal}
+                  onSave={handleSave}
+                  onSpecialtyChange={handleModalSpecialtyChange}
+                />
               </Modal.Body>
-              <Modal.Footer>
-                <div className="flex gap-2 justify-end w-full">
-                  <Button variant="secondary" onPress={closeModal}>
-                    Cancelar
-                  </Button>
-                  <AsyncButton
-                    isLoading={updateMutation.isPending}
-                    loadingText="Guardando..."
-                    variant="primary"
-                    onPress={handleSave}
-                  >
-                    Guardar cambios
-                  </AsyncButton>
-                </div>
-              </Modal.Footer>
             </Modal.Dialog>
           </Modal.Container>
         </Modal.Backdrop>

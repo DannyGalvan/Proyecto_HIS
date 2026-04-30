@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router";
+import { createBrowserRouter } from "react-router";
 
 import { nameRoutes } from "../configs/constants";
 import { PortalLayout } from "../containers/PortalLayout";
@@ -6,43 +6,8 @@ import { Root } from "../containers/Root";
 import { ErrorRoutes } from "../routes/ErrorRoutes";
 import { PortalRoutes } from "../routes/PortalRoutes";
 import { PublicRoutes } from "../routes/PublicRoutes";
-import { getRoleFromToken } from "../utils/jwt";
+import { RootIndex } from "./RootIndex";
 import { useAuth } from "./useAuth";
-
-// Index route: redirect based on role or to portal if not logged in
-function RootIndex() {
-  const { isLoggedIn, token } = useAuth();
-
-  if (!isLoggedIn) {
-    // Check if patient is logged in via patient store
-    const patientAuth = window.localStorage.getItem("@patient-auth");
-    if (patientAuth) {
-      try {
-        const parsed = JSON.parse(patientAuth);
-        if (parsed?.isLoggedIn && parsed?.token) {
-          return <Navigate replace to={nameRoutes.portalDashboard} />;
-        }
-      } catch {
-        /* ignore */
-      }
-    }
-    return <Navigate replace to={nameRoutes.portalHome} />;
-  }
-
-  const role = token ? getRoleFromToken(token) : null;
-
-  switch (role) {
-    case "Medico":
-      return <Navigate replace to={nameRoutes.doctorDashboard} />;
-    case "Enfermero":
-      return <Navigate replace to={nameRoutes.nurseDashboard} />;
-    case "Paciente":
-      return <Navigate replace to={nameRoutes.portalDashboard} />;
-    default:
-      // SA, Recepcionista, Cajero, etc. → admin dashboard
-      return <Navigate replace to={nameRoutes.adminDashboard} />;
-  }
-}
 
 export const useAuthorizationRoutes = () => {
   const { allOperations } = useAuth();

@@ -2,6 +2,7 @@ import { useCallback, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
+import { PasswordInputField } from "../../components/auth/PasswordInputField";
 import { LogoHIS } from "../../components/brand/LogoHIS";
 import { nameRoutes } from "../../configs/constants";
 import { GuestOnlyRoute } from "../../routes/middlewares/GuestOnlyRoute";
@@ -216,35 +217,19 @@ export function Component() {
                 >
                   Contraseña *
                 </label>
-                <div className="relative">
-                  <input
-                    autoComplete="current-password"
-                    className={`w-full px-4 py-3 pr-12 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
-                      fieldErrors.password
-                        ? "border-red-400 bg-red-50 dark:bg-red-900/20"
-                        : "border-gray-300 dark:border-gray-600"
-                    }`}
-                    disabled={isLocked}
-                    id="portal-password"
-                    placeholder="Ingrese su contraseña"
-                    type={showPassword ? "text" : "password"}
-                    value={form.password}
-                    onChange={handlePasswordInputChange}
-                  />
-                  <button
-                    aria-label={
-                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-                    }
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                    tabIndex={-1}
-                    type="button"
-                    onClick={handleTogglePassword}
-                  >
-                    <i
-                      className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-lg`}
-                    />
-                  </button>
-                </div>
+                <PasswordInputField
+                  className={`w-full px-4 py-3 pr-12 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
+                    fieldErrors.password
+                      ? "border-red-400 bg-red-50 dark:bg-red-900/20"
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
+                  disabled={isLocked}
+                  id="portal-password"
+                  showPassword={showPassword}
+                  value={form.password}
+                  onChange={handlePasswordInputChange}
+                  onToggle={handleTogglePassword}
+                />
                 {fieldErrors.password ? (
                   <p className="text-red-500 text-xs mt-0.5">
                     <i className="bi bi-exclamation-circle mr-1" />

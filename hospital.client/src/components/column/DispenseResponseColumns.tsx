@@ -1,28 +1,7 @@
-import { Button } from "@heroui/react";
-import { useCallback } from "react";
-import { useNavigate } from "react-router";
 import type { DispenseResponse } from "../../types/DispenseResponse";
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import { formatDateTime } from "../../utils/dateFormatter";
-
-function DispenseButton({ data }: { readonly data: DispenseResponse }) {
-  const navigate = useNavigate();
-  const handleClick = useCallback(
-    () => navigate(`/dispense/${data.id}`),
-    [navigate, data.id],
-  );
-  return (
-    <Button
-      isIconOnly
-      aria-label="Ver detalle"
-      size="sm"
-      variant="primary"
-      onClick={handleClick}
-    >
-      <i className="bi bi-eye" />
-    </Button>
-  );
-}
+import { DispenseButton } from "../button/DispenseButton";
 
 export const DispenseResponseColumns: TableColumnWithFilters<DispenseResponse>[] =
   [
