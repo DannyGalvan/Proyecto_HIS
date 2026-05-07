@@ -8,11 +8,16 @@ import { validationFailureToString } from "../../utils/converted";
 import { Icon } from "../icons/Icon";
 import { ConfirmDialog } from "../modal/ConfirmDialog";
 
+import { usePermissions } from "../../hooks/usePermissions";
 interface VitalSignButtonProps {
   readonly data: VitalSignResponse;
 }
 
 export function VitalSignButton({ data }: VitalSignButtonProps) {
+  const { can } = usePermissions();
+  const canEdit = can("vital-sign/update");
+  const canDelete = can("vital-sign/delete");
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -50,6 +55,9 @@ export function VitalSignButton({ data }: VitalSignButtonProps) {
     if (!isDeleting) setIsDeleteDialogOpen(false);
   }, [isDeleting]);
 
+  if (!canEdit && !canDelete) return null;
+
+
   return (
     <>
       <Dropdown>
@@ -60,20 +68,20 @@ export function VitalSignButton({ data }: VitalSignButtonProps) {
         </Dropdown.Trigger>
         <Dropdown.Popover>
           <Dropdown.Menu aria-label="Acciones">
-            <Dropdown.Item
+            {canEdit && (<Dropdown.Item
               key="edit"
               className="text-warning hover:text-white"
               onClick={handleEdit}
             >
               Editar
-            </Dropdown.Item>
-            <Dropdown.Item
+            </Dropdown.Item>)}
+            {canDelete && (<Dropdown.Item
               key="delete"
               className="text-danger hover:text-white"
               onClick={handleDeleteClick}
             >
               Eliminar
-            </Dropdown.Item>
+            </Dropdown.Item>)}
           </Dropdown.Menu>
         </Dropdown.Popover>
       </Dropdown>

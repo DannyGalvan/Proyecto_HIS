@@ -18,6 +18,11 @@ namespace Hospital.Server.Context.Config
             entity.HasOne(e => e.Operation)
                 .WithMany(e => e.RolOperations)
                 .HasForeignKey(e => e.OperationId);
+
+            // NOTE: Las asignaciones por defecto Rol -> Operation se siembran en runtime
+            // por OperationSyncService.AssignDefaultPermissionsByRoleAsync() porque las
+            // Operations se crean dinámicamente al escanear los controllers, así que sus
+            // Ids no son estables para HasData. Ver Services/Core/OperationSyncService.cs.
         }
     }
 }

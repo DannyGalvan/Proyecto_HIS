@@ -94,9 +94,6 @@ import { ReceptionPage } from "../pages/reception/ReceptionPage";
 // Online Payment
 import { OnlinePaymentPage } from "../pages/payment/OnlinePaymentPage";
 
-// Rol Operation pages
-import { RolOperationPage } from "../pages/rol/RolOperationPage";
-
 // Dispense pages
 import { CreateDispensePage } from "../pages/dispense/CreateDispensePage";
 import { DispensePage } from "../pages/dispense/DispensePage";
@@ -200,14 +197,6 @@ export const PublicRoutes: RouteObject[] = [
     element: (
       <ProtectedPublic>
         <UpdateRolPage />
-      </ProtectedPublic>
-    ),
-  },
-  {
-    path: `${nameRoutes.rolOperations}/:id/operations`,
-    element: (
-      <ProtectedPublic>
-        <RolOperationPage />
       </ProtectedPublic>
     ),
   },

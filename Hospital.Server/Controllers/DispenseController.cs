@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Crear Despacho", Description = "Crea un nuevo despacho de medicamentos", Icon = "bi-plus-circle", Path = "dispense/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Crear Despacho", Description = "Crea un nuevo despacho de medicamentos", Icon = "bi-plus-circle", Path = "dispense/create", IsVisible = false)]
         public override IActionResult Create([FromBody] DispenseRequest request) => base.Create(request);
 
         [HttpPut]

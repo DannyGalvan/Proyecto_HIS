@@ -41,7 +41,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Crear Notificación", Description = "Registra una nueva notificación", Icon = "bi-plus-circle", Path = "notification-log/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Crear Notificación", Description = "Registra una nueva notificación", Icon = "bi-plus-circle", Path = "notification-log/create", IsVisible = false)]
         public override IActionResult Create([FromBody] NotificationLogRequest request) => base.Create(request);
 
         [HttpPut]

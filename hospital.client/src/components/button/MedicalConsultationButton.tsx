@@ -8,6 +8,7 @@ import { validationFailureToString } from "../../utils/converted";
 import { Icon } from "../icons/Icon";
 import { ConfirmDialog } from "../modal/ConfirmDialog";
 
+import { usePermissions } from "../../hooks/usePermissions";
 interface MedicalConsultationButtonProps {
   readonly data: MedicalConsultationResponse;
 }
@@ -15,6 +16,10 @@ interface MedicalConsultationButtonProps {
 export function MedicalConsultationButton({
   data,
 }: MedicalConsultationButtonProps) {
+  const { can } = usePermissions();
+  const canEdit = can("medical-consultation/update");
+  const canDelete = can("medical-consultation/delete");
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -54,6 +59,9 @@ export function MedicalConsultationButton({
     if (!isDeleting) setIsDeleteDialogOpen(false);
   }, [isDeleting]);
 
+  if (!canEdit && !canDelete) return null;
+
+
   return (
     <>
       <Dropdown>
@@ -64,20 +72,20 @@ export function MedicalConsultationButton({
         </Dropdown.Trigger>
         <Dropdown.Popover>
           <Dropdown.Menu aria-label="Acciones">
-            <Dropdown.Item
+            {canEdit && (<Dropdown.Item
               key="edit"
               className="text-warning hover:text-white"
               onClick={handleEdit}
             >
               Ver / Editar
-            </Dropdown.Item>
-            <Dropdown.Item
+            </Dropdown.Item>)}
+            {canDelete && (<Dropdown.Item
               key="delete"
               className="text-danger hover:text-white"
               onClick={handleDeleteClick}
             >
               Eliminar
-            </Dropdown.Item>
+            </Dropdown.Item>)}
           </Dropdown.Menu>
         </Dropdown.Popover>
       </Dropdown>

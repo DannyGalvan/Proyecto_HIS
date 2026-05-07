@@ -23,6 +23,12 @@
         public int State { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the operation is visible
+        /// in the role's UI menu/sidebar.
+        /// </summary>
+        public bool IsVisible { get; set; }
+
+        /// <summary>
         /// Gets or sets the CreatedAt
         /// </summary>
         public string CreatedAt { get; set; } = string.Empty;

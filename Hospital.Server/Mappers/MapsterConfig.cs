@@ -108,6 +108,7 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.OperationId, src => src.OperationId)
                 .Map(dest => dest.RolId, src => src.RolId)
                 .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.IsVisible, src => src.IsVisible)
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
                 .Ignore(dest => dest.CreatedAt)
@@ -117,6 +118,7 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.Id, src => src.Id)
                 .Map(dest => dest.OperationId, src => src.OperationId)
                 .Map(dest => dest.State, src => src.State)
+                .Map(dest => dest.IsVisible, src => src.IsVisible)
                 .Map(dest => dest.RolId, src => src.RolId)
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
@@ -125,6 +127,11 @@ namespace Hospital.Server.Mappers
                 .Ignore(dest => dest.Operation!) // Ignorar navegación circular
                 .Ignore(dest => dest.Rol!); // Ignorar navegación circular
 
+            // Aplana RolOperation -> Operation para representar las operaciones efectivas
+            // del usuario en el contexto de su rol. IsVisible respeta el flag original
+            // del controller (OperationInfoAttribute.IsVisible). El override por rol
+            // (RolOperation.IsVisible) se aplica como filtro adicional al construir el
+            // menú en AuthService, no aquí.
             TypeAdapterConfig<RolOperation, Operation>.NewConfig()
                 .Map(dest => dest.Id, src => src.OperationId)
                 .Map(dest => dest.Name, src => src.Operation!.Name)

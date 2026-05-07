@@ -27,7 +27,11 @@ export const getUsers = async ({
 };
 
 export const getUserById = async (id: number) => {
-  return api.get<unknown, ApiResponse<UserResponse>>(`User/${id}?Include=rol`);
+  // Include rol, branch y specialty para que el formulario de edición pueda
+  // mostrar los nombres correctos en los selects (no solo los IDs).
+  return api.get<unknown, ApiResponse<UserResponse>>(
+    `User/${id}?Include=rol,branch,specialty`,
+  );
 };
 
 export const createUser = async (User: UserRequest) => {

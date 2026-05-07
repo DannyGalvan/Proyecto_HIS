@@ -8,11 +8,16 @@ import { validationFailureToString } from "../../utils/converted";
 import { Icon } from "../icons/Icon";
 import { ConfirmDialog } from "../modal/ConfirmDialog";
 
+import { usePermissions } from "../../hooks/usePermissions";
 interface LabExamButtonProps {
   readonly data: LabExamResponse;
 }
 
 export function LabExamButton({ data }: LabExamButtonProps) {
+  const { can } = usePermissions();
+  const canEdit = can("lab-exam/update");
+  const canDelete = can("lab-exam/delete");
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -52,6 +57,9 @@ export function LabExamButton({ data }: LabExamButtonProps) {
     if (!isDeleting) setIsDeleteDialogOpen(false);
   }, [isDeleting]);
 
+  if (!canEdit && !canDelete) return null;
+
+
   return (
     <>
       <Dropdown>
@@ -62,20 +70,20 @@ export function LabExamButton({ data }: LabExamButtonProps) {
         </Dropdown.Trigger>
         <Dropdown.Popover>
           <Dropdown.Menu aria-label="Acciones">
-            <Dropdown.Item
+            {canEdit && (<Dropdown.Item
               key="edit"
               className="text-warning hover:text-white"
               onClick={handleEdit}
             >
               Editar
-            </Dropdown.Item>
-            <Dropdown.Item
+            </Dropdown.Item>)}
+            {canDelete && (<Dropdown.Item
               key="delete"
               className="text-danger hover:text-white"
               onClick={handleDeleteClick}
             >
               Eliminar
-            </Dropdown.Item>
+            </Dropdown.Item>)}
           </Dropdown.Menu>
         </Dropdown.Popover>
       </Dropdown>

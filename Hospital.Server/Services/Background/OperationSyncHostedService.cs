@@ -28,8 +28,13 @@ namespace Hospital.Server.Services.Background
                 using var scope = _serviceProvider.CreateScope();
                 var syncService = scope.ServiceProvider.GetRequiredService<IOperationSyncService>();
 
-                // Ejecutar la sincronización
+                // Ejecutar la sincronización (escanea controllers, popula Modules y Operations,
+                // y asigna automáticamente todas las Operations al rol SA).
                 await syncService.SyncAsync();
+
+                // Sembrar las asignaciones por defecto a los roles no-SA con su IsVisible.
+                // Idempotente: solo crea filas faltantes y actualiza IsVisible si cambió.
+                await syncService.AssignDefaultPermissionsByRoleAsync();
 
                 _logger.LogInformation("OperationSyncHostedService completado exitosamente");
             }

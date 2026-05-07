@@ -2,6 +2,7 @@ import type { OperationResponse } from "../../types/OperationResponse";
 import type { TableColumnWithFilters } from "../../types/TableColumnWithFilters";
 import { formatDateTime } from "../../utils/dateFormatter";
 import { OperationButton } from "../button/OperationButton";
+import { OperationVisibilityButton } from "../button/OperationVisibilityButton";
 
 export const OperationResponseColumns: TableColumnWithFilters<OperationResponse>[] =
   [
@@ -47,11 +48,19 @@ export const OperationResponseColumns: TableColumnWithFilters<OperationResponse>
     },
     {
       id: "actions",
-      name: "Acciones",
+      name: "Asignar",
       width: "160px",
       center: true,
       button: true,
       cell: (data) => <OperationButton data={data} />,
+    },
+    {
+      id: "visibility",
+      name: "Visibilidad",
+      width: "160px",
+      center: true,
+      button: true,
+      cell: (data) => <OperationVisibilityButton data={data} />,
     },
     {
       id: "createdAt",

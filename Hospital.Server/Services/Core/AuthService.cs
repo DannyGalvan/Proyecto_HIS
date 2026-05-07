@@ -135,15 +135,22 @@ namespace Hospital.Server.Services.Core
 
                 List<Operation> operationsRol = _mapper.Map<List<RolOperation>, List<Operation>>(rolOperations);
 
-                // Consulta LINQ compatible con SQL Server, PostgreSQL y MySQL
+                // Un módulo aparece en el menú del usuario solo si los TRES flags lo permiten:
+                //   1) RolOperation.IsVisible: el override por rol está habilitado.
+                //   2) Operation.IsVisible:    la operación misma está marcada como navegable
+                //                              por el controller (OperationInfoAttribute.IsVisible).
+                //   3) Module.IsVisible:       el módulo está marcado como visible globalmente.
+                // Si cualquiera de los tres es false, el módulo se oculta del menú aunque
+                // el endpoint siga siendo callable (la autorización real depende del permiso
+                // asignado, no del flag de visibilidad).
                 var modules = _bd.RolOperations
-                    .Where(ro => ro.RolId == oUser.RolId && ro.State == 1)
-                    .Join(_bd.Operations,
+                    .Where(ro => ro.RolId == oUser.RolId && ro.State == 1 && ro.IsVisible == true)
+                    .Join(_bd.Operations.Where(o => o.IsVisible),
                         ro => ro.OperationId,
                         o => o.Id,
                         (ro, o) => o.ModuleId)
                     .Distinct()
-                    .Join(_bd.Modules,
+                    .Join(_bd.Modules.Where(m => m.IsVisible),
                         moduleId => moduleId,
                         m => m.Id,
                         (moduleId, m) => m)

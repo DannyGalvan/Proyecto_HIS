@@ -3,17 +3,20 @@ using System;
 using Hospital.Server.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Project.Server.Migrations
+namespace Hospital.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260506220000_SeedRolOperationsAndUsers")]
+    partial class SeedRolOperationsAndUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -415,26 +418,7 @@ namespace Project.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("BranchSpecialties");
-
-
-                    b.HasData(
-                        new { Id = 1L, BranchId = 1L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 1L, State = 1 },
-                        new { Id = 2L, BranchId = 1L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 2L, State = 1 },
-                        new { Id = 3L, BranchId = 1L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 3L, State = 1 },
-                        new { Id = 4L, BranchId = 1L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 4L, State = 1 },
-                        new { Id = 5L, BranchId = 1L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 5L, State = 1 },
-                        new { Id = 6L, BranchId = 1L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 6L, State = 1 },
-                        new { Id = 7L, BranchId = 1L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 7L, State = 1 },
-                        new { Id = 8L, BranchId = 1L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 8L, State = 1 },
-                        new { Id = 9L, BranchId = 2L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 1L, State = 1 },
-                        new { Id = 10L, BranchId = 2L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 2L, State = 1 },
-                        new { Id = 11L, BranchId = 2L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 3L, State = 1 },
-                        new { Id = 12L, BranchId = 2L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 4L, State = 1 },
-                        new { Id = 13L, BranchId = 2L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 5L, State = 1 },
-                        new { Id = 14L, BranchId = 2L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 6L, State = 1 },
-                        new { Id = 15L, BranchId = 2L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 7L, State = 1 },
-                        new { Id = 16L, BranchId = 2L, CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), CreatedBy = 1L, SpecialtyId = 8L, State = 1 }
-                        );                });
+                });
 
             modelBuilder.Entity("Hospital.Server.Entities.Models.Dispense", b =>
                 {
@@ -2079,9 +2063,6 @@ namespace Project.Server.Migrations
 
                     b.Property<long>("CreatedBy")
                         .HasColumnType("bigint");
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("boolean");
 
                     b.Property<long>("OperationId")
                         .HasColumnType("bigint");

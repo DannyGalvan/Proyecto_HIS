@@ -28,6 +28,14 @@ namespace Hospital.Server.Entities.Models
         public int State { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the operation is visible
+        /// in the role's UI (e.g., menu/sidebar). When false, the permission
+        /// still applies (the endpoint can be called) but the module should
+        /// not appear in the navigation for this role.
+        /// </summary>
+        public bool IsVisible { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the CreatedAt
         /// </summary>
         public DateTime CreatedAt { get; set; }
