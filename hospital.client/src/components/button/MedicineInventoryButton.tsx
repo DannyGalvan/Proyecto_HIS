@@ -8,6 +8,7 @@ import { validationFailureToString } from "../../utils/converted";
 import { Icon } from "../icons/Icon";
 import { ConfirmDialog } from "../modal/ConfirmDialog";
 
+import { usePermissions } from "../../hooks/usePermissions";
 interface MedicineInventoryButtonProps {
   readonly data: MedicineInventoryResponse;
 }
@@ -15,6 +16,9 @@ interface MedicineInventoryButtonProps {
 export function MedicineInventoryButton({
   data,
 }: MedicineInventoryButtonProps) {
+  const { can } = usePermissions();
+  const canEdit = can("medicine-inventory/update");
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
@@ -62,6 +66,9 @@ export function MedicineInventoryButton({
     if (!isDeactivating) setIsDeactivateDialogOpen(false);
   }, [isDeactivating]);
 
+  if (!canEdit) return null;
+
+
   return (
     <>
       <Dropdown>
@@ -72,13 +79,13 @@ export function MedicineInventoryButton({
         </Dropdown.Trigger>
         <Dropdown.Popover>
           <Dropdown.Menu aria-label="Acciones">
-            <Dropdown.Item
+            {canEdit && (<Dropdown.Item
               key="edit"
               className="text-warning hover:text-white"
               onClick={handleEdit}
             >
               Ajustar Stock
-            </Dropdown.Item>
+            </Dropdown.Item>)}
             <Dropdown.Item
               key="toggle"
               className="text-danger hover:text-white"

@@ -6,6 +6,7 @@ export interface RolOperationResponse {
   rolId: number;
   operationId: number;
   state: number;
+  isVisible: boolean;
   createdAt: string;
   createdBy: number;
   updatedBy?: number;

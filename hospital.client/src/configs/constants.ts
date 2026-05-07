@@ -42,7 +42,6 @@ export const nameRoutes = {
   rol: "/rol",
   rolCreate: "/rol/create",
   rolUpdate: "/rol/update",
-  rolOperations: "/rol/update",
   // Specialties
   specialty: "/specialty",
   specialtyCreate: "/specialty/create",
@@ -180,6 +179,14 @@ export const initialUser: UserRequest = {
   updatedBy: null,
   timezoneId: null,
 };
+
+/**
+ * IDs de roles con comportamiento especial en el frontend.
+ * Coinciden con los seedeados por HasData en RolConfiguration.cs.
+ * Solo usar para lógica condicional de UI (ej: mostrar campo Especialidad
+ * solo si rolId === MEDICO_ROL_ID); la autorización real se valida en backend.
+ */
+export const MEDICO_ROL_ID = 3;
 
 export const SPECIALTY_ICONS: Record<string, string> = {
   Cardiologia: "bi-heart-pulse",

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { invalid_type_error } from "../configs/constants";
+import { invalid_type_error, MEDICO_ROL_ID } from "../configs/constants";
 import type { ErrorObject } from "../hooks/useForm";
 import { handleOneLevelZodError } from "../utils/converted";
 import { isCuiValid } from "../utils/cuiValidator";
@@ -57,6 +57,10 @@ export const userSchema = z.object({
     .union([z.string({ error: invalid_type_error }), z.number()])
     .optional()
     .nullable(),
+  specialtyId: z
+    .union([z.string({ error: invalid_type_error }), z.number()])
+    .optional()
+    .nullable(),
   insuranceNumber: z
     .string()
     .min(5, "El número de seguro debe tener entre 5 y 50 caracteres")
@@ -76,14 +80,28 @@ export const userSchema = z.object({
 
 export type UserValidation = z.infer<typeof userSchema>;
 
+const isEmptyValue = (v: unknown): boolean =>
+  v === null || v === undefined || v === "" || v === 0 || v === "0";
+
 export const validateUser = (data: unknown) => {
   const result = userSchema.safeParse(data);
+  let errors: ErrorObject = {};
 
   if (!result.success) {
-    let errors: ErrorObject = {};
     errors = handleOneLevelZodError(result.error);
-    return errors;
   }
 
-  return {};
+  // Regla condicional: la especialidad es obligatoria solo cuando el rol es Médico.
+  // Para el resto de roles, specialtyId puede ser null/vacío.
+  const obj = (data ?? {}) as { rolId?: unknown; specialtyId?: unknown };
+  const rolIdNum = Number(obj.rolId);
+  if (rolIdNum === MEDICO_ROL_ID && isEmptyValue(obj.specialtyId)) {
+    errors = {
+      ...errors,
+      specialtyId:
+        "La especialidad es requerida para usuarios con rol Médico",
+    };
+  }
+
+  return errors;
 };

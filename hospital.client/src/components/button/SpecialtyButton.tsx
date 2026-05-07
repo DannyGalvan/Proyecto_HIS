@@ -8,11 +8,16 @@ import { validationFailureToString } from "../../utils/converted";
 import { Icon } from "../icons/Icon";
 import { ConfirmDialog } from "../modal/ConfirmDialog";
 
+import { usePermissions } from "../../hooks/usePermissions";
 interface SpecialtyButtonProps {
   readonly data: SpecialtyResponse;
 }
 
 export function SpecialtyButton({ data }: SpecialtyButtonProps) {
+  const { can } = usePermissions();
+  const canEdit = can("specialty/update");
+  const canDelete = can("specialty/delete");
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -52,6 +57,9 @@ export function SpecialtyButton({ data }: SpecialtyButtonProps) {
     if (!isDeleting) setIsDeleteDialogOpen(false);
   }, [isDeleting]);
 
+  if (!canEdit && !canDelete) return null;
+
+
   return (
     <>
       <Dropdown>
@@ -62,20 +70,20 @@ export function SpecialtyButton({ data }: SpecialtyButtonProps) {
         </Dropdown.Trigger>
         <Dropdown.Popover>
           <Dropdown.Menu aria-label="Acciones">
-            <Dropdown.Item
+            {canEdit && (<Dropdown.Item
               key="edit"
               className="text-warning hover:text-white"
               onClick={handleEdit}
             >
               Editar
-            </Dropdown.Item>
-            <Dropdown.Item
+            </Dropdown.Item>)}
+            {canDelete && (<Dropdown.Item
               key="delete"
               className="text-danger hover:text-white"
               onClick={handleDeleteClick}
             >
               Eliminar
-            </Dropdown.Item>
+            </Dropdown.Item>)}
           </Dropdown.Menu>
         </Dropdown.Popover>
       </Dropdown>

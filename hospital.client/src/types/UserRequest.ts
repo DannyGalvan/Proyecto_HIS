@@ -1,3 +1,4 @@
+import type { BranchResponse } from "./BranchResponse";
 import type { RolResponse } from "./RolResponse";
 import type { SpecialtyResponse } from "./SpecialtyResponse";
 
@@ -19,6 +20,7 @@ export interface UserRequest {
   timezoneId?: number | null;
 
   rol?: RolResponse | null;
+  branch?: BranchResponse | null;
   specialtyId?: number | null;
   specialty?: SpecialtyResponse | null;
 }

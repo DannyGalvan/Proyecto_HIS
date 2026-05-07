@@ -28,6 +28,12 @@ namespace Hospital.Server.Entities.Request
         public int? State { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the operation is visible
+        /// in the role's UI menu/sidebar. Optional in PATCH (partial update).
+        /// </summary>
+        public bool? IsVisible { get; set; }
+
+        /// <summary>
         /// Gets or sets the CreatedBy
         /// </summary>
         public long? CreatedBy { get; set; }

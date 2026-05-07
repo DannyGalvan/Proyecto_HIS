@@ -48,6 +48,14 @@ export const updateRolOperation = async (rolOperation: RolOperationRequest) => {
   >(`RolOperation`, rolOperation);
 };
 
+export const patchRolOperation = async (rolOperation: RolOperationRequest) => {
+  return api.patch<
+    unknown,
+    ApiResponse<RolOperationResponse>,
+    RolOperationRequest
+  >(`RolOperation`, rolOperation);
+};
+
 export const deleteRolOperation = async (id: number) => {
   return api.delete<unknown, ApiResponse<RolOperationResponse>>(
     `RolOperation/${id}`,

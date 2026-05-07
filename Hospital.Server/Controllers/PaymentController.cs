@@ -47,7 +47,7 @@ namespace Hospital.Server.Controllers
 
         [HttpPost]
         [RequireOperation]
-        [OperationInfo(DisplayName = "Registrar Pago", Description = "Registra un nuevo pago en el sistema", Icon = "bi-plus-circle", Path = "payment/create", IsVisible = true)]
+        [OperationInfo(DisplayName = "Registrar Pago", Description = "Registra un nuevo pago en el sistema", Icon = "bi-plus-circle", Path = "payment/create", IsVisible = false)]
         public override IActionResult Create([FromBody] PaymentRequest request) => base.Create(request);
 
         [HttpPut]
@@ -77,7 +77,7 @@ namespace Hospital.Server.Controllers
             Description = "Consulta órdenes de laboratorio y despachos pendientes de pago por DPI del paciente",
             Icon = "bi-clock-history",
             Path = "payment/pending-orders",
-            IsVisible = true)]
+            IsVisible = false)]
         public async Task<IActionResult> GetPendingOrders([FromQuery] string? dpi, [FromQuery] string? orderNumber)
         {
             if (string.IsNullOrWhiteSpace(dpi) && string.IsNullOrWhiteSpace(orderNumber))

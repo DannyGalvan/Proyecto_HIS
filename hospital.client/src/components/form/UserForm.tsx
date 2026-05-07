@@ -1,7 +1,8 @@
 import { FieldError, Form, Input, Label, TextField } from "@heroui/react";
-import { useCallback, type ChangeEvent } from "react";
+import { useCallback, useEffect, type ChangeEvent } from "react";
 import { useNavigate } from "react-router";
 import type { SingleValue } from "react-select";
+import { MEDICO_ROL_ID } from "../../configs/constants";
 import { useForm } from "../../hooks/useForm";
 import { getBranches } from "../../services/branchService";
 import { getRoles } from "../../services/rolService";
@@ -49,6 +50,19 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
     message,
     loading,
   } = useForm<UserRequest, unknown>(initialForm, validateUser, onSubmit, true);
+
+  // El campo de Especialidad solo aplica al rol Médico. Para otros roles, se
+  // oculta del formulario y se garantiza que specialtyId quede en null.
+  const isMedicoRol = Number(form.rolId) === MEDICO_ROL_ID;
+
+  useEffect(() => {
+    if (!isMedicoRol && form.specialtyId != null) {
+      handleChange({
+        target: { name: "specialtyId", value: "" },
+      } as unknown as ChangeEvent<HTMLInputElement>);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMedicoRol]);
 
   const handleTextChange = useCallback(
     (name: string) => (val: string) => {
@@ -285,7 +299,10 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
             defaultValue={
               type === "edit" && form.branchId
                 ? {
-                    label: String(form.branchId),
+                    label:
+                      initialForm.branch?.name ??
+                      form.branch?.name ??
+                      `Sucursal #${form.branchId}`,
                     value: String(form.branchId),
                   }
                 : null
@@ -302,26 +319,32 @@ export function UserForm({ type, initialForm, onSubmit }: UserFormProps) {
             onChange={handleSelectChange("branchId")}
           />
 
-          <CatalogueSelect
-            defaultValue={
-              type === "edit" && form.specialtyId
-                ? {
-                    label: form.specialty?.name ?? String(form.specialtyId),
-                    value: String(form.specialtyId),
-                  }
-                : null
-            }
-            deps="State:eq:1"
-            errorMessage={errors?.specialtyId as string}
-            fieldSearch="Name"
-            isInvalid={!!errors?.specialtyId}
-            label="Especialidad (Médicos)"
-            name="specialtyId"
-            placeholder="Seleccione una especialidad (opcional)"
-            queryFn={getSpecialties}
-            selectorFn={selectorSpecialty}
-            onChange={handleSelectChange("specialtyId")}
-          />
+          {isMedicoRol && (
+            <CatalogueSelect
+              isRequired
+              defaultValue={
+                type === "edit" && form.specialtyId
+                  ? {
+                      label:
+                        initialForm.specialty?.name ??
+                        form.specialty?.name ??
+                        `Especialidad #${form.specialtyId}`,
+                      value: String(form.specialtyId),
+                    }
+                  : null
+              }
+              deps="State:eq:1"
+              errorMessage={errors?.specialtyId as string}
+              fieldSearch="Name"
+              isInvalid={!!errors?.specialtyId}
+              label="Especialidad"
+              name="specialtyId"
+              placeholder="Seleccione una especialidad"
+              queryFn={getSpecialties}
+              selectorFn={selectorSpecialty}
+              onChange={handleSelectChange("specialtyId")}
+            />
+          )}
 
           <OptionsSelect
             isRequired
