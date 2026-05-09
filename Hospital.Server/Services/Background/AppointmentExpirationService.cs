@@ -65,7 +65,9 @@ namespace Hospital.Server.Services.Background
                 }
                 catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
                 {
-                    _logger.LogError(ex, "Error en AppointmentExpirationService");
+                    _logger.LogError(ex,
+                        "Error en AppointmentExpirationService (se reintentará en el próximo ciclo de {Interval} min)",
+                        JobAInterval.TotalMinutes);
                 }
 
                 await Task.Delay(JobAInterval, stoppingToken);

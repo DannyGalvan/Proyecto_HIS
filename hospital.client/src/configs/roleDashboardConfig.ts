@@ -108,6 +108,7 @@ const cajeroConfig: RoleDashboardConfig = {
   ],
   quickActions: [
     { icon: "bi-cash-coin", label: "Caja", to: nameRoutes.cashier },
+    { icon: "bi-flask", label: "Cobro Lab", to: nameRoutes.labCashier },
     { icon: "bi-receipt", label: "Pagos", to: nameRoutes.payment },
   ],
   relevantStatuses: ["Pendiente de Pago", "Confirmada"],

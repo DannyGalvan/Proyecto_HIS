@@ -90,6 +90,7 @@ import { RoleDashboardPage } from "../pages/dashboard/RoleDashboardPage";
 
 // Reception & Cashier
 import { CashierPage } from "../pages/cashier/CashierPage";
+import { LabCashierPage } from "../pages/cashier/LabCashierPage";
 import { ReceptionPage } from "../pages/reception/ReceptionPage";
 
 // Online Payment
@@ -569,6 +570,15 @@ export const PublicRoutes: RouteObject[] = [
     element: (
       <ProtectedPublic>
         <CashierPage />
+      </ProtectedPublic>
+    ),
+  },
+  // Caja - Laboratorio
+  {
+    path: nameRoutes.labCashier,
+    element: (
+      <ProtectedPublic>
+        <LabCashierPage />
       </ProtectedPublic>
     ),
   },

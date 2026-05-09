@@ -23,6 +23,12 @@ namespace Hospital.Server.Infrastructure.Database.Configurators
                 {
                     npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory");
                     npgsqlOptions.SetPostgresVersion(new Version(15, 0));
+
+                    // Retry automático para fallas transitorias (Broken pipe, connection reset, etc.)
+                    npgsqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorCodesToAdd: null);
                 });
         }
     }
