@@ -11,12 +11,14 @@ import {
   getPublicBranches,
   getPublicSpecialties,
 } from "../../services/patientPortalService";
+import { usePatientAuthStore } from "../../stores/usePatientAuthStore";
 import { HeroSection } from "./HeroSection";
 
 // ── Página principal del portal ───────────────────────────────────────────────
 export function Component() {
   const [isDpiModalOpen, setIsDpiModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { isLoggedIn } = usePatientAuthStore();
 
   // Cargar especialidades activas
   const { data: specialtiesData, isLoading: loadingSpecialties } = useQuery({
@@ -43,8 +45,12 @@ export function Component() {
   );
 
   const handleScheduleClick = useCallback(() => {
-    setIsDpiModalOpen(true);
-  }, []);
+    if (isLoggedIn) {
+      navigate(nameRoutes.portalBook);
+    } else {
+      setIsDpiModalOpen(true);
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <div className="w-full min-h-screen bg-white dark:bg-gray-900">
@@ -159,7 +165,9 @@ export function Component() {
           ¿Listo para agendar su cita?
         </h2>
         <p className="text-blue-100 mb-8 max-w-xl mx-auto">
-          El proceso es rápido y sencillo. Solo necesita su DPI y unos minutos.
+          {isLoggedIn
+            ? "El proceso es rápido y sencillo. Agende su cita en unos minutos."
+            : "El proceso es rápido y sencillo. Solo necesita su DPI y unos minutos."}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
@@ -170,15 +178,17 @@ export function Component() {
             <i className="bi bi-calendar-plus mr-2" />
             Agendar Cita Ahora
           </Button>
-          <Button
-            className="px-8 py-3 text-lg font-bold border-2 border-white text-black hover:bg-white hover:text-blue-900"
-            size="lg"
-            variant="secondary"
-            onPress={handleNavigateRegister}
-          >
-            <i className="bi bi-person-plus mr-2" />
-            Registrarse
-          </Button>
+          {!isLoggedIn && (
+            <Button
+              className="px-8 py-3 text-lg font-bold border-2 border-white text-black hover:bg-white hover:text-blue-900"
+              size="lg"
+              variant="secondary"
+              onPress={handleNavigateRegister}
+            >
+              <i className="bi bi-person-plus mr-2" />
+              Registrarse
+            </Button>
+          )}
         </div>
       </section>
 

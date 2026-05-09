@@ -18,7 +18,7 @@ const PAST_STATUSES = new Set([
 // ── Page ──────────────────────────────────────────────────────────────────────
 export function Component() {
   const navigate = useNavigate();
-  const { name, logoutPatient } = usePatientAuthStore();
+  const { name } = usePatientAuthStore();
 
   const { data, isLoading } = useQuery({
     queryKey: ["portal-my-appointments-dashboard"],
@@ -45,33 +45,18 @@ export function Component() {
     [navigate],
   );
 
-  const handleLogout = useCallback(() => {
-    logoutPatient();
-    navigate(nameRoutes.portalHome);
-  }, [logoutPatient, navigate]);
-
   return (
     <section className="w-full min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10  dark:bg-gray-800">
       <div className="mx-auto max-w-3xl">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-              <i className="bi bi-person-circle mr-2 text-blue-600" />
-              Bienvenido, {name || "Paciente"}
-            </h1>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Gestione sus citas médicas desde su portal personal.
-            </p>
-          </div>
-          <button
-            className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400"
-            type="button"
-            onClick={handleLogout}
-          >
-            <i className="bi bi-box-arrow-right" />
-            Cerrar Sesión
-          </button>
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            <i className="bi bi-person-circle mr-2 text-blue-600" />
+            Bienvenido, {name || "Paciente"}
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Gestione sus citas médicas desde su portal personal.
+          </p>
         </div>
 
         {/* Main CTA */}
