@@ -95,7 +95,7 @@ export function OperationVisibilityButton({
 
   if (!hasPermission) {
     return (
-      <Button disabled size="sm" variant="secondary">
+      <Button isDisabled size="sm" variant="secondary">
         —
       </Button>
     );

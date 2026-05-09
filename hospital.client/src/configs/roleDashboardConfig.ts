@@ -36,7 +36,7 @@ export interface RoleAppointment {
 const STATUS_PENDIENTE_PAGO = 1;
 const STATUS_CONFIRMADA = 2;
 const STATUS_PACIENTE_PRESENTE = 12;
-const STATUS_CANCELADA = 11;
+//const STATUS_CANCELADA = 11;
 
 // ─── Recepcionista ───────────────────────────────────────────────────────────
 const recepcionistaConfig: RoleDashboardConfig = {
