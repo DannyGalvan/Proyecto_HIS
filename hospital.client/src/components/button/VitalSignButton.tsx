@@ -57,7 +57,6 @@ export function VitalSignButton({ data }: VitalSignButtonProps) {
 
   if (!canEdit && !canDelete) return null;
 
-
   return (
     <>
       <Dropdown>
@@ -68,20 +67,24 @@ export function VitalSignButton({ data }: VitalSignButtonProps) {
         </Dropdown.Trigger>
         <Dropdown.Popover>
           <Dropdown.Menu aria-label="Acciones">
-            {canEdit && (<Dropdown.Item
-              key="edit"
-              className="text-warning hover:text-white"
-              onClick={handleEdit}
-            >
-              Editar
-            </Dropdown.Item>)}
-            {canDelete && (<Dropdown.Item
-              key="delete"
-              className="text-danger hover:text-white"
-              onClick={handleDeleteClick}
-            >
-              Eliminar
-            </Dropdown.Item>)}
+            {canEdit ? (
+              <Dropdown.Item
+                key="edit"
+                className="text-warning hover:text-white"
+                onClick={handleEdit}
+              >
+                Editar
+              </Dropdown.Item>
+            ) : null}
+            {canDelete ? (
+              <Dropdown.Item
+                key="delete"
+                className="text-danger hover:text-white"
+                onClick={handleDeleteClick}
+              >
+                Eliminar
+              </Dropdown.Item>
+            ) : null}
           </Dropdown.Menu>
         </Dropdown.Popover>
       </Dropdown>
