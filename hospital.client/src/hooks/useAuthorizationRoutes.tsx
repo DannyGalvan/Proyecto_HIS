@@ -55,6 +55,7 @@ export const useAuthorizationRoutes = () => {
     nameRoutes.reception,
     nameRoutes.cashier,
     nameRoutes.onlinePayment,
+    nameRoutes.roleDashboard,
     nameRoutes.doctorManagement,
     nameRoutes.doctorTransfer,
     nameRoutes.appointmentReassign,

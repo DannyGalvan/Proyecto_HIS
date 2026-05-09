@@ -86,6 +86,7 @@ import { PrescriptionPage } from "../pages/prescription/PrescriptionPage";
 // Dashboard
 import { DoctorDashboardPage } from "../pages/dashboard/DoctorDashboardPage";
 import { NurseDashboardPage } from "../pages/dashboard/NurseDashboardPage";
+import { RoleDashboardPage } from "../pages/dashboard/RoleDashboardPage";
 
 // Reception & Cashier
 import { CashierPage } from "../pages/cashier/CashierPage";
@@ -628,6 +629,15 @@ export const PublicRoutes: RouteObject[] = [
     element: (
       <ProtectedPublic>
         <AdminDashboardPage />
+      </ProtectedPublic>
+    ),
+  },
+  // Role-specific dashboard (Recepcionista, Cajero, Farmacéutico, Laboratorista)
+  {
+    path: nameRoutes.roleDashboard,
+    element: (
+      <ProtectedPublic>
+        <RoleDashboardPage />
       </ProtectedPublic>
     ),
   },

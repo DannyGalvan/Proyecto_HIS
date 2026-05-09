@@ -13,6 +13,7 @@ import type {
   PaymentResponse,
 } from "../../types/PaymentResponse";
 import { calculateChange } from "../../utils/calculateChange";
+import { formatTime } from "../../utils/dateFormatter";
 import { generateIdempotencyKey } from "../../utils/generateIdempotencyKey";
 
 const PAYMENT_METHODS = [
@@ -55,7 +56,7 @@ export function CashierPage() {
         pageNumber: 1,
         pageSize: 20,
         filters: `${filter} AND State:eq:1`,
-        include: "Specialty,Branch,AppointmentStatus,Patient",
+        include: "Specialty,Branch,AppointmentStatus,Patient,Doctor",
         includeTotal: false,
       });
     },
@@ -321,7 +322,7 @@ export function CashierPage() {
 
           {/* Resumen */}
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
-            <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
               <div>
                 <span className="font-semibold">Paciente:</span>{" "}
                 {selectedAppointment.patient?.name}
@@ -331,12 +332,20 @@ export function CashierPage() {
                 {selectedAppointment.specialty?.name}
               </div>
               <div>
+                <span className="font-semibold">Médico:</span>{" "}
+                {selectedAppointment.doctor?.name ?? "—"}
+              </div>
+              <div>
                 <span className="font-semibold">Sucursal:</span>{" "}
                 {selectedAppointment.branch?.name}
               </div>
               <div>
                 <span className="font-semibold">Fecha:</span>{" "}
                 {selectedAppointment.appointmentDate}
+              </div>
+              <div>
+                <span className="font-semibold">Hora:</span>{" "}
+                {formatTime(selectedAppointment.appointmentDate)}
               </div>
             </div>
             <div className="mt-3 pt-3 border-t flex justify-between items-center">

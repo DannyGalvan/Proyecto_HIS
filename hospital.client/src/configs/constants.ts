@@ -117,6 +117,7 @@ export const nameRoutes = {
   doctorManagement: "/doctor-management",
   doctorTransfer: "/doctor-transfer",
   adminDashboard: "/admin-dashboard",
+  roleDashboard: "/role-dashboard",
   appointmentReassign: "/appointment/reassign",
   // Doctor Calendar
   doctorCalendar: "/doctor-calendar",

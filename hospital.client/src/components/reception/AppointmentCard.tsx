@@ -42,10 +42,6 @@ export function AppointmentCard({
     () => onNavigate(`/appointment/reassign?appointmentId=${appointment.id}`),
     [appointment.id, onNavigate],
   );
-  const handlePayment = useCallback(
-    () => onNavigate(`/payment/create?appointmentId=${appointment.id}`),
-    [appointment.id, onNavigate],
-  );
   const handleNewAppointment = useCallback(
     () => onNavigate("/appointment/create"),
     [onNavigate],
@@ -75,9 +71,13 @@ export function AppointmentCard({
               </span>
             )}
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
             <div>
               <span className="font-semibold">Cita #:</span> {appointment.id}
+            </div>
+            <div>
+              <span className="font-semibold">Fecha:</span>{" "}
+              {appointment.appointmentDate}
             </div>
             <div>
               <span className="font-semibold">Especialidad:</span>{" "}
@@ -87,20 +87,16 @@ export function AppointmentCard({
               <span className="font-semibold">Sucursal:</span>{" "}
               {appointment.branch?.name ?? "—"}
             </div>
-            <div>
-              <span className="font-semibold">Fecha:</span>{" "}
-              {appointment.appointmentDate}
-            </div>
-            <div className="col-span-2 md:col-span-4">
-              <span className="font-semibold">Motivo:</span>{" "}
-              {appointment.reason}
-            </div>
             {appointment.arrivalTime ? (
               <div>
                 <span className="font-semibold">Llegada:</span>{" "}
                 {appointment.arrivalTime}
               </div>
             ) : null}
+            <div className="col-span-2 mt-1">
+              <span className="font-semibold">Motivo:</span>{" "}
+              {appointment.reason}
+            </div>
           </div>
         </div>
 
@@ -127,16 +123,12 @@ export function AppointmentCard({
             </div>
           ) : null}
           {isPendingPayment ? (
-            <>
-              <div className="text-yellow-700 text-xs text-center p-2 bg-yellow-50 rounded-lg border border-yellow-200">
-                La cita del paciente tiene estado &apos;Pendiente de Pago&apos;.
-                Debe realizar el pago en caja antes de ser atendido.
-              </div>
-              <Button variant="primary" onPress={handlePayment}>
-                <i className="bi bi-cash-coin mr-2" />
-                Ir a Caja
-              </Button>
-            </>
+            <div className="text-yellow-700 text-xs text-center p-2 bg-yellow-50 rounded-lg border border-yellow-200">
+              <i className="bi bi-exclamation-triangle mr-1" />
+              La cita del paciente tiene estado &apos;Pendiente de Pago&apos;.
+              Debe dirigirse a la ventanilla de caja para realizar el pago antes
+              de ser atendido.
+            </div>
           ) : null}
           {isCancelled ? (
             <>

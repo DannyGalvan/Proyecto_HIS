@@ -9,6 +9,7 @@ import {
   getAppointments,
   registerArrival,
 } from "../../services/appointmentService";
+import { verifyDpi } from "../../services/patientPortalService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 
 export function ReceptionPage() {
@@ -69,6 +70,17 @@ export function ReceptionPage() {
 
   const appointments = data?.success ? data.data : [];
 
+  // When searching by DPI and no appointments found, verify if patient exists
+  const noAppointments = !!searchQuery && !isLoading && appointments.length === 0;
+  const { data: dpiCheck, isLoading: isDpiLoading } = useQuery({
+    queryKey: ["verify-dpi", searchQuery],
+    queryFn: () => verifyDpi(searchQuery),
+    enabled: noAppointments && searchType === "dpi",
+  });
+
+  const patientExists = dpiCheck?.data?.exists ?? false;
+  const patientName = dpiCheck?.data?.name;
+
   const handleSearch = useCallback((query: string, type: "dpi" | "id") => {
     setSearchType(type);
     setSearchQuery(query);
@@ -112,24 +124,57 @@ export function ReceptionPage() {
       {/* Resultados */}
       {isLoading ? <LoadingComponent /> : null}
 
-      {!isLoading && searchQuery && appointments.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          <i className="bi bi-search text-4xl block mb-3" />
-          <p className="text-gray-600 dark:text-gray-300">
-            No se encontraron citas activas para el paciente.
+      {noAppointments && searchType === "dpi" && isDpiLoading ? (
+        <LoadingComponent />
+      ) : null}
+
+      {/* Scenario A: Patient EXISTS but has no active appointments */}
+      {noAppointments && searchType === "dpi" && !isDpiLoading && patientExists ? (
+        <div className="text-center py-12">
+          <i className="bi bi-calendar-x text-4xl block mb-3 text-amber-500" />
+          <p className="text-gray-600 dark:text-gray-300 font-semibold">
+            El paciente {patientName ? `"${patientName}" ` : ""}está registrado
+            pero no tiene citas activas.
           </p>
-          <p className="text-sm mt-1">
-            El paciente no se encuentra registrado en el sistema o no tiene
-            citas activas. Verifique los datos e intente nuevamente.
+          <p className="text-sm mt-1 text-gray-500">
+            Puede crear una nueva cita para este paciente.
           </p>
           <div className="flex gap-3 justify-center mt-4">
             <Button variant="primary" onPress={handleNavigateNewAppointment}>
               <i className="bi bi-plus-circle mr-2" /> Nueva Cita (Walk-in)
             </Button>
-            <Button variant="secondary" onPress={handleNavigateRegister}>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Scenario B: Patient DOES NOT EXIST in the system */}
+      {noAppointments && searchType === "dpi" && !isDpiLoading && !patientExists ? (
+        <div className="text-center py-12">
+          <i className="bi bi-person-x text-4xl block mb-3 text-red-400" />
+          <p className="text-gray-600 dark:text-gray-300 font-semibold">
+            No se encontró ningún paciente con ese DPI.
+          </p>
+          <p className="text-sm mt-1 text-gray-500">
+            Es necesario registrar al paciente antes de continuar.
+          </p>
+          <div className="flex gap-3 justify-center mt-4">
+            <Button variant="primary" onPress={handleNavigateRegister}>
               <i className="bi bi-person-plus mr-2" /> Registrar Paciente
             </Button>
           </div>
+        </div>
+      ) : null}
+
+      {/* Search by appointment ID with no results */}
+      {noAppointments && searchType === "id" ? (
+        <div className="text-center py-12">
+          <i className="bi bi-search text-4xl block mb-3 text-gray-400" />
+          <p className="text-gray-600 dark:text-gray-300">
+            No se encontró ninguna cita activa con ese número.
+          </p>
+          <p className="text-sm mt-1 text-gray-500">
+            Verifique el número de cita e intente nuevamente.
+          </p>
         </div>
       ) : null}
 
