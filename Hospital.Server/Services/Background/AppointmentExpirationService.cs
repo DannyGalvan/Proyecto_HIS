@@ -9,12 +9,16 @@ namespace Hospital.Server.Services.Background
     ///
     /// Job A — runs every 5 minutes:
     ///   Cancels "Pendiente de Pago" appointments older than 10 minutes whose
-    ///   creation timestamp has passed the payment window. This covers patients
-    ///   who abandoned the booking flow without paying.
+    ///   creation timestamp has passed the payment window. Only applies to
+    ///   self-service appointments (created from the patient portal, where
+    ///   CreatedBy == PatientId). Appointments created by internal staff
+    ///   (receptionist) are excluded because the patient pays at the cashier
+    ///   window and the timing is unpredictable.
     ///
     /// Job B — runs once daily at 01:00 AM:
     ///   Cancels all remaining "Pendiente de Pago" appointments whose
-    ///   AppointmentDate is in the past. This handles any edge cases missed by Job A.
+    ///   AppointmentDate is in the past. This handles any edge cases missed by Job A
+    ///   and applies to ALL appointments regardless of origin.
     /// </summary>
     public class AppointmentExpirationService : BackgroundService
     {
@@ -61,7 +65,9 @@ namespace Hospital.Server.Services.Background
                 }
                 catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
                 {
-                    _logger.LogError(ex, "Error en AppointmentExpirationService");
+                    _logger.LogError(ex,
+                        "Error en AppointmentExpirationService (se reintentará en el próximo ciclo de {Interval} min)",
+                        JobAInterval.TotalMinutes);
                 }
 
                 await Task.Delay(JobAInterval, stoppingToken);
@@ -73,6 +79,9 @@ namespace Hospital.Server.Services.Background
         /// <summary>
         /// Job A — Cancel "Pendiente de Pago" appointments created more than
         /// <see cref="ExpirationMinutes"/> ago and whose payment window has expired.
+        /// Only targets self-service (portal) appointments where the patient
+        /// created the appointment themselves (CreatedBy == PatientId).
+        /// Appointments created by internal staff (receptionist) are excluded.
         /// </summary>
         private async Task ExpireAbandonedPaymentsAsync(CancellationToken ct)
         {
@@ -85,6 +94,7 @@ namespace Hospital.Server.Services.Background
                 .Where(a =>
                     a.State == 1 &&
                     a.AppointmentStatusId == AppointmentStateMachine.STATUS_PENDIENTE_PAGO &&
+                    a.CreatedBy == a.PatientId && // Solo citas del portal (autoservicio)
                     a.CreatedAt <= cutoff)
                 .ToListAsync(ct);
 

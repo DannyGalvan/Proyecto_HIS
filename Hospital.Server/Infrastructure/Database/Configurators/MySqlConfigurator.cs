@@ -23,6 +23,12 @@ namespace Hospital.Server.Infrastructure.Database.Configurators
                 mysqlOptions =>
                 {
                     mysqlOptions.MigrationsHistoryTable("__EFMigrationsHistory");
+
+                    // Retry automático para fallas transitorias
+                    mysqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null);
                 });
         }
     }

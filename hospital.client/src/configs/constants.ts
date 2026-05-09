@@ -105,6 +105,7 @@ export const nameRoutes = {
   reception: "/reception",
   // Caja
   cashier: "/cashier",
+  labCashier: "/lab-cashier",
   // Pago en línea
   onlinePayment: "/payment/online",
   // Dispense
@@ -117,6 +118,7 @@ export const nameRoutes = {
   doctorManagement: "/doctor-management",
   doctorTransfer: "/doctor-transfer",
   adminDashboard: "/admin-dashboard",
+  roleDashboard: "/role-dashboard",
   appointmentReassign: "/appointment/reassign",
   // Doctor Calendar
   doctorCalendar: "/doctor-calendar",

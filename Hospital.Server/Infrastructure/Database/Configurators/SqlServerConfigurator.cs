@@ -21,6 +21,12 @@ namespace Hospital.Server.Infrastructure.Database.Configurators
                 sqlServerOptions =>
                 {
                     sqlServerOptions.MigrationsHistoryTable("__EFMigrationsHistory");
+
+                    // Retry automático para fallas transitorias
+                    sqlServerOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null);
                 });
         }
     }

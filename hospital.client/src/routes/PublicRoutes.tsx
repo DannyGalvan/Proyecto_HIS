@@ -86,9 +86,11 @@ import { PrescriptionPage } from "../pages/prescription/PrescriptionPage";
 // Dashboard
 import { DoctorDashboardPage } from "../pages/dashboard/DoctorDashboardPage";
 import { NurseDashboardPage } from "../pages/dashboard/NurseDashboardPage";
+import { RoleDashboardPage } from "../pages/dashboard/RoleDashboardPage";
 
 // Reception & Cashier
 import { CashierPage } from "../pages/cashier/CashierPage";
+import { LabCashierPage } from "../pages/cashier/LabCashierPage";
 import { ReceptionPage } from "../pages/reception/ReceptionPage";
 
 // Online Payment
@@ -571,6 +573,15 @@ export const PublicRoutes: RouteObject[] = [
       </ProtectedPublic>
     ),
   },
+  // Caja - Laboratorio
+  {
+    path: nameRoutes.labCashier,
+    element: (
+      <ProtectedPublic>
+        <LabCashierPage />
+      </ProtectedPublic>
+    ),
+  },
   // Pago en línea
   {
     path: nameRoutes.onlinePayment,
@@ -628,6 +639,15 @@ export const PublicRoutes: RouteObject[] = [
     element: (
       <ProtectedPublic>
         <AdminDashboardPage />
+      </ProtectedPublic>
+    ),
+  },
+  // Role-specific dashboard (Recepcionista, Cajero, Farmacéutico, Laboratorista)
+  {
+    path: nameRoutes.roleDashboard,
+    element: (
+      <ProtectedPublic>
+        <RoleDashboardPage />
       </ProtectedPublic>
     ),
   },

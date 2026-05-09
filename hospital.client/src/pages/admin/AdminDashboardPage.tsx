@@ -1,14 +1,17 @@
 import { Button } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 import { QuickActionButton } from "../../components/admin/QuickActionButton";
 import { StatCard } from "../../components/admin/StatCard";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import { nameRoutes } from "../../configs/constants";
+import { roleDashboardConfigs } from "../../configs/roleDashboardConfig";
+import { useAuth } from "../../hooks/useAuth";
 import { getAppointments } from "../../services/appointmentService";
 import type { AppointmentResponse } from "../../types/AppointmentResponse";
 import { formatDateLong } from "../../utils/dateFormatter";
+import { getRoleFromToken } from "../../utils/jwt";
 
 const statusColors: Record<string, string> = {
   "Pendiente de Pago": "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -41,6 +44,14 @@ const statusDots: Record<string, string> = {
 };
 
 export function AdminDashboardPage() {
+  const { token } = useAuth();
+  const role = token ? getRoleFromToken(token) : null;
+
+  // Only SA (admin) can access this dashboard; redirect other roles
+  if (role && role in roleDashboardConfigs) {
+    return <Navigate replace to={nameRoutes.roleDashboard} />;
+  }
+
   const navigate = useNavigate();
 
   const handleNavigateAppointments = useCallback(

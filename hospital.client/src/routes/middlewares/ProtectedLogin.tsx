@@ -20,6 +20,11 @@ function ProtectedLogin({ children }: ProtectedLoginProps) {
         return <Navigate replace to={nameRoutes.nurseDashboard} />;
       case "Paciente":
         return <Navigate replace to={nameRoutes.portalDashboard} />;
+      case "Recepcionista":
+      case "Cajero":
+      case "Farmaceutico":
+      case "Laboratorista":
+        return <Navigate replace to={nameRoutes.roleDashboard} />;
       default:
         return <Navigate replace to={nameRoutes.adminDashboard} />;
     }

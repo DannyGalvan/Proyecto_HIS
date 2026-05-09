@@ -17,7 +17,7 @@ export interface SummaryData {
 interface Step6ConfirmProps {
   readonly summary: SummaryData;
   readonly onBack: () => void;
-  readonly onConfirm: (reason: string) => Promise<void>;
+  readonly onConfirm: (reason: string, priority: number) => Promise<void>;
 }
 
 export function Step6Confirm({
@@ -27,6 +27,7 @@ export function Step6Confirm({
 }: Step6ConfirmProps) {
   const [reason, setReason] = useState("");
   const [reasonError, setReasonError] = useState("");
+  const [isEmergency, setIsEmergency] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
 
@@ -45,7 +46,7 @@ export function Step6Confirm({
 
     setIsSubmitting(true);
     try {
-      await onConfirm(reason.trim());
+      await onConfirm(reason.trim(), isEmergency ? 1 : 0);
     } catch (err: unknown) {
       setApiError(
         err instanceof Error ? err.message : "Error al confirmar la cita.",
@@ -53,7 +54,7 @@ export function Step6Confirm({
     } finally {
       setIsSubmitting(false);
     }
-  }, [reason, onConfirm]);
+  }, [reason, isEmergency, onConfirm]);
 
   const handleReasonChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -164,6 +165,23 @@ export function Step6Confirm({
           )}
           <span className="text-xs text-gray-400">{reason.length}/2000</span>
         </div>
+      </div>
+
+      {/* Emergency toggle */}
+      <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+        <input
+          checked={isEmergency}
+          className="h-5 w-5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+          id="emergency"
+          type="checkbox"
+          onChange={(e) => setIsEmergency(e.target.checked)}
+        />
+        <label
+          className="text-sm font-semibold text-red-700 dark:text-red-300"
+          htmlFor="emergency"
+        >
+          Marcar como emergencia
+        </label>
       </div>
 
       {/* API error */}

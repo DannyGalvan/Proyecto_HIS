@@ -102,7 +102,7 @@ export function CreateAppointmentPage() {
   );
 
   const handleConfirm = useCallback(
-    async (reason: string) => {
+    async (reason: string, priority: number) => {
       if (
         !wizard.patient ||
         !wizard.branch ||
@@ -120,8 +120,10 @@ export function CreateAppointmentPage() {
         doctorId: wizard.doctor.id,
         specialtyId: wizard.specialty.id,
         branchId: wizard.branch.id,
+        appointmentStatusId: 1,
         appointmentDate: wizard.appointmentDate.toISOString(),
         reason,
+        priority,
         amount: CONSULTATION_FEE,
         state: 1,
         createdBy: userId,
