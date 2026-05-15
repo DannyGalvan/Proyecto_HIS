@@ -110,6 +110,7 @@ export const nameRoutes = {
   onlinePayment: "/payment/online",
   // Dispense
   dispense: "/dispense",
+  dispenseSelect: "/dispense/select",
   dispenseCreate: "/dispense/create",
   // InventoryMovement
   inventoryMovement: "/inventory-movement",

@@ -99,6 +99,7 @@ import { OnlinePaymentPage } from "../pages/payment/OnlinePaymentPage";
 // Dispense pages
 import { CreateDispensePage } from "../pages/dispense/CreateDispensePage";
 import { DispensePage } from "../pages/dispense/DispensePage";
+import { SelectPrescriptionPage } from "../pages/dispense/SelectPrescriptionPage";
 
 // InventoryMovement pages
 import { CreateInventoryMovementPage } from "../pages/inventory-movement/CreateInventoryMovementPage";
@@ -597,6 +598,14 @@ export const PublicRoutes: RouteObject[] = [
     element: (
       <ProtectedPublic>
         <DispensePage />
+      </ProtectedPublic>
+    ),
+  },
+  {
+    path: nameRoutes.dispenseSelect,
+    element: (
+      <ProtectedPublic>
+        <SelectPrescriptionPage />
       </ProtectedPublic>
     ),
   },

@@ -15,7 +15,7 @@ export const medicineSchema = z.object({
     .max(500, "La descripción no debe exceder 500 caracteres"),
   defaultPrice: z.union([
     z.string({ error: invalid_type_error }).min(1, "El precio es obligatorio"),
-    z.number().min(0, "El precio debe ser mayor o igual a 0"),
+    z.number().positive("El precio debe ser mayor a 0"),
   ]),
   unit: z.string().min(1, "La unidad es obligatoria"),
   isControlled: z.boolean().optional(),

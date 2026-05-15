@@ -468,6 +468,7 @@ namespace Hospital.Server.Services.Core
                     ("Branch.Get.GET",                                false),
                     ("Dispense.GetAll.GET",                            true),
                     ("Dispense.Get.GET",                               true),
+                    ("Dispense.SelectPrescription.GET",                false),
                     ("Dispense.Create.POST",                           true),
                     ("Dispense.Update.PUT",                            true),
                     ("Dispense.PartialUpdate.PATCH",                   true),
