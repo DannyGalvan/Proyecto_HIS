@@ -58,5 +58,24 @@ namespace Hospital.Server.Controllers
         [RequireOperation]
         [OperationInfo(DisplayName = "Eliminar Despacho", Description = "Elimina un despacho de medicamentos del sistema", Icon = "bi-trash", Path = "dispense/delete", IsVisible = false)]
         public override IActionResult Delete(long id) => base.Delete(id);
+
+        /// <summary>
+        /// Punto de entrada para la selección de receta antes de despachar.
+        /// No devuelve datos propios; la UI consume PrescriptionController.GetAll.
+        /// Existe para que OperationSyncService registre la operación "dispense/select"
+        /// y el frontend la muestre solo a roles con permiso de despacho.
+        /// </summary>
+        [HttpGet("select")]
+        [RequireOperation]
+        [OperationInfo(
+            DisplayName = "Seleccionar Receta para Despacho",
+            Description = "Pantalla de búsqueda y selección de receta pendiente antes de crear un despacho",
+            Icon = "bi-search",
+            Path = "dispense/select",
+            IsVisible = false)]
+        public IActionResult SelectPrescription()
+        {
+            return Ok(new { message = "Use the frontend to select a prescription for dispensing." });
+        }
     }
 }

@@ -12,6 +12,10 @@ import {
 } from "../../services/medicineService";
 import { getPrescriptionItems } from "../../services/prescriptionService";
 import type { MedicineInventoryResponse } from "../../types/MedicineInventoryResponse";
+import {
+  PAYMENT_METHODS,
+  type PaymentMethodValue,
+} from "../../types/DispenseResponse";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { AsyncButton } from "../button/AsyncButton";
 import {
@@ -28,6 +32,7 @@ export interface DispenseFormProps {
 
 export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
   const [rows, setRows] = useState<DispenseItemRow[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodValue | "">("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
@@ -123,6 +128,14 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
       setSubmitError(null);
       setSubmitSuccess(null);
 
+      // Validate payment method selection [RN-GLOBAL-004]
+      if (!paymentMethod) {
+        setSubmitError(
+          "Debe seleccionar un método de pago antes de confirmar el despacho.",
+        );
+        return;
+      }
+
       // Validate substitution reasons
       for (const row of rows) {
         if (row.wasSubstituted && !row.substitutionReason.trim()) {
@@ -143,10 +156,11 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
         }
       }
 
-      // 1. Create dispense header
+      // 1. Create dispense header (includes payment method per RN-GLOBAL-004)
       const dispenseRes = await doCreateDispense({
         prescriptionId,
         totalAmount: Math.round(total * 100) / 100,
+        paymentMethod,
         state: 1,
       });
 
@@ -196,12 +210,15 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
 
       const totalFormatted = formatCurrency(Math.round(total * 100) / 100);
       const itemCount = rows.length;
+      const methodLabel =
+        PAYMENT_METHODS.find((m) => m.value === paymentMethod)?.label ??
+        paymentMethod;
       setSubmitSuccess(
-        `Despacho registrado exitosamente. ${itemCount} medicamento(s) despachado(s). Total: ${totalFormatted}.`,
+        `Despacho registrado exitosamente. ${itemCount} medicamento(s) despachado(s). Total: ${totalFormatted}. Pago: ${methodLabel}.`,
       );
       onSuccess?.(dispenseId);
     },
-    [rows, total, prescriptionId, doCreateDispense, onSuccess],
+    [rows, total, prescriptionId, paymentMethod, doCreateDispense, onSuccess],
   );
 
   if (itemsLoading) {
@@ -292,6 +309,57 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
           <span className="text-2xl font-bold text-blue-800 dark:text-blue-300">
             {formatCurrency(total)}
           </span>
+        </div>
+
+        {/* Payment method selector [RN-GLOBAL-004] */}
+        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border mt-2">
+          <h3 className="text-md font-bold mb-3">
+            <i className="bi bi-credit-card mr-2" />
+            Método de Pago
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {PAYMENT_METHODS.map((method) => (
+              <button
+                key={method.value}
+                className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all text-left ${
+                  paymentMethod === method.value
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400"
+                    : "border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400"
+                }`}
+                type="button"
+                onClick={() => setPaymentMethod(method.value)}
+              >
+                <i
+                  className={`bi ${
+                    method.value === "EFECTIVO"
+                      ? "bi-cash-coin"
+                      : method.value === "TARJETA_CREDITO"
+                        ? "bi-credit-card-2-front"
+                        : "bi-credit-card"
+                  } text-xl ${
+                    paymentMethod === method.value
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-500"
+                  }`}
+                />
+                <span
+                  className={`text-sm font-medium ${
+                    paymentMethod === method.value
+                      ? "text-blue-700 dark:text-blue-300"
+                      : "text-gray-700 dark:text-gray-300"
+                  }`}
+                >
+                  {method.label}
+                </span>
+              </button>
+            ))}
+          </div>
+          {!paymentMethod && submitError?.includes("método de pago") ? (
+            <p className="text-danger text-sm mt-2">
+              <i className="bi bi-exclamation-circle mr-1" />
+              Seleccione un método de pago
+            </p>
+          ) : null}
         </div>
 
         {/* Submit */}

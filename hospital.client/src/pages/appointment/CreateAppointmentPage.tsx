@@ -1,6 +1,7 @@
 import { toast } from "@heroui/react";
-import { useCallback, useState } from "react";
-import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 
 import { Step1Patient } from "../../components/appointment/Step1Patient";
 import { Step2Branch } from "../../components/appointment/Step2Branch";
@@ -16,10 +17,20 @@ import {
 } from "../../configs/constants";
 import { useAdminAppointmentHub } from "../../hooks/useAdminAppointmentHub";
 import { useAuth } from "../../hooks/useAuth";
-import { createAppointment } from "../../services/appointmentService";
+import {
+  createAppointment,
+  getAppointmentById,
+} from "../../services/appointmentService";
+import { getMedicalConsultationById } from "../../services/medicalConsultationService";
 import type { BranchResponse } from "../../types/BranchResponse";
 import type { DoctorResponse } from "../../types/PatientPortalTypes";
 import type { SpecialtyResponse } from "../../types/SpecialtyResponse";
+
+/** Follow-up type labels per RN-CU11-01 */
+const FOLLOW_UP_TYPES = [
+  { value: 1, label: "Monitoreo de Tratamiento" },
+  { value: 2, label: "Revisión de Resultados de Laboratorio" },
+] as const;
 
 interface WizardState {
   step: 1 | 2 | 3 | 4 | 5 | 6;
@@ -33,6 +44,31 @@ interface WizardState {
 export function CreateAppointmentPage() {
   const navigate = useNavigate();
   const { userId } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  // ── Follow-up detection ─────────────────────────────────────────────────
+  const isFollowUp = searchParams.get("followUp") === "true";
+  const parentConsultationId = searchParams.get("parentConsultationId");
+
+  const [followUpType, setFollowUpType] = useState<number>(0);
+  const [followUpLoading, setFollowUpLoading] = useState(isFollowUp);
+
+  // ── Fetch parent consultation → parent appointment for pre-population ──
+  const { data: consultationData } = useQuery({
+    queryKey: ["followUp-consultation", parentConsultationId],
+    queryFn: () => getMedicalConsultationById(Number(parentConsultationId)),
+    enabled: isFollowUp && !!parentConsultationId,
+  });
+
+  const parentAppointmentId = consultationData?.success
+    ? consultationData.data.appointmentId
+    : null;
+
+  const { data: appointmentData } = useQuery({
+    queryKey: ["followUp-appointment", parentAppointmentId],
+    queryFn: () => getAppointmentById(Number(parentAppointmentId)),
+    enabled: !!parentAppointmentId,
+  });
 
   const [wizard, setWizard] = useState<WizardState>({
     step: 1,
@@ -46,7 +82,43 @@ export function CreateAppointmentPage() {
   const [slotConflictError, setSlotConflictError] = useState(false);
   const [hubDate, setHubDate] = useState<string | null>(null);
 
+  // ── Pre-populate wizard when follow-up data arrives ─────────────────────
+  useEffect(() => {
+    if (!isFollowUp || !appointmentData?.success) return;
+    const appt = appointmentData.data;
+
+    setWizard({
+      step: 5,
+      patient: appt.patient
+        ? { id: appt.patient.id, name: appt.patient.name ?? "" }
+        : null,
+      branch: appt.branch ?? null,
+      specialty: appt.specialty ?? null,
+      doctor: appt.doctor
+        ? {
+            id: appt.doctor.id,
+            name: appt.doctor.name ?? "",
+            specialtyId: appt.specialtyId,
+            specialtyName: appt.specialty?.name,
+          }
+        : null,
+      appointmentDate: null,
+    });
+    setFollowUpLoading(false);
+  }, [isFollowUp, appointmentData]);
+
   const hub = useAdminAppointmentHub(wizard.doctor?.id ?? null, hubDate);
+
+  // ── Follow-up context summary for display ───────────────────────────────
+  const followUpSummary = useMemo(() => {
+    if (!isFollowUp || !wizard.patient) return null;
+    return {
+      patientName: wizard.patient.name,
+      doctorName: wizard.doctor?.name ?? "",
+      specialtyName: wizard.specialty?.name ?? "",
+      branchName: wizard.branch?.name ?? "",
+    };
+  }, [isFollowUp, wizard.patient, wizard.doctor, wizard.specialty, wizard.branch]);
 
   const handlePatientSelect = useCallback(
     (patient: { id: number; name: string }) =>
@@ -115,6 +187,13 @@ export function CreateAppointmentPage() {
         );
       }
 
+      // Validate follow-up type selection [RN-CU11-01]
+      if (isFollowUp && !followUpType) {
+        throw new Error(
+          "Debe seleccionar el tipo de seguimiento antes de confirmar.",
+        );
+      }
+
       const response = await createAppointment({
         patientId: wizard.patient.id,
         doctorId: wizard.doctor.id,
@@ -127,10 +206,23 @@ export function CreateAppointmentPage() {
         amount: CONSULTATION_FEE,
         state: 1,
         createdBy: userId,
+        ...(isFollowUp && {
+          followUpType,
+          parentConsultationId: Number(parentConsultationId),
+        }),
       });
 
       if (response.success) {
-        toast.success("Cita agendada correctamente");
+        if (isFollowUp) {
+          const typeLabel =
+            FOLLOW_UP_TYPES.find((t) => t.value === followUpType)?.label ??
+            String(followUpType);
+          toast.success(
+            `Cita de seguimiento agendada exitosamente. Tipo: ${typeLabel}. Paciente: ${wizard.patient.name}.`,
+          );
+        } else {
+          toast.success("Cita agendada correctamente");
+        }
         navigate(nameRoutes.appointment);
       } else {
         const isConflict =
@@ -149,22 +241,106 @@ export function CreateAppointmentPage() {
         );
       }
     },
-    [wizard, userId, navigate],
+    [wizard, userId, navigate, isFollowUp, followUpType, parentConsultationId],
   );
+
+  // ── Loading state for follow-up pre-population ──────────────────────────
+  if (followUpLoading) {
+    return (
+      <section className="min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 dark:bg-gray-900">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="animate-pulse text-gray-500 dark:text-gray-400">
+            <i className="bi bi-arrow-repeat animate-spin text-2xl mr-2" />
+            Cargando datos de la consulta para cita de seguimiento...
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="min-h-[calc(100vh-140px)] bg-gray-50 px-4 py-10 dark:bg-gray-900">
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            <i className="bi bi-calendar-plus mr-2 text-blue-600" />
-            Crear Nueva Cita
+            <i
+              className={`bi ${isFollowUp ? "bi-calendar2-check" : "bi-calendar-plus"} mr-2 text-blue-600`}
+            />
+            {isFollowUp ? "Agendar Cita de Seguimiento" : "Crear Nueva Cita"}
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Complete los pasos para agendar una cita desde el panel
-            administrativo.
+            {isFollowUp
+              ? "Seleccione el tipo de seguimiento y un horario disponible."
+              : "Complete los pasos para agendar una cita desde el panel administrativo."}
           </p>
         </div>
+
+        {/* Follow-up context banner */}
+        {isFollowUp && followUpSummary ? (
+          <div className="mb-4 rounded-xl bg-green-50 border border-green-200 px-4 py-3 dark:bg-green-900/20 dark:border-green-700">
+            <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">
+              <i className="bi bi-arrow-repeat mr-2" />
+              Datos pre-cargados de la consulta
+            </p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-green-800 dark:text-green-200">
+              <span>
+                <strong>Paciente:</strong> {followUpSummary.patientName}
+              </span>
+              <span>
+                <strong>Médico:</strong> {followUpSummary.doctorName}
+              </span>
+              <span>
+                <strong>Especialidad:</strong> {followUpSummary.specialtyName}
+              </span>
+              <span>
+                <strong>Sucursal:</strong> {followUpSummary.branchName}
+              </span>
+            </div>
+          </div>
+        ) : null}
+
+        {/* Follow-up type selector [RN-CU11-01] */}
+        {isFollowUp ? (
+          <div className="mb-4 rounded-xl bg-white border p-4 dark:bg-gray-800 dark:border-gray-700">
+            <h3 className="text-md font-bold mb-3 text-gray-800 dark:text-gray-100">
+              <i className="bi bi-clipboard2-pulse mr-2" />
+              Tipo de Seguimiento
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {FOLLOW_UP_TYPES.map((type) => (
+                <button
+                  key={type.value}
+                  className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all text-left ${
+                    followUpType === type.value
+                      ? "border-green-500 bg-green-50 dark:bg-green-900/30 dark:border-green-400"
+                      : "border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400"
+                  }`}
+                  type="button"
+                  onClick={() => setFollowUpType(type.value)}
+                >
+                  <i
+                    className={`bi ${
+                      type.value === 1 ? "bi-heart-pulse" : "bi-file-earmark-medical"
+                    } text-xl ${
+                      followUpType === type.value
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-gray-500"
+                    }`}
+                  />
+                  <span
+                    className={`text-sm font-medium ${
+                      followUpType === type.value
+                        ? "text-green-700 dark:text-green-300"
+                        : "text-gray-700 dark:text-gray-300"
+                    }`}
+                  >
+                    {type.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <StepIndicator current={wizard.step} total={TOTAL_APPOINTMENT_STEPS} />
 
@@ -216,7 +392,7 @@ export function CreateAppointmentPage() {
               doctorName={wizard.doctor.name}
               hub={hub}
               specialtyName={wizard.specialty.name}
-              onBack={handleBackToStep4}
+              onBack={isFollowUp ? () => navigate(-1) : handleBackToStep4}
               onDateChange={setHubDate}
               onSelect={handleSlotSelect}
             />
