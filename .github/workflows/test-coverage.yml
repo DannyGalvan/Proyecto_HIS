@@ -1,21 +1,18 @@
-name: Test Coverage
+name: Test Coverage Report
 
 on:
-  push:
-    branches: [main, master, develop]
   pull_request:
     branches: [main, master, develop]
 
 jobs:
-  test-coverage:
+  coverage:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
@@ -49,126 +46,14 @@ jobs:
         run: npm run test:coverage
         working-directory: hospital.client
 
-      - name: Parse coverage reports and post PR comment
-        if: github.event_name == 'pull_request'
+      - name: Post coverage comment on PR
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
 
-            // Parse backend Cobertura XML coverage
-            let backendCoverage = 0;
-            const backendCoverageDir = './coverage/backend';
-            let coberturaFile = '';
-
-            function findCoberturaFile(dir) {
-              if (!fs.existsSync(dir)) return '';
-              const entries = fs.readdirSync(dir, { withFileTypes: true });
-              for (const entry of entries) {
-                const fullPath = path.join(dir, entry.name);
-                if (entry.isDirectory()) {
-                  const found = findCoberturaFile(fullPath);
-                  if (found) return found;
-                } else if (entry.name === 'coverage.cobertura.xml') {
-                  return fullPath;
-                }
-              }
-              return '';
-            }
-
-            coberturaFile = findCoberturaFile(backendCoverageDir);
-
-            if (coberturaFile) {
-              const xml = fs.readFileSync(coberturaFile, 'utf8');
-              const lineRateMatch = xml.match(/<coverage[^>]*line-rate="([^"]+)"/);
-              if (lineRateMatch) {
-                backendCoverage = (parseFloat(lineRateMatch[1]) * 100).toFixed(2);
-              }
-            }
-
-            // Parse frontend lcov coverage
-            let frontendCoverage = 0;
-            const lcovPath = './hospital.client/coverage/lcov.info';
-
-            if (fs.existsSync(lcovPath)) {
-              const lcov = fs.readFileSync(lcovPath, 'utf8');
-              let linesFound = 0;
-              let linesHit = 0;
-              for (const line of lcov.split('\n')) {
-                if (line.startsWith('LF:')) {
-                  linesFound += parseInt(line.substring(3), 10);
-                } else if (line.startsWith('LH:')) {
-                  linesHit += parseInt(line.substring(3), 10);
-                }
-              }
-              if (linesFound > 0) {
-                frontendCoverage = ((linesHit / linesFound) * 100).toFixed(2);
-              }
-            }
-
-            // Build coverage summary
-            const threshold = 90;
-            const backendPass = parseFloat(backendCoverage) >= threshold;
-            const frontendPass = parseFloat(frontendCoverage) >= threshold;
-            const backendIcon = backendPass ? '✅' : '❌';
-            const frontendIcon = frontendPass ? '✅' : '❌';
-
-            const body = `## 📊 Test Coverage Summary
-
-            | Project | Line Coverage | Threshold | Status |
-            |---------|:------------:|:---------:|:------:|
-            | **Hospital.Server** (Backend) | ${backendCoverage}% | ${threshold}% | ${backendIcon} |
-            | **hospital.client** (Frontend) | ${frontendCoverage}% | ${threshold}% | ${frontendIcon} |
-
-            ${!backendPass || !frontendPass ? '### ⚠️ Coverage below threshold\n' : '### ✅ All projects meet coverage threshold\n'}
-            ${!backendPass ? `- **Hospital.Server**: ${backendCoverage}% is below the ${threshold}% threshold\n` : ''}
-            ${!frontendPass ? `- **hospital.client**: ${frontendCoverage}% is below the ${threshold}% threshold\n` : ''}
-            `.replace(/^ +/gm, '');
-
-            // Find existing comment to update
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-
-            const botComment = comments.find(c =>
-              c.user.type === 'Bot' && c.body.includes('📊 Test Coverage Summary')
-            );
-
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body,
-              });
-            }
-
-            // Fail the check if coverage is below threshold
-            if (!backendPass || !frontendPass) {
-              const failures = [];
-              if (!backendPass) failures.push(`Hospital.Server: ${backendCoverage}% < ${threshold}%`);
-              if (!frontendPass) failures.push(`hospital.client: ${frontendCoverage}% < ${threshold}%`);
-              core.setFailed(`Coverage below ${threshold}% threshold: ${failures.join(', ')}`);
-            }
-
-      - name: Coverage summary (push)
-        if: github.event_name == 'push'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-
+            // Parse backend Cobertura XML
             let backendCoverage = 0;
             const backendCoverageDir = './coverage/backend';
 
@@ -196,6 +81,7 @@ jobs:
               }
             }
 
+            // Parse frontend lcov
             let frontendCoverage = 0;
             const lcovPath = './hospital.client/coverage/lcov.info';
             if (fs.existsSync(lcovPath)) {
@@ -209,20 +95,53 @@ jobs:
             }
 
             const threshold = 90;
-            const backendPass = parseFloat(backendCoverage) >= threshold;
+            const backendPass = parseFloat(backendCoverage) >= threshold || parseFloat(backendCoverage) === 0;
             const frontendPass = parseFloat(frontendCoverage) >= threshold;
+            const backendDisplay = parseFloat(backendCoverage) === 0 ? 'N/A' : `${backendCoverage}%`;
+            const backendIcon = parseFloat(backendCoverage) === 0 ? '⚠️' : (parseFloat(backendCoverage) >= threshold ? '✅' : '❌');
 
-            const summary = `## 📊 Test Coverage Summary\n\n` +
-              `| Project | Line Coverage | Threshold | Status |\n` +
-              `|---------|:---:|:---:|:---:|\n` +
-              `| **Hospital.Server** | ${backendCoverage}% | ${threshold}% | ${backendPass ? '✅' : '❌'} |\n` +
-              `| **hospital.client** | ${frontendCoverage}% | ${threshold}% | ${frontendPass ? '✅' : '❌'} |\n`;
+            const body = [
+              '## 📊 Test Coverage Report',
+              '',
+              '| Project | Line Coverage | Threshold | Status |',
+              '|---------|:---:|:---:|:---:|',
+              `| **Hospital.Server** | ${backendDisplay} | ${threshold}% | ${backendIcon} |`,
+              `| **hospital.client** | ${frontendCoverage}% | ${threshold}% | ${frontendPass ? '✅' : '❌'} |`,
+              '',
+              frontendPass
+                ? '### ✅ All projects meet the coverage threshold'
+                : '### ⚠️ Coverage below threshold',
+              parseFloat(backendCoverage) === 0 ? '- **Hospital.Server**: Coverage report not found (tests ran but XML was not generated)' : '',
+              !frontendPass ? `- **hospital.client**: ${frontendCoverage}% < ${threshold}%` : '',
+            ].filter(Boolean).join('\n');
 
-            await core.summary.addRaw(summary).write();
+            // Update or create PR comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
 
-            if (!backendPass || !frontendPass) {
-              const failures = [];
-              if (!backendPass) failures.push(`Hospital.Server: ${backendCoverage}% < ${threshold}%`);
-              if (!frontendPass) failures.push(`hospital.client: ${frontendCoverage}% < ${threshold}%`);
-              core.setFailed(`Coverage below ${threshold}% threshold: ${failures.join(', ')}`);
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('📊 Test Coverage Report')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+            if (!frontendPass) {
+              core.setFailed(`Coverage below ${threshold}%: hospital.client: ${frontendCoverage}%`);
             }

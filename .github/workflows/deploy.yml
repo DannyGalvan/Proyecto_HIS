@@ -1,0 +1,140 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: hospital.client/package-lock.json
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore .NET dependencies
+        run: dotnet restore Hospital.sln
+
+      - name: Run backend tests
+        run: dotnet test Hospital.Server.Tests/Hospital.Server.Tests.csproj --no-restore
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: hospital.client
+
+      - name: Run frontend tests with coverage
+        run: npm run test:coverage
+        working-directory: hospital.client
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: hospital.client/package-lock.json
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build frontend
+        run: |
+          npm ci
+          npm run build
+        working-directory: hospital.client
+
+      - name: Publish backend (linux-x64)
+        run: |
+          dotnet restore Hospital.sln
+          dotnet publish Hospital.Server/Hospital.Server.csproj \
+            --configuration Release \
+            --runtime linux-x64 \
+            --self-contained false \
+            --output ./publish
+
+      - name: Copy frontend to backend wwwroot
+        run: |
+          mkdir -p ./publish/wwwroot
+          cp -r hospital.client/dist/* ./publish/wwwroot/
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            echo "🛑 Stopping hospital service..."
+            sudo systemctl stop hospital.service || true
+            sleep 2
+
+            echo "📦 Backing up current deployment..."
+            rm -rf /home/administrator/Sites/Hospital-backup
+            cp -r /home/administrator/Sites/Hospital /home/administrator/Sites/Hospital-backup || true
+
+            echo "🧹 Cleaning deployment directory..."
+            rm -rf /home/administrator/Sites/Hospital/*
+
+      - name: Upload artifacts to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "publish/*"
+          target: "/home/administrator/Sites/Hospital"
+          strip_components: 1
+
+      - name: Start service and verify
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            echo "🔑 Setting permissions..."
+            chmod +x /home/administrator/Sites/Hospital/Hospital.Server
+
+            echo "📋 Restoring appsettings from backup..."
+            cp /home/administrator/Sites/Hospital-backup/appsettings.json /home/administrator/Sites/Hospital/appsettings.json 2>/dev/null || true
+            cp /home/administrator/Sites/Hospital-backup/appsettings.Production.json /home/administrator/Sites/Hospital/appsettings.Production.json 2>/dev/null || true
+
+            echo "🚀 Starting hospital service..."
+            sudo systemctl start hospital.service
+            sleep 5
+
+            if sudo systemctl is-active --quiet hospital.service; then
+              echo "✅ hospital.service is running"
+            else
+              echo "❌ hospital.service failed to start, rolling back..."
+              sudo journalctl -u hospital.service --no-pager -n 30
+              rm -rf /home/administrator/Sites/Hospital
+              cp -r /home/administrator/Sites/Hospital-backup /home/administrator/Sites/Hospital
+              sudo systemctl start hospital.service
+              exit 1
+            fi
+
+            echo "🔄 Reloading nginx..."
+            sudo nginx -t && sudo systemctl reload nginx
+
+            echo "✅ Deployment complete!"
