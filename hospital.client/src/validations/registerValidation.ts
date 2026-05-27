@@ -47,7 +47,6 @@ export type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const validateRegister = (data: unknown): ErrorObject => {
   const result = registerSchema.safeParse(data);
-  console.log(result);
   if (!result.success) return handleOneLevelZodError(result.error);
   return {};
 };
