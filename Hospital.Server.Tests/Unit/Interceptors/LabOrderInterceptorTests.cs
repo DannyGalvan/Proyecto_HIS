@@ -192,5 +192,79 @@ namespace Hospital.Server.Tests.Unit.Interceptors
             result.Success.Should().BeTrue();
             result.Data.Should().BeNull();
         }
+
+        [Fact]
+        public void Execute_WhenConsultationIdIsNull_FailsWithValidationError()
+        {
+            // Arrange
+            var labOrder = new LabOrder
+            {
+                Id = 0,
+                ConsultationId = 0,
+                DoctorId = 2,
+                PatientId = 1,
+                State = 1,
+                CreatedBy = 2
+            };
+
+            var response = new Response<LabOrder, List<ValidationFailure>>
+            {
+                Success = true,
+                Data = labOrder
+            };
+
+            var request = new LabOrderRequest
+            {
+                ConsultationId = null,
+                DoctorId = 2,
+                PatientId = 1,
+                CreatedBy = 2
+            };
+
+            // Act
+            var result = _sut.Execute(response, request);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.PropertyName.Should().Be("ConsultationId");
+        }
+
+        [Fact]
+        public void Execute_WhenConsultationIdIsZero_FailsWithValidationError()
+        {
+            // Arrange
+            var labOrder = new LabOrder
+            {
+                Id = 0,
+                ConsultationId = 0,
+                DoctorId = 2,
+                PatientId = 1,
+                State = 1,
+                CreatedBy = 2
+            };
+
+            var response = new Response<LabOrder, List<ValidationFailure>>
+            {
+                Success = true,
+                Data = labOrder
+            };
+
+            var request = new LabOrderRequest
+            {
+                ConsultationId = 0,
+                DoctorId = 2,
+                PatientId = 1,
+                CreatedBy = 2
+            };
+
+            // Act
+            var result = _sut.Execute(response, request);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.PropertyName.Should().Be("ConsultationId");
+        }
     }
 }

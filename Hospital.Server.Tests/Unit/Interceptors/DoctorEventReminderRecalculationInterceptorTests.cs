@@ -181,5 +181,105 @@ namespace Hospital.Server.Tests.Unit.Interceptors
             var result = _sut.Execute(response, request);
             result.Success.Should().BeTrue();
         }
+
+        [Fact]
+        public void Execute_AfterUpdate_CancelsExistingNotificationLogEntries()
+        {
+            // Arrange
+            const long eventId = 50L;
+            DbContext.NotificationLogs.Add(new NotificationLog
+            {
+                Id = 50,
+                RecipientEmail = "doctor@test.com",
+                Subject = "Event Reminder",
+                NotificationType = 11,
+                RelatedEntityType = "DoctorEvent",
+                RelatedEntityId = eventId,
+                Status = 1,
+                State = 1,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = 1
+            });
+            DbContext.SaveChanges();
+
+            var doctorEvent = new DoctorEvent
+            {
+                Id = eventId,
+                DoctorId = 2,
+                Title = "Updated Event",
+                StartDate = DateTime.UtcNow.AddHours(3),
+                EndDate = DateTime.UtcNow.AddHours(4),
+                EventType = 0,
+                State = 1,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = 2
+            };
+
+            var prevState = new DoctorEvent
+            {
+                Id = eventId,
+                DoctorId = 2,
+                Title = "Original Event",
+                StartDate = DateTime.UtcNow.AddHours(1),
+                EndDate = DateTime.UtcNow.AddHours(2),
+                EventType = 0,
+                State = 1,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = 2
+            };
+
+            var response = new Response<DoctorEvent, List<ValidationFailure>>
+            {
+                Success = true,
+                Data = doctorEvent
+            };
+
+            var request = new DoctorEventRequest { DoctorId = 2, CreatedBy = 2 };
+
+            // Act
+            var result = _sut.Execute(response, request, prevState);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            var notification = DbContext.NotificationLogs.Find(50L);
+            notification!.Status.Should().Be(0); // Cancelled
+        }
+
+        [Fact]
+        public void Execute_AfterUpdate_WhenResponseNotSuccess_DoesNotCancel()
+        {
+            // Arrange
+            DbContext.NotificationLogs.Add(new NotificationLog
+            {
+                Id = 51,
+                RecipientEmail = "doctor@test.com",
+                Subject = "Event Reminder",
+                NotificationType = 11,
+                RelatedEntityType = "DoctorEvent",
+                RelatedEntityId = 60,
+                Status = 1,
+                State = 1,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = 1
+            });
+            DbContext.SaveChanges();
+
+            var response = new Response<DoctorEvent, List<ValidationFailure>>
+            {
+                Success = false,
+                Data = null
+            };
+
+            var request = new DoctorEventRequest();
+            var prevState = new DoctorEvent { Id = 60, CreatedBy = 2 };
+
+            // Act
+            var result = _sut.Execute(response, request, prevState);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            var notification = DbContext.NotificationLogs.Find(51L);
+            notification!.Status.Should().Be(1); // Unchanged
+        }
     }
 }

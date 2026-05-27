@@ -183,5 +183,75 @@ namespace Hospital.Server.Tests.Unit.Interceptors
             result.Success.Should().BeTrue();
             result.Data.Should().BeNull();
         }
+
+        [Fact]
+        public void Execute_WhenConsultationIdIsNull_FailsWithValidationError()
+        {
+            // Arrange
+            var prescription = new Prescription
+            {
+                Id = 0,
+                ConsultationId = 0,
+                DoctorId = 2,
+                State = 1,
+                CreatedBy = 2
+            };
+
+            var response = new Response<Prescription, List<ValidationFailure>>
+            {
+                Success = true,
+                Data = prescription
+            };
+
+            var request = new PrescriptionRequest
+            {
+                ConsultationId = null,
+                DoctorId = 2,
+                CreatedBy = 2
+            };
+
+            // Act
+            var result = _sut.Execute(response, request);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.PropertyName.Should().Be("ConsultationId");
+        }
+
+        [Fact]
+        public void Execute_WhenConsultationIdIsZero_FailsWithValidationError()
+        {
+            // Arrange
+            var prescription = new Prescription
+            {
+                Id = 0,
+                ConsultationId = 0,
+                DoctorId = 2,
+                State = 1,
+                CreatedBy = 2
+            };
+
+            var response = new Response<Prescription, List<ValidationFailure>>
+            {
+                Success = true,
+                Data = prescription
+            };
+
+            var request = new PrescriptionRequest
+            {
+                ConsultationId = 0,
+                DoctorId = 2,
+                CreatedBy = 2
+            };
+
+            // Act
+            var result = _sut.Execute(response, request);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Errors.Should().ContainSingle()
+                .Which.PropertyName.Should().Be("ConsultationId");
+        }
     }
 }

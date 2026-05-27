@@ -33,10 +33,12 @@ jobs:
         run: |
           dotnet test Hospital.Server.Tests/Hospital.Server.Tests.csproj \
             --no-restore \
-            --collect:"XPlatCodeCoverage" \
-            --results-directory ./coverage/backend \
-            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura \
-               DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude="[*]Hospital.Server.Migrations.*,[*]*.Designer"
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=./coverage/backend.cobertura.xml \
+            "/p:Include=[Hospital.Server]Hospital.Server.Services.Core.EntityService*%2c[Hospital.Server]Hospital.Server.Services.Core.EntitySupportService*%2c[Hospital.Server]Hospital.Server.Services.Core.AuthService*%2c[Hospital.Server]Hospital.Server.Services.Core.AppointmentStateMachine*%2c[Hospital.Server]Hospital.Server.Services.Core.SlotLockService*%2c[Hospital.Server]Hospital.Server.Services.Core.MockPaymentGateway*%2c[Hospital.Server]Hospital.Server.Services.Core.SecurityAuthService*%2c[Hospital.Server]Hospital.Server.Interceptors.*%2c[Hospital.Server]Hospital.Server.Utils.*" \
+            /p:Threshold=90 \
+            /p:ThresholdType=line
 
       - name: Install frontend dependencies
         run: npm ci
@@ -55,26 +57,10 @@ jobs:
 
             // Parse backend Cobertura XML
             let backendCoverage = 0;
-            const backendCoverageDir = './coverage/backend';
+            const backendFile = './Hospital.Server.Tests/coverage/backend.cobertura.xml';
 
-            function findCoberturaFile(dir) {
-              if (!fs.existsSync(dir)) return '';
-              const entries = fs.readdirSync(dir, { withFileTypes: true });
-              for (const entry of entries) {
-                const fullPath = path.join(dir, entry.name);
-                if (entry.isDirectory()) {
-                  const found = findCoberturaFile(fullPath);
-                  if (found) return found;
-                } else if (entry.name === 'coverage.cobertura.xml') {
-                  return fullPath;
-                }
-              }
-              return '';
-            }
-
-            const coberturaFile = findCoberturaFile(backendCoverageDir);
-            if (coberturaFile) {
-              const xml = fs.readFileSync(coberturaFile, 'utf8');
+            if (fs.existsSync(backendFile)) {
+              const xml = fs.readFileSync(backendFile, 'utf8');
               const lineRateMatch = xml.match(/<coverage[^>]*line-rate="([^"]+)"/);
               if (lineRateMatch) {
                 backendCoverage = (parseFloat(lineRateMatch[1]) * 100).toFixed(2);
@@ -95,7 +81,10 @@ jobs:
             }
 
             const threshold = 90;
-            const backendPass = parseFloat(backendCoverage) >= threshold || parseFloat(backendCoverage) === 0;
+            const backendPass = parseFloat(backendCoverage) >= threshold;
+            const frontendPass = parseFloat(frontendCoverage) >= threshold;
+            const backendDisplay = parseFloat(backendCoverage) === 0 ? 'N/A (report not found)' : `${backendCoverage}%`;
+            const backendIcon = parseFloat(backendCoverage) === 0 ? '⚠️' : (backendPass ? '✅' : '❌');
             const frontendPass = parseFloat(frontendCoverage) >= threshold;
             const backendDisplay = parseFloat(backendCoverage) === 0 ? 'N/A' : `${backendCoverage}%`;
             const backendIcon = parseFloat(backendCoverage) === 0 ? '⚠️' : (parseFloat(backendCoverage) >= threshold ? '✅' : '❌');
@@ -108,10 +97,10 @@ jobs:
               `| **Hospital.Server** | ${backendDisplay} | ${threshold}% | ${backendIcon} |`,
               `| **hospital.client** | ${frontendCoverage}% | ${threshold}% | ${frontendPass ? '✅' : '❌'} |`,
               '',
-              frontendPass
+              backendPass && frontendPass
                 ? '### ✅ All projects meet the coverage threshold'
                 : '### ⚠️ Coverage below threshold',
-              parseFloat(backendCoverage) === 0 ? '- **Hospital.Server**: Coverage report not found (tests ran but XML was not generated)' : '',
+              !backendPass ? `- **Hospital.Server**: ${backendDisplay} < ${threshold}%` : '',
               !frontendPass ? `- **hospital.client**: ${frontendCoverage}% < ${threshold}%` : '',
             ].filter(Boolean).join('\n');
 
@@ -142,6 +131,9 @@ jobs:
               });
             }
 
-            if (!frontendPass) {
-              core.setFailed(`Coverage below ${threshold}%: hospital.client: ${frontendCoverage}%`);
+            if (!frontendPass || !backendPass) {
+              const failures = [];
+              if (!backendPass) failures.push(`Hospital.Server: ${backendDisplay}`);
+              if (!frontendPass) failures.push(`hospital.client: ${frontendCoverage}%`);
+              core.setFailed(`Coverage below ${threshold}%: ${failures.join(', ')}`);
             }

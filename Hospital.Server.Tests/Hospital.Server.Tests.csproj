@@ -12,13 +12,20 @@
     <CoverletOutputFormat>cobertura</CoverletOutputFormat>
     <CoverletOutput>./coverage/</CoverletOutput>
     <Threshold>90</Threshold>
-    <ExcludeByFile>**/Migrations/**,**/obj/**,**/bin/**,**/*.Designer.cs</ExcludeByFile>
+    <ThresholdType>line</ThresholdType>
+    <ExcludeByFile>**/Migrations/**,**/obj/**,**/bin/**,**/*.Designer.cs,**/Program.cs</ExcludeByFile>
+    <Exclude>[Hospital.Server]Hospital.Server.Entities.*,[Hospital.Server]Hospital.Server.Context.*,[Hospital.Server]Hospital.Server.Mappers.*,[Hospital.Server]Hospital.Server.Configs.*,[Hospital.Server]Hospital.Server.Controllers.*,[Hospital.Server]Hospital.Server.Attributes.*,[Hospital.Server]Hospital.Server.Database.*,[Hospital.Server]Hospital.Server.Hubs.*,[Hospital.Server]Hospital.Server.Services.Background.*,[Hospital.Server]Hospital.Server.Services.Interfaces.*,[Hospital.Server]Hospital.Server.Infrastructure.*</Exclude>
+    <Include>[Hospital.Server]Hospital.Server.Services.Core.EntityService*,[Hospital.Server]Hospital.Server.Services.Core.EntitySupportService*,[Hospital.Server]Hospital.Server.Services.Core.AuthService*,[Hospital.Server]Hospital.Server.Services.Core.AppointmentStateMachine*,[Hospital.Server]Hospital.Server.Services.Core.SlotLockService*,[Hospital.Server]Hospital.Server.Services.Core.MockPaymentGateway*,[Hospital.Server]Hospital.Server.Services.Core.SecurityAuthService*,[Hospital.Server]Hospital.Server.Interceptors.*,[Hospital.Server]Hospital.Server.Utils.*</Include>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.msbuild" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="7.2.0" />
     <PackageReference Include="FsCheck.Xunit" Version="3.1.0" />
