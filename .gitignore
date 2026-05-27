@@ -293,3 +293,4 @@ _Pvt_Extensions
 
 # Deploy setup (local only)
 DEPLOY_SETUP.md
+deploy-manual.sh
