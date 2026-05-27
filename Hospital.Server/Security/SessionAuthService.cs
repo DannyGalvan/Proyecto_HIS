@@ -1,10 +1,9 @@
 using System.Text.Json;
-using Lombok.NET;
-using Hospital.Server.Security;
-using Hospital.Server.Services.Interfaces;
 using Hospital.Server.Entities.Dtos.Security;
+using Hospital.Server.Services.Interfaces;
+using Lombok.NET;
 
-namespace Project.Server.Security
+namespace Hospital.Server.Security
 {
     /// <summary>
     /// Defines the <see cref="SessionAuthService" />

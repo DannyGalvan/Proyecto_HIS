@@ -136,16 +136,16 @@ describe("handleOneLevelZodError", () => {
       {
         code: ZodIssueCode.too_small,
         minimum: 1,
-        type: "string",
         inclusive: true,
+        origin: "string",
         path: ["name"],
         message: "Required",
       },
       {
         code: ZodIssueCode.too_small,
         minimum: 6,
-        type: "string",
         inclusive: true,
+        origin: "string",
         path: ["password"],
         message: "Too short",
       },
@@ -158,8 +158,8 @@ describe("handleOneLevelZodError", () => {
 describe("validationFailureToString", () => {
   it("converts validation failures to comma-separated string", () => {
     const errors = [
-      { propertyName: "Name", errorMessage: "Required" },
-      { propertyName: "Email", errorMessage: "Invalid" },
+      { propertyName: "Name", errorMessage: "Required", attemptedValue: {}, customerState: {}, errorCode: "NotEmpty" },
+      { propertyName: "Email", errorMessage: "Invalid", attemptedValue: {}, customerState: {}, errorCode: "EmailValidator" },
     ];
     expect(validationFailureToString(errors)).toBe(
       "Name: Required, Email: Invalid",
@@ -190,8 +190,8 @@ describe("errorObjectToString", () => {
 describe("mapValidationFailuresToFieldErrors", () => {
   it("maps PropertyName to camelCase keys", () => {
     const errors = [
-      { propertyName: "UserName", errorMessage: "Required" },
-      { propertyName: "Email", errorMessage: "Invalid" },
+      { propertyName: "UserName", errorMessage: "Required", attemptedValue: {}, customerState: {}, errorCode: "NotEmpty" },
+      { propertyName: "Email", errorMessage: "Invalid", attemptedValue: {}, customerState: {}, errorCode: "EmailValidator" },
     ];
     const result = mapValidationFailuresToFieldErrors(errors);
     expect(result).toEqual({ userName: "Required", email: "Invalid" });

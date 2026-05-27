@@ -58,6 +58,35 @@ export default defineConfig({
   base: "/",
   envDir: "./",
   envPrefix: "VITE_",
+  build: {
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Suppress annotation warnings from @microsoft/signalr
+        if (warning.code === "INVALID_ANNOTATION") return;
+        warn(warning);
+      },
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router"],
+          "vendor-query": [
+            "@tanstack/react-query",
+            "@tanstack/react-query-devtools",
+          ],
+          "vendor-heroui": ["@heroui/react", "@heroui/theme"],
+          "vendor-signalr": ["@microsoft/signalr"],
+          "vendor-calendar": [
+            "@fullcalendar/daygrid",
+            "@fullcalendar/interaction",
+            "@fullcalendar/react",
+            "@fullcalendar/timegrid",
+          ],
+          "vendor-utils": ["axios", "zustand", "zod", "framer-motion"],
+        },
+      },
+    },
+    cssMinify: "lightningcss",
+  },
   test: {
     globals: true,
     environment: "jsdom",
