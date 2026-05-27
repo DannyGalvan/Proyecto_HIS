@@ -44,6 +44,47 @@ jobs:
         run: npm run test:coverage
         working-directory: hospital.client
 
+      - name: Coverage Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let backendLine = 'N/A';
+            let backendBranch = 'N/A';
+            const backendFile = './Hospital.Server.Tests/coverage/backend.cobertura.xml';
+            if (fs.existsSync(backendFile)) {
+              const xml = fs.readFileSync(backendFile, 'utf8');
+              const lineMatch = xml.match(/line-rate="([^"]+)"/);
+              const branchMatch = xml.match(/branch-rate="([^"]+)"/);
+              if (lineMatch) backendLine = (parseFloat(lineMatch[1]) * 100).toFixed(2) + '%';
+              if (branchMatch) backendBranch = (parseFloat(branchMatch[1]) * 100).toFixed(2) + '%';
+            }
+
+            let frontendLine = 'N/A';
+            let frontendBranch = 'N/A';
+            let frontendFunctions = 'N/A';
+            const lcovPath = './hospital.client/coverage/lcov.info';
+            if (fs.existsSync(lcovPath)) {
+              const lcov = fs.readFileSync(lcovPath, 'utf8');
+              let lf = 0, lh = 0, bf = 0, bh = 0, fnf = 0, fnh = 0;
+              for (const line of lcov.split('\n')) {
+                if (line.startsWith('LF:')) lf += parseInt(line.substring(3), 10);
+                else if (line.startsWith('LH:')) lh += parseInt(line.substring(3), 10);
+                else if (line.startsWith('BRF:')) bf += parseInt(line.substring(4), 10);
+                else if (line.startsWith('BRH:')) bh += parseInt(line.substring(4), 10);
+                else if (line.startsWith('FNF:')) fnf += parseInt(line.substring(4), 10);
+                else if (line.startsWith('FNH:')) fnh += parseInt(line.substring(4), 10);
+              }
+              if (lf > 0) frontendLine = ((lh / lf) * 100).toFixed(2) + '%';
+              if (bf > 0) frontendBranch = ((bh / bf) * 100).toFixed(2) + '%';
+              if (fnf > 0) frontendFunctions = ((fnh / fnf) * 100).toFixed(2) + '%';
+            }
+
+            const summary = `## 📊 Test Coverage Summary\n\n| Project | Lines | Branches | Methods |\n|---------|:---:|:---:|:---:|\n| **Hospital.Server** | ${backendLine} | ${backendBranch} | — |\n| **hospital.client** | ${frontendLine} | ${frontendBranch} | ${frontendFunctions} |\n\n**Threshold:** 90% lines`;
+            await core.summary.addRaw(summary).write();
+
   deploy:
     runs-on: ubuntu-latest
     needs: test
