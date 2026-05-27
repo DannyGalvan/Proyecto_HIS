@@ -46,7 +46,7 @@ jobs:
         working-directory: hospital.client
 
       - name: Run frontend tests with coverage
-        run: npm run test -- --run --coverage
+        run: npm run test:coverage
         working-directory: hospital.client
 
       - name: Parse coverage reports and post PR comment
