@@ -301,45 +301,50 @@ namespace Hospital.Server.Services.Core
 
                 var entity = _mapper.Map<TEntity>(model!);
                 var database = _db.Set<TEntity>();
-                using var transaction = _db.Database.BeginTransaction();
 
-                foreach (var interceptor in _entitySupportService.GetBeforeCreateInterceptors<TEntity,TRequest>())
+                var strategy = _db.Database.CreateExecutionStrategy();
+                strategy.Execute(() =>
                 {
-                    if (!response.Success) return response;
+                    using var transaction = _db.Database.BeginTransaction();
 
+                    foreach (var interceptor in _entitySupportService.GetBeforeCreateInterceptors<TEntity,TRequest>())
+                    {
+                        if (!response.Success) return;
+
+                        response.Data = entity;
+
+                        response = interceptor.Execute(response, model);
+
+                        entity = response.Data!;
+                    }
+
+                    if (!response.Success) return;
+
+                    userId = entity.CreatedBy.ToString();
+
+                    entity.CreatedAt = DateTime.UtcNow;
+                    entity.UpdatedAt = null;
+                    entity.UpdatedBy = null;
+
+                    database.Add(entity);
+                    _db.SaveChanges();
+
+                    response.Errors = null;
                     response.Data = entity;
+                    response.Success = true;
+                    response.Message = $"Entity {typeof(TEntity).Name} created successfully";
 
-                    response = interceptor.Execute(response, model);
+                    if (!response.Success) return;
 
-                    entity = response.Data!;
-                }
+                    foreach (var interceptor in _entitySupportService.GetAfterCreateInterceptors<TEntity, TRequest>())
+                    {
+                        if (!response.Success) return;
 
-                if (!response.Success) return response;
+                        response = interceptor.Execute(response, model);
+                    }
 
-                userId = entity.CreatedBy.ToString();
-
-                entity.CreatedAt = DateTime.UtcNow;
-                entity.UpdatedAt = null;
-                entity.UpdatedBy = null;
-
-                database.Add(entity);
-                _db.SaveChanges();
-
-                response.Errors = null;
-                response.Data = entity;
-                response.Success = true;
-                response.Message = $"Entity {typeof(TEntity).Name} created successfully";
-
-                if (!response.Success) return response;
-
-                foreach (var interceptor in _entitySupportService.GetAfterCreateInterceptors<TEntity, TRequest>())
-                {
-                    if (!response.Success) return response;
-
-                    response = interceptor.Execute(response, model);
-                }
-
-                transaction.Commit();
+                    transaction.Commit();
+                });
 
                 return response;
             }
@@ -387,69 +392,73 @@ namespace Hospital.Server.Services.Core
                 TEntity entity = _mapper.Map<TEntity>(model!);
                 var database = _db.Set<TEntity>();
 
-                using var transaction = _db.Database.BeginTransaction();
-
-                var parameter = Expression.Parameter(typeof(TEntity), "x");
-                var member = Expression.PropertyOrField(parameter, "Id");
-                var constant = Expression.Constant(entity.Id);
-                var condition = Expression.Lambda<Func<TEntity, bool>>(Expression.Equal(member, constant), parameter);
-
-                TEntity? prevState = database.AsNoTracking().FirstOrDefault(condition);
-
-                if (prevState == null)
+                var strategy = _db.Database.CreateExecutionStrategy();
+                strategy.Execute(() =>
                 {
-                    response.Success = false;
-                    response.Message = $"Entity {typeof(TEntity).Name} not found";
-                    response.Errors = [new ValidationFailure("Id", $"Entity {typeof(TEntity).Name} not found")];
-                    response.Data = null;
+                    using var transaction = _db.Database.BeginTransaction();
 
-                    return response;
-                }
+                    var parameter = Expression.Parameter(typeof(TEntity), "x");
+                    var member = Expression.PropertyOrField(parameter, "Id");
+                    var constant = Expression.Constant(entity.Id);
+                    var condition = Expression.Lambda<Func<TEntity, bool>>(Expression.Equal(member, constant), parameter);
 
-                TEntity entityToUpdate = _mapper.Map<TEntity>(prevState);
+                    TEntity? prevState = database.AsNoTracking().FirstOrDefault(condition);
 
-                userId = entity.CreatedBy.ToString();
+                    if (prevState == null)
+                    {
+                        response.Success = false;
+                        response.Message = $"Entity {typeof(TEntity).Name} not found";
+                        response.Errors = [new ValidationFailure("Id", $"Entity {typeof(TEntity).Name} not found")];
+                        response.Data = null;
 
-                DateTime createdAt = entityToUpdate.CreatedAt;
+                        return;
+                    }
 
-                Util.UpdateProperties(entityToUpdate, entity);
+                    TEntity entityToUpdate = _mapper.Map<TEntity>(prevState);
 
-                entityToUpdate.UpdatedAt = DateTime.UtcNow;
-                entityToUpdate.CreatedAt = createdAt;
+                    userId = entity.CreatedBy.ToString();
 
-                // Execute BeforeUpdate interceptors
-                response.Data = entityToUpdate;
-                foreach (var interceptor in _entitySupportService.GetBeforeUpdateInterceptors<TEntity, TRequest>())
-                {
-                    if (!response.Success) return response;
+                    DateTime createdAt = entityToUpdate.CreatedAt;
 
-                    response = interceptor.Execute(response, model);
+                    Util.UpdateProperties(entityToUpdate, entity);
 
-                    entityToUpdate = response.Data!;
-                }
+                    entityToUpdate.UpdatedAt = DateTime.UtcNow;
+                    entityToUpdate.CreatedAt = createdAt;
 
-                if (!response.Success) return response;
+                    // Execute BeforeUpdate interceptors
+                    response.Data = entityToUpdate;
+                    foreach (var interceptor in _entitySupportService.GetBeforeUpdateInterceptors<TEntity, TRequest>())
+                    {
+                        if (!response.Success) return;
 
-                database.Entry(entityToUpdate).State = EntityState.Detached;
+                        response = interceptor.Execute(response, model);
 
-                database.Update(entityToUpdate);
-                _db.SaveChanges();
+                        entityToUpdate = response.Data!;
+                    }
 
-                response.Errors = null;
-                response.Data = entityToUpdate;
-                response.Success = true;
-                response.Message = $"Entity {typeof(TEntity).Name} updated successfully";
+                    if (!response.Success) return;
 
-                if (!response.Success) return response;
+                    database.Entry(entityToUpdate).State = EntityState.Detached;
 
-                foreach (var interceptor in _entitySupportService.GetAfterUpdateInterceptors<TEntity,TRequest>())
-                {
-                    if (!response.Success) return response;
+                    database.Update(entityToUpdate);
+                    _db.SaveChanges();
 
-                    response = interceptor.Execute(response, model, prevState);
-                }
+                    response.Errors = null;
+                    response.Data = entityToUpdate;
+                    response.Success = true;
+                    response.Message = $"Entity {typeof(TEntity).Name} updated successfully";
 
-                transaction.Commit();
+                    if (!response.Success) return;
+
+                    foreach (var interceptor in _entitySupportService.GetAfterUpdateInterceptors<TEntity,TRequest>())
+                    {
+                        if (!response.Success) return;
+
+                        response = interceptor.Execute(response, model, prevState);
+                    }
+
+                    transaction.Commit();
+                });
 
                 return response;
             }
@@ -498,66 +507,70 @@ namespace Hospital.Server.Services.Core
 
                 var database = _db.Set<TEntity>();
 
-                using var transaction = _db.Database.BeginTransaction();
-
-                var parameter = Expression.Parameter(typeof(TEntity), "x");
-                var member = Expression.PropertyOrField(parameter, "Id");
-                var constant = Expression.Constant(entity.Id);
-                var condition = Expression.Lambda<Func<TEntity, bool>>(Expression.Equal(member, constant), parameter);
-
-                TEntity? prevState = database.AsNoTracking().FirstOrDefault(condition);
-
-                if (prevState == null)
+                var strategy = _db.Database.CreateExecutionStrategy();
+                strategy.Execute(() =>
                 {
-                    response.Success = false;
-                    response.Message = $"Entity {typeof(TEntity).Name} not found";
-                    response.Errors = [new ValidationFailure("Id", $"Entity {typeof(TEntity).Name} not found")];
-                    response.Data = null;
+                    using var transaction = _db.Database.BeginTransaction();
 
-                    return response;
-                }
+                    var parameter = Expression.Parameter(typeof(TEntity), "x");
+                    var member = Expression.PropertyOrField(parameter, "Id");
+                    var constant = Expression.Constant(entity.Id);
+                    var condition = Expression.Lambda<Func<TEntity, bool>>(Expression.Equal(member, constant), parameter);
 
-                TEntity entityToUpdate = _mapper.Map<TEntity>(prevState);
+                    TEntity? prevState = database.AsNoTracking().FirstOrDefault(condition);
 
-                userId = entity.CreatedBy.ToString();
+                    if (prevState == null)
+                    {
+                        response.Success = false;
+                        response.Message = $"Entity {typeof(TEntity).Name} not found";
+                        response.Errors = [new ValidationFailure("Id", $"Entity {typeof(TEntity).Name} not found")];
+                        response.Data = null;
 
-                DateTime createdAt = entityToUpdate.CreatedAt;
-                Util.UpdateProperties(entityToUpdate, entity);
-                entityToUpdate.UpdatedAt = DateTime.UtcNow;
-                entityToUpdate.CreatedAt = createdAt;
+                        return;
+                    }
 
-                // Execute BeforeUpdate interceptors
-                response.Data = entityToUpdate;
-                foreach (var interceptor in _entitySupportService.GetBeforeUpdateInterceptors<TEntity, TRequest>())
-                {
-                    if (!response.Success) return response;
+                    TEntity entityToUpdate = _mapper.Map<TEntity>(prevState);
 
-                    response = interceptor.Execute(response, model);
+                    userId = entity.CreatedBy.ToString();
 
-                    entityToUpdate = response.Data!;
-                }
+                    DateTime createdAt = entityToUpdate.CreatedAt;
+                    Util.UpdateProperties(entityToUpdate, entity);
+                    entityToUpdate.UpdatedAt = DateTime.UtcNow;
+                    entityToUpdate.CreatedAt = createdAt;
 
-                if (!response.Success) return response;
+                    // Execute BeforeUpdate interceptors
+                    response.Data = entityToUpdate;
+                    foreach (var interceptor in _entitySupportService.GetBeforeUpdateInterceptors<TEntity, TRequest>())
+                    {
+                        if (!response.Success) return;
 
-                database.Update(entityToUpdate);
-                _db.SaveChanges();
+                        response = interceptor.Execute(response, model);
 
-                response.Errors = null;
-                response.Data = entityToUpdate;
-                response.Success = true;
-                response.Message = $"Entity {typeof(TEntity).Name} updated successfully";
-                response.Errors = results.Errors;
+                        entityToUpdate = response.Data!;
+                    }
 
-                if (!response.Success) return response;
+                    if (!response.Success) return;
 
-                foreach (var interceptor in _entitySupportService.GetAfterPartialUpdateInterceptors<TEntity,TRequest>())
-                {
-                    if (!response.Success) return response;
+                    database.Update(entityToUpdate);
+                    _db.SaveChanges();
 
-                    response = interceptor.Execute(response, model, prevState);
-                }
+                    response.Errors = null;
+                    response.Data = entityToUpdate;
+                    response.Success = true;
+                    response.Message = $"Entity {typeof(TEntity).Name} updated successfully";
+                    response.Errors = results.Errors;
 
-                transaction.Commit();
+                    if (!response.Success) return;
+
+                    foreach (var interceptor in _entitySupportService.GetAfterPartialUpdateInterceptors<TEntity,TRequest>())
+                    {
+                        if (!response.Success) return;
+
+                        response = interceptor.Execute(response, model, prevState);
+                    }
+
+                    transaction.Commit();
+                });
 
                 return response;
             }
@@ -605,8 +618,6 @@ namespace Hospital.Server.Services.Core
 
                 TEntity? entity = _db.Set<TEntity>().AsNoTracking().FirstOrDefault(condition);
 
-                using var transaction = _db.Database.BeginTransaction();
-
                 if (entity == null)
                 {
                     response.Success = false;
@@ -619,19 +630,25 @@ namespace Hospital.Server.Services.Core
 
                 userId = entity.CreatedBy.ToString();
 
-                entity.UpdatedAt = DateTime.Now;
-                entity.State = 0;
-                entity.UpdatedBy = deletedBy;
+                var strategy = _db.Database.CreateExecutionStrategy();
+                strategy.Execute(() =>
+                {
+                    using var transaction = _db.Database.BeginTransaction();
 
-                _db.Set<TEntity>().Update(entity);
-                _db.SaveChanges();
+                    entity.UpdatedAt = DateTime.Now;
+                    entity.State = 0;
+                    entity.UpdatedBy = deletedBy;
 
-                response.Errors = null;
-                response.Data = entity;
-                response.Success = true;
-                response.Message = $"Entity {typeof(TEntity).Name} deleted successfully";
+                    _db.Set<TEntity>().Update(entity);
+                    _db.SaveChanges();
 
-                transaction.Commit();
+                    response.Errors = null;
+                    response.Data = entity;
+                    response.Success = true;
+                    response.Message = $"Entity {typeof(TEntity).Name} deleted successfully";
+
+                    transaction.Commit();
+                });
 
                 return response;
             }
