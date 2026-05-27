@@ -290,3 +290,6 @@ _Pvt_Extensions
 .fake/
 
 
+
+# Deploy setup (local only)
+DEPLOY_SETUP.md
