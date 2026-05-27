@@ -141,7 +141,7 @@ namespace Hospital.Server.Utils
                 // Para DateTime con un formato específico
                 if (underlyingType == typeof(DateTime))
                 {
-                    string[] formatos = { "yyyy-MM-ddTHH", "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mm:ss.fff", "yyyy-MM-dd" };
+                    string[] formatos = ["yyyy-MM-ddTHH", "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mm:ss.fff", "yyyy-MM-dd"];
                     if (DateTime.TryParseExact(value, formatos, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime fecha))
                     {
                         return fecha;
@@ -185,10 +185,10 @@ namespace Hospital.Server.Utils
                 return false;
 
             // Validar código de municipio y departamento
-            int[] munisPorDepto = {
+            int[] munisPorDepto = [
                 17,  8, 16, 16, 13, 14, 19,  8, 24, 21,  9,
                 30, 32, 21,  8, 17, 14,  5, 11, 11,  7, 17
-            };
+            ];
 
             if (depto == 0 || muni == 0)
                 return false;

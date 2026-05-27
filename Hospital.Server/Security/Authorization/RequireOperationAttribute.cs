@@ -26,7 +26,7 @@ namespace Hospital.Server.Security.Authorization
         /// <param name="operationKey">Explicit operation key (e.g., "User.Create.POST")</param>
         public RequireOperationAttribute(string operationKey) : base(typeof(RequireOperationFilter))
         {
-            Arguments = new object[] { operationKey };
+            Arguments = [operationKey];
         }
 
         /// <summary>

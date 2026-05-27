@@ -281,7 +281,7 @@ namespace Project.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "LabExams",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DefaultAmount", "Description", "LaboratoryId", "Name", "ReferenceRange", "State", "Unit", "UpdatedAt", "UpdatedBy" },
+                columns: ["Id", "CreatedAt", "CreatedBy", "DefaultAmount", "Description", "LaboratoryId", "Name", "ReferenceRange", "State", "Unit", "UpdatedAt", "UpdatedBy"],
                 values: new object[,]
                 {
                     { 1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, 150.00m, "Análisis completo de células sanguíneas", null, "Hemograma Completo", "Varía por componente", 1, "Varios", null, null },

@@ -201,7 +201,7 @@ namespace Project.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "Medicines",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DefaultPrice", "Description", "MinimumStock", "Name", "State", "Unit", "UpdatedAt", "UpdatedBy" },
+                columns: ["Id", "CreatedAt", "CreatedBy", "DefaultPrice", "Description", "MinimumStock", "Name", "State", "Unit", "UpdatedAt", "UpdatedBy"],
                 values: new object[,]
                 {
                     { 1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, 5.00m, "Analgésico y antipirético para el alivio del dolor y la fiebre", 100, "Acetaminofén", 1, "tableta", null, null },
@@ -217,8 +217,8 @@ namespace Project.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "Medicines",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DefaultPrice", "Description", "IsControlled", "MinimumStock", "Name", "State", "Unit", "UpdatedAt", "UpdatedBy" },
-                values: new object[] { 10L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, 35.00m, "Analgésico opiáceo para el dolor moderado a severo", true, 30, "Tramadol 50mg", 1, "cápsula", null, null });
+                columns: ["Id", "CreatedAt", "CreatedBy", "DefaultPrice", "Description", "IsControlled", "MinimumStock", "Name", "State", "Unit", "UpdatedAt", "UpdatedBy"],
+                values: [10L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, 35.00m, "Analgésico opiáceo para el dolor moderado a severo", true, 30, "Tramadol 50mg", 1, "cápsula", null, null]);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_DispenseId",
@@ -268,7 +268,7 @@ namespace Project.Server.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_MedicineInventories_MedicineId_BranchId",
                 table: "MedicineInventories",
-                columns: new[] { "MedicineId", "BranchId" },
+                columns: ["MedicineId", "BranchId"],
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -279,7 +279,7 @@ namespace Project.Server.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_NotificationLogs_RelatedEntityType_RelatedEntityId",
                 table: "NotificationLogs",
-                columns: new[] { "RelatedEntityType", "RelatedEntityId" });
+                columns: ["RelatedEntityType", "RelatedEntityId"]);
 
             migrationBuilder.CreateIndex(
                 name: "IX_NotificationLogs_Status",

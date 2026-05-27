@@ -13,8 +13,8 @@ namespace Hospital.Server.Migrations
         {
             migrationBuilder.InsertData(
                 table: "Roles",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy" },
-                values: new object[] { 2L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "Paciente externo del portal público", "Paciente", 1, null, null });
+                columns: ["Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy"],
+                values: [2L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "Paciente externo del portal público", "Paciente", 1, null, null]);
         }
 
         /// <inheritdoc />

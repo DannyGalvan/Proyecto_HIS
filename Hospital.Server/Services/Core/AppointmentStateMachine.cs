@@ -107,7 +107,7 @@ namespace Hospital.Server.Services.Core
 
         private async Task<string> GetStatusNameAsync(long statusId, CancellationToken ct)
         {
-            var status = await _db.AppointmentStatuses.FindAsync(new object[] { statusId }, ct);
+            var status = await _db.AppointmentStatuses.FindAsync([statusId], ct);
             return status?.Name ?? statusId.ToString();
         }
     }

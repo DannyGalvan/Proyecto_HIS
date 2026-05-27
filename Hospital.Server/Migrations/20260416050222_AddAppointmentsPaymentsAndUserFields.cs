@@ -158,8 +158,8 @@ namespace Project.Server.Migrations
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 1L,
-                columns: new[] { "BranchId", "InsuranceNumber", "Nit" },
-                values: new object[] { null, null, null });
+                columns: ["BranchId", "InsuranceNumber", "Nit"],
+                values: [null, null, null]);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_BranchId",

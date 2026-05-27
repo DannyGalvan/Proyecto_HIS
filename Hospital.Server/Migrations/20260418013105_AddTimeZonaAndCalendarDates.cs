@@ -155,7 +155,7 @@ namespace Hospital.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "Timezones",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DisplayName", "IanaId", "State", "UpdatedAt", "UpdatedBy", "UtcOffset" },
+                columns: ["Id", "CreatedAt", "CreatedBy", "DisplayName", "IanaId", "State", "UpdatedAt", "UpdatedBy", "UtcOffset"],
                 values: new object[,]
                 {
                     { 1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "(UTC-06:00) America/Guatemala", "America/Guatemala", 1, null, null, "-06:00" },

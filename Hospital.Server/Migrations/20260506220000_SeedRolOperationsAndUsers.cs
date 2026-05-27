@@ -21,13 +21,13 @@ namespace Hospital.Server.Migrations
             // ----------------------------------------------------------------------
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[]
-                {
+                columns:
+                [
                     "Id", "RolId", "Password", "Email", "Name", "IdentificationDocument", "UserName",
                     "RecoveryToken", "DateToken", "Reset", "Number", "Nit", "BranchId", "InsuranceNumber",
                     "MustChangePassword", "LastPasswordChange", "FailedLoginAttempts", "LockoutEnd",
                     "State", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy", "SpecialtyId", "TimezoneId"
-                },
+                ],
                 values: new object[,]
                 {
                     { 10L, 1L, "$2a$11$Bt83LybdjlUy2pQSZ5IdnONf.d9jfwiUnia2v11Ex2qe3dpz1hDem", "sadmin02@hospital.local", "Carlos Super Admin Dos", "9000000000010", "SADMIN02", "", null, false, "50000010", "", 1L, null, true, null, 0, null, 1, new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Utc), null, 1L, null, null, null },
@@ -64,11 +64,11 @@ namespace Hospital.Server.Migrations
             migrationBuilder.DeleteData(
                 table: "Users",
                 keyColumn: "Id",
-                keyValues: new object[]
-                {
+                keyValues:
+                [
                     10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 21L,
                     22L, 23L, 24L, 25L, 26L, 27L, 28L, 29L, 30L, 31L, 32L, 33L
-                });
+                ]);
 
         }
     }

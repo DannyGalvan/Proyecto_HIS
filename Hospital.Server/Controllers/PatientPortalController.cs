@@ -446,7 +446,7 @@ namespace Hospital.Server.Controllers
             // Only block slots for appointments that are confirmed/active (status 2-9).
             // "Pendiente de Pago" (1) and "Cancelada" (11) never block slots.
             // "No Asistió" (10) also doesn't block — the slot is free again.
-            long[] blockingStatuses = {
+            long[] blockingStatuses = [
                 AppointmentStateMachine.STATUS_CONFIRMADA,        // 2
                 AppointmentStateMachine.STATUS_SIGNOS_VITALES,    // 3
                 AppointmentStateMachine.STATUS_EN_ESPERA,         // 4
@@ -455,7 +455,7 @@ namespace Hospital.Server.Controllers
                 AppointmentStateMachine.STATUS_LABORATORIO,       // 7
                 AppointmentStateMachine.STATUS_FARMACIA,          // 8
                 AppointmentStateMachine.STATUS_ATENCION_FINAL,    // 9
-            };
+            ];
 
             List<Appointment> appointments = await _bd.Appointments
                 .Where(a =>
@@ -590,7 +590,7 @@ namespace Hospital.Server.Controllers
             DateTime requestedStart = request.AppointmentDate;
             DateTime requestedEnd = requestedStart.AddMinutes(30);
 
-            long[] blockingStatuses = {
+            long[] blockingStatuses = [
                 AppointmentStateMachine.STATUS_CONFIRMADA,
                 AppointmentStateMachine.STATUS_SIGNOS_VITALES,
                 AppointmentStateMachine.STATUS_EN_ESPERA,
@@ -599,7 +599,7 @@ namespace Hospital.Server.Controllers
                 AppointmentStateMachine.STATUS_LABORATORIO,
                 AppointmentStateMachine.STATUS_FARMACIA,
                 AppointmentStateMachine.STATUS_ATENCION_FINAL,
-            };
+            ];
 
             bool slotConflict = await _bd.Appointments
                 .AnyAsync(a =>

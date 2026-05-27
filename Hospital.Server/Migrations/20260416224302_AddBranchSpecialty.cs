@@ -46,7 +46,7 @@ namespace Hospital.Server.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_BranchSpecialties_BranchId_SpecialtyId",
                 table: "BranchSpecialties",
-                columns: new[] { "BranchId", "SpecialtyId" },
+                columns: ["BranchId", "SpecialtyId"],
                 unique: true);
 
             migrationBuilder.CreateIndex(

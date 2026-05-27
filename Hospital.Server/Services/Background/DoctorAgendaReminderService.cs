@@ -31,7 +31,7 @@ namespace Hospital.Server.Services.Background
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<DoctorAgendaReminderService> _logger;
 
-        private static readonly string[] EventTypeNames = { "Reunión", "Descanso", "Capacitación", "Personal", "Otro" };
+        private static readonly string[] EventTypeNames = ["Reunión", "Descanso", "Capacitación", "Personal", "Otro"];
 
         public DoctorAgendaReminderService(
             IServiceScopeFactory scopeFactory,
@@ -411,7 +411,7 @@ namespace Hospital.Server.Services.Background
             if (tasks.Count == 0)
                 return "<p style=\"color:#6b7280;font-style:italic;\">No hay tareas pendientes para hoy.</p>";
 
-            string[] priorityLabels = { "Baja", "Normal", "Alta" };
+            string[] priorityLabels = ["Baja", "Normal", "Alta"];
 
             var rows = string.Join("", tasks.Select(t =>
             {

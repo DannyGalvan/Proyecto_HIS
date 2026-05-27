@@ -94,7 +94,7 @@ namespace Project.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "AppointmentStatuses",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy" },
+                columns: ["Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy"],
                 values: new object[,]
                 {
                     { 1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "Cita recién agendada, esperando confirmación de pago", "Pendiente de Pago", 1, null, null },
@@ -112,7 +112,7 @@ namespace Project.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "Branches",
-                columns: new[] { "Id", "Address", "CreatedAt", "CreatedBy", "Description", "Name", "Phone", "State", "UpdatedAt", "UpdatedBy" },
+                columns: ["Id", "Address", "CreatedAt", "CreatedBy", "Description", "Name", "Phone", "State", "UpdatedAt", "UpdatedBy"],
                 values: new object[,]
                 {
                     { 1L, "Ciudad de Guatemala, Zona 10", new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "Sede principal del hospital", "Sede Central", "22345678", 1, null, null },
@@ -121,7 +121,7 @@ namespace Project.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "Laboratories",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy" },
+                columns: ["Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy"],
                 values: new object[,]
                 {
                     { 1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "Laboratorio interno principal del hospital", "Laboratorio Central", 1, null, null },
@@ -130,7 +130,7 @@ namespace Project.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "Specialties",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy" },
+                columns: ["Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy"],
                 values: new object[,]
                 {
                     { 1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "Atención médica primaria y diagnóstico general", "Medicina General", 1, null, null },

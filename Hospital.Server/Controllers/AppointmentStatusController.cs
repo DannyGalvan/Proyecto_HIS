@@ -21,14 +21,10 @@ namespace Hospital.Server.Controllers
         Order = 8,
         IsVisible = false
     )]
-    public class AppointmentStatusController : CrudController<AppointmentStatus, AppointmentStatusRequest, AppointmentStatusResponse, long>
+    public class AppointmentStatusController(
+        IEntityService<AppointmentStatus, AppointmentStatusRequest, long> service,
+        IMapper mapper) : CrudController<AppointmentStatus, AppointmentStatusRequest, AppointmentStatusResponse, long>(service, mapper)
     {
-        public AppointmentStatusController(
-            IEntityService<AppointmentStatus, AppointmentStatusRequest, long> service,
-            IMapper mapper) : base(service, mapper)
-        {
-        }
-
         [HttpGet]
         [RequireOperation]
         [OperationInfo(DisplayName = "Listar Estados de Cita", Description = "Obtiene la lista de estados de cita con paginación y filtros", Icon = "bi-list", Path = "appointment-status", IsVisible = false)]

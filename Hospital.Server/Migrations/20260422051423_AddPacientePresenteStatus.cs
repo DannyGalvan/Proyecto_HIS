@@ -16,8 +16,8 @@ namespace Hospital.Server.Migrations
                 table: "AppointmentStatuses",
                 keyColumn: "Id",
                 keyValue: 12L,
-                columns: new[] { "Name", "Description", "CreatedAt", "CreatedBy", "State" },
-                values: new object[] { "Paciente Presente", "Recepción verificó la llegada del paciente al hospital", new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, 1 });
+                columns: ["Name", "Description", "CreatedAt", "CreatedBy", "State"],
+                values: ["Paciente Presente", "Recepción verificó la llegada del paciente al hospital", new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, 1]);
         }
 
         /// <inheritdoc />
@@ -28,8 +28,8 @@ namespace Hospital.Server.Migrations
                 table: "AppointmentStatuses",
                 keyColumn: "Id",
                 keyValue: 12L,
-                columns: new[] { "Name", "Description" },
-                values: new object[] { "Pendiente", null });
+                columns: ["Name", "Description"],
+                values: ["Pendiente", null]);
         }
     }
 }

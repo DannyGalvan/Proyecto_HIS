@@ -23,19 +23,13 @@ namespace Hospital.Server.Controllers
         Order = 14,
         IsVisible = true
     )]
-    public class PrescriptionController : CrudController<Prescription, PrescriptionRequest, PrescriptionResponse, long>
+    public class PrescriptionController(
+        IEntityService<Prescription, PrescriptionRequest, long> service,
+        IMapper mapper,
+        DataContext db) : CrudController<Prescription, PrescriptionRequest, PrescriptionResponse, long>(service, mapper)
     {
-        private readonly DataContext _db;
-        private readonly IMapper _mapper;
-
-        public PrescriptionController(
-            IEntityService<Prescription, PrescriptionRequest, long> service,
-            IMapper mapper,
-            DataContext db) : base(service, mapper)
-        {
-            _db = db;
-            _mapper = mapper;
-        }
+        private readonly DataContext _db = db;
+        private readonly IMapper _mapper = mapper;
 
         [HttpGet]
         [RequireOperation]

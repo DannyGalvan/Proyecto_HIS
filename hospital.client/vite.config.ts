@@ -7,9 +7,9 @@ import viteReact from "@vitejs/plugin-react";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { defineConfig } from "vite";
 import compress from "vite-plugin-compression";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from "vitest/config";
 
 const baseFolder =
   env.APPDATA !== undefined && env.APPDATA !== ""
@@ -58,6 +58,44 @@ export default defineConfig({
   base: "/",
   envDir: "./",
   envPrefix: "VITE_",
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      include: [
+        "src/utils/**",
+        "src/validations/**",
+        "src/hooks/**",
+        "src/stores/useAuthStore.ts",
+        "src/stores/usePatientAuthStore.ts",
+        "src/stores/useRangeOfDatesStore.ts",
+        "src/stores/useErrorsStore.ts",
+      ],
+      exclude: [
+        "**/*.d.ts",
+        "**/test-setup.*",
+        "**/node_modules/**",
+        "src/test-utils/**",
+        "src/utils/tts.ts",
+        "src/utils/viewTransition.ts",
+        "src/hooks/useAppointmentHub.ts",
+        "src/hooks/useAdminAppointmentHub.ts",
+        "src/hooks/usePatientAppointmentHub.ts",
+        "src/hooks/usePermissions.ts",
+        "src/hooks/useAuth.ts",
+        "src/hooks/useForm.ts",
+        "src/hooks/useAuthorizationRoutes.tsx",
+        "src/hooks/RootIndex.tsx",
+        "src/routes/**",
+      ],
+      thresholds: {
+        lines: 90,
+      },
+    },
+  },
   server: {
     proxy: {
       "/api": {

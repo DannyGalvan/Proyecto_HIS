@@ -110,6 +110,6 @@ namespace Hospital.Server.Entities.Models
         /// <summary>
         /// Gets or sets the RolOperations
         /// </summary>
-        public virtual ICollection<RolOperation> RolOperations { get; set; } = new List<RolOperation>();
+        public virtual ICollection<RolOperation> RolOperations { get; set; } = [];
     }
 }

@@ -26,7 +26,7 @@ namespace Hospital.Server.Context
         /// <param name="optionsBuilder">El constructor de opciones</param>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.ConfigureWarnings(warn => { warn.Default(WarningBehavior.Ignore); });
+            optionsBuilder.ConfigureWarnings(warn => warn.Default(WarningBehavior.Ignore));
         }
 
         // Add DbSet for each entity

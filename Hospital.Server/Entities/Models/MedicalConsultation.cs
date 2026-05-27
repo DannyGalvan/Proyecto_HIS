@@ -60,7 +60,7 @@ namespace Hospital.Server.Entities.Models
         // Navigation properties
         public virtual Appointment? Appointment { get; set; }
         public virtual User? Doctor { get; set; }
-        public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
-        public virtual ICollection<LabOrder> LabOrders { get; set; } = new List<LabOrder>();
+        public virtual ICollection<Prescription> Prescriptions { get; set; } = [];
+        public virtual ICollection<LabOrder> LabOrders { get; set; } = [];
     }
 }

@@ -15,7 +15,7 @@ namespace Hospital.Server.Migrations
         {
             migrationBuilder.InsertData(
                 table: "Roles",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy" },
+                columns: ["Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy"],
                 values: new object[,]
                 {
                     { 3L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "Médico que atiende consultas y evalúa pacientes", "Medico", 1, null, null },

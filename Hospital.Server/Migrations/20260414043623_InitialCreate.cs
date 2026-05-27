@@ -215,13 +215,13 @@ namespace Project.Server.Migrations
 
             migrationBuilder.InsertData(
                 table: "Roles",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy" },
-                values: new object[] { 1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "Super Administrator", "SA", 1, null, null });
+                columns: ["Id", "CreatedAt", "CreatedBy", "Description", "Name", "State", "UpdatedAt", "UpdatedBy"],
+                values: [1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, "Super Administrator", "SA", 1, null, null]);
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DateToken", "Email", "FailedLoginAttempts", "IdentificationDocument", "LastPasswordChange", "LockoutEnd", "MustChangePassword", "Name", "Number", "Password", "RecoveryToken", "Reset", "RolId", "State", "UpdatedAt", "UpdatedBy", "UserName" },
-                values: new object[] { 1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, null, "pruebas.test29111999@gmail.com", 0, "2987967910101", null, null, false, "Super Administrador", "51995142", "$2a$12$86Ty8oUVWKPbU8JqCII9VO.FgM1C10dweQ4xKhM4jj1LWL9jwNu7.", "", false, 1L, 1, null, null, "SADMIN" });
+                columns: ["Id", "CreatedAt", "CreatedBy", "DateToken", "Email", "FailedLoginAttempts", "IdentificationDocument", "LastPasswordChange", "LockoutEnd", "MustChangePassword", "Name", "Number", "Password", "RecoveryToken", "Reset", "RolId", "State", "UpdatedAt", "UpdatedBy", "UserName"],
+                values: [1L, new DateTime(2025, 2, 17, 0, 0, 0, 0, DateTimeKind.Utc), 1L, null, "pruebas.test29111999@gmail.com", 0, "2987967910101", null, null, false, "Super Administrador", "51995142", "$2a$12$86Ty8oUVWKPbU8JqCII9VO.FgM1C10dweQ4xKhM4jj1LWL9jwNu7.", "", false, 1L, 1, null, null, "SADMIN"]);
 
             migrationBuilder.CreateIndex(
                 name: "IX_LoginAudits_UserId",

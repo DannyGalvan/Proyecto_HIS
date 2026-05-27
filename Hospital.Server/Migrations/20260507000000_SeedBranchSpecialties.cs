@@ -17,7 +17,7 @@ namespace Hospital.Server.Migrations
             // 16 filas en total (Ids 1..16).
             migrationBuilder.InsertData(
                 table: "BranchSpecialties",
-                columns: new[] { "Id", "BranchId", "SpecialtyId", "State", "CreatedAt", "CreatedBy", "UpdatedAt", "UpdatedBy" },
+                columns: ["Id", "BranchId", "SpecialtyId", "State", "CreatedAt", "CreatedBy", "UpdatedAt", "UpdatedBy"],
                 values: new object[,]
                 {
                     { 1L, 1L, 1L, 1, new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Utc), 1L, null, null },
@@ -45,7 +45,7 @@ namespace Hospital.Server.Migrations
             migrationBuilder.DeleteData(
                 table: "BranchSpecialties",
                 keyColumn: "Id",
-                keyValues: new object[] { 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L });
+                keyValues: [1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L]);
         }
     }
 }

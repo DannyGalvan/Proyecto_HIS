@@ -24,13 +24,13 @@ namespace Hospital.Server.Utils
                 return x => true;
             }
 
-            string[] separatorAnd = { " AND " };
+            string[] separatorAnd = [" AND "];
 
             var andParts = sqlQuery.Split(separatorAnd, StringSplitOptions.RemoveEmptyEntries);
 
             var andFilters = new List<Expression<Func<TEntity, bool>>>();
 
-            string[] separatorOr = { " OR " };
+            string[] separatorOr = [" OR "];
 
             foreach (var andPart in andParts)
             {
