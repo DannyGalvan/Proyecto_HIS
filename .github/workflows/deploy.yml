@@ -81,9 +81,10 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
+          envs: VPS_PASSWORD                      # <- Inyectamos la contraseña aquí
           script: |
             echo "🛑 Stopping hospital service..."
-            sudo systemctl stop hospital.service || true
+            echo "$VPS_PASSWORD" | sudo -S systemctl stop hospital.service || true
             sleep 2
 
             echo "📦 Backing up current deployment..."
@@ -92,6 +93,8 @@ jobs:
 
             echo "🧹 Cleaning deployment directory..."
             rm -rf /home/administrator/Sites/Hospital/*
+        env:
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
 
       - name: Upload artifacts to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -111,12 +114,12 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
+          envs: VPS_PASSWORD                      # <- Inyectamos la contraseña aquí
           script: |
             DEPLOY_DIR="/home/administrator/Sites/Hospital"
 
             echo "🔑 Setting permissions..."
 
-            # Fallback: if files ended up in a subfolder, move them
             if [ -d "$DEPLOY_DIR/deploy-output" ]; then
               mv $DEPLOY_DIR/deploy-output/* $DEPLOY_DIR/
               rm -rf $DEPLOY_DIR/deploy-output
@@ -129,21 +132,23 @@ jobs:
             cp /home/administrator/Sites/Hospital-backup/appsettings.Production.json $DEPLOY_DIR/appsettings.Production.json 2>/dev/null || true
 
             echo "🚀 Starting hospital service..."
-            sudo systemctl start hospital.service
+            echo "$VPS_PASSWORD" | sudo -S systemctl start hospital.service
             sleep 5
 
-            if sudo systemctl is-active --quiet hospital.service; then
+            if echo "$VPS_PASSWORD" | sudo -S systemctl is-active --quiet hospital.service; then
               echo "✅ hospital.service is running"
             else
               echo "❌ hospital.service failed to start, rolling back..."
-              sudo journalctl -u hospital.service --no-pager -n 30
+              echo "$VPS_PASSWORD" | sudo -S journalctl -u hospital.service --no-pager -n 30
               rm -rf $DEPLOY_DIR/*
               cp -r /home/administrator/Sites/Hospital-backup/* $DEPLOY_DIR/
-              sudo systemctl start hospital.service
+              echo "$VPS_PASSWORD" | sudo -S systemctl start hospital.service
               exit 1
             fi
 
             echo "🔄 Reloading nginx..."
-            sudo nginx -t && sudo systemctl reload nginx
+            echo "$VPS_PASSWORD" | sudo -S nginx -t && echo "$VPS_PASSWORD" | sudo -S systemctl reload nginx
 
             echo "✅ Deployment complete!"
+        env:
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }} # <- Traemos el secreto de GitHub
