@@ -208,6 +208,11 @@ export function Component() {
                 Acceso Portal de Pacientes
               </Link>
             </div>
+
+            {/* Version */}
+            <p className="text-center text-[10px] text-gray-300 dark:text-gray-600 mt-4">
+              v2.1.0 — CI/CD Activo
+            </p>
           </div>
         </div>
       </section>
