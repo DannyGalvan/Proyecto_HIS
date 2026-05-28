@@ -4,6 +4,7 @@ using Hospital.Server.Entities.Models;
 using Hospital.Server.Entities.Request;
 using Hospital.Server.Entities.Response;
 using Hospital.Server.Security.Authorization;
+using Hospital.Server.Services.Core;
 using Hospital.Server.Services.Interfaces;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -26,13 +27,16 @@ namespace Hospital.Server.Controllers
     public class PaymentController : CrudController<Payment, PaymentRequest, PaymentResponse, long>
     {
         private readonly DataContext _db;
+        private readonly IAppointmentStateMachine _stateMachine;
 
         public PaymentController(
             IEntityService<Payment, PaymentRequest, long> service,
             IMapper mapper,
-            DataContext db) : base(service, mapper)
+            DataContext db,
+            IAppointmentStateMachine stateMachine) : base(service, mapper)
         {
             _db = db;
+            _stateMachine = stateMachine;
         }
 
         [HttpGet]
@@ -48,7 +52,22 @@ namespace Hospital.Server.Controllers
         [HttpPost]
         [RequireOperation]
         [OperationInfo(DisplayName = "Registrar Pago", Description = "Registra un nuevo pago en el sistema", Icon = "bi-plus-circle", Path = "payment/create", IsVisible = false)]
-        public override IActionResult Create([FromBody] PaymentRequest request) => base.Create(request);
+        public override IActionResult Create([FromBody] PaymentRequest request)
+        {
+            var result = base.Create(request);
+
+            // After successful payment, transition the appointment to "Confirmada" (ID 2)
+            if (result is OkObjectResult && request.AppointmentId.HasValue && request.AppointmentId > 0)
+            {
+                var userId = GetUserId();
+                _ = _stateMachine.TransitionAsync(
+                    request.AppointmentId.Value,
+                    AppointmentStateMachine.STATUS_CONFIRMADA,
+                    userId).GetAwaiter().GetResult();
+            }
+
+            return result;
+        }
 
         [HttpPut]
         [RequireOperation]
