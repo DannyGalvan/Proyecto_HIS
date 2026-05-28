@@ -69,7 +69,16 @@ export function CreateVitalSignGuard({
         });
         navigate(nameRoutes.nurseDashboard);
       } else {
-        toast.danger(response.message);
+        // Show backend validation errors if available, otherwise generic message
+        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+          const errors = response.data as Array<{ errorMessage?: string; propertyName?: string }>;
+          const errorMessages = errors
+            .map((e) => e.errorMessage ?? e.propertyName ?? "Error de validación")
+            .join(". ");
+          toast.danger(errorMessages);
+        } else {
+          toast.danger(response.message || "Error al registrar signos vitales");
+        }
       }
       return response;
     },

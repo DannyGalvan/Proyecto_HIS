@@ -1,57 +1,59 @@
 import { z } from "zod";
-import { invalid_type_error } from "../configs/constants";
 import type { ErrorObject } from "../hooks/useForm";
 import { handleOneLevelZodError } from "../utils/converted";
 
+/** Helper: accepts string or number, coerces to number, then validates range */
+const numericRange = (
+  fieldName: string,
+  min: number,
+  max: number,
+  unit: string,
+) =>
+  z
+    .union([z.string(), z.number()])
+    .transform((val) => (typeof val === "string" ? Number(val) : val))
+    .pipe(
+      z
+        .number({ invalid_type_error: `${fieldName} debe ser un número` })
+        .refine((v) => !isNaN(v), { message: `${fieldName} es obligatorio` })
+        .refine((v) => v >= min, {
+          message: `${fieldName} debe ser al menos ${min} ${unit}`,
+        })
+        .refine((v) => v <= max, {
+          message: `${fieldName} no puede exceder ${max} ${unit}`,
+        }),
+    );
+
+const requiredId = z
+  .union([z.string(), z.number()])
+  .transform((val) => (typeof val === "string" ? Number(val) : val))
+  .pipe(z.number().min(1, "Este campo es obligatorio"));
+
 export const vitalSignSchema = z.object({
   id: z.number().nullable().optional(),
-  appointmentId: z.union([
-    z.string({ error: invalid_type_error }).min(1, "La cita es obligatoria"),
-    z.number().min(1, "La cita es obligatoria"),
-  ]),
-  nurseId: z.union([
-    z
-      .string({ error: invalid_type_error })
-      .min(1, "El enfermero/a es obligatorio"),
-    z.number().min(1, "El enfermero/a es obligatorio"),
-  ]),
-  bloodPressureSystolic: z.union([
-    z
-      .string({ error: invalid_type_error })
-      .min(1, "La presión sistólica es obligatoria"),
-    z.number().min(60, "Mínimo 60 mmHg").max(250, "Máximo 250 mmHg"),
-  ]),
-  bloodPressureDiastolic: z.union([
-    z
-      .string({ error: invalid_type_error })
-      .min(1, "La presión diastólica es obligatoria"),
-    z.number().min(40, "Mínimo 40 mmHg").max(150, "Máximo 150 mmHg"),
-  ]),
-  temperature: z.union([
-    z
-      .string({ error: invalid_type_error })
-      .min(1, "La temperatura es obligatoria"),
-    z.number().min(34, "Mínimo 34.0 °C").max(42, "Máximo 42.0 °C"),
-  ]),
-  weight: z.union([
-    z.string({ error: invalid_type_error }).min(1, "El peso es obligatorio"),
-    z.number().min(0.5, "Mínimo 0.5 kg").max(300, "Máximo 300 kg"),
-  ]),
-  height: z.union([
-    z.string({ error: invalid_type_error }).min(1, "La altura es obligatoria"),
-    z.number().min(30, "Mínimo 30 cm").max(250, "Máximo 250 cm"),
-  ]),
-  heartRate: z.union([
-    z
-      .string({ error: invalid_type_error })
-      .min(1, "La frecuencia cardíaca es obligatoria"),
-    z.number().min(30, "Mínimo 30 bpm").max(220, "Máximo 220 bpm"),
-  ]),
+  appointmentId: requiredId,
+  nurseId: requiredId,
+  bloodPressureSystolic: numericRange(
+    "La presión sistólica",
+    60,
+    250,
+    "mmHg",
+  ),
+  bloodPressureDiastolic: numericRange(
+    "La presión diastólica",
+    40,
+    150,
+    "mmHg",
+  ),
+  temperature: numericRange("La temperatura", 34, 42, "°C"),
+  weight: numericRange("El peso", 0.5, 300, "kg"),
+  height: numericRange("La altura", 30, 250, "cm"),
+  heartRate: numericRange("La frecuencia cardíaca", 30, 220, "bpm"),
   isEmergency: z.boolean().optional(),
-  state: z.union([
-    z.string({ error: invalid_type_error }).min(0),
-    z.number().min(0).max(1),
-  ]),
+  state: z
+    .union([z.string(), z.number()])
+    .transform((val) => (typeof val === "string" ? Number(val) : val))
+    .pipe(z.number().min(0).max(1)),
 });
 
 export const validateVitalSign = (data: unknown): ErrorObject => {
