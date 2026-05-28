@@ -22,14 +22,20 @@ namespace Hospital.Server.Validations.LabOrderItem
                 .NotNull().WithMessage("El examen es obligatorio")
                 .GreaterThan(0).WithMessage("El examen debe ser mayor a cero");
 
-            RuleFor(x => x.ExamName)
-                .NotNull().WithMessage("El nombre del examen es obligatorio")
-                .NotEmpty().WithMessage("El nombre del examen no puede estar vacío")
-                .MaximumLength(200).WithMessage("El nombre del examen no puede exceder 200 caracteres");
+            // ExamName es populado automáticamente por LabOrderItemBeforeCreateInterceptor
+            // desde LabExam.Name, por lo que el cliente no necesita enviarlo.
+            When(x => !string.IsNullOrEmpty(x.ExamName), () =>
+            {
+                RuleFor(x => x.ExamName)
+                    .MaximumLength(200).WithMessage("El nombre del examen no puede exceder 200 caracteres");
+            });
 
-            RuleFor(x => x.Amount)
-                .NotNull().WithMessage("El monto es obligatorio")
-                .GreaterThanOrEqualTo(0).WithMessage("El monto debe ser mayor o igual a cero");
+            // Amount es populado por el interceptor desde LabExam.DefaultAmount cuando no se envía.
+            When(x => x.Amount != null, () =>
+            {
+                RuleFor(x => x.Amount)
+                    .GreaterThanOrEqualTo(0).WithMessage("El monto debe ser mayor o igual a cero");
+            });
 
             When(x => !string.IsNullOrEmpty(x.ResultValue), () =>
             {

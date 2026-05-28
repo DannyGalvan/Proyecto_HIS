@@ -77,7 +77,7 @@ export const nameRoutes = {
   // Lab Orders
   labOrder: "/lab-order",
   labOrderCreate: "/lab-order/create",
-  labOrderDetail: "/lab-order",
+  labOrderDetail: "/lab-order/detail",
   // Medicines
   medicine: "/medicine",
   medicineCreate: "/medicine/create",

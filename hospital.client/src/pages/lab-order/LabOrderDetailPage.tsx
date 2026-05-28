@@ -8,6 +8,7 @@ import { OutOfRangeAlert } from "../../components/shared/OutOfRangeAlert";
 import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 import {
   getLabOrderById,
+  partialUpdateLabOrder,
   partialUpdateLabOrderItem,
 } from "../../services/labOrderService";
 
@@ -29,9 +30,18 @@ export function LabOrderDetailPage() {
   const publishMutation = useMutation({
     mutationFn: (itemId: number) =>
       partialUpdateLabOrderItem({ id: itemId, isPublished: true }),
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Resultado publicado exitosamente.");
-      queryClient.invalidateQueries({ queryKey: ["lab-order", labOrderId] });
+      const refreshed = await refetch();
+      const updatedOrder = refreshed.data?.data;
+      if (!updatedOrder) return;
+      const updatedItems = (updatedOrder as unknown as { items?: Array<{ isPublished?: boolean | null }> })?.items ?? [];
+      const allPublished = updatedItems.length > 0 && updatedItems.every((i) => i.isPublished);
+      if (allPublished && updatedOrder.orderStatus < 2) {
+        await partialUpdateLabOrder({ id: labOrderId, orderStatus: 2 });
+        toast.success("Todos los resultados publicados. Orden marcada como Completada.");
+        queryClient.invalidateQueries({ queryKey: ["lab-order", labOrderId] });
+      }
     },
     onError: () => toast.danger("Error al publicar el resultado."),
   });
@@ -76,11 +86,13 @@ export function LabOrderDetailPage() {
   ).reduce((sum, item) => sum + (item.amount ?? 0), 0);
 
   const statusLabel =
-    order.orderStatus === 0
-      ? "Pendiente"
-      : order.orderStatus === 1
-        ? "En proceso"
-        : "Completada";
+    order.orderStatus === 0 ? "Pendiente" :
+    order.orderStatus === 1 ? "En proceso" : "Completada";
+
+  const statusColor =
+    order.orderStatus === 0 ? "bg-yellow-100 text-yellow-800" :
+    order.orderStatus === 1 ? "bg-blue-100 text-blue-800" :
+    "bg-green-100 text-green-800";
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -113,7 +125,7 @@ export function LabOrderDetailPage() {
           </div>
           <div>
             <span className="font-semibold text-gray-500">Estado:</span>{" "}
-            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-800">
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${statusColor}`}>
               {statusLabel}
             </span>
           </div>
@@ -136,6 +148,19 @@ export function LabOrderDetailPage() {
           ) : null}
         </div>
       </div>
+
+      {/* ── Pago pendiente: bloquear registro de resultados ── */}
+      {order.orderStatus === 0 && (
+        <div className="mb-6 rounded-xl border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 px-5 py-4">
+          <p className="font-semibold text-yellow-800 dark:text-yellow-300 flex items-center gap-2">
+            <i className="bi bi-exclamation-triangle-fill text-lg" />
+            Pago pendiente — no se puede registrar resultados
+          </p>
+          <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
+            El paciente debe realizar el pago de esta orden en Caja antes de proceder con la toma de muestras y el registro de resultados.
+          </p>
+        </div>
+      )}
 
       {/* ── Items ── */}
       <h2 className="text-lg font-bold mb-4">
@@ -197,23 +222,33 @@ export function LabOrderDetailPage() {
               </div>
             </div>
 
-            {/* Result entry form */}
-            <div className="border-t pt-4 mt-2">
-              <p className="text-sm font-semibold text-gray-600 mb-3">
-                <i className="bi bi-pencil-square mr-1" /> Ingresar / Actualizar
-                Resultado
-              </p>
-              <LabOrderItemResultForm item={item} onSuccess={handleRefetch} />
-            </div>
+            {/* Result entry form — solo disponible si la orden está pagada (En proceso o superior) */}
+            {order.orderStatus >= 1 ? (
+              <>
+                <div className="border-t pt-4 mt-2">
+                  <p className="text-sm font-semibold text-gray-600 mb-3">
+                    <i className="bi bi-pencil-square mr-1" /> Ingresar / Actualizar
+                    Resultado
+                  </p>
+                  <LabOrderItemResultForm item={item} onSuccess={handleRefetch} />
+                </div>
 
-            {/* Publish button */}
-            {!item.isPublished && (
-              <div className="mt-3 flex justify-end">
-                <PublishButton
-                  isPending={publishMutation.isPending}
-                  itemId={item.id}
-                  onPublish={handlePublish}
-                />
+                {/* Publish button */}
+                {!item.isPublished && (
+                  <div className="mt-3 flex justify-end">
+                    <PublishButton
+                      isPending={publishMutation.isPending}
+                      itemId={item.id}
+                      onPublish={handlePublish}
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="border-t pt-4 mt-2">
+                <p className="text-sm text-yellow-700 dark:text-yellow-400 italic">
+                  <i className="bi bi-lock mr-1" /> Registro de resultado bloqueado hasta confirmar pago en Caja.
+                </p>
               </div>
             )}
           </div>

@@ -61,6 +61,7 @@ export const useAuthorizationRoutes = () => {
     nameRoutes.doctorTransfer,
     nameRoutes.appointmentReassign,
     nameRoutes.doctorCalendar,
+    `${nameRoutes.labOrderDetail}/:id`,
   ]);
 
   const routesFiltered = routes.routes[0].children?.filter((route) => {

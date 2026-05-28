@@ -16,5 +16,10 @@ namespace Hospital.Server.Entities.Response
         public long CreatedBy { get; set; }
         public long? UpdatedBy { get; set; }
         public string? UpdatedAt { get; set; }
+
+        // Navigation properties (populated when Include is specified)
+        public UserResponse? Doctor { get; set; }
+        public UserResponse? Patient { get; set; }
+        public List<LabOrderItemResponse> Items { get; set; } = new();
     }
 }

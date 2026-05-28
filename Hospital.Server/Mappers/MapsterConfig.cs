@@ -595,7 +595,7 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.ConsultationId, src => src.ConsultationId)
                 .Map(dest => dest.DoctorId, src => src.DoctorId)
                 .Map(dest => dest.PatientId, src => src.PatientId)
-                .Map(dest => dest.OrderNumber, src => src.OrderNumber)
+                .Map(dest => dest.OrderNumber, src => src.OrderNumber ?? $"LAB-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}")
                 .Map(dest => dest.OrderStatus, src => src.OrderStatus)
                 .Map(dest => dest.TotalAmount, src => src.TotalAmount)
                 .Map(dest => dest.IsExternal, src => src.IsExternal)
@@ -620,7 +620,10 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.CreatedBy, src => src.CreatedBy)
                 .Map(dest => dest.UpdatedBy, src => src.UpdatedBy)
                 .Map(dest => dest.CreatedAt, src => src.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss"))
-                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null);
+                .Map(dest => dest.UpdatedAt, src => src.UpdatedAt.HasValue ? src.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : null)
+                .Map(dest => dest.Doctor, src => src.Doctor)
+                .Map(dest => dest.Patient, src => src.Patient)
+                .Map(dest => dest.Items, src => src.Items);
 
             TypeAdapterConfig<LabOrder, LabOrder>.NewConfig();
 

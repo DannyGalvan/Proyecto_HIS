@@ -11,6 +11,7 @@ import type { MultiValue, SingleValue } from "react-select";
 import {
   createLabOrder,
   createLabOrderItem,
+  partialUpdateLabOrder,
 } from "../../services/labOrderService";
 import type { LabExamResponse } from "../../types/LabExamResponse";
 import type { LabOrderRequest } from "../../types/LabOrderResponse";
@@ -177,6 +178,7 @@ export function LabOrderForm({
         orderStatus: 0,
         isExternal: form.isExternal,
         notes: form.notes || null,
+        totalAmount,
         state: 1,
       };
 
@@ -188,24 +190,28 @@ export function LabOrderForm({
 
       const labOrderId = orderResponse.data.id;
 
-      // Create each item sequentially
+      // Create each item sequentially and collect real amounts from interceptor
+      let realTotal = 0;
       for (const item of items) {
         const itemResponse = await createLabOrderItem({
           labOrderId,
           labExamId: item.labExamId!,
-          amount: item.defaultAmount ?? 0,
           state: 1,
         });
         if (!itemResponse.success) {
           setSubmitError(`Error al agregar examen: ${itemResponse.message}`);
           return;
         }
+        realTotal += itemResponse.data?.amount ?? 0;
       }
 
+      // Patch the order with the real total calculated from catalog prices
+      await partialUpdateLabOrder({ id: labOrderId, totalAmount: realTotal });
+
       const examCount = items.length;
-      const totalFormatted = formatCurrency(totalAmount);
+      const totalFormatted = formatCurrency(realTotal);
       setSubmitSuccess(
-        `Orden de laboratorio creada exitosamente. ${examCount} examen(es) registrado(s). Costo total estimado: ${totalFormatted}.`,
+        `Orden de laboratorio creada exitosamente. ${examCount} examen(es) registrado(s). Costo total: ${totalFormatted}.`,
       );
       onSuccess?.(labOrderId);
     },

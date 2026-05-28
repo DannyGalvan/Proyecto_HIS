@@ -24,7 +24,7 @@ export function LabOrderButton({ data }: LabOrderButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleEdit = useCallback(
-    () => navigate(`/lab-order/update/${data.id}`),
+    () => navigate(`/lab-order/detail/${data.id}`),
     [navigate, data.id],
   );
   const handleDeleteClick = useCallback(() => setIsDeleteDialogOpen(true), []);
