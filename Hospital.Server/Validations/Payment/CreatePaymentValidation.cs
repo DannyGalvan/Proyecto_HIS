@@ -17,8 +17,8 @@ namespace Hospital.Server.Validations.Payment
                 .GreaterThan(0).WithMessage("El monto del pago debe ser mayor a cero");
 
             RuleFor(x => x.PaymentMethod)
-                .NotNull().WithMessage("El método de pago es obligatorio. Los métodos aceptados son: efectivo (0), tarjeta de crédito (1) o tarjeta de débito (2)")
-                .InclusiveBetween(0, 2).WithMessage("El método de pago seleccionado no está disponible. Los métodos aceptados son: efectivo (0), tarjeta de crédito (1) o tarjeta de débito (2)");
+                .NotNull().WithMessage("El método de pago es obligatorio. Los métodos aceptados son: efectivo (0), tarjeta de crédito (1), tarjeta de débito (2) o débito (3)")
+                .InclusiveBetween(0, 3).WithMessage("El método de pago seleccionado no está disponible. Los métodos aceptados son: efectivo (0), tarjeta de crédito (1), tarjeta de débito (2) o débito (3)");
 
             RuleFor(x => x.PaymentType)
                 .NotNull().WithMessage("El tipo de pago es obligatorio")

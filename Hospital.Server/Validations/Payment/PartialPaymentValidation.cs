@@ -23,7 +23,7 @@ namespace Hospital.Server.Validations.Payment
             When(x => x.PaymentMethod != null, () =>
             {
                 RuleFor(x => x.PaymentMethod)
-                    .InclusiveBetween(0, 2).WithMessage("El método de pago seleccionado no está disponible. Los métodos aceptados son: efectivo (0), tarjeta de crédito (1) o tarjeta de débito (2)");
+                    .InclusiveBetween(0, 3).WithMessage("El método de pago seleccionado no está disponible. Los métodos aceptados son: efectivo (0), tarjeta de crédito (1), tarjeta de débito (2) o débito (3)");
             });
 
             When(x => x.PaymentType != null, () =>
