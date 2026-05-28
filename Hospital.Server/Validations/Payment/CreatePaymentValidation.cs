@@ -8,9 +8,23 @@ namespace Hospital.Server.Validations.Payment
     {
         public CreatePaymentValidation()
         {
-            RuleFor(x => x.AppointmentId)
-                .NotNull().WithMessage("La cita asociada es obligatoria")
-                .GreaterThan(0).WithMessage("El identificador de la cita debe ser válido");
+            // Un pago debe estar asociado a una cita O a una orden de laboratorio, nunca a ninguna.
+            RuleFor(x => x)
+                .Must(x => x.AppointmentId != null || x.LabOrderId != null)
+                .WithName("AppointmentId")
+                .WithMessage("El pago debe estar asociado a una cita o a una orden de laboratorio.");
+
+            When(x => x.AppointmentId != null, () =>
+            {
+                RuleFor(x => x.AppointmentId)
+                    .GreaterThan(0).WithMessage("El identificador de la cita debe ser válido");
+            });
+
+            When(x => x.LabOrderId != null, () =>
+            {
+                RuleFor(x => x.LabOrderId)
+                    .GreaterThan(0).WithMessage("El identificador de la orden de laboratorio debe ser válido");
+            });
 
             RuleFor(x => x.Amount)
                 .NotNull().WithMessage("El monto del pago es obligatorio")

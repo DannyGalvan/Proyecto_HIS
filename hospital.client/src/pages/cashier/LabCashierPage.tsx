@@ -8,7 +8,6 @@ import {
   createPayment,
   getPendingOrders,
 } from "../../services/paymentService";
-import { partialUpdateLabOrder } from "../../services/labOrderService";
 import type { PendingOrderResponse } from "../../types/PendingOrderResponse";
 import type {
   PaymentRequest,
@@ -54,13 +53,6 @@ export function LabCashierPage() {
   const paymentMutation = useMutation({
     mutationFn: async (paymentData: PaymentRequest) => {
       const response = await createPayment(paymentData);
-      if (response.success && selectedOrder) {
-        // Update lab order status to 1 (En proceso / Pagada)
-        await partialUpdateLabOrder({
-          id: selectedOrder.orderId,
-          orderStatus: 1,
-        });
-      }
       return response;
     },
     onSuccess: (response) => {

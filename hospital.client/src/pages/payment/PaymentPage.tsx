@@ -7,7 +7,6 @@ import { PaymentModal } from "../../components/payment/PaymentModal";
 import { PendingOrdersTable } from "../../components/payment/PendingOrdersTable";
 import { TableServer } from "../../components/table/TableServer";
 import { partialUpdateDispense } from "../../services/dispenseService";
-import { partialUpdateLabOrder } from "../../services/labOrderService";
 import {
   createPayment,
   getPayments,
@@ -283,14 +282,13 @@ export function PaymentPage() {
         }
 
         try {
-          if (order.orderType === "LabOrder") {
-            await partialUpdateLabOrder({ id: order.orderId, orderStatus: 1 });
-          } else if (order.orderType === "Dispense") {
+          if (order.orderType === "Dispense") {
             await partialUpdateDispense({
               id: order.orderId,
               dispenseStatus: 1,
             });
           }
+          // LabOrder status is updated automatically by the backend on payment creation
         } catch {
           toast.warning(
             `Pago registrado pero no se pudo actualizar el estado de la orden ${order.orderNumber}.`,

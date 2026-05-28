@@ -28,6 +28,7 @@ namespace Hospital.Server.Controllers
     {
         private readonly DataContext _db;
         private readonly IAppointmentStateMachine _stateMachine;
+        private readonly IMapper _mapper;
 
         public PaymentController(
             IEntityService<Payment, PaymentRequest, long> service,
@@ -37,6 +38,7 @@ namespace Hospital.Server.Controllers
         {
             _db = db;
             _stateMachine = stateMachine;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -54,16 +56,47 @@ namespace Hospital.Server.Controllers
         [OperationInfo(DisplayName = "Registrar Pago", Description = "Registra un nuevo pago en el sistema", Icon = "bi-plus-circle", Path = "payment/create", IsVisible = false)]
         public override IActionResult Create([FromBody] PaymentRequest request)
         {
+            // Idempotency check: if a payment with the same key already exists, return it
+            if (!string.IsNullOrEmpty(request.IdempotencyKey))
+            {
+                var existing = _db.Payments
+                    .FirstOrDefault(p => p.IdempotencyKey == request.IdempotencyKey);
+                if (existing != null)
+                {
+                    var existingResponse = _mapper.Map<PaymentResponse>(existing);
+                    return Ok(new Response<PaymentResponse>
+                    {
+                        Success = true,
+                        Data = existingResponse,
+                        Message = "Pago ya registrado anteriormente."
+                    });
+                }
+            }
+
             var result = base.Create(request);
 
-            // After successful payment, transition the appointment to "Confirmada" (ID 2)
-            if (result is OkObjectResult && request.AppointmentId.HasValue && request.AppointmentId > 0)
+            if (result is OkObjectResult okResult)
             {
-                var userId = GetUserId();
-                _ = _stateMachine.TransitionAsync(
-                    request.AppointmentId.Value,
-                    AppointmentStateMachine.STATUS_CONFIRMADA,
-                    userId).GetAwaiter().GetResult();
+                // After successful payment, transition the appointment to "Confirmada" (ID 2)
+                if (request.AppointmentId.HasValue && request.AppointmentId > 0)
+                {
+                    var userId = GetUserId();
+                    _ = _stateMachine.TransitionAsync(
+                        request.AppointmentId.Value,
+                        AppointmentStateMachine.STATUS_CONFIRMADA,
+                        userId).GetAwaiter().GetResult();
+                }
+
+                // After successful payment for a lab order, transition it to "En proceso" (status 1)
+                if (request.LabOrderId.HasValue && request.LabOrderId > 0)
+                {
+                    var labOrder = _db.LabOrders.FirstOrDefault(lo => lo.Id == request.LabOrderId.Value);
+                    if (labOrder != null && labOrder.OrderStatus == 0)
+                    {
+                        labOrder.OrderStatus = 1;
+                        _db.SaveChanges();
+                    }
+                }
             }
 
             return result;
