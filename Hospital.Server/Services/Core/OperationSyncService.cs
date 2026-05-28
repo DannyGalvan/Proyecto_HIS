@@ -571,10 +571,13 @@ namespace Hospital.Server.Services.Core
                         continue;
                     }
 
-                    // Cargar asignaciones existentes para este rol
+                    // Cargar asignaciones existentes para este rol (GroupBy para evitar duplicados en BD)
                     var existing = await _db.RolOperations
                         .Where(ro => ro.RolId == role.Id)
-                        .ToDictionaryAsync(ro => ro.OperationId);
+                        .ToListAsync();
+                    var existingDict = existing
+                        .GroupBy(ro => ro.OperationId)
+                        .ToDictionary(g => g.Key, g => g.First());
 
                     foreach (var (opKey, isVisible) in ops)
                     {
@@ -587,7 +590,7 @@ namespace Hospital.Server.Services.Core
                             continue;
                         }
 
-                        if (existing.TryGetValue(op.Id, out var ro))
+                        if (existingDict.TryGetValue(op.Id, out var ro))
                         {
                             // Existe la asignación: solo actualiza IsVisible si difiere
                             if (ro.IsVisible != isVisible)

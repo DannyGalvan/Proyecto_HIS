@@ -357,7 +357,7 @@ namespace Hospital.Server.Mappers
                 .Map(dest => dest.AppointmentId, src => src.AppointmentId)
                 .Map(dest => dest.LabOrderId, src => src.LabOrderId)
                 .Map(dest => dest.DispenseId, src => src.DispenseId)
-                .Map(dest => dest.TransactionNumber, src => src.TransactionNumber)
+                .Map(dest => dest.TransactionNumber, src => src.TransactionNumber ?? $"TXN-{Guid.NewGuid():N}")
                 .Map(dest => dest.Amount, src => src.Amount)
                 .Map(dest => dest.PaymentMethod, src => src.PaymentMethod)
                 .Map(dest => dest.PaymentType, src => src.PaymentType)
