@@ -18,17 +18,26 @@ namespace Hospital.Server.Validations.Dispense
                 .NotNull().WithMessage("La receta asociada es obligatoria")
                 .GreaterThan(0).WithMessage("La receta asociada debe ser mayor a 0");
 
-            RuleFor(x => x.PatientId)
-                .NotNull().WithMessage("El paciente es obligatorio")
-                .GreaterThan(0).WithMessage("El paciente debe ser mayor a 0");
+            // PatientId is optional — resolved server-side from Prescription → Consultation → Appointment chain
+            When(x => x.PatientId.HasValue, () =>
+            {
+                RuleFor(x => x.PatientId)
+                    .GreaterThan(0).WithMessage("El paciente debe ser mayor a 0");
+            });
 
-            RuleFor(x => x.PharmacistId)
-                .NotNull().WithMessage("El farmacéutico es obligatorio")
-                .GreaterThan(0).WithMessage("El farmacéutico debe ser mayor a 0");
+            // PharmacistId is optional — resolved server-side from JWT claims
+            When(x => x.PharmacistId.HasValue, () =>
+            {
+                RuleFor(x => x.PharmacistId)
+                    .GreaterThan(0).WithMessage("El farmacéutico debe ser mayor a 0");
+            });
 
-            RuleFor(x => x.DispenseStatus)
-                .NotNull().WithMessage("El estado del despacho es requerido")
-                .InclusiveBetween(0, 4).WithMessage("El estado del despacho debe estar entre 0 y 4");
+            // DispenseStatus is optional — defaults to 1 (dispensed) when not provided
+            When(x => x.DispenseStatus.HasValue, () =>
+            {
+                RuleFor(x => x.DispenseStatus)
+                    .InclusiveBetween(0, 4).WithMessage("El estado del despacho debe estar entre 0 y 4");
+            });
 
             RuleFor(x => x.TotalAmount)
                 .NotNull().WithMessage("El monto total es obligatorio")

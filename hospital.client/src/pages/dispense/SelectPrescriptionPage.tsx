@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { nameRoutes } from "../../configs/constants";
 import { usePrescriptionValidity } from "../../hooks/usePrescriptionValidity";
+import { getDispenses } from "../../services/dispenseService";
 import { getPrescriptions } from "../../services/prescriptionService";
 import type { PrescriptionResponse } from "../../types/PrescriptionResponse";
 import { formatDateTime } from "../../utils/dateFormatter";
@@ -11,8 +12,10 @@ import { LoadingComponent } from "../../components/spinner/LoadingComponent";
 
 function PrescriptionRow({
   prescription,
+  isAlreadyDispensed,
 }: {
   readonly prescription: PrescriptionResponse;
+  readonly isAlreadyDispensed: boolean;
 }) {
   const navigate = useNavigate();
   const { isValid, daysOld } = usePrescriptionValidity(
@@ -23,6 +26,8 @@ function PrescriptionRow({
     () => navigate(`${nameRoutes.dispenseCreate}/${prescription.id}`),
     [navigate, prescription.id],
   );
+
+  const canDispense = isValid && !isAlreadyDispensed;
 
   return (
     <tr className="border-b hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
@@ -36,7 +41,12 @@ function PrescriptionRow({
         {formatDateTime(prescription.prescriptionDate)}
       </td>
       <td className="px-4 py-3 text-center">
-        {isValid ? (
+        {isAlreadyDispensed ? (
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+            <i className="bi bi-bag-check-fill" />
+            Ya despachada
+          </span>
+        ) : isValid ? (
           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
             <i className="bi bi-check-circle-fill" />
             Vigente ({daysOld}d)
@@ -54,13 +64,13 @@ function PrescriptionRow({
       <td className="px-4 py-3 text-center">
         <Button
           className="font-semibold"
-          isDisabled={!isValid}
+          isDisabled={!canDispense}
           size="sm"
-          variant={isValid ? "primary" : "secondary"}
+          variant={canDispense ? "primary" : "secondary"}
           onPress={handleDispense}
         >
-          <i className="bi bi-bag-plus mr-1" />
-          Despachar
+          <i className={`bi ${isAlreadyDispensed ? "bi-bag-check" : "bi-bag-plus"} mr-1`} />
+          {isAlreadyDispensed ? "Despachada" : "Despachar"}
         </Button>
       </td>
     </tr>
@@ -93,6 +103,24 @@ export function SelectPrescriptionPage() {
   });
 
   const prescriptions = data?.data ?? [];
+
+  // Fetch existing dispenses to mark already-dispensed prescriptions
+  const prescriptionIds = prescriptions.map((rx) => rx.id);
+  const { data: dispensesData } = useQuery({
+    queryKey: ["dispenses-for-prescriptions", prescriptionIds],
+    queryFn: () =>
+      getDispenses({
+        pageNumber: 1,
+        pageSize: 50,
+        filters: "State:eq:1",
+        includeTotal: false,
+      }),
+    enabled: prescriptionIds.length > 0,
+  });
+
+  const dispensedPrescriptionIds = new Set(
+    (dispensesData?.data ?? []).map((d) => d.prescriptionId).filter(Boolean),
+  );
 
   const handleBack = useCallback(
     () => navigate(nameRoutes.dispense),
@@ -183,7 +211,11 @@ export function SelectPrescriptionPage() {
               </thead>
               <tbody>
                 {prescriptions.map((rx) => (
-                  <PrescriptionRow key={rx.id} prescription={rx} />
+                  <PrescriptionRow
+                    key={rx.id}
+                    isAlreadyDispensed={dispensedPrescriptionIds.has(rx.id)}
+                    prescription={rx}
+                  />
                 ))}
               </tbody>
             </table>

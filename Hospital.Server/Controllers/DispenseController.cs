@@ -1,4 +1,5 @@
 using Hospital.Server.Attributes;
+using Hospital.Server.Context;
 using Hospital.Server.Entities.Models;
 using Hospital.Server.Entities.Request;
 using Hospital.Server.Entities.Response;
@@ -23,10 +24,14 @@ namespace Hospital.Server.Controllers
     )]
     public class DispenseController : CrudController<Dispense, DispenseRequest, DispenseResponse, long>
     {
+        private readonly DataContext _db;
+
         public DispenseController(
             IEntityService<Dispense, DispenseRequest, long> service,
-            IMapper mapper) : base(service, mapper)
+            IMapper mapper,
+            DataContext db) : base(service, mapper)
         {
+            _db = db;
         }
 
         [HttpGet]
@@ -42,7 +47,48 @@ namespace Hospital.Server.Controllers
         [HttpPost]
         [RequireOperation]
         [OperationInfo(DisplayName = "Crear Despacho", Description = "Crea un nuevo despacho de medicamentos", Icon = "bi-plus-circle", Path = "dispense/create", IsVisible = false)]
-        public override IActionResult Create([FromBody] DispenseRequest request) => base.Create(request);
+        public override IActionResult Create([FromBody] DispenseRequest request)
+        {
+            // Guard: prevent duplicate dispense for the same prescription
+            if (request.PrescriptionId.HasValue && request.PrescriptionId > 0)
+            {
+                bool alreadyDispensed = _db.Dispenses
+                    .Any(d => d.PrescriptionId == request.PrescriptionId.Value && d.State == 1);
+
+                if (alreadyDispensed)
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = $"La receta #{request.PrescriptionId} ya fue despachada anteriormente. No se puede despachar una receta más de una vez."
+                    });
+            }
+
+            // Set pharmacist from JWT if not provided by client
+            if (!request.PharmacistId.HasValue || request.PharmacistId <= 0)
+                request.PharmacistId = GetUserId();
+
+            // Default dispense status to 1 (dispensed) if not provided
+            if (!request.DispenseStatus.HasValue)
+                request.DispenseStatus = 1;
+
+            // Resolve PatientId from Prescription → MedicalConsultation → Appointment chain
+            if ((!request.PatientId.HasValue || request.PatientId <= 0) && request.PrescriptionId.HasValue)
+            {
+                var patientId = _db.Prescriptions
+                    .Where(p => p.Id == request.PrescriptionId.Value)
+                    .Select(p => p.Consultation != null
+                        ? p.Consultation.Appointment != null
+                            ? (long?)p.Consultation.Appointment.PatientId
+                            : (long?)null
+                        : (long?)null)
+                    .FirstOrDefault();
+
+                if (patientId.HasValue && patientId > 0)
+                    request.PatientId = patientId;
+            }
+
+            return base.Create(request);
+        }
 
         [HttpPut]
         [RequireOperation]

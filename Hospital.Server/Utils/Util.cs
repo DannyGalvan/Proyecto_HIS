@@ -32,6 +32,8 @@ namespace Hospital.Server.Utils
                         continue;
                     case "Password":
                         continue;
+                    case "RowVersion":
+                        continue;
                 }
 
                 if (updatedValue == null || !property.CanWrite) continue;

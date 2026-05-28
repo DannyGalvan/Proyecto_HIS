@@ -1,17 +1,12 @@
 import { Form } from "@heroui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DEFAULT_BRANCH_ID } from "../../configs/constants";
 import {
   createDispense,
   createDispenseItem,
 } from "../../services/dispenseService";
-import {
-  getMedicineInventory,
-  partialUpdateMedicineInventory,
-} from "../../services/medicineService";
+import { partialUpdateMedicineInventory } from "../../services/medicineService";
 import { getPrescriptionItems } from "../../services/prescriptionService";
-import type { MedicineInventoryResponse } from "../../types/MedicineInventoryResponse";
 import {
   PAYMENT_METHODS,
   type PaymentMethodValue,
@@ -50,58 +45,28 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
     enabled: !!prescriptionId,
   });
 
-  // ── Fetch inventory for each medicine name ───────────────────────────────
   const prescriptionItems = useMemo(() => itemsData?.data ?? [], [itemsData]);
 
-  const { data: inventoryData } = useQuery({
-    queryKey: ["dispenseInventory", prescriptionId],
-    queryFn: async () => {
-      if (prescriptionItems.length === 0) return [];
-      const results: MedicineInventoryResponse[] = [];
-      for (const item of prescriptionItems) {
-        const res = await getMedicineInventory({
-          filters: `Medicine.Name:like:${item.medicineName},BranchId:eq:${DEFAULT_BRANCH_ID}`,
-          include: "Medicine",
-          pageSize: 1,
-          pageNumber: 1,
-          includeTotal: false,
-        });
-        if (res.data && res.data.length > 0) {
-          results.push(res.data[0]);
-        } else {
-          // Push a sentinel so index alignment is preserved
-          results.push(null as unknown as MedicineInventoryResponse);
-        }
-      }
-      return results;
-    },
-    enabled: prescriptionItems.length > 0,
-  });
-
-  // ── Build rows once both datasets are available ──────────────────────────
+  // ── Build rows once prescription items are available (inventory selected by pharmacist) ──
   useEffect(() => {
     if (prescriptionItems.length === 0) return;
-    const inv = inventoryData ?? [];
     setRows(
-      prescriptionItems.map((item, idx) => {
-        const inventory = inv[idx] ?? null;
-        return {
-          prescriptionItem: item,
-          inventory,
-          quantity: 1,
-          unitPrice: inventory?.medicine?.defaultPrice ?? 0,
-          wasSubstituted: false,
-          substitutionReason: "",
-        };
-      }),
+      prescriptionItems.map((item) => ({
+        prescriptionItem: item,
+        inventory: null,
+        quantity: 1,
+        unitPrice: 0,
+        wasSubstituted: false,
+        substitutionReason: "",
+      })),
     );
-  }, [prescriptionItems, inventoryData]);
+  }, [prescriptionItems]);
 
   // ── Row field handlers ───────────────────────────────────────────────────
   const updateRow = useCallback(
     (
       idx: number,
-      patch: Partial<Omit<DispenseItemRow, "prescriptionItem" | "inventory">>,
+      patch: Partial<Omit<DispenseItemRow, "prescriptionItem">>,
     ) => {
       setRows((prev) =>
         prev.map((row, i) => (i === idx ? { ...row, ...patch } : row)),
@@ -156,11 +121,10 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
         }
       }
 
-      // 1. Create dispense header (includes payment method per RN-GLOBAL-004)
+      // 1. Create dispense header — PharmacistId, PatientId and DispenseStatus resolved server-side
       const dispenseRes = await doCreateDispense({
         prescriptionId,
         totalAmount: Math.round(total * 100) / 100,
-        paymentMethod,
         state: 1,
       });
 
@@ -265,42 +229,16 @@ export function DispenseForm({ prescriptionId, onSuccess }: DispenseFormProps) {
       </div>
 
       <Form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-        {/* Items table */}
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold">
-                  Medicamento
-                </th>
-                <th className="px-4 py-3 text-center font-semibold w-28">
-                  Cantidad
-                </th>
-                <th className="px-4 py-3 text-center font-semibold w-32">
-                  Precio Unit.
-                </th>
-                <th className="px-4 py-3 text-center font-semibold w-28">
-                  Subtotal
-                </th>
-                <th className="px-4 py-3 text-center font-semibold w-28">
-                  Sustitución
-                </th>
-                <th className="px-4 py-3 text-left font-semibold">
-                  Razón de Sustitución
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {rows.map((row, idx) => (
-                <DispenseItemRowComponent
-                  key={row.prescriptionItem.id}
-                  idx={idx}
-                  row={row}
-                  onUpdateRow={updateRow}
-                />
-              ))}
-            </tbody>
-          </table>
+        {/* Items — card layout (avoids table overflow clipping dropdowns) */}
+        <div className="flex flex-col gap-3">
+          {rows.map((row, idx) => (
+            <DispenseItemRowComponent
+              key={row.prescriptionItem.id}
+              idx={idx}
+              row={row}
+              onUpdateRow={updateRow}
+            />
+          ))}
         </div>
 
         {/* Total */}
