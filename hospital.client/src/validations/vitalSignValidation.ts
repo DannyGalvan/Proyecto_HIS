@@ -14,7 +14,7 @@ const numericRange = (
     .transform((val) => (typeof val === "string" ? Number(val) : val))
     .pipe(
       z
-        .number({ invalid_type_error: `${fieldName} debe ser un número` })
+        .number({ error: `${fieldName} debe ser un número` })
         .refine((v) => !isNaN(v), { message: `${fieldName} es obligatorio` })
         .refine((v) => v >= min, {
           message: `${fieldName} debe ser al menos ${min} ${unit}`,

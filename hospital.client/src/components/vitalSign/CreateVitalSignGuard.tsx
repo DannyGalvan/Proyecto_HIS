@@ -70,9 +70,10 @@ export function CreateVitalSignGuard({
         navigate(nameRoutes.nurseDashboard);
       } else {
         // Show backend validation errors if available, otherwise generic message
-        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-          const errors = response.data as Array<{ errorMessage?: string; propertyName?: string }>;
-          const errorMessages = errors
+        const responseData = (response as Record<string, unknown>).data;
+        if (responseData && Array.isArray(responseData) && responseData.length > 0) {
+          const validationErrors = responseData as Array<{ errorMessage?: string; propertyName?: string }>;
+          const errorMessages = validationErrors
             .map((e) => e.errorMessage ?? e.propertyName ?? "Error de validación")
             .join(". ");
           toast.danger(errorMessages);
