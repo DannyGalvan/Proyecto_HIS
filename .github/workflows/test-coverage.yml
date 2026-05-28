@@ -87,9 +87,6 @@ jobs:
             const frontendPass = parseFloat(frontendCoverage) >= threshold;
             const backendDisplay = parseFloat(backendCoverage) === 0 ? 'N/A (report not found)' : `${backendCoverage}%`;
             const backendIcon = parseFloat(backendCoverage) === 0 ? '⚠️' : (backendPass ? '✅' : '❌');
-            const frontendPass = parseFloat(frontendCoverage) >= threshold;
-            const backendDisplay = parseFloat(backendCoverage) === 0 ? 'N/A' : `${backendCoverage}%`;
-            const backendIcon = parseFloat(backendCoverage) === 0 ? '⚠️' : (parseFloat(backendCoverage) >= threshold ? '✅' : '❌');
 
             const body = [
               '## 📊 Test Coverage Report',

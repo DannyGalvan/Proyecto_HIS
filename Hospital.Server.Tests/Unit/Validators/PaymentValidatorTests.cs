@@ -25,19 +25,32 @@ public class PaymentValidatorTests
         CreatedBy = 1
     };
 
-    #region AppointmentId Validation
+    #region AppointmentId / LabOrderId Association Validation
 
     [Fact]
-    public void CreatePayment_WithNullAppointmentId_ShouldFail()
+    public void CreatePayment_WithNullAppointmentIdAndNullLabOrderId_ShouldFail()
     {
         var request = CreateValidPaymentRequest();
         request.AppointmentId = null;
+        request.LabOrderId = null;
 
         var result = _validator.Validate(request);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "AppointmentId"
-            && e.ErrorMessage == "La cita asociada es obligatoria");
+            && e.ErrorMessage == "El pago debe estar asociado a una cita o a una orden de laboratorio.");
+    }
+
+    [Fact]
+    public void CreatePayment_WithOnlyLabOrderId_ShouldPass()
+    {
+        var request = CreateValidPaymentRequest();
+        request.AppointmentId = null;
+        request.LabOrderId = 5;
+
+        var result = _validator.Validate(request);
+
+        result.Errors.Should().NotContain(e => e.PropertyName == "AppointmentId");
     }
 
     [Fact]
@@ -51,6 +64,20 @@ public class PaymentValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "AppointmentId"
             && e.ErrorMessage == "El identificador de la cita debe ser válido");
+    }
+
+    [Fact]
+    public void CreatePayment_WithZeroLabOrderId_ShouldFail()
+    {
+        var request = CreateValidPaymentRequest();
+        request.AppointmentId = null;
+        request.LabOrderId = 0;
+
+        var result = _validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "LabOrderId"
+            && e.ErrorMessage == "El identificador de la orden de laboratorio debe ser válido");
     }
 
     #endregion
