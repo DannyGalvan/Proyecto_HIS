@@ -33,11 +33,21 @@ namespace Hospital.Server.Validations.MedicalConsultation
                 .NotEmpty().WithMessage("Los hallazgos clínicos son obligatorios")
                 .MaximumLength(5000).WithMessage("Los hallazgos clínicos no pueden exceder 5000 caracteres");
 
-            When(x => !string.IsNullOrEmpty(x.Diagnosis), () =>
+            // Diagnóstico obligatorio al finalizar consulta (ConsultationStatus == 1)
+            When(x => x.ConsultationStatus == 1, () =>
             {
                 RuleFor(x => x.Diagnosis)
-                    .MinimumLength(10).WithMessage("El diagnóstico debe contener entre 10 y 5000 caracteres")
-                    .MaximumLength(5000).WithMessage("El diagnóstico debe contener entre 10 y 5000 caracteres");
+                    .NotNull().WithMessage("No es posible finalizar la consulta sin registrar un diagnóstico")
+                    .NotEmpty().WithMessage("No es posible finalizar la consulta sin registrar un diagnóstico")
+                    .MinimumLength(10).WithMessage("El diagnóstico debe contener al menos 10 caracteres")
+                    .MaximumLength(5000).WithMessage("El diagnóstico no puede exceder 5000 caracteres");
+            });
+
+            When(x => x.ConsultationStatus != 1 && !string.IsNullOrEmpty(x.Diagnosis), () =>
+            {
+                RuleFor(x => x.Diagnosis)
+                    .MinimumLength(10).WithMessage("El diagnóstico debe contener al menos 10 caracteres")
+                    .MaximumLength(5000).WithMessage("El diagnóstico no puede exceder 5000 caracteres");
             });
 
             When(x => !string.IsNullOrEmpty(x.DiagnosisCie10Code), () =>

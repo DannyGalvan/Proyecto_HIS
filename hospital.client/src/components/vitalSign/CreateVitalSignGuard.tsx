@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useNavigate } from "react-router";
 import { nameRoutes } from "../../configs/constants";
+import { computeClinicalAlerts } from "../../utils/clinicalAlerts";
 import {
   createVitalSign,
   getVitalSignByAppointment,
@@ -51,7 +52,28 @@ export function CreateVitalSignGuard({
 
   const handleSubmit = useCallback(
     async (form: VitalSignRequest) => {
-      const response = await createVitalSign(form);
+      // Coerce string values from inputs to numbers before sending to backend
+      const numericForm = {
+        bloodPressureSystolic: form.bloodPressureSystolic != null ? Number(form.bloodPressureSystolic) : null,
+        bloodPressureDiastolic: form.bloodPressureDiastolic != null ? Number(form.bloodPressureDiastolic) : null,
+        temperature: form.temperature != null ? Number(form.temperature) : null,
+        weight: form.weight != null ? Number(form.weight) : null,
+        height: form.height != null ? Number(form.height) : null,
+        heartRate: form.heartRate != null ? Number(form.heartRate) : null,
+      };
+
+      // Compute clinical alerts and persist them (e.g. "Fiebre", "Hipertensión")
+      const alerts = computeClinicalAlerts(numericForm);
+
+      const payload: VitalSignRequest = {
+        ...form,
+        ...numericForm,
+        appointmentId: form.appointmentId != null ? Number(form.appointmentId) : null,
+        nurseId: form.nurseId != null ? Number(form.nurseId) : null,
+        state: form.state != null ? Number(form.state) : null,
+        clinicalAlerts: alerts.length > 0 ? alerts.join(", ") : null,
+      };
+      const response = await createVitalSign(payload);
       if (response.success) {
         const name = patientName ?? "Paciente";
         if (form.isEmergency) {
