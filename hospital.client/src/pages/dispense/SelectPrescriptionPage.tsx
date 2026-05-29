@@ -113,6 +113,7 @@ export function SelectPrescriptionPage() {
         pageNumber: 1,
         pageSize: 50,
         filters: "State:eq:1",
+        include: "",
         includeTotal: false,
       }),
     enabled: prescriptionIds.length > 0,

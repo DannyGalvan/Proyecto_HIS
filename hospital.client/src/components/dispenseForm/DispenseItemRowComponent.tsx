@@ -83,6 +83,7 @@ export function DispenseItemRowComponent({
             filters: `Name:like:${value.trim()}`,
             pageSize: 20,
             pageNumber: 1,
+            include: "",
             includeTotal: false,
           });
           const medicines = medRes.data ?? [];
@@ -96,6 +97,7 @@ export function DispenseItemRowComponent({
             filters: `BranchId:eq:${DEFAULT_BRANCH_ID}`,
             pageSize: 100,
             pageNumber: 1,
+            include: "",
             includeTotal: false,
           });
           const allInv = invRes.data ?? [];
